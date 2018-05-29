@@ -1,0 +1,86 @@
+{
+  "aboutDialogTitle": {
+    "en": "About",
+    "zh": "关于"
+  },
+  "cancel": {
+    "en": "Cancel",
+    "zh": "取消"
+  },
+  "enterYourWalletPassphrase": {
+    "en": "Enter your wallet passphrase:",
+    "zh": "输入您的钱包密码:"
+  },
+  "earlyAccessDialogTitle": {
+    "en": "Contact Us",
+    "zh": "联系菩提"
+  },
+  "earlyAccessDialogMessage": {
+    "en": "Please email contact@bodhi.network for early access.",
+    "zh": "请联系 contact@bodhi.network 获取主链体验版"
+  },
+  "error": {
+    "en": "Error",
+    "zh": "错误"
+  },
+  "functionDisabledUntilInitialized": {
+    "en": "This function is disabled until initializing is finished.",
+    "zh": "初始化完成后方能使用次功能"
+  },
+  "launch": {
+    "en": "Launch",
+    "zh": "启动"
+  },
+  "mainnet": {
+    "en": "Mainnet",
+    "zh": "主链"
+  },
+  "ok": {
+    "en": "OK",
+    "zh": "OK"
+  },
+  "qtumWalletDialogTitle": {
+    "en": "Launch Qtum Wallet?",
+    "zh": "启动量子钱包?"
+  },
+  "qtumWalletDialogMessage": {
+    "en": "You are about to launch the Qtum Wallet. Bodhi will need to be shutdown to run Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again.\n\nBodhi will shutdown shortly. Are you sure to want to continue?",
+    "zh": "菩提即将关闭已启动量子钱包。再次启动菩提前，请关闭量子钱包。\n\n菩提即将关闭，请确认是否继续"
+  },
+  "quit": {
+    "en": "Quit",
+    "zh": "退出"
+  },
+  "retry": {
+    "en": "Retry",
+    "zh": "重试"
+  },
+  "selectQtumEnvironment": {
+    "en": "Select QTUM Environment",
+    "zh": "选择量子链网路"
+  },
+  "testnet": {
+    "en": "Testnet",
+    "zh": "测试链"
+  },
+  "unlockWallet": {
+    "en": "Unlock Wallet",
+    "zh": "解锁钱包"
+  },
+  "version": {
+    "en": "Version",
+    "zh": "版本"
+  },
+  "walletUnlockFailed": {
+    "en": "Wallet unlock failed",
+    "zh": "钱包解锁失败"
+  },
+  "backupSuccess": {
+    "en": "Backup success.",
+    "zh": "备份成功"
+  },
+  "importSuccess": {
+    "en": "Import success.",
+    "zh": "导入成功"
+  }
+}
