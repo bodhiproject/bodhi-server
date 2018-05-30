@@ -11,7 +11,7 @@ const portscanner = require('portscanner');
 
 const { Config, setQtumEnv, isMainnet, getRPCPassword } = require('./config/config');
 const { initDB } = require('./db/nedb');
-const { getLogger } = require('./utils/logger');
+const { initLogger, getLogger } = require('./utils/logger');
 const Utils = require('./utils/utils');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
@@ -220,6 +220,7 @@ process.on('SIGHUP', exit);
 // Init all services
 async function start() {
   setQtumEnv(blockchainEnv.TESTNET);
+  initLogger();
   await initDB();
   startRestifyServer();
   startQtumProcess(false);

@@ -56,11 +56,12 @@ function initLogger() {
 
 function getLogger() {
   if (!logger) {
-    initLogger();
+    throw Error('Logger has not been initialized');
   }
   return logger;
 }
 
 module.exports = {
+  initLogger,
   getLogger,
 };
