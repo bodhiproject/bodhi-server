@@ -221,6 +221,7 @@ process.on('SIGHUP', exit);
 setQtumEnv(blockchainEnv.TESTNET);
 await initDB();
 startRestifyServer();
+startQtumProcess(false);
 
 module.exports = {
   startQtumProcess,
