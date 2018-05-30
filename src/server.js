@@ -17,7 +17,7 @@ const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
-const { blockchainEnv, ipcEvent, execFile } = require('./constants');
+const { ipcEvent, execFile } = require('./constants');
 const { getInstance } = require('./qclient');
 const Wallet = require('./api/wallet');
 
@@ -155,7 +155,7 @@ async function checkWalletEncryption() {
   isEncrypted = !_.isUndefined(res.unlocked_until);
 
   if (isEncrypted) {
-    throw Error('This wallet is encrypted. Please use a non-encrypted wallet for the server.');
+    throw Error('Your wallet is encrypted. Please use a non-encrypted wallet for the server.');
   } else {
     startServices();
   }
@@ -212,18 +212,18 @@ function exit(signal) {
   }, 500);
 }
 
-process.on('SIGINT', exit);
-process.on('SIGTERM', exit);
-process.on('SIGHUP', exit);
-
-// Init all services
-async function startServer() {
-  setQtumEnv(blockchainEnv.TESTNET);
+// Start all services
+async function startServer(env) {
+  setQtumEnv(env);
   initLogger();
   await initDB();
   startRestifyServer();
   startQtumProcess(false);
 }
+
+process.on('SIGINT', exit);
+process.on('SIGTERM', exit);
+process.on('SIGHUP', exit);
 
 module.exports = {
   startServer,
