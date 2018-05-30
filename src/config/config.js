@@ -45,7 +45,7 @@ const isMainnet = () => {
 const getRPCPassword = () => {
   let password = rpcPassword;
   _.each(process.argv, (arg) => {
-    if (arg.startsWith('--rpcpassword')) {
+    if (_.includes(arg, '-rpcpassword')) {
       password = (_.split(arg, '=', 2))[1];
     }
   });

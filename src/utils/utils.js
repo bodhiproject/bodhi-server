@@ -117,7 +117,7 @@ function getDevQtumPath(exec) {
   // dev, must pass in the absolute path to the bin/ folder
   let qtumPath;
   _.each(process.argv, (arg) => {
-    if (_.includes(arg, 'qtumpath')) {
+    if (_.includes(arg, '-qtumpath')) {
       qtumPath = (_.split(arg, '=', 2))[1];
     }
   });
