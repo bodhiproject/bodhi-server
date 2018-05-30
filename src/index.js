@@ -6,11 +6,11 @@ const { spawn } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
-const { app } = require('electron');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
 const { Config, isMainnet, getRPCPassword } = require('./config/config');
+const { initDB } = require('./db/nedb');
 const { getLogger } = require('./utils/logger');
 const Utils = require('./utils/utils');
 const schema = require('./schema');
@@ -23,6 +23,7 @@ const Wallet = require('./api/wallet');
 
 const emitter = new EventEmitter();
 
+let server;
 let qtumProcess;
 let isEncrypted = false;
 let checkInterval;
@@ -216,6 +217,7 @@ process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
 
+await initDB();
 startRestifyServer();
 
 module.exports = {
