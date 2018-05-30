@@ -9,7 +9,7 @@ const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
-const { Config, isMainnet, getRPCPassword } = require('./config/config');
+const { Config, setQtumEnv, isMainnet, getRPCPassword } = require('./config/config');
 const { initDB } = require('./db/nedb');
 const { getLogger } = require('./utils/logger');
 const Utils = require('./utils/utils');
@@ -17,7 +17,7 @@ const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
-const { ipcEvent, execFile } = require('./constants');
+const { blockchainEnv, ipcEvent, execFile } = require('./constants');
 const { getInstance } = require('./qclient');
 const Wallet = require('./api/wallet');
 
@@ -217,6 +217,8 @@ process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
 
+// Init all services
+setQtumEnv(blockchainEnv.TESTNET);
 await initDB();
 startRestifyServer();
 
