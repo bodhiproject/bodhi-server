@@ -13,7 +13,6 @@ const DecentralizedOracle = require('../api/decentralized_oracle');
 const Transaction = require('../api/transaction');
 const QtumUtils = require('../api/qtum_utils');
 const { showSaveDialog, showImportDialog } = require('../utils/emitterHelper');
-
 const { getInstance } = require('../qclient');
 
 const apiRouter = new Router();
