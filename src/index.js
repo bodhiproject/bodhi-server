@@ -9,7 +9,9 @@ const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
-const { Config, setQtumEnv, isMainnet, getRPCPassword } = require('./config/config');
+const {
+  Config, setQtumEnv, isMainnet, getRPCPassword,
+} = require('./config/config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
 const Utils = require('./utils/utils');

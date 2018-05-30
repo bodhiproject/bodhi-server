@@ -31,7 +31,7 @@ function getBaseDataDir() {
       break;
     }
     case 'linux': {
-      osDataDir = `${process.env.HOME}/.config`
+      osDataDir = `${process.env.HOME}/.config`;
       break;
     }
     default: {
@@ -154,7 +154,7 @@ function getProdQtumPath(exec) {
         case execFile.QTUMD: {
           path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
           break;
-        } 
+        }
         case execFile.QTUM_QT: {
           path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
           break;
