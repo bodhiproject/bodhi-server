@@ -155,8 +155,7 @@ async function checkWalletEncryption() {
   isEncrypted = !_.isUndefined(res.unlocked_until);
 
   if (isEncrypted) {
-    // Show wallet unlock prompt
-    emitter.emit(ipcEvent.SHOW_WALLET_UNLOCK);
+    throw Error('This wallet is encrypted. Please use a non-encrypted wallet for the server.');
   } else {
     startServices();
   }
