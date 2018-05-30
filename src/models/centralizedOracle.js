@@ -4,7 +4,7 @@ const _ = require('lodash');
 const Decoder = require('qweb3').Decoder;
 const Web3Utils = require('web3-utils');
 
-const { isMainnet } = require('../../config/config');
+const { isMainnet } = require('../config/config');
 
 class CentralizedOracle {
   constructor(blockNum, txid, rawLog) {
