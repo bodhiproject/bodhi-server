@@ -1,6 +1,5 @@
 const fs = require('fs-extra');
 const _ = require('lodash');
-const { app } = require('electron');
 const Web3Utils = require('web3-utils');
 
 const { Config, isMainnet } = require('../config/config');
@@ -146,7 +145,7 @@ function getProdQtumPath(exec) {
         case execFile.QTUMD: {
           path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
           break;
-        }
+        } 
         case execFile.QTUM_QT: {
           path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
           break;
