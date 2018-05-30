@@ -10,20 +10,56 @@ const { getLogger } = require('./logger');
 
 const DIR_DEV = 'dev';
 
-// Checks for dev flag
+/*
+* Checks for dev flag
+*/
 function isDevEnv() {
   return _.includes(process.argv, '--dev');
 }
 
-// Returns the path where the data directory is, and also creates the directory if it doesn't exist.
+/*
+* Returns the path where the data directory is, and also creates the directory if it doesn't exist.
+*/
 function getBaseDataDir() {
-  const osDataDir = app.getPath('userData');
+  let osDataDir;
+  switch (process.platform) {
+    case 'darwin': {
+      osDataDir = `${process.env.HOME}/Library/Application Support`;
+      break;
+    }
+    case 'win32': {
+      osDataDir = process.env.APPDATA;
+      break;
+    }
+    case 'linux': {
+      osDataDir = `${process.env.HOME}/.config`
+      break;
+    }
+    default: {
+      throw Error(`Operating system not supported: ${process.platform}`);
+    }
+  }
+  osDataDir += '/Bodhi';
+
   const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
   let basePath = `${osDataDir}/${pathPrefix}`;
   if (isDevEnv()) {
     basePath += '/dev';
   }
   return basePath;
+}
+
+/*
+* Returns the path where the local cache data (Transaction table) directory is, and also creates the directory if it doesn't exist.
+* The Local cache should exist regardless of version change, for now
+*/
+function getLocalCacheDataDir() {
+  const dataDir = `${getBaseDataDir()}/local/nedb`;
+
+  // Create data dir if needed
+  fs.ensureDirSync(dataDir);
+
+  return dataDir;
 }
 
 // Returns the path where the blockchain version directory is.
@@ -71,19 +107,6 @@ function getLogDir() {
   fs.ensureDirSync(logDir);
 
   return logDir;
-}
-
-/*
-* Returns the path where the local cache data (Transaction table) directory is, and also creates the directory if it doesn't exist.
-* The Local cache should exist regardless of version change, for now
-*/
-function getLocalCacheDataDir() {
-  const dataDir = `${getBaseDataDir()}/local/nedb`;
-
-  // Create data dir if needed
-  fs.ensureDirSync(dataDir);
-
-  return dataDir;
 }
 
 /*
@@ -265,7 +288,9 @@ async function isAllowanceEnough(owner, spender, amount) {
   }
 }
 
-// Get correct gas limit determined if voting over consensus threshold or not
+/*
+* Get correct gas limit determined if voting over consensus threshold or not
+*/
 async function getVotingGasLimit(oraclesDb, oracleAddress, voteOptionIdx, voteAmount) {
   const oracle = await oraclesDb.findOne({ address: oracleAddress }, { consensusThreshold: 1, amounts: 1 });
   if (!oracle) {
@@ -282,10 +307,10 @@ async function getVotingGasLimit(oraclesDb, oracleAddress, voteOptionIdx, voteAm
 module.exports = {
   isDevEnv,
   getBaseDataDir,
+  getLocalCacheDataDir,
   getVersionDir,
   getDataDir,
   getLogDir,
-  getLocalCacheDataDir,
   getQtumPath,
   hexToDecimalString,
   hexArrayToDecimalArray,
