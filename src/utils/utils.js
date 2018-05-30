@@ -115,7 +115,16 @@ function getLogDir() {
 */
 function getDevQtumPath(exec) {
   // dev, must pass in the absolute path to the bin/ folder
-  const qtumPath = (_.split(process.argv[2], '=', 2))[1];
+  let qtumPath;
+  _.each(process.argv, (arg) => {
+    if (_.includes(arg, 'qtumpath')) {
+      qtumPath = (_.split(arg, '=', 2))[1];
+    }
+  });
+
+  if (!qtumPath) {
+    throw Error('Must pass in the qtumpath flag with the path to qtumd');
+  }
 
   switch (exec) {
     case execFile.QTUMD: {
@@ -125,7 +134,7 @@ function getDevQtumPath(exec) {
       return `${qtumPath}/qtum-qt`;
     }
     default: {
-      throw new Error(`Invalid execFile type: ${exec}`);
+      throw Error(`Invalid execFile type: ${exec}`);
     }
   }
 }
