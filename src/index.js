@@ -59,6 +59,20 @@ function getQtumProcess() {
   return qtumProcess;
 }
 
+// Ensure qtumd is running before starting sync/API
+async function checkQtumdInit() {
+  try {
+    // getInfo throws an error if trying to be called before qtumd is running
+    const info = await getInstance().getInfo();
+
+    // no error was caught, qtumd is initialized
+    clearInterval(checkInterval);
+    checkWalletEncryption();
+  } catch (err) {
+    getLogger().debug(err.message);
+  }
+}
+
 function startQtumProcess(reindex) {
   const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
   if (!isMainnet()) {
@@ -161,20 +175,6 @@ async function checkApiInit() {
       clearInterval(checkApiInterval);
       setTimeout(() => emitter.emit(ipcEvent.SERVICES_RUNNING), 1000);
     }
-  } catch (err) {
-    getLogger().debug(err.message);
-  }
-}
-
-// Ensure qtumd is running before starting sync/API
-async function checkQtumdInit() {
-  try {
-    // getInfo throws an error if trying to be called before qtumd is running
-    const info = await getInstance().getInfo();
-
-    // no error was caught, qtumd is initialized
-    clearInterval(checkInterval);
-    checkWalletEncryption();
   } catch (err) {
     getLogger().debug(err.message);
   }
