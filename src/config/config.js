@@ -27,22 +27,24 @@ const Config = {
 let qtumEnv; // Qtumd environment var: testnet/mainnet
 const rpcPassword = getRandomPassword(); // Generate random password for every session
 
-const setQtumEnv = (env) => {
+function setQtumEnv(env) {
   qtumEnv = env;
-};
+}
 
-const getQtumEnv = () => qtumEnv;
+function getQtumEnv() {
+  return qtumEnv;
+}
 
-const isMainnet = () => {
+function isMainnet() {
   // Throw an error to ensure no code is using this check before it is initialized
   if (!qtumEnv) {
-    throw new Error('qtumEnv not initialized yet before checking env');
+    throw Error('qtumEnv not initialized yet before checking env');
   }
 
   return qtumEnv === blockchainEnv.MAINNET;
-};
+}
 
-const getRPCPassword = () => {
+function getRPCPassword() {
   let password = rpcPassword;
   _.each(process.argv, (arg) => {
     if (_.includes(arg, '-rpcpassword')) {
@@ -51,14 +53,16 @@ const getRPCPassword = () => {
   });
 
   return password;
-};
+}
 
-const getQtumRPCAddress = () => {
+function getQtumRPCAddress() {
   const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
   return `http://${Config.RPC_USER}:${getRPCPassword()}@localhost:${port}`;
-};
+}
 
-const getQtumExplorerUrl = () => (isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET);
+function getQtumExplorerUrl() {
+  return isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET;
+}
 
 /*
 * Gets the smart contract metadata based on version and environment.
