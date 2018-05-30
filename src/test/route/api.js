@@ -5,12 +5,22 @@ const apiRouter = require('../../route/api');
 
 const expect = chai.expect;
 
-let server;
 let routes;
 
 describe('API Routes', () => {
   before(() => {
-    server = require('../../index').server;
+    // Init Restify server
+    const server = restify.createServer({
+      title: 'Bodhi Server',
+    });
+    const cors = corsMiddleware({
+      origins: ['*'],
+    });
+    server.pre(cors.preflight);
+    server.use(cors.actual);
+    server.use(restify.plugins.bodyParser({ mapParams: true }));
+    server.use(restify.plugins.queryParser());
+
     apiRouter.applyRoutes(server);
     routes = server.routes;
   });

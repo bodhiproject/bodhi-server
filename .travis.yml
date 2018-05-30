@@ -30,6 +30,6 @@ script:
   - ./qtum-0.14.16/bin/qtumd -testnet -logevents -rpcuser=bodhi -rpcpassword=bodhi -datadir=./test/data/.qtum & 
   - sleep 10
   - npm test
-
+  
 after_failure:
   - cat test/data/.qtum/testnet3/debug.log
