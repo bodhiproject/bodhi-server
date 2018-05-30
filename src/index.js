@@ -218,10 +218,14 @@ process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
 
 // Init all services
-setQtumEnv(blockchainEnv.TESTNET);
-await initDB();
-startRestifyServer();
-startQtumProcess(false);
+async function start() {
+  setQtumEnv(blockchainEnv.TESTNET);
+  await initDB();
+  startRestifyServer();
+  startQtumProcess(false);
+}
+
+start();
 
 module.exports = {
   startQtumProcess,
