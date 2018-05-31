@@ -5,15 +5,12 @@ module.exports = {
   },
 
   ipcEvent: {
+    QTUMD_ERROR: 'qtumd-error',
     QTUMD_KILLED: 'qtumd-killed',
-    STARTUP_ERROR: 'startup-error',
-    ON_WALLET_ENCRYPTED: 'on-wallet-encrypted',
-    SHOW_WALLET_UNLOCK: 'show-wallet-unlock',
-    SERVICES_RUNNING: 'services-running',
+    API_INITIALIZED: 'api-initialized',
+    WALLET_ENCRYPTED: 'wallet-encrypted',
     WALLET_BACKUP: 'wallet-backup',
     WALLET_IMPORT: 'wallet-import',
-    BACKUP_FILE: 'backup-file',
-    RESTORE_FILE: 'restore-file',
   },
 
   txState: {
