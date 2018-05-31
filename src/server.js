@@ -12,6 +12,7 @@ const portscanner = require('portscanner');
 const { Config, setQtumEnv, isMainnet, getRPCPassword } = require('./config/config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
+const { getEmitter } = require('./utils/emitterHelper');
 const Utils = require('./utils/utils');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
@@ -163,7 +164,7 @@ async function checkWalletEncryption() {
 
   if (isEncrypted) {
     if (_.includes(process.argv, '--encryptok')) {
-      
+      getEmitter().onWalletEncrypted();
     } else {
       throw Error('Your wallet is encrypted. Please use a non-encrypted wallet for the server.');
     }
