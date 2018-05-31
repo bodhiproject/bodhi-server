@@ -68,9 +68,9 @@ function buildTopicFilters({
 }
 
 function buildOracleFilters({
-  OR = [], txid, address, topicAddress, resultSetterQAddress, status, token,
+  OR = [], txid, address, topicAddress, resultSetterQAddress, status, token, notResultSetterQAddress,
 }) {
-  const filter = (txid || address || topicAddress || resultSetterQAddress || status || token) ? {} : null;
+  const filter = (txid || address || topicAddress || resultSetterQAddress || status || token || notResultSetterQAddress) ? {} : null;
   if (txid) {
     filter.txid = txid;
   }
@@ -85,6 +85,8 @@ function buildOracleFilters({
 
   if (resultSetterQAddress) {
     filter.resultSetterQAddress = resultSetterQAddress;
+  } else if (notResultSetterQAddress) {
+    filter.resultSetterQAddress = { $nin: notResultSetterQAddress };
   }
 
   if (status) {
