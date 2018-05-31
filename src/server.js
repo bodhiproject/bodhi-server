@@ -34,6 +34,46 @@ function getQtumProcess() {
   return qtumProcess;
 }
 
+// Checks to see if the qtumd port is still in use
+function checkQtumPort() {
+  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
+  portscanner.checkPortStatus(port, Config.HOSTNAME, (error, status) => {
+    if (status === 'closed') {
+      clearInterval(shutdownInterval);
+
+      // Slight delay before sending qtumd killed signal
+      setTimeout(() => emitter.emit(ipcEvent.QTUMD_KILLED), 1500);
+    } else {
+      getLogger().debug('waiting for qtumd to shutting down');
+    }
+  });
+}
+
+function killQtumProcess() {
+  if (qtumProcess) {
+    qtumProcess.kill();
+
+    // Repeatedly check if qtum port is in use
+    shutdownInterval = setInterval(checkQtumPort, 500);
+  }
+}
+
+// Checks if the wallet is encrypted to prompt the wallet unlock dialog
+async function checkWalletEncryption() {
+  const res = await Wallet.getWalletInfo();
+  isEncrypted = !_.isUndefined(res.unlocked_until);
+
+  if (isEncrypted) {
+    if (_.includes(process.argv, '--encryptok')) {
+      getEmitter().onWalletEncrypted();
+    } else {
+      throw Error('Your wallet is encrypted. Please use a non-encrypted wallet for the server.');
+    }
+  } else {
+    startServices();
+  }
+}
+
 // Ensure qtumd is running before starting sync/API
 async function checkQtumdInit() {
   try {
@@ -45,12 +85,6 @@ async function checkQtumdInit() {
     checkWalletEncryption();
   } catch (err) {
     getLogger().debug(err.message);
-  }
-}
-
-function killQtumProcess() {
-  if (qtumProcess) {
-    qtumProcess.kill();
   }
 }
 
@@ -139,29 +173,6 @@ async function startAPI() {
   });
 }
 
-function startServices() {
-  startSync();
-  startAPI();
-
-  checkApiInterval = setInterval(checkApiInit, 500);
-}
-
-// Checks if the wallet is encrypted to prompt the wallet unlock dialog
-async function checkWalletEncryption() {
-  const res = await Wallet.getWalletInfo();
-  isEncrypted = !_.isUndefined(res.unlocked_until);
-
-  if (isEncrypted) {
-    if (_.includes(process.argv, '--encryptok')) {
-      getEmitter().onWalletEncrypted();
-    } else {
-      throw Error('Your wallet is encrypted. Please use a non-encrypted wallet for the server.');
-    }
-  } else {
-    startServices();
-  }
-}
-
 // Ensure API is running before loading UI
 async function checkApiInit() {
   try {
@@ -180,28 +191,19 @@ async function checkApiInit() {
   }
 }
 
-// Check if qtumd port is in use before starting qtum-qt
-function checkQtumPort() {
-  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  portscanner.checkPortStatus(port, Config.HOSTNAME, (error, status) => {
-    if (status === 'closed') {
-      clearInterval(shutdownInterval);
+function startServices() {
+  startSync();
+  startAPI();
 
-      // Slight delay before sending qtumd killed signal
-      setTimeout(() => {
-        emitter.emit(ipcEvent.QTUMD_KILLED);
-      }, 1500);
-    } else {
-      getLogger().debug('waiting for qtumd to shutting down');
-    }
-  });
+  checkApiInterval = setInterval(checkApiInit, 500);
 }
 
-function terminateDaemon() {
-  if (qtumProcess) {
-    qtumProcess.kill();
-    shutdownInterval = setInterval(checkQtumPort, 500);
-  }
+// Start all services
+async function startServer(env) {
+  setQtumEnv(env);
+  initLogger();
+  await initDB();
+  startQtumProcess(false);
 }
 
 function exit(signal) {
@@ -213,23 +215,14 @@ function exit(signal) {
   }, 500);
 }
 
-// Start all services
-async function startServer(env) {
-  setQtumEnv(env);
-  initLogger();
-  await initDB();
-  startQtumProcess(false);
-}
-
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
 
 module.exports = {
-  startServer,
+  getQtumProcess,
   killQtumProcess,
   startServices,
-  terminateDaemon,
-  getQtumProcess,
+  startServer,
   emitter,
 };
