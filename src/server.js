@@ -24,33 +24,11 @@ const Wallet = require('./api/wallet');
 
 const emitter = new EventEmitter();
 
-let server;
 let qtumProcess;
 let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
 let shutdownInterval;
-
-// Restify setup
-function startRestifyServer() {
-  server = restify.createServer({
-    title: 'Bodhi Server',
-  });
-  const cors = corsMiddleware({
-    origins: ['*'],
-  });
-  server.pre(cors.preflight);
-  server.use(cors.actual);
-  server.use(restify.plugins.bodyParser({ mapParams: true }));
-  server.use(restify.plugins.queryParser());
-  server.on('after', (req, res, route, err) => {
-    if (route) {
-      getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
-    } else {
-      getLogger().error(`${err.message}`);
-    }
-  });
-}
 
 function isWalletEncrypted() {
   return isEncrypted;
@@ -131,7 +109,22 @@ function startQtumProcess(reindex) {
   checkInterval = setInterval(checkQtumdInit, 500);
 }
 
+// Create Restify server and apply routes
 async function startAPI() {
+  const server = restify.createServer({ title: 'Bodhi API' });
+  const cors = corsMiddleware({ origins: ['*'] });
+  server.pre(cors.preflight);
+  server.use(cors.actual);
+  server.use(restify.plugins.bodyParser({ mapParams: true }));
+  server.use(restify.plugins.queryParser());
+  server.on('after', (req, res, route, err) => {
+    if (route) {
+      getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+    } else {
+      getLogger().error(`${err.message}`);
+    }
+  });
+
   syncRouter.applyRoutes(server);
   apiRouter.applyRoutes(server);
 
@@ -146,7 +139,7 @@ async function startAPI() {
       { execute, subscribe, schema },
       { server, path: '/subscriptions' },
     );
-    getLogger().info(`Bodhi App is running on http://${Config.HOSTNAME}:${Config.PORT}.`);
+    getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT}.`);
   });
 }
 
@@ -229,7 +222,6 @@ async function startServer(env) {
   setQtumEnv(env);
   initLogger();
   await initDB();
-  startRestifyServer();
   startQtumProcess(false);
 }
 
