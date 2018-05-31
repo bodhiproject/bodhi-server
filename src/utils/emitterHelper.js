@@ -4,8 +4,10 @@ const { ipcEvent } = require('../constants');
 
 let emitter;
 
-function initEmitter() {
-  emitter = new EventEmitter();
+function getEmitter() {
+  if (!emitter) {
+    emitter = new EventEmitter();
+  }
   return emitter;
 }
 
@@ -18,7 +20,7 @@ function showImportDialog() {
 }
 
 module.exports = {
-  initEmitter,
+  getEmitter,
   showSaveDialog,
   showImportDialog,
 };
