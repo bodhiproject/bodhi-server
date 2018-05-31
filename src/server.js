@@ -173,7 +173,7 @@ async function checkApiInit() {
 
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
-      setTimeout(() => emitter.emit(ipcEvent.SERVICES_RUNNING), 1000);
+      setTimeout(() => getEmitter().onApiInitialized(), 1000);
     }
   } catch (err) {
     getLogger().debug(err.message);
