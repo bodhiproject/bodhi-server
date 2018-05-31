@@ -8,7 +8,7 @@ class Emitter {
   }
 
   onQtumError(error) {
-    this.emitter.emit(ipcEvent.STARTUP_ERROR, error);
+    this.emitter.emit(ipcEvent.QTUMD_ERROR, error);
   }
 
   onQtumKilled() {
@@ -16,11 +16,11 @@ class Emitter {
   }
 
   onApiInitialized() {
-    this.emitter.emit(ipcEvent.SERVICES_RUNNING);
+    this.emitter.emit(ipcEvent.API_INITIALIZED);
   }
 
   onWalletEncrypted() {
-    this.emitter.emit(ipcEvent.ON_WALLET_ENCRYPTED);
+    this.emitter.emit(ipcEvent.WALLET_ENCRYPTED);
   }
 
   onBackupWallet() {
