@@ -73,6 +73,12 @@ async function checkQtumdInit() {
   }
 }
 
+function killQtumProcess() {
+  if (qtumProcess) {
+    qtumProcess.kill();
+  }
+}
+
 function startQtumProcess(reindex) {
   const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
   if (!isMainnet()) {
@@ -95,10 +101,11 @@ function startQtumProcess(reindex) {
   qtumProcess.stderr.on('data', (data) => {
     getLogger().error(`qtumd failed with error: ${data}`);
 
-    if (data.includes('You need to rebuild the database using -reindex-chainstate to enable -logevents.')) {
+    if (data.includes('You need to rebuild the database using -reindex-chainstate')) {
       // Clean old process first
-      qtumProcess.kill();
+      killQtumProcess();
       clearInterval(checkInterval);
+
       // Restart qtumd with reindex flag
       setTimeout(() => {
         console.log('Restarting and reindexing Qtum blockchain');
@@ -227,6 +234,7 @@ process.on('SIGHUP', exit);
 
 module.exports = {
   startServer,
+  killQtumProcess,
   startQtumProcess,
   startServices,
   terminateDaemon,
