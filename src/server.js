@@ -9,7 +9,9 @@ const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
-const { Config, setQtumEnv, isMainnet, getRPCPassword } = require('./config/config');
+const {
+  Config, setQtumEnv, isMainnet, getRPCPassword,
+} = require('./config/config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
 const Emitter = require('./utils/emitterHelper');
@@ -214,9 +216,7 @@ function exit(signal) {
   getLogger().info(`Received ${signal}, exiting`);
 
   // add delay to give some time to write to log file
-  setTimeout(() => {
-    process.exit();
-  }, 500);
+  setTimeout(() => process.exit(), 500);
 }
 
 process.on('SIGINT', exit);

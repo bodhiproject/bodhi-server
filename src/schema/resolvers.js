@@ -779,7 +779,7 @@ module.exports = {
           types = [{ type: 'VOTE' }, { type: 'APPROVEVOTE' }];
           break;
         case 'resultSetting':
-          types = [{ type: 'SETRESULT' }, { type: 'APPROVESETRESULT' }]
+          types = [{ type: 'SETRESULT' }, { type: 'APPROVESETRESULT' }];
           break;
         case 'finalizing':
           types = [{ type: 'FINALIZERESULT' }];
