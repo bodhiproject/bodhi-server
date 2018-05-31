@@ -11,6 +11,10 @@ function getEmitter() {
   return emitter;
 }
 
+function onWalletEncrypted() {
+  emitter.emit(ipcEvent.ON_WALLET_ENCRYPTED);
+}
+
 function showSaveDialog() {
   emitter.emit(ipcEvent.WALLET_BACKUP);
 }

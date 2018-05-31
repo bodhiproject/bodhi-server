@@ -162,7 +162,11 @@ async function checkWalletEncryption() {
   isEncrypted = !_.isUndefined(res.unlocked_until);
 
   if (isEncrypted) {
-    throw Error('Your wallet is encrypted. Please use a non-encrypted wallet for the server.');
+    if (_.includes(process.argv, '--encryptok')) {
+      
+    } else {
+      throw Error('Your wallet is encrypted. Please use a non-encrypted wallet for the server.');
+    }
   } else {
     startServices();
   }
