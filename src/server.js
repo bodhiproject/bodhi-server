@@ -30,10 +30,6 @@ let checkInterval;
 let checkApiInterval;
 let shutdownInterval;
 
-function isWalletEncrypted() {
-  return isEncrypted;
-}
-
 function getQtumProcess() {
   return qtumProcess;
 }
@@ -237,5 +233,4 @@ module.exports = {
   terminateDaemon,
   getQtumProcess,
   emitter,
-  isWalletEncrypted,
 };
