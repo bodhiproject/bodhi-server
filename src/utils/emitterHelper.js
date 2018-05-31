@@ -2,41 +2,34 @@ const EventEmitter = require('events');
 
 const { ipcEvent } = require('../constants');
 
-let emitter;
-
-function getEmitter() {
-  if (!emitter) {
-    emitter = new EventEmitter();
+class Emitter {
+  constructor() {
+    this.emitter = new EventEmitter();
   }
-  return emitter;
+
+  onQtumError(error) {
+    this.emitter.emit(ipcEvent.STARTUP_ERROR, error);
+  }
+
+  onQtumKilled() {
+    this.emitter.emit(ipcEvent.QTUMD_KILLED);
+  }
+
+  onApiInitialized() {
+    this.emitter.emit(ipcEvent.SERVICES_RUNNING);
+  }
+
+  onWalletEncrypted() {
+    this.emitter.emit(ipcEvent.ON_WALLET_ENCRYPTED);
+  }
+
+  onBackupWallet() {
+    this.emitter.emit(ipcEvent.WALLET_BACKUP);
+  }
+
+  onImportWallet() {
+    this.emitter.emit(ipcEvent.WALLET_IMPORT);
+  }
 }
 
-function onQtumError(error) {
-  emitter.emit(ipcEvent.STARTUP_ERROR, error);
-}
-
-function onQtumKilled() {
-  emitter.emit(ipcEvent.QTUMD_KILLED);
-}
-
-function onApiInitialized() {
-  emitter.emit(ipcEvent.SERVICES_RUNNING);
-}
-
-function onWalletEncrypted() {
-  emitter.emit(ipcEvent.ON_WALLET_ENCRYPTED);
-}
-
-function showSaveDialog() {
-  emitter.emit(ipcEvent.WALLET_BACKUP);
-}
-
-function showImportDialog() {
-  emitter.emit(ipcEvent.WALLET_IMPORT);
-}
-
-module.exports = {
-  getEmitter,
-  showSaveDialog,
-  showImportDialog,
-};
+module.exports = new Emitter();

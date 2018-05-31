@@ -12,7 +12,7 @@ const portscanner = require('portscanner');
 const { Config, setQtumEnv, isMainnet, getRPCPassword } = require('./config/config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
-const { getEmitter } = require('./utils/emitterHelper');
+const Emitter = require('./utils/emitterHelper');
 const Utils = require('./utils/utils');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
@@ -40,7 +40,7 @@ function checkQtumPort() {
       clearInterval(shutdownInterval);
 
       // Slight delay before sending qtumd killed signal
-      setTimeout(() => getEmitter().onQtumKilled(), 1500);
+      setTimeout(() => Emitter.onQtumKilled(), 1500);
     } else {
       getLogger().debug('Waiting for qtumd to shut down.');
     }
@@ -69,7 +69,7 @@ async function checkWalletEncryption() {
 
   if (isEncrypted) {
     if (_.includes(process.argv, '--encryptok')) {
-      getEmitter().onWalletEncrypted();
+      Emitter.onWalletEncrypted();
     } else {
       throw Error('Your wallet is encrypted. Please use a non-encrypted wallet for the server.');
     }
@@ -126,7 +126,7 @@ function startQtumProcess(reindex) {
       }, 3000);
     } else {
       // Emit startup error event to Electron listener
-      getEmitter().onQtumError(data.toString('utf-8'));
+      Emitter.onQtumError(data.toString('utf-8'));
 
       // add delay to give some time to write to log file
       setTimeout(() => {
@@ -188,7 +188,7 @@ async function checkApiInit() {
 
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
-      setTimeout(() => getEmitter().onApiInitialized(), 1000);
+      setTimeout(() => Emitter.onApiInitialized(), 1000);
     }
   } catch (err) {
     getLogger().debug(err.message);
