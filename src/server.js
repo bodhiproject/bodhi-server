@@ -89,10 +89,10 @@ function startQtumProcess(reindex) {
   }
 
   const qtumdPath = Utils.getQtumPath(execFile.QTUMD);
-  getLogger().debug(`qtumd dir: ${qtumdPath}`);
+  getLogger().info(`qtumd dir: ${qtumdPath}`);
 
   qtumProcess = spawn(qtumdPath, flags);
-  getLogger().debug(`qtumd started on PID ${qtumProcess.pid}`);
+  getLogger().info(`qtumd started on PID ${qtumProcess.pid}`);
 
   qtumProcess.stdout.on('data', (data) => {
     getLogger().debug(`qtumd output: ${data}`);
