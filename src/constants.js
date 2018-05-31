@@ -7,6 +7,7 @@ module.exports = {
   ipcEvent: {
     QTUMD_KILLED: 'qtumd-killed',
     STARTUP_ERROR: 'startup-error',
+    ON_WALLET_ENCRYPTED: 'on-wallet-encrypted',
     SHOW_WALLET_UNLOCK: 'show-wallet-unlock',
     SERVICES_RUNNING: 'services-running',
     WALLET_BACKUP: 'wallet-backup',

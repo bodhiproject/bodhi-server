@@ -9,9 +9,12 @@ const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
-const { Config, setQtumEnv, isMainnet, getRPCPassword } = require('./config/config');
+const {
+  Config, setQtumEnv, isMainnet, getRPCPassword,
+} = require('./config/config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
+const Emitter = require('./utils/emitterHelper');
 const Utils = require('./utils/utils');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
@@ -21,42 +24,60 @@ const { ipcEvent, execFile } = require('./constants');
 const { getInstance } = require('./qclient');
 const Wallet = require('./api/wallet');
 
-const emitter = new EventEmitter();
-
-let server;
 let qtumProcess;
 let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
 let shutdownInterval;
 
-// Restify setup
-function startRestifyServer() {
-  server = restify.createServer({
-    title: 'Bodhi Server',
-  });
-  const cors = corsMiddleware({
-    origins: ['*'],
-  });
-  server.pre(cors.preflight);
-  server.use(cors.actual);
-  server.use(restify.plugins.bodyParser({ mapParams: true }));
-  server.use(restify.plugins.queryParser());
-  server.on('after', (req, res, route, err) => {
-    if (route) {
-      getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+function getQtumProcess() {
+  return qtumProcess;
+}
+
+// Checks to see if the qtumd port is still in use
+function checkQtumPort() {
+  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
+  portscanner.checkPortStatus(port, Config.HOSTNAME, (error, status) => {
+    if (status === 'closed') {
+      clearInterval(shutdownInterval);
+
+      // Slight delay before sending qtumd killed signal
+      setTimeout(() => Emitter.onQtumKilled(), 1500);
     } else {
-      getLogger().error(`${err.message}`);
+      getLogger().debug('Waiting for qtumd to shut down.');
     }
   });
 }
 
-function isWalletEncrypted() {
-  return isEncrypted;
+/*
+* Kills the running qtum process.
+* @param emitEvent {Boolean} Flag to emit an event when qtum is fully shutdown.
+*/
+function killQtumProcess(emitEvent) {
+  if (qtumProcess) {
+    qtumProcess.kill();
+
+    // Repeatedly check if qtum port is in use
+    if (emitEvent) {
+      shutdownInterval = setInterval(checkQtumPort, 500);
+    }
+  }
 }
 
-function getQtumProcess() {
-  return qtumProcess;
+// Checks if the wallet is encrypted to prompt the wallet unlock dialog
+async function checkWalletEncryption() {
+  const res = await Wallet.getWalletInfo();
+  isEncrypted = !_.isUndefined(res.unlocked_until);
+
+  if (isEncrypted) {
+    if (_.includes(process.argv, '--encryptok')) {
+      Emitter.onWalletEncrypted();
+    } else {
+      throw Error('Your wallet is encrypted. Please use a non-encrypted wallet for the server.');
+    }
+  } else {
+    startServices();
+  }
 }
 
 // Ensure qtumd is running before starting sync/API
@@ -70,12 +91,6 @@ async function checkQtumdInit() {
     checkWalletEncryption();
   } catch (err) {
     getLogger().debug(err.message);
-  }
-}
-
-function killQtumProcess() {
-  if (qtumProcess) {
-    qtumProcess.kill();
   }
 }
 
@@ -103,7 +118,7 @@ function startQtumProcess(reindex) {
 
     if (data.includes('You need to rebuild the database using -reindex-chainstate')) {
       // Clean old process first
-      killQtumProcess();
+      killQtumProcess(false);
       clearInterval(checkInterval);
 
       // Restart qtumd with reindex flag
@@ -113,7 +128,7 @@ function startQtumProcess(reindex) {
       }, 3000);
     } else {
       // Emit startup error event to Electron listener
-      emitter.emit(ipcEvent.STARTUP_ERROR, data.toString('utf-8'));
+      Emitter.onQtumError(data.toString('utf-8'));
 
       // add delay to give some time to write to log file
       setTimeout(() => {
@@ -130,7 +145,22 @@ function startQtumProcess(reindex) {
   checkInterval = setInterval(checkQtumdInit, 500);
 }
 
+// Create Restify server and apply routes
 async function startAPI() {
+  const server = restify.createServer({ title: 'Bodhi API' });
+  const cors = corsMiddleware({ origins: ['*'] });
+  server.pre(cors.preflight);
+  server.use(cors.actual);
+  server.use(restify.plugins.bodyParser({ mapParams: true }));
+  server.use(restify.plugins.queryParser());
+  server.on('after', (req, res, route, err) => {
+    if (route) {
+      getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+    } else {
+      getLogger().error(`${err.message}`);
+    }
+  });
+
   syncRouter.applyRoutes(server);
   apiRouter.applyRoutes(server);
 
@@ -145,27 +175,8 @@ async function startAPI() {
       { execute, subscribe, schema },
       { server, path: '/subscriptions' },
     );
-    getLogger().info(`Bodhi App is running on http://${Config.HOSTNAME}:${Config.PORT}.`);
+    getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT}.`);
   });
-}
-
-function startServices() {
-  startSync();
-  startAPI();
-
-  checkApiInterval = setInterval(checkApiInit, 500);
-}
-
-// Checks if the wallet is encrypted to prompt the wallet unlock dialog
-async function checkWalletEncryption() {
-  const res = await Wallet.getWalletInfo();
-  isEncrypted = !_.isUndefined(res.unlocked_until);
-
-  if (isEncrypted) {
-    throw Error('Your wallet is encrypted. Please use a non-encrypted wallet for the server.');
-  } else {
-    startServices();
-  }
 }
 
 // Ensure API is running before loading UI
@@ -179,44 +190,18 @@ async function checkApiInit() {
 
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
-      setTimeout(() => emitter.emit(ipcEvent.SERVICES_RUNNING), 1000);
+      setTimeout(() => Emitter.onApiInitialized(), 1000);
     }
   } catch (err) {
     getLogger().debug(err.message);
   }
 }
 
-// Check if qtumd port is in use before starting qtum-qt
-function checkQtumPort() {
-  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  portscanner.checkPortStatus(port, Config.HOSTNAME, (error, status) => {
-    if (status === 'closed') {
-      clearInterval(shutdownInterval);
+function startServices() {
+  startSync();
+  startAPI();
 
-      // Slight delay before sending qtumd killed signal
-      setTimeout(() => {
-        emitter.emit(ipcEvent.QTUMD_KILLED);
-      }, 1500);
-    } else {
-      getLogger().debug('waiting for qtumd to shutting down');
-    }
-  });
-}
-
-function terminateDaemon() {
-  if (qtumProcess) {
-    qtumProcess.kill();
-    shutdownInterval = setInterval(checkQtumPort, 500);
-  }
-}
-
-function exit(signal) {
-  getLogger().info(`Received ${signal}, exiting`);
-
-  // add delay to give some time to write to log file
-  setTimeout(() => {
-    process.exit();
-  }, 500);
+  checkApiInterval = setInterval(checkApiInit, 500);
 }
 
 // Start all services
@@ -224,8 +209,14 @@ async function startServer(env) {
   setQtumEnv(env);
   initLogger();
   await initDB();
-  startRestifyServer();
   startQtumProcess(false);
+}
+
+function exit(signal) {
+  getLogger().info(`Received ${signal}, exiting`);
+
+  // add delay to give some time to write to log file
+  setTimeout(() => process.exit(), 500);
 }
 
 process.on('SIGINT', exit);
@@ -233,12 +224,8 @@ process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
 
 module.exports = {
-  startServer,
-  killQtumProcess,
-  startQtumProcess,
-  startServices,
-  terminateDaemon,
   getQtumProcess,
-  emitter,
-  isWalletEncrypted,
+  killQtumProcess,
+  startServices,
+  startServer,
 };
