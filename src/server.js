@@ -88,7 +88,7 @@ function startQtumProcess(reindex) {
       }, 3000);
     } else {
       // Emit startup error event to Electron listener
-      emitter.emit(ipcEvent.STARTUP_ERROR, data.toString('utf-8'));
+      getEmitter().onQtumError(data.toString('utf-8'));
 
       // add delay to give some time to write to log file
       setTimeout(() => {
@@ -228,7 +228,6 @@ process.on('SIGHUP', exit);
 module.exports = {
   startServer,
   killQtumProcess,
-  startQtumProcess,
   startServices,
   terminateDaemon,
   getQtumProcess,

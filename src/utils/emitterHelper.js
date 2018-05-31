@@ -11,6 +11,10 @@ function getEmitter() {
   return emitter;
 }
 
+function onQtumError(error) {
+  emitter.emit(ipcEvent.STARTUP_ERROR, error);
+}
+
 function onWalletEncrypted() {
   emitter.emit(ipcEvent.ON_WALLET_ENCRYPTED);
 }
