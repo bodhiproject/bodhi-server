@@ -22,8 +22,6 @@ const { ipcEvent, execFile } = require('./constants');
 const { getInstance } = require('./qclient');
 const Wallet = require('./api/wallet');
 
-const emitter = new EventEmitter();
-
 let qtumProcess;
 let isEncrypted = false;
 let checkInterval;
@@ -42,19 +40,25 @@ function checkQtumPort() {
       clearInterval(shutdownInterval);
 
       // Slight delay before sending qtumd killed signal
-      setTimeout(() => emitter.emit(ipcEvent.QTUMD_KILLED), 1500);
+      setTimeout(() => getEmitter().onQtumKilled(), 1500);
     } else {
-      getLogger().debug('waiting for qtumd to shutting down');
+      getLogger().debug('Waiting for qtumd to shut down.');
     }
   });
 }
 
-function killQtumProcess() {
+/*
+* Kills the running qtum process.
+* @param emitEvent {Boolean} Flag to emit an event when qtum is fully shutdown.
+*/
+function killQtumProcess(emitEvent) {
   if (qtumProcess) {
     qtumProcess.kill();
 
     // Repeatedly check if qtum port is in use
-    shutdownInterval = setInterval(checkQtumPort, 500);
+    if (emitEvent) {
+      shutdownInterval = setInterval(checkQtumPort, 500);
+    }
   }
 }
 
@@ -112,7 +116,7 @@ function startQtumProcess(reindex) {
 
     if (data.includes('You need to rebuild the database using -reindex-chainstate')) {
       // Clean old process first
-      killQtumProcess();
+      killQtumProcess(false);
       clearInterval(checkInterval);
 
       // Restart qtumd with reindex flag
@@ -224,5 +228,4 @@ module.exports = {
   killQtumProcess,
   startServices,
   startServer,
-  emitter,
 };

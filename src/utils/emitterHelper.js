@@ -15,6 +15,10 @@ function onQtumError(error) {
   emitter.emit(ipcEvent.STARTUP_ERROR, error);
 }
 
+function onQtumKilled() {
+  emitter.emit(ipcEvent.QTUMD_KILLED);
+}
+
 function onApiInitialized() {
   emitter.emit(ipcEvent.SERVICES_RUNNING);
 }
