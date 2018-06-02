@@ -25,6 +25,7 @@ const { getInstance } = require('./qclient');
 const Wallet = require('./api/wallet');
 
 let qtumProcess;
+let server;
 let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
@@ -147,7 +148,7 @@ function startQtumProcess(reindex) {
 
 // Create Restify server and apply routes
 async function startAPI() {
-  const server = restify.createServer({ title: 'Bodhi API' });
+  server = restify.createServer({ title: 'Bodhi API' });
   const cors = corsMiddleware({ origins: ['*'] });
   server.pre(cors.preflight);
   server.use(cors.actual);
@@ -163,12 +164,6 @@ async function startAPI() {
 
   syncRouter.applyRoutes(server);
   apiRouter.applyRoutes(server);
-
-  server.get(/\/?.*/, restify.plugins.serveStatic({
-    directory: path.join(__dirname, '../ui'),
-    default: 'index.html',
-    maxAge: 0,
-  }));
 
   server.listen(Config.PORT, () => {
     SubscriptionServer.create(
@@ -212,6 +207,10 @@ async function startServer(env) {
   startQtumProcess(false);
 }
 
+function getServer() {
+  return server;
+}
+
 function exit(signal) {
   getLogger().info(`Received ${signal}, exiting`);
 
@@ -228,4 +227,5 @@ module.exports = {
   killQtumProcess,
   startServices,
   startServer,
+  getServer,
 };
