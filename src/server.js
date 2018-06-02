@@ -165,12 +165,6 @@ async function startAPI() {
   syncRouter.applyRoutes(server);
   apiRouter.applyRoutes(server);
 
-  server.get(/\/?.*/, restify.plugins.serveStatic({
-    directory: path.join(__dirname, '../ui'),
-    default: 'index.html',
-    maxAge: 0,
-  }));
-
   server.listen(Config.PORT, () => {
     SubscriptionServer.create(
       { execute, subscribe, schema },
@@ -213,6 +207,10 @@ async function startServer(env) {
   startQtumProcess(false);
 }
 
+function getServer() {
+  return server;
+}
+
 function exit(signal) {
   getLogger().info(`Received ${signal}, exiting`);
 
@@ -229,5 +227,5 @@ module.exports = {
   killQtumProcess,
   startServices,
   startServer,
-  server,
+  getServer,
 };
