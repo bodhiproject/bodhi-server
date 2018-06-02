@@ -25,6 +25,7 @@ const { getInstance } = require('./qclient');
 const Wallet = require('./api/wallet');
 
 let qtumProcess;
+let server;
 let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
@@ -147,7 +148,7 @@ function startQtumProcess(reindex) {
 
 // Create Restify server and apply routes
 async function startAPI() {
-  const server = restify.createServer({ title: 'Bodhi API' });
+  server = restify.createServer({ title: 'Bodhi API' });
   const cors = corsMiddleware({ origins: ['*'] });
   server.pre(cors.preflight);
   server.use(cors.actual);
@@ -228,4 +229,5 @@ module.exports = {
   killQtumProcess,
   startServices,
   startServer,
+  server,
 };
