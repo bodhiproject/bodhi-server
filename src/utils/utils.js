@@ -109,12 +109,12 @@ function getLogDir() {
 }
 
 /*
-* Gets the dev env qtum path for either qtumd or qtum-qt.
+* Gets the root qtum path for either qtumd or qtum-qt. Must pass the path in a flag via commandline.
 * @param exec {String} The exec file type needed to be returned.
-* return {String} The full dev path for qtumd or qtum-qt.
+* return {String} The full path for qtumd or qtum-qt.
 */
-function getDevQtumPath(exec) {
-  // dev, must pass in the absolute path to the bin/ folder
+function getDevQtumExecPath(exec) {
+  // Must pass in the absolute path to the bin/ folder
   let qtumPath;
   _.each(process.argv, (arg) => {
     if (_.includes(arg, '-qtumpath')) {
@@ -123,7 +123,7 @@ function getDevQtumPath(exec) {
   });
 
   if (!qtumPath) {
-    throw Error('Must pass in the qtumpath flag with the path to qtumd');
+    throw Error('Must pass in the --qtumpath flag with the path to qtum bin folder.');
   }
 
   switch (exec) {
@@ -137,119 +137,6 @@ function getDevQtumPath(exec) {
       throw Error(`Invalid execFile type: ${exec}`);
     }
   }
-}
-
-/*
-* Gets the prod env qtum path for either qtumd or qtum-qt.
-* @param execFile {String} The exec file type needed to be returned.
-* return {String} The full prod path for qtumd or qtum-qt.
-*/
-function getProdQtumPath(exec) {
-  let path;
-  const arch = process.arch;
-
-  switch (process.platform) {
-    case 'darwin': {
-      switch (exec) {
-        case execFile.QTUMD: {
-          path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
-          break;
-        }
-        case execFile.QTUM_QT: {
-          path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
-          break;
-        }
-        default: {
-          throw new Error(`Invalid execFile type: ${exec}`);
-        }
-      }
-      break;
-    }
-
-    case 'win32': {
-      if (arch === 'x64') {
-        switch (exec) {
-          case execFile.QTUMD: {
-            path = `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
-            break;
-          }
-          case execFile.QTUM_QT: {
-            path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
-            break;
-          }
-          default: {
-            throw new Error(`Invalid execFile type: ${exec}`);
-          }
-        }
-      } else { // x86 arch
-        switch (exec) {
-          case execFile.QTUMD: {
-            path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
-            break;
-          }
-          case execFile.QTUM_QT: {
-            path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
-            break;
-          }
-          default: {
-            throw new Error(`Invalid execFile type: ${exec}`);
-          }
-        }
-      }
-      break;
-    }
-
-    case 'linux': {
-      if (arch === 'x64') {
-        switch (exec) {
-          case execFile.QTUMD: {
-            path = `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
-            break;
-          }
-          case execFile.QTUM_QT: {
-            path = `${app.getAppPath()}/qtum/linux64/bin/qtum-qt`;
-            break;
-          }
-          default: {
-            throw new Error(`Invalid execFile type: ${exec}`);
-          }
-        }
-      } else if (arch === 'x32') {
-        switch (exec) {
-          case execFile.QTUMD: {
-            path = `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
-            break;
-          }
-          case execFile.QTUM_QT: {
-            path = `${app.getAppPath()}/qtum/linux32/bin/qtum-qt`;
-            break;
-          }
-          default: {
-            throw new Error(`Invalid execFile type: ${exec}`);
-          }
-        }
-      } else {
-        throw new Error(`Linux arch ${arch} not supported`);
-      }
-      break;
-    }
-
-    default: {
-      throw new Error('Operating system not supported');
-    }
-  }
-
-  return path.replace('app.asar', 'app.asar.unpacked');
-}
-
-function getQtumPath(exec) {
-  let qtumPath;
-  if (isDevEnv()) {
-    qtumPath = getDevQtumPath(exec);
-  } else {
-    qtumPath = getProdQtumPath(exec);
-  }
-  return qtumPath;
 }
 
 /*
@@ -319,7 +206,7 @@ module.exports = {
   getVersionDir,
   getDataDir,
   getLogDir,
-  getQtumPath,
+  getDevQtumExecPath,
   hexToDecimalString,
   hexArrayToDecimalArray,
   isAllowanceEnough,

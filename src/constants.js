@@ -5,6 +5,7 @@ module.exports = {
   },
 
   ipcEvent: {
+    SERVER_START_ERROR: 'server-start-error',
     QTUMD_ERROR: 'qtumd-error',
     QTUMD_KILLED: 'qtumd-killed',
     API_INITIALIZED: 'api-initialized',
