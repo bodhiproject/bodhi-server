@@ -113,7 +113,6 @@ input TopicFilter {
   status: _OracleStatusType
   resultIdx: Int
   creatorAddress: String
-  notResultSetterQAddress: [String]
 }
 
 input OracleFilter {
@@ -124,6 +123,7 @@ input OracleFilter {
   resultSetterQAddress: String
   status: _OracleStatusType
   token: _TokenType
+  notResultSetterQAddress: [String]
 }
 
 input VoteFilter {
