@@ -5,9 +5,9 @@ const { blockchainEnv } = require('./constants');
 const Utils = require('./utils/utils');
 
 if (_.includes(process.argv, '--testnet')) {
-  startServer(blockchainEnv.TESTNET, Utils.getQtumPath());
+  startServer(blockchainEnv.TESTNET, Utils.getQtumPath(blockchainEnv.TESTNET));
 } else if (_.includes(process.argv, '--mainnet')) {
-  startServer(blockchainEnv.MAINNET, Utils.getQtumPath());
+  startServer(blockchainEnv.MAINNET, Utils.getQtumPath(blockchainEnv.MAINNET));
 } else {
   throw Error('testnet or mainnet flag not found.');
 }
