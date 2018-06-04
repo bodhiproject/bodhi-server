@@ -113,7 +113,7 @@ function getLogDir() {
 * @param exec {String} The exec file type needed to be returned.
 * return {String} The full path for qtumd or qtum-qt.
 */
-function getQtumPath(exec) {
+function getDevQtumExecPath(exec) {
   // Must pass in the absolute path to the bin/ folder
   let qtumPath;
   _.each(process.argv, (arg) => {
@@ -206,7 +206,7 @@ module.exports = {
   getVersionDir,
   getDataDir,
   getLogDir,
-  getQtumPath,
+  getDevQtumExecPath,
   hexToDecimalString,
   hexArrayToDecimalArray,
   isAllowanceEnough,
