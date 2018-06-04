@@ -91,7 +91,7 @@ async function checkQtumdInit() {
     checkWalletEncryption();
   } catch (err) {
     getLogger().debug(err.message);
-    Emitter.onServerStartError(err);
+    Emitter.onServerStartError(err.message);
   }
 }
 
@@ -208,7 +208,7 @@ async function startServer(env, qtumdPath) {
     await initDB();
     startQtumProcess(qtumdPath, false);
   } catch (err) {
-    Emitter.onServerStartError(err);
+    Emitter.onServerStartError(err.message);
   }
 }
 
