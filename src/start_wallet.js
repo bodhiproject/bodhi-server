@@ -1,4 +1,5 @@
 const { spawn } = require('child_process');
+const _ = require('lodash');
 
 const { isMainnet } = require('./config/config');
 const Utils = require('./utils/utils');
