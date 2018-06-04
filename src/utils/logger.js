@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('winston-daily-rotate-file');
 const fs = require('fs-extra');
 const moment = require('moment');
 const winston = require('winston');
@@ -25,7 +26,7 @@ function initLogger() {
           return `${options.timestamp()} ${winstonCfg.colorize(options.level, options.level.toUpperCase())} ${(options.message ? options.message : '')} ${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
         },
       }),
-      new (winston.transports.File)({
+      new (winston.transports.DailyRotateFile)({
         filename: `${logDir}/bodhiapp_${moment().format('YYYYMMDD_HHmmss')}.log`,
         timestamp() {
           return moment().format('YYYY-MM-DD HH:mm:ss');
@@ -34,6 +35,7 @@ function initLogger() {
           return `${options.timestamp()} ${winstonCfg.colorize(options.level, options.level.toUpperCase())} ${(options.message ? options.message : '')} ${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
         },
         json: false,
+        maxFiles: '3d',
       }),
     ];
 
