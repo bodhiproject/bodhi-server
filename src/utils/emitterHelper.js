@@ -15,6 +15,10 @@ class Emitter {
     this.emitter.emit(ipcEvent.QTUMD_KILLED);
   }
 
+  onServerStartError(error) {
+    this.emitter.emit(ipcEvent.SERVER_START_ERROR, error);
+  }
+
   onApiInitialized() {
     this.emitter.emit(ipcEvent.API_INITIALIZED);
   }

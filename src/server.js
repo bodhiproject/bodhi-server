@@ -96,54 +96,58 @@ async function checkQtumdInit() {
 }
 
 function startQtumProcess(reindex) {
-  const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
-  if (!isMainnet()) {
-    flags.push('-testnet');
-  }
-  if (reindex) {
-    flags.push('-reindex');
-  }
-
-  const qtumdPath = Utils.getQtumPath(execFile.QTUMD);
-  getLogger().info(`qtumd dir: ${qtumdPath}`);
-
-  qtumProcess = spawn(qtumdPath, flags);
-  getLogger().info(`qtumd started on PID ${qtumProcess.pid}`);
-
-  qtumProcess.stdout.on('data', (data) => {
-    getLogger().debug(`qtumd output: ${data}`);
-  });
-
-  qtumProcess.stderr.on('data', (data) => {
-    getLogger().error(`qtumd failed with error: ${data}`);
-
-    if (data.includes('You need to rebuild the database using -reindex-chainstate')) {
-      // Clean old process first
-      killQtumProcess(false);
-      clearInterval(checkInterval);
-
-      // Restart qtumd with reindex flag
-      setTimeout(() => {
-        console.log('Restarting and reindexing Qtum blockchain');
-        startQtumProcess(true);
-      }, 3000);
-    } else {
-      // Emit startup error event to Electron listener
-      Emitter.onQtumError(data.toString('utf-8'));
-
-      // add delay to give some time to write to log file
-      setTimeout(() => {
-        process.exit();
-      }, 500);
+  try {
+    const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
+    if (!isMainnet()) {
+      flags.push('-testnet');
     }
-  });
+    if (reindex) {
+      flags.push('-reindex');
+    }
 
-  qtumProcess.on('close', (code) => {
-    getLogger().debug(`qtumd exited with code ${code}`);
-  });
+    const qtumdPath = Utils.getQtumPath(execFile.QTUMD);
+    getLogger().info(`qtumd dir: ${qtumdPath}`);
 
-  // repeatedly check if qtumd is running
-  checkInterval = setInterval(checkQtumdInit, 500);
+    qtumProcess = spawn(qtumdPath, flags);
+    getLogger().info(`qtumd started on PID ${qtumProcess.pid}`);
+
+    qtumProcess.stdout.on('data', (data) => {
+      getLogger().debug(`qtumd output: ${data}`);
+    });
+
+    qtumProcess.stderr.on('data', (data) => {
+      getLogger().error(`qtumd failed with error: ${data}`);
+
+      if (data.includes('You need to rebuild the database using -reindex-chainstate')) {
+        // Clean old process first
+        killQtumProcess(false);
+        clearInterval(checkInterval);
+
+        // Restart qtumd with reindex flag
+        setTimeout(() => {
+          console.log('Restarting and reindexing Qtum blockchain');
+          startQtumProcess(true);
+        }, 3000);
+      } else {
+        // Emit startup error event to Electron listener
+        Emitter.onQtumError(data.toString('utf-8'));
+
+        // add delay to give some time to write to log file
+        setTimeout(() => {
+          process.exit();
+        }, 500);
+      }
+    });
+
+    qtumProcess.on('close', (code) => {
+      getLogger().debug(`qtumd exited with code ${code}`);
+    });
+
+    // repeatedly check if qtumd is running
+    checkInterval = setInterval(checkQtumdInit, 500);
+  } catch (err) {
+    throw Error(`qtumd error: ${err.message}`);
+  }
 }
 
 // Create Restify server and apply routes
@@ -201,10 +205,14 @@ function startServices() {
 
 // Start all services
 async function startServer(env) {
-  setQtumEnv(env);
-  initLogger();
-  await initDB();
-  startQtumProcess(false);
+  try {
+    setQtumEnv(env);
+    initLogger();
+    await initDB();
+    startQtumProcess(false);
+  } catch (err) {
+    Emitter.onServerStartError();
+  }
 }
 
 function getServer() {
