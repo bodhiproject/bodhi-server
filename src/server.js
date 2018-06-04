@@ -123,7 +123,7 @@ function startQtumProcess(qtumdPath, reindex) {
 
         // Restart qtumd with reindex flag
         setTimeout(() => {
-          console.log('Restarting and reindexing Qtum blockchain');
+          getLogger().info('Restarting and reindexing Qtum blockchain');
           startQtumProcess(true, qtumdPath);
         }, 3000);
       } else {
@@ -131,9 +131,7 @@ function startQtumProcess(qtumdPath, reindex) {
         Emitter.onQtumError(data.toString('utf-8'));
 
         // add delay to give some time to write to log file
-        setTimeout(() => {
-          process.exit();
-        }, 500);
+        setTimeout(() => process.exit(), 500);
       }
     });
 
