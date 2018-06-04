@@ -91,6 +91,7 @@ async function checkQtumdInit() {
     checkWalletEncryption();
   } catch (err) {
     getLogger().debug(err.message);
+    Emitter.onServerStartError(err);
   }
 }
 
