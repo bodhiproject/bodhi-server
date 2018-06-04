@@ -123,7 +123,7 @@ input OracleFilter {
   resultSetterQAddress: String
   status: _OracleStatusType
   token: _TokenType
-  notResultSetterQAddress: [String]
+  excludeResultSetterQAddress: [String]
 }
 
 input VoteFilter {
