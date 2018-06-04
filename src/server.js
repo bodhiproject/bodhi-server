@@ -72,7 +72,7 @@ async function checkWalletEncryption() {
   isEncrypted = !_.isUndefined(res.unlocked_until);
 
   if (isEncrypted) {
-    if (_.includes(process.argv, '--encryptok')) {
+    if (_.includes(process.argv, '--encryptok') || process.env.ENCRYPT_OK) {
       Emitter.onWalletEncrypted();
     } else {
       Emitter.onServerStartError(walletEncryptedMessage);
