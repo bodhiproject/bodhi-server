@@ -23,6 +23,8 @@ const { ipcEvent, execFile } = require('./constants');
 const { getInstance } = require('./qclient');
 const Wallet = require('./api/wallet');
 
+const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
+
 let qtumProcess;
 let server;
 let isEncrypted = false;
@@ -73,9 +75,7 @@ async function checkWalletEncryption() {
     if (_.includes(process.argv, '--encryptok')) {
       Emitter.onWalletEncrypted();
     } else {
-      const errMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
-      Emitter.onServerStartError(errMessage);
-      throw Error(errMessage);
+      throw Error(walletEncryptedMessage);
     }
   } else {
     startServices();
@@ -87,13 +87,18 @@ async function checkQtumdInit() {
   try {
     // getInfo throws an error if trying to be called before qtumd is running
     const info = await getInstance().getInfo();
-  } catch (err) {
-    getLogger().debug(err.message);
-  }
 
-  // no error was caught, qtumd is initialized
-  clearInterval(checkInterval);
-  checkWalletEncryption();
+    // no error was caught, qtumd is initialized
+    clearInterval(checkInterval);
+    checkWalletEncryption();
+  } catch (err) {
+    if (err.message === walletEncryptedMessage) {
+      Emitter.onServerStartError(err.message);
+      throw Error(err.message);
+    } else {
+      getLogger().debug(err.message);
+    }
+  }
 }
 
 function startQtumProcess(qtumdPath, reindex) {
