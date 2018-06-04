@@ -15,7 +15,6 @@ const {
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
 const Emitter = require('./utils/emitterHelper');
-const Utils = require('./utils/utils');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
@@ -95,7 +94,7 @@ async function checkQtumdInit() {
   }
 }
 
-function startQtumProcess(reindex) {
+function startQtumProcess(qtumPath, reindex) {
   try {
     const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
     if (!isMainnet()) {
@@ -105,10 +104,9 @@ function startQtumProcess(reindex) {
       flags.push('-reindex');
     }
 
-    const qtumdPath = Utils.getQtumPath(execFile.QTUMD);
-    getLogger().info(`qtumd dir: ${qtumdPath}`);
+    getLogger().info(`qtumd dir: ${qtumPath}`);
 
-    qtumProcess = spawn(qtumdPath, flags);
+    qtumProcess = spawn(qtumPath, flags);
     getLogger().info(`qtumd started on PID ${qtumProcess.pid}`);
 
     qtumProcess.stdout.on('data', (data) => {
@@ -126,7 +124,7 @@ function startQtumProcess(reindex) {
         // Restart qtumd with reindex flag
         setTimeout(() => {
           console.log('Restarting and reindexing Qtum blockchain');
-          startQtumProcess(true);
+          startQtumProcess(true, qtumPath);
         }, 3000);
       } else {
         // Emit startup error event to Electron listener
@@ -204,12 +202,12 @@ function startServices() {
 }
 
 // Start all services
-async function startServer(env) {
+async function startServer(env, qtumPath) {
   try {
     setQtumEnv(env);
     initLogger();
     await initDB();
-    startQtumProcess(false);
+    startQtumProcess(qtumPath, false);
   } catch (err) {
     Emitter.onServerStartError(err);
   }
