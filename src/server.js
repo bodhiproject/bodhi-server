@@ -211,7 +211,7 @@ async function startServer(env) {
     await initDB();
     startQtumProcess(false);
   } catch (err) {
-    Emitter.onServerStartError();
+    Emitter.onServerStartError(err);
   }
 }
 
