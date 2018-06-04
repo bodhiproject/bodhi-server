@@ -73,7 +73,9 @@ async function checkWalletEncryption() {
     if (_.includes(process.argv, '--encryptok')) {
       Emitter.onWalletEncrypted();
     } else {
-      throw Error('Your wallet is encrypted. Please use a non-encrypted wallet for the server.');
+      const errMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
+      Emitter.onServerStartError(errMessage);
+      throw Error(errMessage);
     }
   } else {
     startServices();
@@ -85,14 +87,13 @@ async function checkQtumdInit() {
   try {
     // getInfo throws an error if trying to be called before qtumd is running
     const info = await getInstance().getInfo();
-
-    // no error was caught, qtumd is initialized
-    clearInterval(checkInterval);
-    checkWalletEncryption();
   } catch (err) {
     getLogger().debug(err.message);
-    Emitter.onServerStartError(err.message);
   }
+
+  // no error was caught, qtumd is initialized
+  clearInterval(checkInterval);
+  checkWalletEncryption();
 }
 
 function startQtumProcess(qtumdPath, reindex) {
