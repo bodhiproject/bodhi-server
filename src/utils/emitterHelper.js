@@ -7,16 +7,16 @@ class Emitter {
     this.emitter = new EventEmitter();
   }
 
+  onServerStartError(error) {
+    this.emitter.emit(ipcEvent.SERVER_START_ERROR, error);
+  }
+
   onQtumError(error) {
     this.emitter.emit(ipcEvent.QTUMD_ERROR, error);
   }
 
   onQtumKilled() {
     this.emitter.emit(ipcEvent.QTUMD_KILLED);
-  }
-
-  onServerStartError(error) {
-    this.emitter.emit(ipcEvent.SERVER_START_ERROR, error);
   }
 
   onApiInitialized() {
