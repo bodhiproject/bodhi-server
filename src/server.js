@@ -94,7 +94,7 @@ async function checkQtumdInit() {
   }
 }
 
-function startQtumProcess(qtumPath, reindex) {
+function startQtumProcess(qtumdPath, reindex) {
   try {
     const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
     if (!isMainnet()) {
@@ -104,9 +104,9 @@ function startQtumProcess(qtumPath, reindex) {
       flags.push('-reindex');
     }
 
-    getLogger().info(`qtumd dir: ${qtumPath}`);
+    getLogger().info(`qtumd dir: ${qtumdPath}`);
 
-    qtumProcess = spawn(qtumPath, flags);
+    qtumProcess = spawn(qtumdPath, flags);
     getLogger().info(`qtumd started on PID ${qtumProcess.pid}`);
 
     qtumProcess.stdout.on('data', (data) => {
@@ -124,7 +124,7 @@ function startQtumProcess(qtumPath, reindex) {
         // Restart qtumd with reindex flag
         setTimeout(() => {
           console.log('Restarting and reindexing Qtum blockchain');
-          startQtumProcess(true, qtumPath);
+          startQtumProcess(true, qtumdPath);
         }, 3000);
       } else {
         // Emit startup error event to Electron listener
@@ -202,12 +202,12 @@ function startServices() {
 }
 
 // Start all services
-async function startServer(env, qtumPath) {
+async function startServer(env, qtumdPath) {
   try {
     setQtumEnv(env);
     initLogger();
     await initDB();
-    startQtumProcess(qtumPath, false);
+    startQtumProcess(qtumdPath, false);
   } catch (err) {
     Emitter.onServerStartError(err);
   }
