@@ -75,6 +75,7 @@ async function checkWalletEncryption() {
     if (_.includes(process.argv, '--encryptok')) {
       Emitter.onWalletEncrypted();
     } else {
+      Emitter.onServerStartError(walletEncryptedMessage);
       throw Error(walletEncryptedMessage);
     }
   } else {
@@ -93,7 +94,6 @@ async function checkQtumdInit() {
     checkWalletEncryption();
   } catch (err) {
     if (err.message === walletEncryptedMessage) {
-      Emitter.onServerStartError(err.message);
       throw Error(err.message);
     } else {
       getLogger().debug(err.message);
