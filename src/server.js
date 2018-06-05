@@ -27,6 +27,7 @@ const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encry
 
 let qtumProcess;
 let server;
+let encryptOk = false;
 let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
@@ -72,7 +73,7 @@ async function checkWalletEncryption() {
   isEncrypted = !_.isUndefined(res.unlocked_until);
 
   if (isEncrypted) {
-    if (_.includes(process.argv, '--encryptok') || process.env.ENCRYPT_OK === 'true') {
+    if (_.includes(process.argv, '--encryptok') || encryptOk) {
       Emitter.onWalletEncrypted();
     } else {
       Emitter.onServerStartError(walletEncryptedMessage);
@@ -206,9 +207,15 @@ function startServices() {
   checkApiInterval = setInterval(checkApiInit, 500);
 }
 
-// Start all services
-async function startServer(env, qtumdPath) {
+/*
+* Sets the env and inits all the required processes.
+* @param env {String} blockchainEnv var for mainnet or testnet
+* @param qtumdPath {String} Full path to the qtumd location
+* @param encryptionAllowed {Boolean} Are encrypted Qtum wallets allowed.
+*/
+async function startServer(env, qtumdPath, encryptionAllowed) {
   try {
+    encryptOk = encryptionAllowed;
     setQtumEnv(env);
     initLogger();
     await initDB();
