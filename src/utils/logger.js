@@ -35,7 +35,7 @@ function initLogger() {
           return `${options.timestamp()} ${winstonCfg.colorize(options.level, options.level.toUpperCase())} ${(options.message ? options.message : '')} ${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
         },
         json: false,
-        maxFiles: '3d',
+        maxFiles: '14d',
       }),
     ];
 
