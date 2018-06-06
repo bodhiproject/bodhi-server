@@ -157,9 +157,10 @@ function startQtumProcess(qtumdPath, reindex) {
 // Create Restify server and apply routes
 async function startAPI() {
   server = restify.createServer({ title: 'Bodhi API' });
-  const cors = corsMiddleware({ origins: ['*'] });
-  server.pre(cors.preflight);
-  server.use(cors.actual);
+  // const cors = corsMiddleware({ origins: ['*'] });
+  // server.pre(cors.preflight);
+  // server.use(cors.actual);
+  server.use(restify.CORS());
   server.use(restify.plugins.bodyParser({ mapParams: true }));
   server.use(restify.plugins.queryParser());
   server.on('after', (req, res, route, err) => {
