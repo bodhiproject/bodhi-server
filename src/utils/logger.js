@@ -49,7 +49,7 @@ function initLogger() {
     }
 
     logger = new (winston.Logger)({ transports, exitOnError: false });
-    logger.level = process.env.loglvl || Config.DEFAULT_LOGLVL;
+    logger.level = process.env.LOG_LEVEL || Config.DEFAULT_LOGLVL;
     logger.info(`Logs path: ${logDir}`);
   }
 }
