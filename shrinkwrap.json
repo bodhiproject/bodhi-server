@@ -1,0 +1,18 @@
+/*
+* This file is reference to be able to override an existing sub-dependency.
+* Overwrite `npm-shrinkwrap.json` with this JSON then run `npm install`.
+*/
+{
+  "dependencies": {
+    "subscriptions-transport-ws": {
+      "version": "0.9.9",
+      "from": "subscriptions-transport-ws@^0.9.9",
+      "dependencies": {
+        "ws": {
+          "version": "5.2.0",
+          "from": "ws@3.3.3"
+        }
+      }
+    }
+  }
+}
