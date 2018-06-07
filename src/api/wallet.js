@@ -46,6 +46,9 @@ const Wallet = {
       comment, // string
       commentTo, // string
       subtractFeeFromAmount, // boolean
+      replaceable, // boolean
+      confTarget, // number
+      estimateMode, // string
       senderAddress, // string: QTUM address
       changeToAddress, // boolean
     } = args;
@@ -56,11 +59,12 @@ const Wallet = {
     if (_.isUndefined(amount)) {
       throw new TypeError('amount needs to be defined');
     }
+    if (_.isUndefined(senderAddress)) {
+      throw new TypeError('senderAddress needs to be defined');
+    }
 
-    return getInstance().sendToAddress(
-      address, amount, comment, commentTo, subtractFeeFromAmount, senderAddress,
-      changeToAddress,
-    );
+    return getInstance().sendToAddress(address, amount, comment, commentTo, subtractFeeFromAmount, replaceable, 
+      confTarget, estimateMode, senderAddress, changeToAddress);
   },
 
   async walletPassphrase(args) {
