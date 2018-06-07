@@ -5,7 +5,6 @@ const corsMiddleware = require('restify-cors-middleware');
 const { spawn } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
-const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
@@ -14,7 +13,7 @@ const {
 } = require('./config/config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
-const Emitter = require('./utils/emitterHelper');
+const EmitterHelper = require('./utils/emitterHelper');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
@@ -45,7 +44,7 @@ function checkQtumPort() {
       clearInterval(shutdownInterval);
 
       // Slight delay before sending qtumd killed signal
-      setTimeout(() => Emitter.onQtumKilled(), 1500);
+      setTimeout(() => EmitterHelper.onQtumKilled(), 1500);
     } else {
       getLogger().debug('Waiting for qtumd to shut down.');
     }
@@ -74,9 +73,9 @@ async function checkWalletEncryption() {
 
   if (isEncrypted) {
     if (_.includes(process.argv, '--encryptok') || encryptOk) {
-      Emitter.onWalletEncrypted();
+      EmitterHelper.onWalletEncrypted();
     } else {
-      Emitter.onServerStartError(walletEncryptedMessage);
+      EmitterHelper.onServerStartError(walletEncryptedMessage);
       throw Error(walletEncryptedMessage);
     }
   } else {
@@ -136,7 +135,7 @@ function startQtumProcess(qtumdPath, reindex) {
         }, 3000);
       } else {
         // Emit startup error event to Electron listener
-        Emitter.onQtumError(data.toString('utf-8'));
+        EmitterHelper.onQtumError(data.toString('utf-8'));
 
         // add delay to give some time to write to log file
         setTimeout(() => process.exit(), 500);
@@ -193,7 +192,7 @@ async function checkApiInit() {
 
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
-      setTimeout(() => Emitter.onApiInitialized(), 1000);
+      setTimeout(() => EmitterHelper.onApiInitialized(), 1000);
     }
   } catch (err) {
     getLogger().debug(err.message);
@@ -221,7 +220,7 @@ async function startServer(env, qtumdPath, encryptionAllowed) {
     await initDB();
     startQtumProcess(qtumdPath, false);
   } catch (err) {
-    Emitter.onServerStartError(err.message);
+    EmitterHelper.onServerStartError(err.message);
   }
 }
 
