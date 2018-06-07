@@ -2,7 +2,7 @@ const EventEmitter = require('events');
 
 const { ipcEvent } = require('../constants');
 
-class Emitter {
+class EmitterHelper {
   constructor() {
     this.emitter = new EventEmitter();
   }
@@ -36,4 +36,4 @@ class Emitter {
   }
 }
 
-module.exports = new Emitter();
+module.exports = new EmitterHelper();
