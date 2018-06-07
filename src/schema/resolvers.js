@@ -201,7 +201,7 @@ const getPhase = ({ token, status }) => {
   if (QTUM && ['WAITRESULT', 'OPENRESULTSET'].includes(status)) return 'resultSetting';
   if (BOT && status === 'WAITRESULT') return 'finalizing';
   if (((BOT || QTUM) && status === 'WITHDRAW') || (QTUM && status === 'PENDING')) return 'withdrawing';
-  throw Error(`Invalid Phase determined by these -> TOKEN: ${token} STATUS: ${status}`)
+  throw Error(`Invalid Phase determined by these -> TOKEN: ${token} STATUS: ${status}`);
 };
 
 module.exports = {

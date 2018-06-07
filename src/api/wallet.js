@@ -63,8 +63,10 @@ const Wallet = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    return getInstance().sendToAddress(address, amount, comment, commentTo, subtractFeeFromAmount, replaceable, 
-      confTarget, estimateMode, senderAddress, changeToAddress);
+    return getInstance().sendToAddress(
+      address, amount, comment, commentTo, subtractFeeFromAmount, replaceable,
+      confTarget, estimateMode, senderAddress, changeToAddress,
+    );
   },
 
   async walletPassphrase(args) {
