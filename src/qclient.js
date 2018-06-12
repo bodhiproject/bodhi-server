@@ -1,6 +1,6 @@
 const { Qweb3 } = require('qweb3');
 
-const { getQtumRPCAddress } = require('./config/config');
+const { getQtumRPCAddress } = require('./config');
 
 const QClient = (() => {
   let instance;

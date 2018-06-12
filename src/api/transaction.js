@@ -1,4 +1,4 @@
-const { Config, getContractMetadata } = require('../config/config');
+const { Config, getContractMetadata } = require('../config');
 const Utils = require('../utils/utils');
 const { db } = require('../db/nedb');
 

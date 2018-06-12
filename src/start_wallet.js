@@ -1,7 +1,7 @@
 const { spawn } = require('child_process');
 const _ = require('lodash');
 
-const { isMainnet } = require('./config/config');
+const { isMainnet } = require('./config');
 const Utils = require('./utils/utils');
 const { getLogger } = require('./utils/logger');
 const { execFile } = require('./constants');

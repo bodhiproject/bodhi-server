@@ -9,7 +9,7 @@ const eventFactory = require('../api/event_factory');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
-const { Config, getContractMetadata } = require('../config/config');
+const { Config, getContractMetadata } = require('../config');
 const { txState } = require('../constants');
 const Utils = require('../utils/utils');
 

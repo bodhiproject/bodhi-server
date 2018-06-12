@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const _ = require('lodash');
 const Web3Utils = require('web3-utils');
 
-const { Config, isMainnet } = require('../config/config');
+const { Config, isMainnet } = require('../config');
 const { version } = require('../../package.json');
 const { execFile } = require('../constants');
 const { getLogger } = require('./logger');

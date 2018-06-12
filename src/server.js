@@ -10,7 +10,7 @@ const portscanner = require('portscanner');
 
 const {
   Config, setQtumEnv, isMainnet, getRPCPassword,
-} = require('./config/config');
+} = require('./config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitterHelper');

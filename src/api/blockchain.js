@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const { getContractMetadata } = require('../config/config');
+const { getContractMetadata } = require('../config');
 const { getInstance } = require('../qclient');
 
 const Blockchain = {

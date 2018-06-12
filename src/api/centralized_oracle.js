@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { Contract } = require('qweb3');
 
-const { Config, getContractMetadata, getQtumRPCAddress } = require('../config/config');
+const { Config, getContractMetadata, getQtumRPCAddress } = require('../config');
 
 function getContract(contractAddress) {
   const metadata = getContractMetadata();

@@ -6,7 +6,7 @@ const winston = require('winston');
 const Papertrail = require('winston-papertrail').Papertrail;
 const _ = require('lodash');
 
-const { Config } = require('../config/config');
+const { Config } = require('../config');
 
 let logger;
 
