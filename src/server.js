@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const path = require('path');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
 const { spawn } = require('child_process');
@@ -18,7 +17,6 @@ const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
-const { ipcEvent, execFile } = require('./constants');
 const { getInstance } = require('./qclient');
 const Wallet = require('./api/wallet');
 
@@ -39,7 +37,11 @@ function getQtumProcess() {
 // Checks to see if the qtumd port is still in use
 function checkQtumPort() {
   const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  portscanner.checkPortStatus(port, Config.HOSTNAME, (error, status) => {
+  portscanner.checkPortStatus(port, Config.HOSTNAME, (err, status) => {
+    if (err) {
+      getLogger().error(`Error: qtumd: ${err.message}`);
+      throw err;
+    }
     if (status === 'closed') {
       clearInterval(shutdownInterval);
 
@@ -87,7 +89,7 @@ async function checkWalletEncryption() {
 async function checkQtumdInit() {
   try {
     // getInfo throws an error if trying to be called before qtumd is running
-    const info = await getInstance().getInfo();
+    await getInstance().getInfo();
 
     // no error was caught, qtumd is initialized
     clearInterval(checkInterval);

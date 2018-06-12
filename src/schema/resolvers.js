@@ -592,8 +592,8 @@ module.exports = {
       const oracle = await Oracles.findOne({ address: oracleAddress }, { options: 1, optionIdxs: 1 });
       let winningIndex;
       if (!oracle) {
-        getLogger().error(`Could not find Oracle ${address} in DB.`);
-        throw new Error(`Could not find Oracle ${address} in DB.`);
+        getLogger().error(`Could not find Oracle ${oracleAddress} in DB.`);
+        throw new Error(`Could not find Oracle ${oracleAddress} in DB.`);
       } else {
         // Compare optionIdxs to options since optionIdxs will be missing the index of the last round's result
         for (let i = 0; i < oracle.options.length; i++) {

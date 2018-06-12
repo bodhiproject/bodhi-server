@@ -2,9 +2,7 @@ const { spawn } = require('child_process');
 const _ = require('lodash');
 
 const { isMainnet } = require('./config');
-const Utils = require('./utils/utils');
 const { getLogger } = require('./utils/logger');
-const { execFile } = require('./constants');
 
 /*
 * Shuts down the already running qtumd and starts qtum-qt.

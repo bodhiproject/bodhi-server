@@ -7,8 +7,6 @@ const { version } = require('../../package.json');
 const { execFile } = require('../constants');
 const { getLogger } = require('./logger');
 
-const DIR_DEV = 'dev';
-
 /*
 * Checks for dev flag
 */
@@ -49,7 +47,8 @@ function getBaseDataDir() {
 }
 
 /*
-* Returns the path where the local cache data (Transaction table) directory is, and also creates the directory if it doesn't exist.
+* Returns the path where the local cache data (Transaction table) directory is,
+* and also creates the directory if it doesn't exist.
 * The Local cache should exist regardless of version change, for now
 */
 function getLocalCacheDataDir() {
