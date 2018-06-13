@@ -694,7 +694,7 @@ async function getAddressBalances() {
       const getBotBalancePromises = [];
 
       _.map(addressBatches[loop.iteration()], async (address) => {
-        const getBotBalancePromise = new Promise(async (_resolve) => {
+        const getBotBalancePromise = new Promise(async (getBotBalanceResolve) => {
           let botBalance = new BigNumber(0);
 
           // Get BOT balance
@@ -714,7 +714,7 @@ async function getAddressBalances() {
           const found = _.find(addressObjs, { address });
           found.bot = botBalance.toString(10);
 
-          _resolve();
+          getBotBalanceResolve();
         });
 
         getBotBalancePromises.push(getBotBalancePromise);

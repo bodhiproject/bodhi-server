@@ -40,7 +40,6 @@ function checkQtumPort() {
   portscanner.checkPortStatus(port, Config.HOSTNAME, (err, status) => {
     if (err) {
       getLogger().error(`Error: qtumd: ${err.message}`);
-      throw err;
     }
     if (status === 'closed') {
       clearInterval(shutdownInterval);
