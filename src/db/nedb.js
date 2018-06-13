@@ -23,8 +23,9 @@ async function initDB() {
   }
 
   const blockchainDataPath = Utils.getDataDir();
-  const localCacheDataPath = Utils.getLocalCacheDataDir();
   getLogger().info(`Blockchain data path: ${blockchainDataPath}`);
+
+  const localCacheDataPath = Utils.getLocalCacheDataDir();
   getLogger().info(`Local cache data path: ${localCacheDataPath}`);
 
   db.Topics = datastore({ filename: `${blockchainDataPath}/topics.db` });
@@ -46,7 +47,7 @@ async function initDB() {
     await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
   } catch (err) {
-    throw new Error(`DB load Error: ${err.message}`);
+    throw Error(`DB load Error: ${err.message}`);
   }
 }
 
