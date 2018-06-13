@@ -51,7 +51,7 @@ async function initDB() {
 }
 
 // Delete blockchain Bodhi data
-async function deleteBodhiData() {
+function deleteBodhiData() {
   const logger = getLogger();
   const blockchainDataPath = Utils.getDataDir();
 
