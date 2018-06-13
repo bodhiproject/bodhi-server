@@ -1,5 +1,6 @@
 const datastore = require('nedb-promise');
 const _ = require('lodash');
+const fs = require('fs-extra');
 
 const Utils = require('../utils/utils');
 const { getLogger } = require('../utils/logger');
@@ -47,6 +48,38 @@ async function initDB() {
   } catch (err) {
     throw new Error(`DB load Error: ${err.message}`);
   }
+}
+
+// Delete blockchain Bodhi data
+async function deleteBodhiData() {
+  const logger = getLogger();
+  const blockchainDataPath = Utils.getDataDir();
+
+  try {
+    fs.removeSync(`${blockchainDataPath}/topics.db`);
+  } catch (err) {
+    logger.error(`Delete topics.db error: ${err.message}`);
+  }
+
+  try {
+    fs.removeSync(`${blockchainDataPath}/oracles.db`);
+  } catch (err) {
+    logger.error(`Delete oracles.db error: ${err.message}`);
+  }
+
+  try {
+    fs.removeSync(`${blockchainDataPath}/votes.db`);
+  } catch (err) {
+    logger.error(`Delete votes.db error: ${err.message}`);
+  }
+
+  try {
+    fs.removeSync(`${blockchainDataPath}/blocks.db`);
+  } catch (err) {
+    logger.error(`Delete blocks.db error: ${err.message}`);
+  }
+
+  logger.info('Bodhi data deleted.');
 }
 
 // Migrate DB
@@ -214,5 +247,6 @@ class DBHelper {
 module.exports = {
   db,
   initDB,
+  deleteBodhiData,
   DBHelper,
 };
