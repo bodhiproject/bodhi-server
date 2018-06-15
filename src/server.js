@@ -67,9 +67,9 @@ function killQtumProcess(emitEvent) {
     const res = spawnSync(getDevQtumExecPath(execFile.QTUM_CLI), flags);
     const code = res.status;
     if (res.stdout) {
-      getLogger().debug(`qtumd exit code ${code}: ${res.stdout}`);
+      getLogger().debug(`qtumd stopped with code: ${code} ${res.stdout}`);
     } else if (res.stderr) {
-      getLogger().error(`qtumd exit code ${code}: ${res.stderr}`);
+      getLogger().error(`qtumd stopped with code: ${code} ${res.stderr}`);
       if (res.error) {
         throw Error(res.error.message);
       }
@@ -245,8 +245,14 @@ function getServer() {
 }
 
 function exit(signal) {
-  getLogger().info(`Received ${signal}, exiting`);
+  getLogger().info(`Received ${signal}, exiting...`);
 
+  try {
+    killQtumProcess(false);
+  } catch (err) {
+    // catch error so exit can still call process.exit()
+  }
+  
   // add delay to give some time to write to log file
   setTimeout(() => process.exit(), 500);
 }
