@@ -7,6 +7,7 @@ const { SubscriptionServer } = require('subscriptions-transport-ws');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
+const { execFile } = require('./constants');
 const { Config, setQtumEnv, isMainnet, getRPCPassword,getDevQtumExecPath } = require('./config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
@@ -52,9 +53,10 @@ function checkQtumPort() {
 
 /*
 * Kills the running qtum process using the stop command.
+* @param qtumcliPath {String} Path to the qtum-cli executable.
 * @param emitEvent {Boolean} Flag to emit an event when qtum is fully shutdown.
 */
-function killQtumProcess(emitEvent) {
+function killQtumProcess(qtumcliPath, emitEvent) {
   if (qtumProcess) {
     const flags = [`-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
     if (!isMainnet()) {
@@ -62,7 +64,7 @@ function killQtumProcess(emitEvent) {
     }
     flags.push('stop');
     
-    const res = spawnSync(getDevQtumExecPath(execFile.QTUM_CLI), flags);
+    const res = spawnSync(qtumcliPath, flags);
     const code = res.status;
     if (res.stdout) {
       getLogger().debug(`qtumd stopped with code: ${code} ${res.stdout}`);
@@ -139,7 +141,7 @@ function startQtumProcess(qtumdPath, reindex) {
 
       if (data.includes('You need to rebuild the database using -reindex-chainstate')) {
         // Clean old process first
-        killQtumProcess(false);
+        killQtumProcess(getDevQtumExecPath(execFile.QTUM_CLI), false);
         clearInterval(checkInterval);
 
         // Restart qtumd with reindex flag
@@ -246,7 +248,7 @@ function exit(signal) {
   getLogger().info(`Received ${signal}, exiting...`);
 
   try {
-    killQtumProcess(false);
+    killQtumProcess(getDevQtumExecPath(execFile.QTUM_CLI), false);
   } catch (err) {
     // catch error so exit can still call process.exit()
   }
