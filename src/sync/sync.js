@@ -84,14 +84,14 @@ const syncCentralizedOracleCreated = async (currentBlockNum) => {
 
             // Insert existing Topic info into Oracle
             const topic = await DBHelper.findOne(db.Topics, { address: cOracle.topicAddress }, ['name', 'options']);
-            centralOracle.name = topic.name;
-            centralOracle.options = topic.options;
+            cOracle.name = topic.name;
+            cOracle.options = topic.options;
 
             // Update existing mutated Oracle or insert new
             if (await DBHelper.getCount(db.Oracles, { txid }) > 0) {
-              DBHelper.updateOracleByQuery(db.Oracles, { txid }, centralOracle);
+              DBHelper.updateOracleByQuery(db.Oracles, { txid }, cOracle);
             } else {
-              DBHelper.insertOracle(db.Oracles, centralOracle);
+              DBHelper.insertOracle(db.Oracles, cOracle);
             }
 
             resolve();
@@ -107,10 +107,53 @@ const syncCentralizedOracleCreated = async (currentBlockNum) => {
   await Promise.all(cOraclePromises);
 };
 
+const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime) => {
+  let result;
+  try {
+    result = await getInstance().searchLogs(currentBlockNum, currentBlockNum, [], 
+      contractMetadata.OracleFactory.DecentralizedOracleCreated, contractMetadata, REMOVE_HEX_PREFIX);
+    getLogger().debug(`${result.length} DecentralizedOracleCreated entries`);
+  } catch (err) {
+    throw Error(`searchlog DecentralizedOracleCreated: ${err.message}`);
+  }
+  
+  const dOraclePromises = [];
+  _.forEach(result, (event, index) => {
+    const blockNum = event.blockNumber;
+    const txid = event.transactionHash;
+
+    _.forEachRight(event.log, (rawLog) => {
+      if (rawLog._eventName === 'DecentralizedOracleCreated') {
+        dOraclePromises.push(new Promise(async (resolve) => {
+          try {
+            const dOracle = new DecentralizedOracle(blockNum, txid, rawLog).translate();
+
+            const topic = await DBHelper.findOne(db.Topics, { address: dOracle.topicAddress }, ['name', 'options']);
+            dOracle.name = topic.name;
+            dOracle.options = topic.options;
+            dOracle.startTime = currentBlockTime;
+
+            await db.Oracles.insert(dOracle);
+            resolve();
+          } catch (err) {
+            getLogger().error(`insert DecentralizedOracleCreated: ${err.message}`);
+            resolve();
+          }
+        }));
+      }
+    });
+  });
+
+  await Promise.all(dOraclePromises);
+}
+
 const sync = async (blockNum) => {
   contractMetadata = getContractMetadata();
+  const currentBlockHash = await getInstance().getBlockHash(blockNum);
+  const currentBlockTime = (await getInstance().getBlock(currentBlockHash)).time;
 
   getLogger().debug(`Syncing blockNum ${blockNum}`);
   await syncTopicCreated(blockNum);
   await syncCentralizedOracleCreated(blockNum);
+  await syncDecentralizedOracleCreated(blockNum, currentBlockTime);
 };
