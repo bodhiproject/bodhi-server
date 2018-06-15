@@ -53,12 +53,13 @@ function checkQtumPort() {
 }
 
 /*
-* Kills the running qtum process.
+* Kills the running qtum process using the stop command.
 * @param emitEvent {Boolean} Flag to emit an event when qtum is fully shutdown.
 */
 function killQtumProcess(emitEvent) {
   if (qtumProcess) {
-    qtumProcess.kill();
+    // qtumProcess.kill();
+    // TODO: insert stop command
 
     // Repeatedly check if qtum port is in use
     if (emitEvent) {
