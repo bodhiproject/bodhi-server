@@ -7,9 +7,7 @@ const { SubscriptionServer } = require('subscriptions-transport-ws');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
-const {
-  Config, setQtumEnv, isMainnet, getRPCPassword,
-} = require('./config');
+const { Config, setQtumEnv, isMainnet, getRPCPassword,getDevQtumExecPath } = require('./config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitterHelper');
