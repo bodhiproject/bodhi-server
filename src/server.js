@@ -8,7 +8,9 @@ const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
 const { execFile } = require('./constants');
-const { Config, setQtumEnv, isMainnet, getRPCPassword,getDevQtumExecPath } = require('./config');
+const {
+  Config, setQtumEnv, isMainnet, getRPCPassword, getDevQtumExecPath,
+} = require('./config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitterHelper');
@@ -63,7 +65,7 @@ function killQtumProcess(qtumcliPath, emitEvent) {
       flags.push('-testnet');
     }
     flags.push('stop');
-    
+
     const res = spawnSync(qtumcliPath, flags);
     const code = res.status;
     if (res.stdout) {
@@ -252,7 +254,7 @@ function exit(signal) {
   } catch (err) {
     // catch error so exit can still call process.exit()
   }
-  
+
   // add delay to give some time to write to log file
   setTimeout(() => process.exit(), 500);
 }
