@@ -1,12 +1,11 @@
 /* eslint no-underscore-dangle: [2, { "allow": ["_eventName"] }] */
 
 const _ = require('lodash');
-const { Qweb3 } = require('qweb3');
 const pubsub = require('../pubsub');
 const { getLogger } = require('../utils/logger');
 const moment = require('moment');
 const BigNumber = require('bignumber.js');
-const { getContractMetadata, isMainnet } = require('../config/config');
+const { getContractMetadata, isMainnet } = require('../config');
 const { BLOCK_0_TIMESTAMP, SATOSHI_CONVERSION } = require('../constants');
 const { db, DBHelper } = require('../db/nedb');
 const updateTxDB = require('./update_tx');
@@ -117,7 +116,7 @@ async function sync(db) {
       ]);
       getLogger().debug('Synced Result Set');
 
-      const { insertBlockPromises, endBlockTime } = await getInsertBlockPromises(db, startBlock, endBlock);
+      const { insertBlockPromises } = await getInsertBlockPromises(db, startBlock, endBlock);
       await Promise.all(insertBlockPromises);
       getLogger().debug('Inserted Blocks');
 
@@ -523,12 +522,12 @@ async function calculateSyncPercent(blockCount, blockTime) {
     const timestampNow = moment().unix();
     // if blockTime is 20 min behind, we are not fully synced
     if (blockTime < timestampNow - SYNC_THRESHOLD_SECS) {
-      syncPercent = Math.floor((blockTime - BLOCK_0_TIMESTAMP) / (timestampNow - BLOCK_0_TIMESTAMP) * 100);
+      syncPercent = Math.floor(((blockTime - BLOCK_0_TIMESTAMP) / (timestampNow - BLOCK_0_TIMESTAMP)) * 100);
     }
     return syncPercent;
   }
 
-  return Math.floor(blockCount / peerBlockHeader * 100);
+  return Math.floor((blockCount / peerBlockHeader) * 100);
 }
 
 // Send syncInfo subscription
@@ -695,7 +694,7 @@ async function getAddressBalances() {
       const getBotBalancePromises = [];
 
       _.map(addressBatches[loop.iteration()], async (address) => {
-        const getBotBalancePromise = new Promise(async (resolve) => {
+        const getBotBalancePromise = new Promise(async (getBotBalanceResolve) => {
           let botBalance = new BigNumber(0);
 
           // Get BOT balance
@@ -715,7 +714,7 @@ async function getAddressBalances() {
           const found = _.find(addressObjs, { address });
           found.bot = botBalance.toString(10);
 
-          resolve();
+          getBotBalanceResolve();
         });
 
         getBotBalancePromises.push(getBotBalancePromise);

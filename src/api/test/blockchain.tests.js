@@ -1,7 +1,7 @@
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
-const { setQtumEnv } = require('../../config/config');
+const { setQtumEnv } = require('../../config');
 const { blockchainEnv } = require('../../constants');
 const Blockchain = require('../../api/blockchain');
 const Mocks = require('./mock/blockchain');

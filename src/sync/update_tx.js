@@ -9,7 +9,7 @@ const eventFactory = require('../api/event_factory');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
-const { Config, getContractMetadata } = require('../config/config');
+const { Config, getContractMetadata } = require('../config');
 const { txState } = require('../constants');
 const Utils = require('../utils/utils');
 
@@ -45,7 +45,7 @@ async function updateTx(tx, currentBlockCount) {
       tx.status = txState.SUCCESS;
       tx.gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
 
-      tx.blockNum = currentBlockCount - txInfo.confirmations + 1;
+      tx.blockNum = (currentBlockCount - txInfo.confirmations) + 1;
       const blockHash = await blockchain.getBlockHash({ blockNum: tx.blockNum });
       const blockInfo = await blockchain.getBlock({ blockHash });
       tx.blockTime = blockInfo.time;

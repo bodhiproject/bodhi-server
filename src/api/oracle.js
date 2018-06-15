@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { Contract } = require('qweb3');
 
-const { getContractMetadata, getQtumRPCAddress } = require('../config/config');
+const { getContractMetadata, getQtumRPCAddress } = require('../config');
 const Utils = require('../utils/utils');
 
 const ORACLE_CENTRALIZED = 'centralized';

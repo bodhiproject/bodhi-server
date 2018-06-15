@@ -11,7 +11,7 @@ const eventFactory = require('../api/event_factory');
 const topicEvent = require('../api/topic_event');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
-const { Config, getContractMetadata } = require('../config/config');
+const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/nedb').DBHelper;
 const { txState } = require('../constants');
 const { calculateSyncPercent, getAddressBalances } = require('../sync');
@@ -592,8 +592,8 @@ module.exports = {
       const oracle = await Oracles.findOne({ address: oracleAddress }, { options: 1, optionIdxs: 1 });
       let winningIndex;
       if (!oracle) {
-        getLogger().error(`Could not find Oracle ${address} in DB.`);
-        throw new Error(`Could not find Oracle ${address} in DB.`);
+        getLogger().error(`Could not find Oracle ${oracleAddress} in DB.`);
+        throw new Error(`Could not find Oracle ${oracleAddress} in DB.`);
       } else {
         // Compare optionIdxs to options since optionIdxs will be missing the index of the last round's result
         for (let i = 0; i < oracle.options.length; i++) {
