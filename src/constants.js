@@ -23,6 +23,7 @@ module.exports = {
   execFile: {
     QTUMD: 'qtumd',
     QTUM_QT: 'qtum-qt',
+    QTUM_CLI: 'qtum-cli',
   },
 
   BLOCK_0_TIMESTAMP: 1504695029,

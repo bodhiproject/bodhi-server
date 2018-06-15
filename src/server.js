@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const fetch = require('node-fetch');
@@ -58,8 +58,22 @@ function checkQtumPort() {
 */
 function killQtumProcess(emitEvent) {
   if (qtumProcess) {
-    // qtumProcess.kill();
-    // TODO: insert stop command
+    const flags = [`-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
+    if (!isMainnet()) {
+      flags.push('-testnet');
+    }
+    flags.push('stop');
+    
+    const res = spawnSync(getDevQtumExecPath(execFile.QTUM_CLI), flags);
+    const code = res.status;
+    if (res.stdout) {
+      getLogger().debug(`qtumd exit code ${code}: ${res.stdout}`);
+    } else if (res.stderr) {
+      getLogger().error(`qtumd exit code ${code}: ${res.stderr}`);
+      if (res.error) {
+        throw Error(res.error.message);
+      }
+    }
 
     // Repeatedly check if qtum port is in use
     if (emitEvent) {
