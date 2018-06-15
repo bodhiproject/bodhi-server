@@ -67,9 +67,9 @@ function killQtumProcess(qtumcliPath, emitEvent) {
     const res = spawnSync(qtumcliPath, flags);
     const code = res.status;
     if (res.stdout) {
-      getLogger().debug(`qtumd stopped with code: ${code} ${res.stdout}`);
+      getLogger().debug(`qtumd stopped with code ${code}: ${res.stdout}`);
     } else if (res.stderr) {
-      getLogger().error(`qtumd stopped with code: ${code} ${res.stderr}`);
+      getLogger().error(`qtumd stopped with code ${code}: ${res.stderr}`);
       if (res.error) {
         throw Error(res.error.message);
       }
