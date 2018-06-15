@@ -1,8 +1,10 @@
+const { BigNumber } = require('bignumber.js');
+
 const { getContractMetadata, isMainnet } = require('../config');
 const { db, DBHelper } = require('../db/nedb');
 const { getLogger } = require('../utils/logger');
 
-const REMOVE_HEX_PREFIX = true;
+const removeHexPrefix = true;
 let contractMetadata;
 
 // Returns the starting block to start syncing
@@ -24,7 +26,7 @@ const syncTopicCreated = async (currentBlockNum) => {
   let result;
   try {
     result = await getInstance().searchLogs(currentBlockNum, currentBlockNum, contractMetadata.EventFactory.address,
-      [contractMetadata.EventFactory.TopicCreated], contractMetadata, REMOVE_HEX_PREFIX);
+      [contractMetadata.EventFactory.TopicCreated], contractMetadata, removeHexPrefix);
     getLogger().debug(`${result.length} TopicCreated entries`);
   } catch (err) {
     throw Error(`searchlog TopicCreated: ${err.message}`);
@@ -65,7 +67,7 @@ const syncCentralizedOracleCreated = async (currentBlockNum) => {
   let result;
   try {
     result = await getInstance().searchLogs(currentBlockNum, currentBlockNum, contractMetadata.EventFactory.address,
-      [contractMetadata.OracleFactory.CentralizedOracleCreated], contractMetadata, REMOVE_HEX_PREFIX);
+      [contractMetadata.OracleFactory.CentralizedOracleCreated], contractMetadata, removeHexPrefix);
     getLogger().debug(`${result.length} CentralizedOracleCreated entries`);
   } catch (err) {
     throw Error(`searchlog CentralizedOracleCreated: ${err.message}`);
@@ -111,7 +113,7 @@ const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime)
   let result;
   try {
     result = await getInstance().searchLogs(currentBlockNum, currentBlockNum, [], 
-      contractMetadata.OracleFactory.DecentralizedOracleCreated, contractMetadata, REMOVE_HEX_PREFIX);
+      contractMetadata.OracleFactory.DecentralizedOracleCreated, contractMetadata, removeHexPrefix);
     getLogger().debug(`${result.length} DecentralizedOracleCreated entries`);
   } catch (err) {
     throw Error(`searchlog DecentralizedOracleCreated: ${err.message}`);
@@ -147,12 +149,74 @@ const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime)
   await Promise.all(dOraclePromises);
 }
 
+const syncOracleResultVoted = (currentBlockNum) => {
+  let result;
+  try {
+    result = await getInstance().searchLogs(currentBlockNum, currentBlockNum, [], 
+      contractMetadata.CentralizedOracle.OracleResultVoted, contractMetadata, removeHexPrefix);
+    getLogger().debug(`${result.length} OracleResultVoted entries`);
+  } catch (err) {
+    throw Error(`searchlog OracleResultVoted: ${err.message}`);
+  }
+  
+  const votedPromises = [];
+  _.forEach(result, (event, index) => {
+    const blockNum = event.blockNumber;
+    const txid = event.transactionHash;
+
+    _.forEachRight(event.log, (rawLog) => {
+      if (rawLog._eventName === 'OracleResultVoted') {
+        votedPromises.push(new Promise(async (resolve) => {
+          try {
+            const vote = new Vote(blockNum, txid, rawLog).translate();
+
+            // Add Topic address to Vote
+            const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress }, ['topicAddress']);
+            vote.topicAddress = oracle.topicAddress;
+            await db.Votes.insert(vote);
+
+            // Update Topic balance
+            const voteBn = new BigNumber(vote.amount);
+            const topic = await DBHelper.findOne(db.Topics, { address: oracle.topicAddress });
+            switch (vote.token) {
+              case 'QTUM': {
+                topic.qtumAmount[vote.optionIdx] = new BigNumber(topic.qtumAmount[vote.optionIdx]).plus(voteBn).toString(10);
+                await DBHelper.updateObjectByQuery(db.Topics, { address: topic.address }, { qtumAmount: topic.qtumAmount });
+                break;
+              }
+              case 'BOT': {
+                topic.botAmount[vote.optionIdx] = new BigNumber(topic.botAmount[vote.optionIdx]).plus(voteBn).toString(10);
+                await DBHelper.updateObjectByQuery(db.Topics, { address: topic.address }, { botAmount: topic.botAmount });
+                break;
+              }
+              default: {
+                throw Error(`Invalid token type: ${vote.token}`);
+              }
+            }
+
+            // Update Oracle balance
+            oracle.amounts[vote.optionIdx] = new BigNumber(oracle.amounts[vote.optionIdx]).plus(voteBn).toString(10);
+            await DBHelper.updateObjectByQuery(db.Oracles, { address: oracle.address }, { amounts: oracle.amounts });
+            
+            resolve();
+          } catch (err) {
+            getLogger().error(`insert OracleResultVoted: ${err.message}`);
+            resolve();
+          }
+        }));
+      }
+    });
+  });
+
+  await Promise.all(votedPromises);
+};
+
 const sync = async (blockNum) => {
   contractMetadata = getContractMetadata();
   const currentBlockHash = await getInstance().getBlockHash(blockNum);
   const currentBlockTime = (await getInstance().getBlock(currentBlockHash)).time;
 
-  getLogger().debug(`Syncing blockNum ${blockNum}`);
+  getLogger().debug(`Syncing block ${blockNum}`);
   await syncTopicCreated(blockNum);
   await syncCentralizedOracleCreated(blockNum);
   await syncDecentralizedOracleCreated(blockNum, currentBlockTime);
