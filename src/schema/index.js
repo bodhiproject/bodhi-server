@@ -61,7 +61,7 @@ type Withdraw {
   blockNum: Int!
   txid: String!
   type: _WithdrawType!
-  version: Int!
+  version: Int
   topicAddress: String!
   withdrawerAddress: String!
   qtumAmount: String!
