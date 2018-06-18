@@ -5,12 +5,20 @@ const Web3Utils = require('web3-utils');
 
 class DecentralizedOracle {
   constructor(blockNum, txid, rawLog) {
-    if (!_.isEmpty(rawLog)) {
-      this.blockNum = blockNum;
-      this.txid = txid;
-      this.rawLog = rawLog;
-      this.decode();
+    if (!_.isFinite(blockNum)) {
+      throw Error('blockNum must be a Number');
     }
+    if (!_.isString(txid)) {
+      throw Error('txid must be a String');
+    }
+    if (_.isEmpty(rawLog)) {
+      throw Error('rawLog must not be empty');
+    }
+
+    this.blockNum = blockNum;
+    this.txid = txid;
+    this.rawLog = rawLog;
+    this.decode();
   }
 
   decode() {
@@ -28,19 +36,19 @@ class DecentralizedOracle {
     _.remove(optionIdxs, num => num === this.lastResultIndex);
 
     return {
+      blockNum: this.blockNum,
       txid: this.txid,
       version: this.version,
       address: this.contractAddress,
       topicAddress: this.eventAddress,
       status: 'VOTING',
       token: 'BOT',
-      name: this.name,
-      options: this.options,
+      name: null,
+      options: null,
       optionIdxs,
       amounts: _.fill(Array(this.numOfResults), '0'),
       resultIdx: null,
-      blockNum: this.blockNum,
-      startTime: 0,
+      startTime: null,
       endTime: this.arbitrationEndTime,
       consensusThreshold: this.consensusThreshold,
     };

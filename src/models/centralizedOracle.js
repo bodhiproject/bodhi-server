@@ -8,12 +8,20 @@ const { isMainnet } = require('../config');
 
 class CentralizedOracle {
   constructor(blockNum, txid, rawLog) {
-    if (!_.isEmpty(rawLog)) {
-      this.txid = txid;
-      this.blockNum = blockNum;
-      this.rawLog = rawLog;
-      this.decode();
+    if (!_.isFinite(blockNum)) {
+      throw Error('blockNum must be a Number');
     }
+    if (!_.isString(txid)) {
+      throw Error('txid must be a String');
+    }
+    if (_.isEmpty(rawLog)) {
+      throw Error('rawLog must not be empty');
+    }
+
+    this.blockNum = blockNum;
+    this.txid = txid;
+    this.rawLog = rawLog;
+    this.decode();
   }
 
   decode() {
@@ -31,20 +39,20 @@ class CentralizedOracle {
 
   translate() {
     return {
+      blockNum: this.blockNum,
+      txid: this.txid,
       version: this.version,
       address: this.contractAddress,
-      txid: this.txid,
       topicAddress: this.eventAddress,
       resultSetterAddress: this.oracle,
       resultSetterQAddress: Decoder.toQtumAddress(this.oracle, isMainnet()),
       status: 'VOTING',
       token: 'QTUM',
-      name: this.name,
-      options: this.options,
+      name: null,
+      options: null,
       optionIdxs: Array.from(Array(this.numOfResults).keys()),
       amounts: _.fill(Array(this.numOfResults), '0'),
       resultIdx: null,
-      blockNum: this.blockNum,
       startTime: this.bettingStartTime,
       endTime: this.bettingEndTime,
       resultSetStartTime: this.resultSettingStartTime,
