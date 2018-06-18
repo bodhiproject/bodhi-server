@@ -308,7 +308,7 @@ const syncFinalResultSet = async (currentBlockNum) => {
   });
 
   await Promise.all(finalResultSetPromises);
-}
+};
 
 const syncWinningsWithdrawn = async (currentBlockNum) => {
   let result;
@@ -344,7 +344,21 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
   });
 
   await Promise.all(winningsWithdrawnPromises);
-}
+};
+
+// Update all Centralized and Decentralized Oracles statuses that are passed the endTime
+const updateOraclesDoneVoting = async (currentBlockTime) => {
+  try {
+    const res = await db.Oracles.update(
+      { endTime: { $lt: currentBlockTime }, status: 'VOTING' },
+      { $set: { status: 'WAITRESULT' } },
+      { multi: true },
+    );
+    getLogger().debug(`${res} updateOraclesDoneVoting entries`);
+  } catch (err) {
+    getLogger().error(`updateOraclesDoneVoting: ${err.message}`);
+  }
+};
 
 const sync = async (blockNum) => {
   contractMetadata = getContractMetadata();
@@ -359,4 +373,5 @@ const sync = async (blockNum) => {
   await syncOracleResultSet(blockNum);
   await syncFinalResultSet(blockNum);
   await syncWinningsWithdrawn(blockNum);
+  await updateOraclesDoneVoting(currentBlockTime);
 };
