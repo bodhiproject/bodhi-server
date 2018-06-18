@@ -211,6 +211,44 @@ const syncOracleResultVoted = (currentBlockNum) => {
   await Promise.all(votedPromises);
 };
 
+const syncOracleResultSet = async (currentBlockNum) => {
+  let result;
+  try {
+    result = await getInstance().searchLogs(currentBlockNum, currentBlockNum, [], 
+      contractMetadata.CentralizedOracle.OracleResultSet, contractMetadata, removeHexPrefix);
+    getLogger().debug(`${result.length} OracleResultSet entries`);
+  } catch (err) {
+    throw Error(`searchlog OracleResultSet: ${err.message}`);
+  }
+  
+  const resultSetPromises = [];
+  _.forEach(result, (event, index) => {
+    const blockNum = event.blockNumber;
+    const txid = event.transactionHash;
+
+    _.forEachRight(event.log, (rawLog) => {
+      if (rawLog._eventName === 'OracleResultSet') {
+        resultSetPromises.push(new Promise(async (resolve) => {
+          try {
+            const resultSet = new OracleResultSet(blockNum, txid, rawLog).translate();
+
+            await db.Oracles.update(
+              { address: resultSet.oracleAddress },
+              { $set: { resultIdx: resultSet.resultIdx, status: 'PENDING' } }, {},
+            );
+            resolve();
+          } catch (err) {
+            getLogger().error(`insert OracleResultSet: ${err.message}`);
+            resolve();
+          }
+        }));
+      }
+    });
+  });
+
+  await Promise.all(resultSetPromises);
+};
+
 const sync = async (blockNum) => {
   contractMetadata = getContractMetadata();
   const currentBlockHash = await getInstance().getBlockHash(blockNum);
