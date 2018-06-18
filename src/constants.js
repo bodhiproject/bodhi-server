@@ -26,6 +26,11 @@ module.exports = {
     QTUM_CLI: 'qtum-cli',
   },
 
+  withdrawType: {
+    ESCROW: 'escrow',
+    WINNINGS: 'winnings',
+  },
+
   BLOCK_0_TIMESTAMP: 1504695029,
   SATOSHI_CONVERSION: 10 ** 8,
 };
