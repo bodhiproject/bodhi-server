@@ -225,13 +225,20 @@ const syncOracleResultSet = async (currentBlockNum) => {
   _.forEach(result, (event, index) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
+    const fromAddress = event.from;
 
     _.forEachRight(event.log, (rawLog) => {
       if (rawLog._eventName === 'OracleResultSet') {
         resultSetPromises.push(new Promise(async (resolve) => {
           try {
-            const resultSet = new OracleResultSet(blockNum, txid, rawLog).translate();
+            const resultSet = new OracleResultSet(blockNum, txid, fromAddress, rawLog).translate();
 
+            // Add Topic address to ResultSet
+            const oracle = await DBHelper.findOne(db.Oracles, { address: resultSet.oracleAddress }, ['topicAddress']);
+            resultSet.topicAddress = oracle.topicAddress;
+            await db.ResultSets.insert(resultSet);
+
+            // Update Oracle status
             await db.Oracles.update(
               { address: resultSet.oracleAddress },
               { $set: { resultIdx: resultSet.resultIdx, status: 'PENDING' } }, {},
