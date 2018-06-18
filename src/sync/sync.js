@@ -4,6 +4,14 @@ const { getContractMetadata, isMainnet } = require('../config');
 const { db, DBHelper } = require('../db/nedb');
 const { getLogger } = require('../utils/logger');
 
+const Topic = require('../models/topic');
+const CentralizedOracle = require('../models/centralizedOracle');
+const DecentralizedOracle = require('../models/decentralizedOracle');
+const Vote = require('../models/vote');
+const OracleResultSet = require('../models/oracleResultSet');
+const FinalResultSet = require('../models/finalResultSet');
+const WinningsWithdrawn = require('../models/WinningsWithdrawn');
+
 const removeHexPrefix = true;
 let contractMetadata;
 
@@ -302,6 +310,42 @@ const syncFinalResultSet = async (currentBlockNum) => {
   await Promise.all(finalResultSetPromises);
 }
 
+const syncWinningsWithdrawn = async (currentBlockNum) => {
+  let result;
+  try {
+    result = await getInstance().searchLogs(currentBlockNum, currentBlockNum, [], 
+      contractMetadata.TopicEvent.WinningsWithdrawn, contractMetadata, removeHexPrefix);
+    getLogger().debug(`${result.length} WinningsWithdrawn entries`);
+  } catch (err) {
+    throw Error(`searchlog WinningsWithdrawn: ${err.message}`);
+  }
+  
+  const winningsWithdrawnPromises = [];
+  _.forEach(result, (event, index) => {
+    const blockNum = event.blockNumber;
+    const txid = event.transactionHash;
+    const contractAddress = event.contractAddress;
+
+    _.forEachRight(event.log, (rawLog) => {
+      if (rawLog._eventName === 'WinningsWithdrawn') {
+        winningsWithdrawnPromises.push(new Promise(async (resolve) => {
+          try {
+            const withdraw = new WinningsWithdrawn(blockNum, txid, contractAddress, rawLog).translate();
+            await db.WinningsWithdrawn.insert(withdraw);
+
+            resolve();
+          } catch (err) {
+            getLogger().error(`insert WinningsWithdrawn: ${err.message}`);
+            resolve();
+          }
+        }));
+      }
+    });
+  });
+
+  await Promise.all(winningsWithdrawnPromises);
+}
+
 const sync = async (blockNum) => {
   contractMetadata = getContractMetadata();
   const currentBlockHash = await getInstance().getBlockHash(blockNum);
@@ -314,4 +358,5 @@ const sync = async (blockNum) => {
   await syncOracleResultVoted(blockNum);
   await syncOracleResultSet(blockNum);
   await syncFinalResultSet(blockNum);
+  await syncWinningsWithdrawn(blockNum);
 };
