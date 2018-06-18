@@ -132,7 +132,7 @@ function startQtumProcess(qtumdPath, reindex) {
         // Restart qtumd with reindex flag
         setTimeout(() => {
           getLogger().info('Restarting and reindexing Qtum blockchain');
-          startQtumProcess(true, qtumdPath);
+          startQtumProcess(qtumdPath, true);
         }, 3000);
       } else {
         // Emit startup error event to Electron listener
