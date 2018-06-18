@@ -27,8 +27,8 @@ module.exports = {
   },
 
   withdrawType: {
-    ESCROW: 'escrow',
-    WINNINGS: 'winnings',
+    ESCROW: 'ESCROW',
+    WINNINGS: 'WINNINGS',
   },
 
   BLOCK_0_TIMESTAMP: 1504695029,

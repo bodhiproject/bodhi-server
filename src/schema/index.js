@@ -57,6 +57,17 @@ type Vote {
   amount: String!
 }
 
+type Withdraw {
+  blockNum: Int!
+  txid: String!
+  type: _WithdrawType!
+  version: Int!
+  topicAddress: String!
+  withdrawerAddress: String!
+  qtumAmount: String!
+  botAmount: String!
+}
+
 type Transaction {
   type: _TransactionType!
   status: _TransactionStatus!
@@ -102,6 +113,7 @@ type Query {
   allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): [Oracle]!
   searchOracles(searchPhrase: String, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
   allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
+  withdraws(filter: WithdrawFilter, orderBy: [Order!], limit: Int, skip: Int): [Withdraw]!
   allTransactions(filter: TransactionFilter, orderBy: [Order!], limit: Int, skip: Int): [Transaction]!
   syncInfo(includeBalance: Boolean): syncInfo!
 }
@@ -134,6 +146,14 @@ input VoteFilter {
   voterAddress: String
   voterQAddress: String
   optionIdx: Int
+}
+
+input WithdrawFilter {
+  OR: [WithdrawFilter!]
+  txid: String
+  topicAddress: String
+  withdrawerAddress: String
+  type: _WithdrawType
 }
 
 input TransactionFilter {
@@ -227,9 +247,9 @@ type TopicSubscriptionPayload {
 }
 
 type AddressBalance {
-  address: String!,
-  qtum: String!,
-  bot: String!,
+  address: String!
+  qtum: String!
+  bot: String!
 }
 
 enum _ModelMutationType {
@@ -245,6 +265,11 @@ enum _OracleStatusType {
   OPENRESULTSET
   PENDING
   WITHDRAW
+}
+
+enum _WithdrawType {
+  ESCROW
+  WINNINGS
 }
 
 enum _TokenType {
