@@ -266,4 +266,5 @@ const sync = async (blockNum) => {
   await syncCentralizedOracleCreated(blockNum);
   await syncDecentralizedOracleCreated(blockNum, currentBlockTime);
   await syncOracleResultVoted(blockNum);
+  await syncOracleResultSet(blockNum);
 };
