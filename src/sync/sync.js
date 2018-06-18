@@ -1,9 +1,10 @@
+const _ = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
+const { getInstance } = require('../qclient');
 const { getContractMetadata, isMainnet } = require('../config');
 const { db, DBHelper } = require('../db/nedb');
 const { getLogger } = require('../utils/logger');
-
 const Topic = require('../models/topic');
 const CentralizedOracle = require('../models/centralizedOracle');
 const DecentralizedOracle = require('../models/decentralizedOracle');
@@ -12,6 +13,7 @@ const OracleResultSet = require('../models/oracleResultSet');
 const FinalResultSet = require('../models/finalResultSet');
 const WinningsWithdrawn = require('../models/WinningsWithdrawn');
 
+const SYNC_START_DELAY = 1000;
 const removeHexPrefix = true;
 let contractMetadata;
 
@@ -157,7 +159,7 @@ const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime)
   await Promise.all(dOraclePromises);
 }
 
-const syncOracleResultVoted = (currentBlockNum) => {
+const syncOracleResultVoted = async (currentBlockNum) => {
   let result;
   try {
     result = await getInstance().searchLogs(currentBlockNum, currentBlockNum, [], 
@@ -179,7 +181,7 @@ const syncOracleResultVoted = (currentBlockNum) => {
             const vote = new Vote(blockNum, txid, rawLog).translate();
 
             // Add Topic address to Vote
-            const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress }, ['topicAddress']);
+            const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress });
             vote.topicAddress = oracle.topicAddress;
             await db.Votes.insert(vote);
 
@@ -374,26 +376,42 @@ const updateCOraclesDoneResultSet = async (currentBlockTime) => {
   }
 };
 
-const insertBlock = async (currentBlockNum, currentBlockTime, currentBlockHash) => {
+const insertBlock = async (currentBlockNum, currentBlockTime) => {
   try {
     await db.Blocks.insert({
       _id: currentBlockNum,
       blockNum: currentBlockNum,
       blockTime: currentBlockTime,
     });
-    getLogger().debug(`inserted Block ${currentBlockNum}`);
+    getLogger().debug(`Inserted block ${currentBlockNum}`);
   } catch (err) {
     getLogger().error(`insert Block: ${err.message}`);
   }
 };
 
-const sync = async () => {
+// Delay then startSync
+const delayThenSync = () => {
+  getLogger().debug('sleep');
+  setTimeout(startSync, SYNC_START_DELAY);
+};
+
+const startSync = async () => {
   contractMetadata = getContractMetadata();
 
   const currentBlockNum = await getStartBlock();
-  const currentBlockHash = await getInstance().getBlockHash(currentBlockNum);
-  const currentBlockTime = (await getInstance().getBlock(currentBlockHash)).time;
-
+  let currentBlockTime;
+  try {
+    const currentBlockHash = await getInstance().getBlockHash(currentBlockNum);
+    currentBlockTime = (await getInstance().getBlock(currentBlockHash)).time;
+    if (currentBlockTime <= 0) {
+      throw Error(`Invalid blockTime: ${currentBlockTime}`);
+    }
+  } catch (err) {
+    getLogger().error(`get blockTime: ${err.message}`);
+    delayThenSync();
+    return;
+  }
+  
   getLogger().debug(`Syncing block ${currentBlockNum}`);
   await syncTopicCreated(currentBlockNum);
   await syncCentralizedOracleCreated(currentBlockNum);
@@ -404,11 +422,12 @@ const sync = async () => {
   await syncWinningsWithdrawn(currentBlockNum);
   await updateOraclesDoneVoting(currentBlockTime);
   await updateCOraclesDoneResultSet(currentBlockTime);
-  await insertBlock(currentBlockNum, currentBlockTime, currentBlockHash);
+  await insertBlock(currentBlockNum, currentBlockTime);
 
   // Restart sync after delay
-  getLogger().debug('sleep');
-  setTimeout(sync, 5000);
+  delayThenSync();
 };
 
-
+module.exports = {
+  startSync,
+};
