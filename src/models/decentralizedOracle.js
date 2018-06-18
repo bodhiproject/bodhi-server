@@ -1,5 +1,4 @@
 /* eslint no-underscore-dangle: 0 */
-
 const _ = require('lodash');
 const Web3Utils = require('web3-utils');
 
@@ -41,16 +40,16 @@ class DecentralizedOracle {
       version: this.version,
       address: this.contractAddress,
       topicAddress: this.eventAddress,
-      status: 'VOTING',
-      token: 'BOT',
-      name: null,
-      options: null,
-      optionIdxs,
       amounts: _.fill(Array(this.numOfResults), '0'),
-      resultIdx: null,
-      startTime: null,
+      optionIdxs,
       endTime: this.arbitrationEndTime,
       consensusThreshold: this.consensusThreshold,
+      name: null,
+      options: null,
+      resultIdx: null,
+      startTime: null,
+      status: 'VOTING',
+      token: 'BOT',
     };
   }
 }

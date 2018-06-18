@@ -37,13 +37,13 @@ class Vote {
       blockNum: this.blockNum,
       txid: this.txid,
       version: this.version,
+      oracleAddress: this.oracleAddress,
       voterAddress: this.participant,
       voterQAddress: this.participant,
-      topicAddress: null,
-      oracleAddress: this.oracleAddress,
       optionIdx: this.resultIndex,
       amount: this.votedAmount,
       token: this.token,
+      topicAddress: null,
     };
   }
 }
