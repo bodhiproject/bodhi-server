@@ -5,7 +5,7 @@ const Web3Utils = require('web3-utils');
 
 const { isMainnet } = require('../config');
 
-class WinningsWithdraw {
+class WinningsWithdrawn {
   constructor(blockNum, txid, contractAddress, rawLog) {
     if (!_.isEmpty(rawLog)) {
       this.blockNum = blockNum;
@@ -36,4 +36,4 @@ class WinningsWithdraw {
   }
 }
 
-module.exports = WinningsWithdraw;
+module.exports = WinningsWithdrawn;
