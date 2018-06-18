@@ -1,14 +1,15 @@
 const _ = require('lodash');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
+const { execFile } = require('./constants');
 const {
-  Config, setQtumEnv, isMainnet, getRPCPassword,
+  Config, setQtumEnv, isMainnet, getRPCPassword, getDevQtumExecPath,
 } = require('./config');
 const { initDB } = require('./db/nedb');
 const { initLogger, getLogger } = require('./utils/logger');
@@ -53,12 +54,28 @@ function checkQtumPort() {
 }
 
 /*
-* Kills the running qtum process.
+* Kills the running qtum process using the stop command.
+* @param qtumcliPath {String} Path to the qtum-cli executable.
 * @param emitEvent {Boolean} Flag to emit an event when qtum is fully shutdown.
 */
-function killQtumProcess(emitEvent) {
+function killQtumProcess(qtumcliPath, emitEvent) {
   if (qtumProcess) {
-    qtumProcess.kill();
+    const flags = [`-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
+    if (!isMainnet()) {
+      flags.push('-testnet');
+    }
+    flags.push('stop');
+
+    const res = spawnSync(qtumcliPath, flags);
+    const code = res.status;
+    if (res.stdout) {
+      getLogger().debug(`qtumd stopped with code ${code}: ${res.stdout}`);
+    } else if (res.stderr) {
+      getLogger().error(`qtumd stopped with code ${code}: ${res.stderr}`);
+      if (res.error) {
+        throw Error(res.error.message);
+      }
+    }
 
     // Repeatedly check if qtum port is in use
     if (emitEvent) {
@@ -126,13 +143,13 @@ function startQtumProcess(qtumdPath, reindex) {
 
       if (data.includes('You need to rebuild the database using -reindex-chainstate')) {
         // Clean old process first
-        killQtumProcess(false);
+        killQtumProcess(getDevQtumExecPath(execFile.QTUM_CLI), false);
         clearInterval(checkInterval);
 
         // Restart qtumd with reindex flag
         setTimeout(() => {
           getLogger().info('Restarting and reindexing Qtum blockchain');
-          startQtumProcess(true, qtumdPath);
+          startQtumProcess(qtumdPath, true);
         }, 3000);
       } else {
         // Emit startup error event to Electron listener
@@ -230,7 +247,13 @@ function getServer() {
 }
 
 function exit(signal) {
-  getLogger().info(`Received ${signal}, exiting`);
+  getLogger().info(`Received ${signal}, exiting...`);
+
+  try {
+    killQtumProcess(getDevQtumExecPath(execFile.QTUM_CLI), false);
+  } catch (err) {
+    // catch error so exit can still call process.exit()
+  }
 
   // add delay to give some time to write to log file
   setTimeout(() => process.exit(), 500);

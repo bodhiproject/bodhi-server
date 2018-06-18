@@ -129,8 +129,6 @@ $RECYCLE.BIN/
 *.db
 
 # Binaries
-bin/
-qtum/*/*
 !qtum/*/.gitignore
 
 # Distributables

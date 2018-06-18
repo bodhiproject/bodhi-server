@@ -126,11 +126,10 @@ function getDevQtumExecPath(exec) {
   }
 
   switch (exec) {
-    case execFile.QTUMD: {
-      return `${qtumPath}/qtumd`;
-    }
-    case execFile.QTUM_QT: {
-      return `${qtumPath}/qtum-qt`;
+    case execFile.QTUMD:
+    case execFile.QTUM_QT:
+    case execFile.QTUM_CLI: {
+      return `${qtumPath}/${exec}`;
     }
     default: {
       throw Error(`Invalid execFile type: ${exec}`);
