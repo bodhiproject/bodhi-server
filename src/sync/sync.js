@@ -387,20 +387,28 @@ const insertBlock = async (currentBlockNum, currentBlockTime, currentBlockHash) 
   }
 };
 
-const sync = async (blockNum) => {
+const sync = async () => {
   contractMetadata = getContractMetadata();
-  const currentBlockHash = await getInstance().getBlockHash(blockNum);
+
+  const currentBlockNum = await getStartBlock();
+  const currentBlockHash = await getInstance().getBlockHash(currentBlockNum);
   const currentBlockTime = (await getInstance().getBlock(currentBlockHash)).time;
 
-  getLogger().debug(`Syncing block ${blockNum}`);
-  await syncTopicCreated(blockNum);
-  await syncCentralizedOracleCreated(blockNum);
-  await syncDecentralizedOracleCreated(blockNum, currentBlockTime);
-  await syncOracleResultVoted(blockNum);
-  await syncOracleResultSet(blockNum);
-  await syncFinalResultSet(blockNum);
-  await syncWinningsWithdrawn(blockNum);
+  getLogger().debug(`Syncing block ${currentBlockNum}`);
+  await syncTopicCreated(currentBlockNum);
+  await syncCentralizedOracleCreated(currentBlockNum);
+  await syncDecentralizedOracleCreated(currentBlockNum, currentBlockTime);
+  await syncOracleResultVoted(currentBlockNum);
+  await syncOracleResultSet(currentBlockNum);
+  await syncFinalResultSet(currentBlockNum);
+  await syncWinningsWithdrawn(currentBlockNum);
   await updateOraclesDoneVoting(currentBlockTime);
   await updateCOraclesDoneResultSet(currentBlockTime);
-  await insertBlock(blockNum, currentBlockTime, currentBlockHash);
+  await insertBlock(currentBlockNum, currentBlockTime, currentBlockHash);
+
+  // Restart sync after delay
+  getLogger().debug('sleep');
+  setTimeout(sync, 5000);
 };
+
+
