@@ -361,16 +361,16 @@ const updateOraclesDoneVoting = async (currentBlockTime) => {
 };
 
 // Update Centralized Oracles to Open Result Set that are passed the resultSetEndTime
-const updateCOraclesDoneOracleResultSet = async (currentBlockTime) => {
+const updateCOraclesDoneResultSet = async (currentBlockTime) => {
   try {
     const res = await db.Oracles.update(
       { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
       { $set: { status: 'OPENRESULTSET' } },
       { multi: true },
     );
-    getLogger().debug(`${res} updateCOraclesDoneOracleResultSet entries`);
+    getLogger().debug(`${res} updateCOraclesDoneResultSet entries`);
   } catch (err) {
-    getLogger().error(`updateCOraclesDoneOracleResultSet ${err.message}`);
+    getLogger().error(`updateCOraclesDoneResultSet ${err.message}`);
   }
 };
 
@@ -388,5 +388,5 @@ const sync = async (blockNum) => {
   await syncFinalResultSet(blockNum);
   await syncWinningsWithdrawn(blockNum);
   await updateOraclesDoneVoting(currentBlockTime);
-  await updateCOraclesDoneOracleResultSet(currentBlockTime);
+  await updateCOraclesDoneResultSet(currentBlockTime);
 };
