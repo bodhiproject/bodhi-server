@@ -32,16 +32,17 @@ class Withdraw {
   decode() {
     switch (this.type) {
       case withdrawType.ESCROW: {
+        this.version = null;
         this.topicAddress = this.rawLog._eventAddress;
-        this.withdrawer = Decoder.toQtumAddress(this.rawLog._depositer, isMainnet());
+        this.withdrawerAddress = Decoder.toQtumAddress(this.rawLog._depositer, isMainnet());
         this.qtumAmount = '0';
         this.botAmount = Web3Utils.hexToNumberString(this.rawLog.escrowAmount);
         break;
       }
       case withdrawType.WINNINGS: {
-        this.topicAddress = this.contractAddress;
         this.version = this.rawLog._version.toNumber();
-        this.withdrawer = Decoder.toQtumAddress(this.rawLog._winner, isMainnet());
+        this.topicAddress = this.contractAddress;
+        this.withdrawerAddress = Decoder.toQtumAddress(this.rawLog._winner, isMainnet());
         this.qtumAmount = Web3Utils.hexToNumberString(this.rawLog._qtumTokenWon);
         this.botAmount = Web3Utils.hexToNumberString(this.rawLog._botTokenWon);
         break;
@@ -56,10 +57,10 @@ class Withdraw {
     return {
       blockNum: this.blockNum,
       txid: this.txid,
-      version: this.version,
       type: this.type,
+      version: this.version,
       topicAddress: this.topicAddress,
-      withdrawer: this.withdrawer,
+      withdrawerAddress: this.withdrawerAddress,
       qtumAmount: this.qtumAmount,
       botAmount: this.botAmount,
     };
