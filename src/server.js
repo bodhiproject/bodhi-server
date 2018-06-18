@@ -17,7 +17,7 @@ const EmitterHelper = require('./utils/emitterHelper');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
-const { startSync } = require('./sync');
+const { startSync } = require('./sync/sync');
 const { getInstance } = require('./qclient');
 const Wallet = require('./api/wallet');
 

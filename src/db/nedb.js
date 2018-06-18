@@ -45,9 +45,9 @@ async function initDB() {
       db.Topics.loadDatabase(),
       db.Oracles.loadDatabase(),
       db.Votes.loadDatabase(),
-      db.ResultSets.loadDatabase();
-      db.FinalResultSets.loadDatabase();
-      db.WinningsWithdrawn.loadDatabase();
+      db.ResultSets.loadDatabase(),
+      db.FinalResultSets.loadDatabase(),
+      db.WinningsWithdrawn.loadDatabase(),
       db.Blocks.loadDatabase(),
       db.Transactions.loadDatabase(),
     ]);
