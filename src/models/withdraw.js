@@ -30,10 +30,26 @@ class Withdraw {
   }
 
   decode() {
-    this.version = this.rawLog._version.toNumber();
-    this.winner = Decoder.toQtumAddress(this.rawLog._winner, isMainnet()),
-    this.qtumTokenWon = Web3Utils.hexToNumberString(this.rawLog._qtumTokenWon);
-    this.botTokenWon = Web3Utils.hexToNumberString(this.rawLog._botTokenWon);
+    switch (this.type) {
+      case withdrawType.ESCROW: {
+        this.topicAddress = this.rawLog._eventAddress;
+        this.withdrawer = Decoder.toQtumAddress(this.rawLog._depositer, isMainnet());
+        this.qtumAmount = '0';
+        this.botAmount = Web3Utils.hexToNumberString(this.rawLog.escrowAmount);
+        break;
+      }
+      case withdrawType.WINNINGS: {
+        this.topicAddress = this.contractAddress;
+        this.version = this.rawLog._version.toNumber();
+        this.withdrawer = Decoder.toQtumAddress(this.rawLog._winner, isMainnet());
+        this.qtumAmount = Web3Utils.hexToNumberString(this.rawLog._qtumTokenWon);
+        this.botAmount = Web3Utils.hexToNumberString(this.rawLog._botTokenWon);
+        break;
+      }
+      default: {
+        throw Error(`Invalid escrow type: ${this.type}`);
+      }
+    }
   }
 
   translate() {
@@ -42,10 +58,10 @@ class Withdraw {
       txid: this.txid,
       version: this.version,
       type: this.type,
-      topicAddress: this.contractAddress,
-      winner: this.winner,
-      qtumWon: this.qtumTokenWon,
-      botWon: this.botTokenWon,
+      topicAddress: this.topicAddress,
+      withdrawer: this.withdrawer,
+      qtumAmount: this.qtumAmount,
+      botAmount: this.botAmount,
     };
   }
 }
