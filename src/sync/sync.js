@@ -13,7 +13,7 @@ const OracleResultSet = require('../models/oracleResultSet');
 const FinalResultSet = require('../models/finalResultSet');
 const WinningsWithdrawn = require('../models/WinningsWithdrawn');
 
-const SYNC_START_DELAY = 1000;
+const SYNC_START_DELAY = 5000;
 const removeHexPrefix = true;
 let contractMetadata;
 
@@ -407,9 +407,12 @@ const startSync = async () => {
       throw Error(`Invalid blockTime: ${currentBlockTime}`);
     }
   } catch (err) {
-    getLogger().error(`get blockTime: ${err.message}`);
-    delayThenSync();
-    return;
+    if (err.message === 'Block height out of range') {
+      delayThenSync();
+      return;
+    } else {
+      throw Error(`getBlockHash or getBlock: ${err.message}`);
+    }
   }
   
   getLogger().debug(`Syncing block ${currentBlockNum}`);
