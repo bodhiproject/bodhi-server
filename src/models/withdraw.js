@@ -9,13 +9,13 @@ const { withdrawType } = require('../constants');
 class Withdraw {
   constructor(blockNum, txid, contractAddress, rawLog, type) {
     if (!_.isFinite(blockNum)) {
-      throw Error('blockNum must be a Number.');
+      throw Error('blockNum must be a Number');
     }
     if (!_.isString(txid)) {
-      throw Error('txid must be a String.');
+      throw Error('txid must be a String');
     }
     if (_.isEmpty(rawLog)) {
-      throw Error('rawLog must not be empty.');
+      throw Error('rawLog must not be empty');
     }
     if (type !== withdrawType.ESCROW && type !== withdrawType.WINNINGS) {
       throw Error(`Invalid escrow type: ${type}`);
