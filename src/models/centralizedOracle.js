@@ -1,5 +1,4 @@
 /* eslint no-underscore-dangle: 0 */
-
 const _ = require('lodash');
 const Decoder = require('qweb3').Decoder;
 const Web3Utils = require('web3-utils');
@@ -27,8 +26,8 @@ class CentralizedOracle {
   decode() {
     this.version = this.rawLog._version.toNumber();
     this.contractAddress = this.rawLog._contractAddress;
-    this.oracle = this.rawLog._oracle;
     this.eventAddress = this.rawLog._eventAddress;
+    this.oracle = Decoder.toQtumAddress(this.rawLog._oracle, isMainnet()),
     this.numOfResults = this.rawLog._numOfResults.toNumber();
     this.bettingStartTime = this.rawLog._bettingStartTime.toNumber();
     this.bettingEndTime = this.rawLog._bettingEndTime.toNumber();
@@ -45,19 +44,19 @@ class CentralizedOracle {
       address: this.contractAddress,
       topicAddress: this.eventAddress,
       resultSetterAddress: this.oracle,
-      resultSetterQAddress: Decoder.toQtumAddress(this.oracle, isMainnet()),
-      status: 'VOTING',
-      token: 'QTUM',
-      name: null,
-      options: null,
-      optionIdxs: Array.from(Array(this.numOfResults).keys()),
-      amounts: _.fill(Array(this.numOfResults), '0'),
-      resultIdx: null,
+      resultSetterQAddress: this.oracle,
       startTime: this.bettingStartTime,
       endTime: this.bettingEndTime,
       resultSetStartTime: this.resultSettingStartTime,
       resultSetEndTime: this.resultSettingEndTime,
       consensusThreshold: this.consensusThreshold,
+      name: null,
+      options: null,
+      optionIdxs: Array.from(Array(this.numOfResults).keys()),
+      amounts: _.fill(Array(this.numOfResults), '0'),
+      resultIdx: null,
+      status: 'VOTING',
+      token: 'QTUM',
     };
   }
 }
