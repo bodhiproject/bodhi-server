@@ -348,7 +348,7 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
         winningsWithdrawnPromises.push(new Promise(async (resolve) => {
           try {
             const withdraw = new Withdraw(blockNum, txid, contractAddress, rawLog, withdrawType.WINNINGS).translate();
-            await db.WinningsWithdrawn.insert(withdraw);
+            await db.Withdraws.insert(withdraw);
 
             resolve();
           } catch (err) {
@@ -361,6 +361,43 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
   });
 
   await Promise.all(winningsWithdrawnPromises);
+};
+
+const syncEscrowWithdrawn = async (currentBlockNum) => {
+  let result;
+  try {
+    result = await getInstance().searchLogs(
+      currentBlockNum, currentBlockNum, [],
+      contractMetadata.AddressManager.EscrowWithdrawn, contractMetadata, REMOVE_HEX_PREFIX,
+    );
+    getLogger().debug(`${result.length} EscrowWithdrawn entries`);
+  } catch (err) {
+    throw Error(`searchlog EscrowWithdrawn: ${err.message}`);
+  }
+
+  const escrowWithdrawnPromises = [];
+  _.forEach(result, (event, index) => {
+    const blockNum = event.blockNumber;
+    const txid = event.transactionHash;
+
+    _.forEachRight(event.log, (rawLog) => {
+      if (rawLog._eventName === 'EscrowWithdrawn') {
+        escrowWithdrawnPromises.push(new Promise(async (resolve) => {
+          try {
+            const withdraw = new Withdraw(blockNum, txid, undefined, rawLog, withdrawType.ESCROW).translate();
+            await db.Withdraws.insert(withdraw);
+
+            resolve();
+          } catch (err) {
+            getLogger().error(`insert EscrowWithdrawn: ${err.message}`);
+            resolve();
+          }
+        }));
+      }
+    });
+  });
+
+  await Promise.all(escrowWithdrawnPromises);
 };
 
 // Update all Centralized and Decentralized Oracles statuses that are passed the endTime
@@ -438,6 +475,7 @@ const startSync = async () => {
   await syncOracleResultSet(currentBlockNum);
   await syncFinalResultSet(currentBlockNum);
   await syncWinningsWithdrawn(currentBlockNum);
+  await syncEscrowWithdrawn(currentBlockNum);
   await updateOraclesDoneVoting(currentBlockTime);
   await updateCOraclesDoneResultSet(currentBlockTime);
   await insertBlock(currentBlockNum, currentBlockTime);
