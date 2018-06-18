@@ -1,6 +1,8 @@
 const _ = require('lodash');
 
 const { calculateSyncPercent, getAddressBalances } = require('../sync');
+const { getLogger } = require('../utils/logger');
+const blockchain = require('../api/blockchain');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
