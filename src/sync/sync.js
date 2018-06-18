@@ -374,6 +374,19 @@ const updateCOraclesDoneResultSet = async (currentBlockTime) => {
   }
 };
 
+const insertBlock = async (currentBlockNum, currentBlockTime, currentBlockHash) => {
+  try {
+    await db.Blocks.insert({
+      _id: currentBlockNum,
+      blockNum: currentBlockNum,
+      blockTime: currentBlockTime,
+    });
+    getLogger().debug(`inserted Block ${currentBlockNum}`);
+  } catch (err) {
+    getLogger().error(`insert Block: ${err.message}`);
+  }
+};
+
 const sync = async (blockNum) => {
   contractMetadata = getContractMetadata();
   const currentBlockHash = await getInstance().getBlockHash(blockNum);
@@ -389,4 +402,5 @@ const sync = async (blockNum) => {
   await syncWinningsWithdrawn(blockNum);
   await updateOraclesDoneVoting(currentBlockTime);
   await updateCOraclesDoneResultSet(currentBlockTime);
+  await insertBlock(blockNum, currentBlockTime, currentBlockHash);
 };
