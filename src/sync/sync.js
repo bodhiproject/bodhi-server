@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
 const { getInstance } = require('../qclient');
+const { withdrawType } = require('../constants');
 const { getContractMetadata, isMainnet } = require('../config');
 const { db, DBHelper } = require('../db/nedb');
 const { getLogger } = require('../utils/logger');
@@ -11,7 +12,7 @@ const DecentralizedOracle = require('../models/decentralizedOracle');
 const Vote = require('../models/vote');
 const OracleResultSet = require('../models/oracleResultSet');
 const FinalResultSet = require('../models/finalResultSet');
-const WinningsWithdrawn = require('../models/WinningsWithdrawn');
+const Withdraw = require('../models/withdraw');
 
 const SYNC_START_DELAY = 5000;
 const REMOVE_HEX_PREFIX = true;
@@ -346,7 +347,7 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
       if (rawLog._eventName === 'WinningsWithdrawn') {
         winningsWithdrawnPromises.push(new Promise(async (resolve) => {
           try {
-            const withdraw = new WinningsWithdrawn(blockNum, txid, contractAddress, rawLog).translate();
+            const withdraw = new Withdraw(blockNum, txid, contractAddress, rawLog, withdrawType.WINNINGS).translate();
             await db.WinningsWithdrawn.insert(withdraw);
 
             resolve();
