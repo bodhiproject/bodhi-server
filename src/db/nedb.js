@@ -10,6 +10,7 @@ const db = {
   Topics: undefined,
   Oracles: undefined,
   Votes: undefined,
+  ResultSets: undefined,
   Blocks: undefined,
   Transactions: undefined,
 };
@@ -31,6 +32,7 @@ async function initDB() {
   db.Topics = datastore({ filename: `${blockchainDataPath}/topics.db` });
   db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
   db.Votes = datastore({ filename: `${blockchainDataPath}/votes.db` });
+  db.ResultSets = datastore({ filename: `${blockchainDataPath}/resultsets.db` });
   db.Blocks = datastore({ filename: `${blockchainDataPath}/blocks.db` });
   db.Transactions = datastore({ filename: `${localCacheDataPath}/transactions.db` });
 
@@ -39,6 +41,7 @@ async function initDB() {
       db.Topics.loadDatabase(),
       db.Oracles.loadDatabase(),
       db.Votes.loadDatabase(),
+      db.ResultSets.loadDatabase();
       db.Blocks.loadDatabase(),
       db.Transactions.loadDatabase(),
     ]);
@@ -46,6 +49,7 @@ async function initDB() {
     await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
   } catch (err) {
     throw Error(`DB load Error: ${err.message}`);
   }
