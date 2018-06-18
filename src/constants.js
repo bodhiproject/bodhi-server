@@ -33,6 +33,11 @@ module.exports = {
     PENDING: 'pending',
     FINALIZING: 'finalizing',
     WITHDRAWING: 'withdrawing',
+  }
+
+  withdrawType: {
+    ESCROW: 'escrow',
+    WINNINGS: 'winnings',
   },
 
   BLOCK_0_TIMESTAMP: 1504695029,
