@@ -256,6 +256,52 @@ const syncOracleResultSet = async (currentBlockNum) => {
   await Promise.all(resultSetPromises);
 };
 
+const syncFinalResultSet = async (currentBlockNum) => {
+  let result;
+  try {
+    result = await getInstance().searchLogs(currentBlockNum, currentBlockNum, [], 
+      contractMetadata.TopicEvent.FinalResultSet, contractMetadata, removeHexPrefix);
+    getLogger().debug(`${result.length} FinalResultSet entries`);
+  } catch (err) {
+    throw Error(`searchlog FinalResultSet: ${err.message}`);
+  }
+  
+  const finalResultSetPromises = [];
+  _.forEach(result, (event, index) => {
+    const blockNum = event.blockNumber;
+    const txid = event.transactionHash;
+    const fromAddress = event.from;
+
+    _.forEachRight(event.log, (rawLog) => {
+      if (rawLog._eventName === 'FinalResultSet') {
+        finalResultSetPromises.push(new Promise(async (resolve) => {
+          try {
+            const finalResultSet = new FinalResultSet(blockNum, txid, fromAddress, rawLog).translate();
+            await db.FinalResultSets.insert(finalResultSet);
+
+            // Update statuses to withdraw
+            await db.Topics.update(
+              { address: finalResultSet.topicAddress },
+              { $set: { resultIdx: finalResultSet.resultIdx, status: 'WITHDRAW' } },
+            );
+            await db.Oracles.update(
+              { topicAddress: finalResultSet.topicAddress },
+              { $set: { status: 'WITHDRAW' } }, { multi: true },
+            );
+
+            resolve();
+          } catch (err) {
+            getLogger().error(`insert FinalResultSet: ${err.message}`);
+            resolve();
+          }
+        }));
+      }
+    });
+  });
+
+  await Promise.all(finalResultSetPromises);
+}
+
 const sync = async (blockNum) => {
   contractMetadata = getContractMetadata();
   const currentBlockHash = await getInstance().getBlockHash(blockNum);
@@ -267,4 +313,5 @@ const sync = async (blockNum) => {
   await syncDecentralizedOracleCreated(blockNum, currentBlockTime);
   await syncOracleResultVoted(blockNum);
   await syncOracleResultSet(blockNum);
+  await syncFinalResultSet(blockNum);
 };
