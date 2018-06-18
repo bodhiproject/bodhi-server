@@ -3,8 +3,10 @@
 const _ = require('lodash');
 
 class OracleResultSet {
-  constructor(rawLog) {
+  constructor(blockNum, txid, rawLog) {
     if (!_.isEmpty(rawLog)) {
+      this.blockNum = blockNum;
+      this.txid = txid;
       this.rawLog = rawLog;
       this.decode();
     }
@@ -18,6 +20,8 @@ class OracleResultSet {
 
   translate() {
     return {
+      blockNum: this.blockNum,
+      txid: this.txid,
       version: this.version,
       oracleAddress: this.oracleAddress,
       resultIdx: this.resultIndex,
