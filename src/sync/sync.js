@@ -404,9 +404,9 @@ const insertBlock = async (currentBlockNum, currentBlockTime) => {
 };
 
 // Delay then startSync
-const delayThenSync = () => {
+const delayThenSync = (delay) => {
   getLogger().debug('sleep');
-  setTimeout(startSync, SYNC_START_DELAY);
+  setTimeout(startSync, delay);
 };
 
 const startSync = async () => {
@@ -422,7 +422,7 @@ const startSync = async () => {
     }
   } catch (err) {
     if (err.message === 'Block height out of range') {
-      delayThenSync();
+      delayThenSync(SYNC_START_DELAY);
       return;
     }
     throw Error(`getBlockHash or getBlock: ${err.message}`);
@@ -441,7 +441,7 @@ const startSync = async () => {
   await insertBlock(currentBlockNum, currentBlockTime);
 
   // Restart sync after delay
-  delayThenSync();
+  delayThenSync(0);
 };
 
 module.exports = {
