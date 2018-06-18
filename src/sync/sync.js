@@ -423,6 +423,7 @@ const startSync = async () => {
     }
   } catch (err) {
     if (err.message === 'Block height out of range') {
+      // Add delay since trying to parse a future block
       delayThenSync(SYNC_START_DELAY);
       return;
     }
@@ -441,7 +442,7 @@ const startSync = async () => {
   await updateCOraclesDoneResultSet(currentBlockTime);
   await insertBlock(currentBlockNum, currentBlockTime);
 
-  // Restart sync after delay
+  // No delay if next block is already confirmed
   delayThenSync(0);
 };
 
