@@ -300,7 +300,7 @@ const syncFinalResultSet = async (currentBlockNum) => {
         finalResultSetPromises.push(new Promise(async (resolve) => {
           try {
             const finalResultSet = new FinalResultSet(blockNum, txid, fromAddress, rawLog).translate();
-            await db.FinalResultSets.insert(finalResultSet);
+            await db.ResultSets.insert(finalResultSet);
 
             // Update statuses to withdraw
             await db.Topics.update(

@@ -39,6 +39,7 @@ class FinalResultSet {
       fromAddress: this.fromAddress,
       version: this.version,
       topicAddress: this.eventAddress,
+      oracleAddress: null,
       resultIdx: this.finalResultIndex,
     };
   }
