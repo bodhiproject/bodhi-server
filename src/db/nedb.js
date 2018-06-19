@@ -11,7 +11,6 @@ const db = {
   Oracles: undefined,
   Votes: undefined,
   ResultSets: undefined,
-  FinalResultSets: undefined,
   Withdraws: undefined,
   Blocks: undefined,
   Transactions: undefined,
@@ -35,7 +34,6 @@ async function initDB() {
   db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
   db.Votes = datastore({ filename: `${blockchainDataPath}/votes.db` });
   db.ResultSets = datastore({ filename: `${blockchainDataPath}/resultsets.db` });
-  db.FinalResultSets = datastore({ filename: `${blockchainDataPath}/finalresultsets.db` });
   db.Withdraws = datastore({ filename: `${blockchainDataPath}/withdraws.db` });
   db.Blocks = datastore({ filename: `${blockchainDataPath}/blocks.db` });
   db.Transactions = datastore({ filename: `${localCacheDataPath}/transactions.db` });
@@ -46,7 +44,6 @@ async function initDB() {
       db.Oracles.loadDatabase(),
       db.Votes.loadDatabase(),
       db.ResultSets.loadDatabase(),
-      db.FinalResultSets.loadDatabase(),
       db.Withdraws.loadDatabase(),
       db.Blocks.loadDatabase(),
       db.Transactions.loadDatabase(),
@@ -56,7 +53,6 @@ async function initDB() {
     await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
     await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.FinalResultSets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
   } catch (err) {
     throw Error(`DB load Error: ${err.message}`);
@@ -90,12 +86,6 @@ function deleteBodhiData() {
     fs.removeSync(`${blockchainDataPath}/resultsets.db`);
   } catch (err) {
     logger.error(`Delete resultsets.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/finalresultsets.db`);
-  } catch (err) {
-    logger.error(`Delete finalresultsets.db error: ${err.message}`);
   }
 
   try {
