@@ -26,6 +26,15 @@ module.exports = {
     QTUM_CLI: 'qtum-cli',
   },
 
+  phase: {
+    BETTING: 'betting',
+    VOTING: 'voting',
+    RESULT_SETTING: 'resultSetting',
+    PENDING: 'pending',
+    FINALIZING: 'finalizing',
+    WITHDRAWING: 'withdrawing',
+  },
+
   BLOCK_0_TIMESTAMP: 1504695029,
   SATOSHI_CONVERSION: 10 ** 8,
 };
