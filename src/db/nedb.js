@@ -10,6 +10,8 @@ const db = {
   Topics: undefined,
   Oracles: undefined,
   Votes: undefined,
+  ResultSets: undefined,
+  Withdraws: undefined,
   Blocks: undefined,
   Transactions: undefined,
 };
@@ -31,6 +33,8 @@ async function initDB() {
   db.Topics = datastore({ filename: `${blockchainDataPath}/topics.db` });
   db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
   db.Votes = datastore({ filename: `${blockchainDataPath}/votes.db` });
+  db.ResultSets = datastore({ filename: `${blockchainDataPath}/resultsets.db` });
+  db.Withdraws = datastore({ filename: `${blockchainDataPath}/withdraws.db` });
   db.Blocks = datastore({ filename: `${blockchainDataPath}/blocks.db` });
   db.Transactions = datastore({ filename: `${localCacheDataPath}/transactions.db` });
 
@@ -39,6 +43,8 @@ async function initDB() {
       db.Topics.loadDatabase(),
       db.Oracles.loadDatabase(),
       db.Votes.loadDatabase(),
+      db.ResultSets.loadDatabase(),
+      db.Withdraws.loadDatabase(),
       db.Blocks.loadDatabase(),
       db.Transactions.loadDatabase(),
     ]);
@@ -46,6 +52,8 @@ async function initDB() {
     await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
   } catch (err) {
     throw Error(`DB load Error: ${err.message}`);
   }
@@ -72,6 +80,18 @@ function deleteBodhiData() {
     fs.removeSync(`${blockchainDataPath}/votes.db`);
   } catch (err) {
     logger.error(`Delete votes.db error: ${err.message}`);
+  }
+
+  try {
+    fs.removeSync(`${blockchainDataPath}/resultsets.db`);
+  } catch (err) {
+    logger.error(`Delete resultsets.db error: ${err.message}`);
+  }
+
+  try {
+    fs.removeSync(`${blockchainDataPath}/withdraws.db`);
+  } catch (err) {
+    logger.error(`Delete withdraws.db error: ${err.message}`);
   }
 
   try {
