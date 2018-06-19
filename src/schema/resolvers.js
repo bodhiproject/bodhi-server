@@ -199,7 +199,7 @@ const getPhase = ({ token, status }) => {
   if (QTUM && ['VOTING', 'CREATED'].includes(status)) return phase.BETTING;
   if (BOT && status === 'VOTING') return phase.VOTING;
   if (QTUM && ['WAITRESULT', 'OPENRESULTSET'].includes(status)) return phase.RESULT_SETTING;
-  if (BOT && status === 'PENDING')  return phase.PENDING;
+  if (BOT && status === 'PENDING') return phase.PENDING;
   if (BOT && status === 'WAITRESULT') return phase.FINALIZING;
   if (((BOT || QTUM) && status === 'WITHDRAW') || (QTUM && status === 'PENDING')) return phase.WITHDRAWING;
   throw Error(`Invalid Phase determined by these -> TOKEN: ${token} STATUS: ${status}`);
@@ -213,7 +213,6 @@ module.exports = {
       const query = filter ? { $or: buildTopicFilters(filter) } : {};
       let cursor = Topics.cfind(query);
       cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-
       return cursor.exec();
     },
 
