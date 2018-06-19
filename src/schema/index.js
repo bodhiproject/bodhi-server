@@ -63,7 +63,7 @@ type ResultSet {
   fromAddress: String!
   version: Int!
   topicAddress: String!
-  oracleAddress: String!
+  oracleAddress: String
   resultIdx: Int!
 }
 
