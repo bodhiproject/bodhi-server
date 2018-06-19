@@ -145,6 +145,36 @@ const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, 
   return filters;
 };
 
+const buildResultSetFilters = ({ OR = [], txid, fromAddress, topicAddress, oracleAddress, resultIdx }) => {
+  const filter = (txid || fromAddress || topicAddress || oracleAddress || resultIdx) ? {} : null;
+
+  if (txid) {
+    filter.txid = txid;
+  }
+
+  if (fromAddress) {
+    filter.fromAddress = fromAddress;
+  }
+
+  if (topicAddress) {
+    filter.topicAddress = topicAddress;
+  }
+
+  if (oracleAddress) {
+    filter.oracleAddress = oracleAddress;
+  }
+
+  if (resultIdx) {
+    filter.resultIdx = resultIdx;
+  }
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildResultSetFilters(OR[i]));
+  }
+  return filters;
+};
+
 const buildWithdrawFilters = ({ OR = [], txid, topicAddress, withdrawerAddress, type }) => {
   const filter = (txid || topicAddress || withdrawerAddress || type) ? {} : null;
 
@@ -243,10 +273,19 @@ module.exports = {
     return cursor.exec();
   },
 
+  resultSets: async (root, {
+    filter, orderBy, limit, skip,
+  }, { db: { ResultSets } }) => {
+    const query = filter ? { $or: buildResultSetFilters(filter) } : {};
+    let cursor = ResultSets.cfind(query);
+    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+    return cursor.exec();
+  },
+
   withdraws: async (root, {
     filter, orderBy, limit, skip,
   }, { db: { Withdraws } }) => {
-    const query = filter ? { $or: buildVoteFilters(filter) } : {};
+    const query = filter ? { $or: buildWithdrawFilters(filter) } : {};
     let cursor = Withdraws.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
     return cursor.exec();
