@@ -10,7 +10,7 @@ const EXPLORER_MAINNET = 'https://explorer.qtum.org';
 
 const Config = {
   HOSTNAME: '127.0.0.1',
-  PORT: 5555,
+  PORT: 8989,
   RPC_USER: 'bodhi',
   RPC_PORT_TESTNET: 13889,
   RPC_PORT_MAINNET: 3889,
