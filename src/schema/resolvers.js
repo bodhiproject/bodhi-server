@@ -199,9 +199,9 @@ const getPhase = ({ token, status }) => {
   if (QTUM && ['VOTING', 'CREATED'].includes(status)) return phase.BETTING;
   if (BOT && status === 'VOTING') return phase.VOTING;
   if (QTUM && ['WAITRESULT', 'OPENRESULTSET'].includes(status)) return phase.RESULT_SETTING;
-  if (BOT && status === 'PENDING') return phase.PENDING;
+  if ((BOT || QTUM) && status === 'PENDING') return phase.PENDING;
   if (BOT && status === 'WAITRESULT') return phase.FINALIZING;
-  if (((BOT || QTUM) && status === 'WITHDRAW') || (QTUM && status === 'PENDING')) return phase.WITHDRAWING;
+  if ((BOT || QTUM) && status === 'WITHDRAW') return phase.WITHDRAWING;
   throw Error(`Invalid Phase determined by these -> TOKEN: ${token} STATUS: ${status}`);
 };
 
