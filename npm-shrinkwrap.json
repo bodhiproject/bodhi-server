@@ -1,5 +1,5 @@
 {
-  "name": "Bodhi-Server",
+  "name": "bodhi-server",
   "version": "0.8.2-c0-d3",
   "lockfileVersion": 1,
   "requires": true,
