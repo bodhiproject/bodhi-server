@@ -1,8 +1,8 @@
 {
-  "name": "Bodhi-Server",
-  "description": "Turnkey server that parses, stores, sends, and receives Bodhi-related data.",
+  "name": "bodhi-server",
+  "description": "Server that parses, stores, sends, and receives Bodhi-related data from the blockchain.",
   "author": "bodhi.network",
-  "license": "ISC",
+  "license": "LGPL-3.0",
   "version": "0.8.2-c0-d3",
   "repository": "git@github.com:bodhiproject/bodhi-server.git",
   "keywords": [
