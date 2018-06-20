@@ -3,7 +3,7 @@
   "description": "Turnkey server that parses, stores, sends, and receives Bodhi-related data.",
   "author": "bodhi.network",
   "license": "ISC",
-  "version": "0.8.1-c0-d3",
+  "version": "0.8.2-c0-d3",
   "repository": "git@github.com:bodhiproject/bodhi-server.git",
   "keywords": [
     "bodhi",
