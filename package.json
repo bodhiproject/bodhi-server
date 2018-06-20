@@ -14,7 +14,7 @@
   ],
   "main": "src/index.js",
   "scripts": {
-    "start-test": "node src/index.js --testnet --dev --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
+    "start-test": "nodemon src/index.js --testnet --dev --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
     "start-main": "node src/index.js --mainnet --dev --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
     "test": "mocha --recursive src/**/*.tests.js --timeout 10000 --rpcpassword=bodhi --test",
     "lint:fix": "eslint --fix -- src/."
@@ -51,7 +51,8 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.5.1",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "nodemon": "^1.17.5"
   },
   "authors": [
     {
