@@ -8,7 +8,9 @@ const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
 const { execFile } = require('./constants');
-const { Config, setQtumEnv, isMainnet, getRPCPassword } = require('./config');
+const {
+  Config, setQtumEnv, isMainnet, getRPCPassword,
+} = require('./config');
 const { initDB } = require('./db/nedb');
 const { getDevQtumExecPath } = require('./utils');
 const { initLogger, getLogger } = require('./utils/logger');
