@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 

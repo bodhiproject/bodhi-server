@@ -1,4 +1,3 @@
-const Web3Utils = require('web3-utils');
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 

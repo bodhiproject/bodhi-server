@@ -70,6 +70,7 @@ describe('Wallet', () => {
     });
   });
 
+  // eslint-disable-next-line no-unused-expressions
   !TestConfig.WALLET_TESTS ? describe.skip : describe('encrypted wallet', () => {
     describe('backupWallet()', () => {
       it('backup the wallet', async () => {

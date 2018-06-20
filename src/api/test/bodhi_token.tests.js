@@ -1,7 +1,5 @@
-const Web3Utils = require('web3-utils');
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
-const _ = require('lodash');
 
 const BodhiToken = require('../../api/bodhi_token');
 const ContractUtils = require('./util/contract_utils');

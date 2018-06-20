@@ -9,9 +9,10 @@ const portscanner = require('portscanner');
 
 const { execFile } = require('./constants');
 const {
-  Config, setQtumEnv, isMainnet, getRPCPassword, getDevQtumExecPath,
+  Config, setQtumEnv, isMainnet, getRPCPassword,
 } = require('./config');
 const { initDB } = require('./db/nedb');
+const { getDevQtumExecPath } = require('./utils');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitterHelper');
 const schema = require('./schema');
