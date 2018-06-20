@@ -26,18 +26,28 @@ const Config = {
 const rpcPassword = getRandomPassword(); // Generate random password for every session
 
 let qtumEnv; // Qtumd environment var: testnet/mainnet
+let qtumPath; // Path to Qtum executables
 
-function setQtumEnv(env) {
+function setQtumEnv(env, path) {
   if (qtumEnv) {
     throw Error('qtumEnv was already set.');
   }
+  if (qtumPath) {
+    throw Error('qtumPath was already set.');
+  }
 
   qtumEnv = env;
+  qtumPath = path;
   console.log(`Environment: ${qtumEnv}`);
+  console.log(`Qtum Path: ${qtumPath}`);
 }
 
 function getQtumEnv() {
   return qtumEnv;
+}
+
+function getQtumPath() {
+  return qtumPath;
 }
 
 function isMainnet() {
@@ -97,9 +107,10 @@ function getRandomPassword() {
 
 module.exports = {
   Config,
-  getQtumEnv,
-  isMainnet,
   setQtumEnv,
+  getQtumEnv,
+  getQtumPath,
+  isMainnet,
   getRPCPassword,
   getQtumRPCAddress,
   getQtumExplorerUrl,
