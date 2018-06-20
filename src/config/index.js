@@ -29,6 +29,12 @@ let qtumEnv; // Qtumd environment var: testnet/mainnet
 let qtumPath; // Path to Qtum executables
 
 function setQtumEnv(env, path) {
+  if (_.isEmpty(env)) {
+    throw Error('env cannot be empty.');
+  }
+  if (_.isEmpty(path)) {
+    throw Error('path cannot be empty.');
+  }
   if (qtumEnv) {
     throw Error('qtumEnv was already set.');
   }

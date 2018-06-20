@@ -227,11 +227,11 @@ function startServices() {
 
 /*
 * Sets the env and inits all the required processes.
-* @param env {String} blockchainEnv var for mainnet or testnet
-* @param qtumdPath {String} Full path to the qtumd location
+* @param env {String} blockchainEnv var for mainnet or testnet.
+* @param qtumPath {String} Full path to the Qtum execs folder.
 * @param encryptionAllowed {Boolean} Are encrypted Qtum wallets allowed.
 */
-async function startServer(env, qtumdPath, encryptionAllowed) {
+async function startServer(env, qtumPath, encryptionAllowed) {
   try {
     encryptOk = encryptionAllowed;
     setQtumEnv(env);
