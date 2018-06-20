@@ -4,7 +4,6 @@ const Web3Utils = require('web3-utils');
 
 const { Config, isMainnet } = require('../config');
 const { version } = require('../../package.json');
-const { execFile } = require('../constants');
 const { getLogger } = require('./logger');
 
 /*
@@ -108,11 +107,10 @@ function getLogDir() {
 }
 
 /*
-* Gets the root qtum path for either qtumd or qtum-qt. Must pass the path in a flag via commandline.
-* @param exec {String} The exec file type needed to be returned.
-* return {String} The full path for qtumd or qtum-qt.
+* Gets the path for the Qtum binaries. Must pass the path in a flag via commandline.
+* return {String} The full path for the Qtum binaries folder.
 */
-function getDevQtumExecPath(exec) {
+function getDevQtumExecPath() {
   // Must pass in the absolute path to the bin/ folder
   let qtumPath;
   _.each(process.argv, (arg) => {
@@ -124,17 +122,7 @@ function getDevQtumExecPath(exec) {
   if (!qtumPath) {
     throw Error('Must pass in the --qtumpath flag with the path to qtum bin folder.');
   }
-
-  switch (exec) {
-    case execFile.QTUMD:
-    case execFile.QTUM_QT:
-    case execFile.QTUM_CLI: {
-      return `${qtumPath}/${exec}`;
-    }
-    default: {
-      throw Error(`Invalid execFile type: ${exec}`);
-    }
-  }
+  return qtumPath;
 }
 
 /*

@@ -9,10 +9,9 @@ const portscanner = require('portscanner');
 
 const { execFile } = require('./constants');
 const {
-  Config, setQtumEnv, isMainnet, getRPCPassword,
+  Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword,
 } = require('./config');
 const { initDB } = require('./db/nedb');
-const { getDevQtumExecPath } = require('./utils');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitterHelper');
 const schema = require('./schema');
@@ -31,6 +30,32 @@ let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
 let shutdownInterval;
+
+/*
+* Shuts down the already running qtumd and starts qtum-qt.
+* @param qtumqtPath {String} The full path to the qtum-qt binary.
+*/
+function startQtumWallet() {
+  // Start qtum-qt
+  const qtumqtPath = `${getQtumPath()}/${execFile.QTUM_QT}`;
+  getLogger().debug(`qtum-qt dir: ${qtumqtPath}`);
+
+  // Construct flags
+  const flags = ['-logevents'];
+  if (!isMainnet()) {
+    flags.push('-testnet');
+  }
+
+  const qtProcess = spawn(qtumqtPath, flags, {
+    detached: true,
+    stdio: 'ignore',
+  });
+  qtProcess.unref();
+  getLogger().debug(`qtum-qt started on PID ${qtProcess.pid}`);
+
+  // Kill backend process after qtum-qt has started
+  setTimeout(() => process.exit(), 2000);
+}
 
 function getQtumProcess() {
   return qtumProcess;
@@ -56,10 +81,9 @@ function checkQtumPort() {
 
 /*
 * Kills the running qtum process using the stop command.
-* @param qtumcliPath {String} Path to the qtum-cli executable.
 * @param emitEvent {Boolean} Flag to emit an event when qtum is fully shutdown.
 */
-function killQtumProcess(qtumcliPath, emitEvent) {
+function killQtumProcess(emitEvent) {
   if (qtumProcess) {
     const flags = [`-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
     if (!isMainnet()) {
@@ -67,6 +91,7 @@ function killQtumProcess(qtumcliPath, emitEvent) {
     }
     flags.push('stop');
 
+    const qtumcliPath = `${getQtumPath()}/${execFile.QTUM_CLI}`;
     const res = spawnSync(qtumcliPath, flags);
     const code = res.status;
     if (res.stdout) {
@@ -120,7 +145,7 @@ async function checkQtumdInit() {
   }
 }
 
-function startQtumProcess(qtumdPath, reindex) {
+function startQtumProcess(reindex) {
   try {
     const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
     if (!isMainnet()) {
@@ -130,6 +155,7 @@ function startQtumProcess(qtumdPath, reindex) {
       flags.push('-reindex');
     }
 
+    const qtumdPath = `${getQtumPath()}/${execFile.QTUMD}`;
     getLogger().info(`qtumd dir: ${qtumdPath}`);
 
     qtumProcess = spawn(qtumdPath, flags);
@@ -144,13 +170,13 @@ function startQtumProcess(qtumdPath, reindex) {
 
       if (data.includes('You need to rebuild the database using -reindex-chainstate')) {
         // Clean old process first
-        killQtumProcess(getDevQtumExecPath(execFile.QTUM_CLI), false);
+        killQtumProcess(false);
         clearInterval(checkInterval);
 
         // Restart qtumd with reindex flag
         setTimeout(() => {
           getLogger().info('Restarting and reindexing Qtum blockchain');
-          startQtumProcess(qtumdPath, true);
+          startQtumProcess(true);
         }, 3000);
       } else {
         // Emit startup error event to Electron listener
@@ -227,17 +253,17 @@ function startServices() {
 
 /*
 * Sets the env and inits all the required processes.
-* @param env {String} blockchainEnv var for mainnet or testnet
-* @param qtumdPath {String} Full path to the qtumd location
+* @param env {String} blockchainEnv var for mainnet or testnet.
+* @param qtumPath {String} Full path to the Qtum execs folder.
 * @param encryptionAllowed {Boolean} Are encrypted Qtum wallets allowed.
 */
-async function startServer(env, qtumdPath, encryptionAllowed) {
+async function startServer(env, qtumPath, encryptionAllowed) {
   try {
     encryptOk = encryptionAllowed;
-    setQtumEnv(env);
+    setQtumEnv(env, qtumPath);
     initLogger();
     await initDB();
-    startQtumProcess(qtumdPath, false);
+    startQtumProcess(false);
   } catch (err) {
     EmitterHelper.onServerStartError(err.message);
   }
@@ -251,7 +277,7 @@ function exit(signal) {
   getLogger().info(`Received ${signal}, exiting...`);
 
   try {
-    killQtumProcess(getDevQtumExecPath(execFile.QTUM_CLI), false);
+    killQtumProcess(false);
   } catch (err) {
     // catch error so exit can still call process.exit()
   }
@@ -270,4 +296,5 @@ module.exports = {
   startServices,
   startServer,
   getServer,
+  startQtumWallet,
 };
