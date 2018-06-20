@@ -2,7 +2,7 @@ const _ = require('lodash');
 
 const { startServer } = require('./server');
 const { blockchainEnv, execFile } = require('./constants');
-const { getDevQtumExecPath } = require('./utils/utils');
+const { getDevQtumExecPath } = require('./utils');
 
 if (_.includes(process.argv, '--testnet')) {
   startServer(blockchainEnv.TESTNET, getDevQtumExecPath(execFile.QTUMD));

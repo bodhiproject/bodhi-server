@@ -11,7 +11,7 @@ const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
 const { Config, getContractMetadata } = require('../config');
 const { txState } = require('../constants');
-const Utils = require('../utils/utils');
+const Utils = require('../utils');
 
 async function updatePendingTxs(db, currentBlockCount) {
   let pendingTxs;

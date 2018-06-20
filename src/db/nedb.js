@@ -2,7 +2,7 @@ const datastore = require('nedb-promise');
 const _ = require('lodash');
 const fs = require('fs-extra');
 
-const Utils = require('../utils/utils');
+const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
 const migrateTxDB = require('./migrations/migrateTx');
 

@@ -2,7 +2,7 @@ const _ = require('lodash');
 const { Contract } = require('qweb3');
 
 const { getContractMetadata, getQtumRPCAddress } = require('../config');
-const Utils = require('../utils/utils');
+const Utils = require('../utils');
 
 const ORACLE_CENTRALIZED = 'centralized';
 const ORACLE_DECENTRALIZED = 'decentralized';

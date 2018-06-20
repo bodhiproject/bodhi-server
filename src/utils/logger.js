@@ -13,7 +13,7 @@ let logger;
 function initLogger() {
   // Don't initialize logger for tests
   if (!_.includes(process.argv, '--test')) {
-    const logDir = require('./utils').getLogDir();
+    const logDir = require('./index').getLogDir();
     fs.ensureDirSync(logDir); // Create log dir if needed
 
     const winstonCfg = winston.config;
@@ -40,7 +40,7 @@ function initLogger() {
     ];
 
     // add Papertrail remote logging if prod env
-    if (!require('./utils').isDevEnv()) {
+    if (!require('./index').isDevEnv()) {
       transports.push(new Papertrail({
         host: 'logs5.papertrailapp.com',
         port: 46145,
