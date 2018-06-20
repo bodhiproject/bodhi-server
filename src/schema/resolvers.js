@@ -13,7 +13,7 @@ const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/nedb').DBHelper;
-const { txState } = require('../constants');
+const { txState, phase } = require('../constants');
 const { calculateSyncPercent, getAddressBalances } = require('../sync');
 const Utils = require('../utils/utils');
 
@@ -196,11 +196,12 @@ function buildTransactionFilters({
  */
 const getPhase = ({ token, status }) => {
   const [BOT, QTUM] = [token === 'BOT', token === 'QTUM'];
-  if (QTUM && ['VOTING', 'CREATED'].includes(status)) return 'betting';
-  if (BOT && status === 'VOTING') return 'voting';
-  if (QTUM && ['WAITRESULT', 'OPENRESULTSET'].includes(status)) return 'resultSetting';
-  if (BOT && status === 'WAITRESULT') return 'finalizing';
-  if (((BOT || QTUM) && status === 'WITHDRAW') || (QTUM && status === 'PENDING')) return 'withdrawing';
+  if (QTUM && ['VOTING', 'CREATED'].includes(status)) return phase.BETTING;
+  if (BOT && status === 'VOTING') return phase.VOTING;
+  if (QTUM && ['WAITRESULT', 'OPENRESULTSET'].includes(status)) return phase.RESULT_SETTING;
+  if ((BOT || QTUM) && status === 'PENDING') return phase.PENDING;
+  if (BOT && status === 'WAITRESULT') return phase.FINALIZING;
+  if ((BOT || QTUM) && status === 'WITHDRAW') return phase.WITHDRAWING;
   throw Error(`Invalid Phase determined by these -> TOKEN: ${token} STATUS: ${status}`);
 };
 
@@ -212,7 +213,6 @@ module.exports = {
       const query = filter ? { $or: buildTopicFilters(filter) } : {};
       let cursor = Topics.cfind(query);
       cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-
       return cursor.exec();
     },
 
@@ -773,26 +773,29 @@ module.exports = {
 
   Oracle: {
     transactions: (oracle, data, { db: { Transactions } }) => {
-      const phase = getPhase(oracle);
+      const calculatedPhase = getPhase(oracle);
       let types = [];
-      switch (phase) {
-        case 'betting':
+      switch (calculatedPhase) {
+        case phase.BETTING:
           types = [{ type: 'BET' }, { type: 'CREATEEVENT' }, { type: 'APPROVECREATEEVENT' }];
           break;
-        case 'voting':
+        case phase.VOTING:
           types = [{ type: 'VOTE' }, { type: 'APPROVEVOTE' }];
           break;
-        case 'resultSetting':
+        case phase.RESULT_SETTING:
           types = [{ type: 'SETRESULT' }, { type: 'APPROVESETRESULT' }];
           break;
-        case 'finalizing':
+        case phase.PENDING:
+          // Oracles in PENDING phase don't have any transactions to query
+          return [];
+        case phase.FINALIZING:
           types = [{ type: 'FINALIZERESULT' }];
           break;
-        case 'withdrawing':
+        case phase.WITHDRAWING:
           types = [{ type: 'WITHDRAW' }];
           break;
         default:
-          throw Error('invalid phase');
+          throw Error(`Invalid phase: ${calculatedPhase}`);
       }
       return Transactions.find({ oracleAddress: oracle.address, $or: types });
     },
