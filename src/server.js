@@ -296,4 +296,5 @@ module.exports = {
   startServices,
   startServer,
   getServer,
+  startQtumWallet,
 };
