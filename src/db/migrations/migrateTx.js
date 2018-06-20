@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const datastore = require('nedb-promise');
 
-const Utils = require('../../utils/utils');
+const Utils = require('../../utils');
 const { getLogger } = require('../../utils/logger');
 
 async function appendDB(origin, dest) {

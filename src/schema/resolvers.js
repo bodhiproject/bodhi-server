@@ -15,7 +15,7 @@ const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/nedb').DBHelper;
 const { txState, phase } = require('../constants');
 const { calculateSyncPercent, getAddressBalances } = require('../sync');
-const Utils = require('../utils/utils');
+const Utils = require('../utils');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;

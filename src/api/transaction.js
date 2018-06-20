@@ -1,5 +1,5 @@
 const { Config, getContractMetadata } = require('../config');
-const Utils = require('../utils/utils');
+const Utils = require('../utils');
 const { db } = require('../db/nedb');
 
 const DEFAULT_GAS_COST = formatGasCost(Config.DEFAULT_GAS_LIMIT * Config.DEFAULT_GAS_PRICE);
