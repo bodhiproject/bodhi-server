@@ -16,9 +16,9 @@
 # Run Testnet Environment
 1. `cd bodhi-server`
 2. `npm run start-test`
-3. App at `127.0.0.1:5555` or GraphiQL at `127.0.0.1:5555/graphiql`
+3. App at `127.0.0.1:8989` or GraphiQL at `127.0.0.1:8989/graphiql`
 
 # Run Mainnet Environment
 1. `cd bodhi-server`
 2. `npm run start-main`
-3. App at `127.0.0.1:5555` or GraphiQL at `127.0.0.1:5555/graphiql`
+3. App at `127.0.0.1:8989` or GraphiQL at `127.0.0.1:8989/graphiql`
