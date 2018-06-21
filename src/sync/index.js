@@ -745,6 +745,4 @@ async function getAddressBalances() {
 
 module.exports = {
   startSync,
-  calculateSyncPercent,
-  getAddressBalances,
 };
