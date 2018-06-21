@@ -51,7 +51,7 @@ const calculateSyncPercent = async (blockNum, blockTime) => {
 const publishSyncInfo = async (blockNum, blockTime) => {
   const syncPercent = await calculateSyncPercent(blockNum, blockTime);
   const peerNodeCount = await Network.getPeerNodeCount();
-  const addressBalances = await addressBalances(); 
+  const addressBalances = await addressBalances();
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
       blockNum,

@@ -105,7 +105,6 @@ async function updateDB(tx) {
       }
     } catch (err) {
       getLogger().error(`Update Transaction ${tx.type} txid:${tx.txid} ${err.message}`);
-      return;
     }
   }
 }
