@@ -20,10 +20,12 @@ const TopicEvent = require('./api/topic_event');
 const Transaction = require('./api/transaction');
 const Wallet = require('./api/wallet');
 
+const { blockchainEnv } = Constants;
+const { getDevQtumExecPath } = Utils;
 if (_.includes(process.argv, '--testnet')) {
-  startServer(Constants.blockchainEnv.TESTNET, Utils.getDevQtumExecPath());
+  startServer(blockchainEnv.TESTNET, getDevQtumExecPath());
 } else if (_.includes(process.argv, '--mainnet')) {
-  startServer(Constants.blockchainEnv.MAINNET, Utils.getDevQtumExecPath());
+  startServer(blockchainEnv.MAINNET, getDevQtumExecPath());
 } else {
   console.log('testnet/mainnet flag not found. startServer() will need to be called explicitly.');
 }
