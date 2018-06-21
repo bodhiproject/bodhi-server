@@ -125,6 +125,15 @@ type AddressBalance {
   bot: String!
 }
 
+type Subscription {
+  onSyncInfo : syncInfo
+}
+
+type TopicSubscriptionPayload {
+  mutation: _ModelMutationType!
+  node: Topic
+}
+
 type Query {
   allTopics(filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): [Topic]!
   allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): [Oracle]!
@@ -194,6 +203,15 @@ input TransactionFilter {
   senderQAddress: String
 }
 
+input topicSubscriptionFilter {
+  mutation_in: [_ModelMutationType!]
+}
+
+input Order {
+  field: String!
+  direction: _OrderDirection!
+}
+
 type Mutation {
   createTopic(
     senderAddress: String!
@@ -254,24 +272,6 @@ type Mutation {
     token: _TokenType!
     amount: String!
   ): Transaction
-}
-
-type TopicSubscriptionPayload {
-  mutation: _ModelMutationType!
-  node: Topic
-}
-
-type Subscription {
-  onSyncInfo : syncInfo
-}
-
-input topicSubscriptionFilter {
-  mutation_in: [_ModelMutationType!]
-}
-
-input Order {
-  field: String!
-  direction: _OrderDirection!
 }
 
 enum _ModelMutationType {
