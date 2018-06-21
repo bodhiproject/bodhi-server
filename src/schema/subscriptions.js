@@ -6,6 +6,9 @@ const pubsub = require('../pubsub');
 const { getInstance } = require('../qclient');
 const { getLogger } = require('../utils/logger');
 
+const SYNC_THRESHOLD_SECS = 1200;
+const BLOCK_0_TIMESTAMP = 1504695029;
+
 // Gets the highest synced block number from connected peers
 const peerHighestSyncedHeader = async () => {
   let peerBlockHeader = null;
@@ -44,13 +47,15 @@ const calculateSyncPercent = async (blockNum, blockTime) => {
 };
 
 // Send syncInfo subscription
-const publishSyncInfo = (blockNum, blockTime) => {
+const publishSyncInfo = async (blockNum, blockTime) => {
+  const syncPercent = await calculateSyncPercent(blockNum, blockTime);
+  const addressBalances = await addressBalances(); 
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
       blockNum,
       blockTime,
-      await calculateSyncPercent(blockNum, blockTime),
-      await addressBalances(),
+      syncPercent,
+      addressBalances,
     },
   });
 };
