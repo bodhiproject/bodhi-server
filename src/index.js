@@ -30,7 +30,7 @@ if (_.includes(process.argv, '--testnet')) {
   throw Error('testnet or mainnet flag not found.');
 }
 
-module.exports {
+module.exports = {
   getQtumProcess,
   killQtumProcess,
   startServices,
