@@ -1,6 +1,8 @@
 const _ = require('lodash');
 
-const { getQtumProcess, killQtumProcess, startServices, startServer, getServer, startQtumWallet } = require('./server');
+const {
+  getQtumProcess, killQtumProcess, startServices, startServer, getServer, startQtumWallet,
+} = require('./server');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./config');
 const Constants = require('./constants');
 const { initDB, deleteBodhiData } = require('./db/nedb');
