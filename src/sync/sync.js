@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
+const updateLocalTx = require('./updateLocalTx');
 const { getInstance } = require('../qclient');
 const { withdrawType } = require('../constants');
 const { getContractMetadata, isMainnet } = require('../config');
@@ -447,7 +448,12 @@ const delayThenSync = (delay) => {
   setTimeout(startSync, delay);
 };
 
-const startSync = async () => {
+/*
+* Starts the sync logic. It will loop indefinitely until cancelled.
+* @param shouldUpdateLocalTxs {Boolean} Should it update the local txs or not.
+* @param shouldSendSyncInfo {Boolean} Should it should send the syncInfo subscription message.
+*/
+const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   contractMetadata = getContractMetadata();
 
   const currentBlockNum = await getStartBlock();
@@ -468,6 +474,12 @@ const startSync = async () => {
   }
 
   getLogger().debug(`Syncing block ${currentBlockNum}`);
+
+  if (shouldUpdateLocalTxs) {
+    await updateLocalTx(currentBlockNum);
+    getLogger().debug('Updated local txs');
+  }
+
   await syncTopicCreated(currentBlockNum);
   await syncCentralizedOracleCreated(currentBlockNum);
   await syncDecentralizedOracleCreated(currentBlockNum, currentBlockTime);
