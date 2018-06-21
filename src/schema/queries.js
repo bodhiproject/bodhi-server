@@ -336,4 +336,81 @@ module.exports = {
       addressBalances,
     };
   },
+
+  getAddressBalances: async () => {
+    const addressObjs = [];
+    const addressList = [];
+
+    // Get full list of ever used addresses
+    try {
+      const res = await getInstance().listAddressGroupings();
+      // grouping: [["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.01], ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.02]], [...]
+      _.each(res, (grouping) => {
+        // addressArrItem: ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.08164600]
+        _.each(grouping, (addressArrItem) => {
+          addressObjs.push({
+            address: addressArrItem[0],
+            qtum: new BigNumber(addressArrItem[1]).multipliedBy(SATOSHI_CONVERSION).toString(10),
+          });
+          addressList.push(addressArrItem[0]);
+        });
+      });
+    } catch (err) {
+      throw Error(`getAddressBalances listAddressGroupings: ${err.message}`);
+    }
+
+    // Get BOT balances of every address
+    
+    
+    const addressBatches = _.chunk(addressList, 20);
+    await new Promise(async (resolve) => {
+      sequentialLoop(addressBatches.length, async (loop) => {
+        const getBotBalancePromises = [];
+
+        _.map(addressBatches[loop.iteration()], async (address) => {
+          const getBotBalancePromise = new Promise(async (getBotBalanceResolve) => {
+            let botBalance = new BigNumber(0);
+
+            // Get BOT balance
+            try {
+              const resp = await bodhiToken.balanceOf({
+                owner: address,
+                senderAddress: address,
+              });
+
+              botBalance = resp.balance;
+            } catch (err) {
+              getLogger().error(`BalanceOf ${address}: ${err.message}`);
+              botBalance = '0';
+            }
+
+            // Update BOT balance for address
+            const found = _.find(addressObjs, { address });
+            found.bot = botBalance.toString(10);
+
+            getBotBalanceResolve();
+          });
+
+          getBotBalancePromises.push(getBotBalancePromise);
+        });
+
+        await Promise.all(getBotBalancePromises);
+        loop.next();
+      }, () => {
+        resolve();
+      });
+    });
+
+    // Add default address with zero balances if no address was used before
+    if (_.isEmpty(addressObjs)) {
+      const address = await wallet.getAccountAddress({ accountName: '' });
+      addressObjs.push({
+        address,
+        qtum: '0',
+        bot: '0',
+      });
+    }
+
+    return addressObjs;
+  },
 };
