@@ -8,18 +8,17 @@ const bodhiToken = require('../api/bodhi_token');
 const eventFactory = require('../api/event_factory');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
-const { DBHelper } = require('../db');
+const { db, DBHelper } = require('../db');
 const { Config, getContractMetadata } = require('../config');
 const { txState } = require('../constants');
 const Utils = require('../utils');
 
-async function updatePendingTxs(db, currentBlockCount) {
+async function updatePendingTxs(currentBlockCount) {
   let pendingTxs;
   try {
-    pendingTxs = await db.Transactions.cfind({ status: txState.PENDING })
-      .sort({ createdTime: -1 }).exec();
+    pendingTxs = await db.Transactions.cfind({ status: txState.PENDING }).sort({ createdTime: -1 }).exec();
   } catch (err) {
-    getLogger().error(`Error: get pending Transactions: ${err.message}`);
+    getLogger().error(`Get pending Transactions: ${err.message}`);
     throw err;
   }
 
@@ -28,7 +27,7 @@ async function updatePendingTxs(db, currentBlockCount) {
   _.each(pendingTxs, (tx) => {
     updatePromises.push(new Promise(async (resolve) => {
       await updateTx(tx, currentBlockCount);
-      await updateDB(tx, db);
+      await updateDB(tx);
       resolve();
     }));
   });
@@ -69,7 +68,7 @@ async function updateTx(tx, currentBlockCount) {
 }
 
 // Update the DB with new Transaction info
-async function updateDB(tx, db) {
+async function updateDB(tx) {
   if (tx.status !== txState.PENDING) {
     try {
       getLogger().debug(`Update: ${tx.status} Transaction ${tx.type} txid:${tx.txid}`);
@@ -92,11 +91,11 @@ async function updateDB(tx, db) {
       if (updatedTx) {
         switch (updatedTx.status) {
           case txState.SUCCESS: {
-            await onSuccessfulTx(updatedTx, db);
+            await onSuccessfulTx(updatedTx);
             break;
           }
           case txState.FAIL: {
-            await onFailedTx(updatedTx, db);
+            await onFailedTx(updatedTx);
             break;
           }
           default: {
@@ -112,7 +111,7 @@ async function updateDB(tx, db) {
 }
 
 // Execute follow-up transaction for successful txs
-async function onSuccessfulTx(tx, db) {
+async function onSuccessfulTx(tx) {
   const { Oracles, Transactions } = db;
   let sentTx;
 
@@ -237,25 +236,25 @@ async function onSuccessfulTx(tx, db) {
 }
 
 // Execute follow-up transaction for failed txs
-async function onFailedTx(tx, db) {
+async function onFailedTx(tx) {
   switch (tx.type) {
     // Approve failed. Reset allowance and delete created Topic/COracle.
     case 'APPROVECREATEEVENT': {
-      resetApproveAmount(db, tx, getContractMetadata().AddressManager.address);
-      removeCreatedTopicAndOracle(db, tx);
+      resetApproveAmount(tx, getContractMetadata().AddressManager.address);
+      removeCreatedTopicAndOracle(tx);
       break;
     }
 
     // CreateTopic failed. Delete created Topic/COracle.
     case 'CREATEEVENT': {
-      removeCreatedTopicAndOracle(db, tx);
+      removeCreatedTopicAndOracle(tx);
       break;
     }
 
     // Approve failed. Reset allowance.
     case 'APPROVESETRESULT':
     case 'APPROVEVOTE': {
-      resetApproveAmount(db, tx, tx.topicAddress);
+      resetApproveAmount(tx, tx.topicAddress);
       break;
     }
 
@@ -266,7 +265,7 @@ async function onFailedTx(tx, db) {
 }
 
 // Failed approve tx so call approve for 0.
-async function resetApproveAmount(db, tx, spender) {
+async function resetApproveAmount(tx, spender) {
   let sentTx;
   try {
     sentTx = await bodhiToken.approve({
@@ -295,7 +294,7 @@ async function resetApproveAmount(db, tx, spender) {
 }
 
 // Remove created Topic/COracle because tx failed
-async function removeCreatedTopicAndOracle(db, tx) {
+async function removeCreatedTopicAndOracle(tx) {
   await DBHelper.removeTopicsByQuery(db.Topics, { txid: tx.txid });
   await DBHelper.removeOraclesByQuery(db.Oracles, { txid: tx.txid });
 }
