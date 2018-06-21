@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 const BodhiServer = require('./server');
-const { Config, setQtumEnv, getQtumExplorerUrl } = require('./config');
+const ServerConfig = require('./config');
 const Constants = require('./constants');
 const { initDB, deleteBodhiData } = require('./db/nedb');
 const Utils = require('./utils');
@@ -30,9 +30,7 @@ if (_.includes(process.argv, '--testnet')) {
 
 module.exports = {
   BodhiServer,
-  Config,
-  setQtumEnv,
-  getQtumExplorerUrl,
+  ServerConfig,
   Constants,
   initDB,
   deleteBodhiData,
