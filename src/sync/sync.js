@@ -492,6 +492,10 @@ const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   await updateCOraclesDoneResultSet(currentBlockTime);
   await insertBlock(currentBlockNum, currentBlockTime);
 
+  if (shouldSendSyncInfo) {
+    
+  }
+
   // No delay if next block is already confirmed
   delayThenSync(0);
 };
