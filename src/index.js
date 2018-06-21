@@ -2,10 +2,11 @@ const _ = require('lodash');
 
 const { getDevQtumExecPath } = require('./utils');
 
-const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server');
+const { getQtumProcess, killQtumProcess, startServices, startServer, getServer, startQtumWallet } = require('./server');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./config');
 const Constants = require('./constants');
 const { initDB, deleteBodhiData } = require('./db/nedb');
+const Utils = require('./utils');
 const EmitterHelper = require('./utils/emitterHelper');
 const { getLogger } = require('./utils/logger');
 const AddressManager = require('./api/address_manager');
@@ -35,12 +36,14 @@ module.exports {
   startServices,
   startServer,
   getServer,
+  startQtumWallet,
   Config,
   setQtumEnv,
   getQtumExplorerUrl,
   Constants,
   initDB,
   deleteBodhiData,
+  Utils,
   EmitterHelper,
   getLogger,
   AddressManager,
