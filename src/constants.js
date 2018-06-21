@@ -33,7 +33,7 @@ module.exports = {
     PENDING: 'pending',
     FINALIZING: 'finalizing',
     WITHDRAWING: 'withdrawing',
-  }
+  },
 
   withdrawType: {
     ESCROW: 'ESCROW',
