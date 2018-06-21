@@ -1,9 +1,9 @@
 const _ = require('lodash');
 
 const BodhiServer = require('./server');
-const ServerConfig = require('./config');
-const Constants = require('./constants');
+const BodhiConfig = require('./config');
 const BodhiDb = require('./db');
+const Constants = require('./constants');
 const Utils = require('./utils');
 const EmitterHelper = require('./utils/emitterHelper');
 const { getLogger } = require('./utils/logger');
@@ -30,9 +30,9 @@ if (_.includes(process.argv, '--testnet')) {
 
 module.exports = {
   BodhiServer,
-  ServerConfig,
-  Constants,
+  BodhiConfig,
   BodhiDb,
+  Constants,
   Utils,
   EmitterHelper,
   getLogger,
