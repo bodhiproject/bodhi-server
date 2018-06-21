@@ -96,7 +96,7 @@ async function sync(db) {
   sequentialLoop(
     numOfIterations,
     async (loop) => {
-      await updateTxDB(db, currentBlockCount);
+      await updateTxDB(currentBlockCount);
       getLogger().debug('Tx DB Updated');
 
       const endBlock = Math.min((startBlock + BLOCK_BATCH_SIZE) - 1, currentBlockCount);
