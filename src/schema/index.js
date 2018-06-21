@@ -119,6 +119,12 @@ type syncInfo {
   addressBalances: [AddressBalance]
 }
 
+type AddressBalance {
+  address: String!
+  qtum: String!
+  bot: String!
+}
+
 type Query {
   allTopics(filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): [Topic]!
   allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): [Oracle]!
@@ -128,6 +134,7 @@ type Query {
   withdraws(filter: WithdrawFilter, orderBy: [Order!], limit: Int, skip: Int): [Withdraw]!
   allTransactions(filter: TransactionFilter, orderBy: [Order!], limit: Int, skip: Int): [Transaction]!
   syncInfo(includeBalance: Boolean): syncInfo!
+  addressBalances: [AddressBalance!]
 }
 
 input TopicFilter {
@@ -249,6 +256,11 @@ type Mutation {
   ): Transaction
 }
 
+type TopicSubscriptionPayload {
+  mutation: _ModelMutationType!
+  node: Topic
+}
+
 type Subscription {
   onSyncInfo : syncInfo
 }
@@ -260,17 +272,6 @@ input topicSubscriptionFilter {
 input Order {
   field: String!
   direction: _OrderDirection!
-}
-
-type TopicSubscriptionPayload {
-  mutation: _ModelMutationType!
-  node: Topic
-}
-
-type AddressBalance {
-  address: String!
-  qtum: String!
-  bot: String!
 }
 
 enum _ModelMutationType {
