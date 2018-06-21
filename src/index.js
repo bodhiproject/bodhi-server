@@ -1,13 +1,58 @@
 const _ = require('lodash');
 
-const { startServer } = require('./server');
-const { blockchainEnv } = require('./constants');
 const { getDevQtumExecPath } = require('./utils');
 
+const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server');
+const { Config, setQtumEnv, getQtumExplorerUrl } = require('./config');
+const Constants = require('./constants');
+const { initDB, deleteBodhiData } = require('./db/nedb');
+const EmitterHelper = require('./utils/emitterHelper');
+const { getLogger } = require('./utils/logger');
+const AddressManager = require('./api/address_manager');
+const BaseContract = require('./api/base_contract');
+const Blockchain = require('./api/blockchain');
+const BodhiToken = require('./api/bodhi_token');
+const CentralizedOracle = require('./api/centralized_oracle');
+const DecentralizedOracle = require('./api/decentralized_oracle');
+const EventFactory = require('./api/event_factory');
+const Oracle = require('./api/oracle');
+const QtumUtils = require('./api/qtum_utils');
+const TopicEvent = require('./api/topic_event');
+const Transaction = require('./api/transaction');
+const Wallet = require('./api/wallet');
+
 if (_.includes(process.argv, '--testnet')) {
-  startServer(blockchainEnv.TESTNET, getDevQtumExecPath());
+  startServer(Constants.blockchainEnv.TESTNET, getDevQtumExecPath());
 } else if (_.includes(process.argv, '--mainnet')) {
-  startServer(blockchainEnv.MAINNET, getDevQtumExecPath());
+  startServer(Constants.blockchainEnv.MAINNET, getDevQtumExecPath());
 } else {
   throw Error('testnet or mainnet flag not found.');
 }
+
+module.exports {
+  getQtumProcess,
+  killQtumProcess,
+  startServices,
+  startServer,
+  getServer,
+  Config,
+  setQtumEnv,
+  getQtumExplorerUrl,
+  Constants,
+  initDB,
+  deleteBodhiData,
+  EmitterHelper,
+  getLogger,
+  AddressManager,
+  BaseContract,
+  Blockchain,
+  BodhiToken,
+  CentralizedOracle,
+  DecentralizedOracle,
+  EventFactory,
+  Oracle,
+  QtumUtils,
+  TopicEvent,
+  Transaction,
+  Wallet,
+};
