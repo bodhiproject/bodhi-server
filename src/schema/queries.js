@@ -9,6 +9,7 @@ const { getLogger } = require('../utils/logger');
 const blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
 const BodhiToken = require('../api/bodhi_token');
+const Network = require('../api/network');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -388,7 +389,7 @@ module.exports = {
       syncBlockTime = (await blockchain.getBlock({ blockHash })).time;
     }
     const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
-    const peerNodeCount = await network.getPeerNodeCount();
+    const peerNodeCount = await Network.getPeerNodeCount();
 
     let addressBalances = [];
     if (includeBalance || false) {

@@ -4,6 +4,7 @@ const moment = require('moment');
 const { addressBalances } = require('./queries');
 const pubsub = require('../pubsub');
 const { getInstance } = require('../qclient');
+const Network = require('../api/network');
 const { getLogger } = require('../utils/logger');
 
 const SYNC_THRESHOLD_SECS = 1200;
@@ -49,12 +50,14 @@ const calculateSyncPercent = async (blockNum, blockTime) => {
 // Send syncInfo subscription
 const publishSyncInfo = async (blockNum, blockTime) => {
   const syncPercent = await calculateSyncPercent(blockNum, blockTime);
+  const peerNodeCount = await Network.getPeerNodeCount();
   const addressBalances = await addressBalances(); 
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
       blockNum,
       blockTime,
       syncPercent,
+      peerNodeCount,
       addressBalances,
     },
   });
