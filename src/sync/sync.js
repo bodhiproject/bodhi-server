@@ -494,7 +494,7 @@ const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   await insertBlock(currentBlockNum, currentBlockTime);
 
   if (shouldSendSyncInfo) {
-    publishSyncInfo(currentBlockNum, currentBlockTime);
+    await publishSyncInfo(currentBlockNum, currentBlockTime);
   }
 
   // No delay if next block is already confirmed
