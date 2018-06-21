@@ -25,7 +25,7 @@ if (_.includes(process.argv, '--testnet')) {
 } else if (_.includes(process.argv, '--mainnet')) {
   startServer(Constants.blockchainEnv.MAINNET, Utils.getDevQtumExecPath());
 } else {
-  throw Error('testnet or mainnet flag not found.');
+  console.log('testnet/mainnet flag not found. startServer() will need to be called explicitly.');
 }
 
 module.exports = {
