@@ -3,7 +3,7 @@ const _ = require('lodash');
 const BodhiServer = require('./server');
 const ServerConfig = require('./config');
 const Constants = require('./constants');
-const { initDB, deleteBodhiData } = require('./db');
+const BodhiDb = require('./db');
 const Utils = require('./utils');
 const EmitterHelper = require('./utils/emitterHelper');
 const { getLogger } = require('./utils/logger');
@@ -32,8 +32,7 @@ module.exports = {
   BodhiServer,
   ServerConfig,
   Constants,
-  initDB,
-  deleteBodhiData,
+  BodhiDb,
   Utils,
   EmitterHelper,
   getLogger,
