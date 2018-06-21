@@ -20,6 +20,7 @@ const TopicEvent = require('./api/topic_event');
 const Transaction = require('./api/transaction');
 const Wallet = require('./api/wallet');
 
+const { startServer } = BodhiServer;
 const { blockchainEnv } = Constants;
 const { getDevQtumExecPath } = Utils;
 if (_.includes(process.argv, '--testnet')) {
