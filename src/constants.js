@@ -40,6 +40,5 @@ module.exports = {
     WINNINGS: 'WINNINGS',
   },
 
-  BLOCK_0_TIMESTAMP: 1504695029,
   SATOSHI_CONVERSION: 10 ** 8,
 };
