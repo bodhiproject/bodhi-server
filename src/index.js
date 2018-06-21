@@ -1,7 +1,5 @@
 const _ = require('lodash');
 
-const { getDevQtumExecPath } = require('./utils');
-
 const { getQtumProcess, killQtumProcess, startServices, startServer, getServer, startQtumWallet } = require('./server');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./config');
 const Constants = require('./constants');
@@ -23,9 +21,9 @@ const Transaction = require('./api/transaction');
 const Wallet = require('./api/wallet');
 
 if (_.includes(process.argv, '--testnet')) {
-  startServer(Constants.blockchainEnv.TESTNET, getDevQtumExecPath());
+  startServer(Constants.blockchainEnv.TESTNET, Utils.getDevQtumExecPath());
 } else if (_.includes(process.argv, '--mainnet')) {
-  startServer(Constants.blockchainEnv.MAINNET, getDevQtumExecPath());
+  startServer(Constants.blockchainEnv.MAINNET, Utils.getDevQtumExecPath());
 } else {
   throw Error('testnet or mainnet flag not found.');
 }
