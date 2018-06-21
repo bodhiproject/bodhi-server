@@ -1,7 +1,7 @@
 const { graphqlRestify, graphiqlRestify } = require('apollo-server-restify');
 const Router = require('restify-router').Router;
 
-const { db } = require('../db/nedb');
+const { db } = require('../db');
 const schema = require('../schema');
 const { Config } = require('../config');
 

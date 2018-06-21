@@ -11,7 +11,7 @@ const { execFile } = require('./constants');
 const {
   Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword,
 } = require('./config');
-const { initDB } = require('./db/nedb');
+const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitterHelper');
 const schema = require('./schema');
