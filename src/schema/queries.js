@@ -1,8 +1,14 @@
 const _ = require('lodash');
+const async = require('async');
+const BigNumber = require('bignumber.js');
 
 const { calculateSyncPercent, getAddressBalances } = require('../sync');
+const { getInstance } = require('../qclient');
+const { SATOSHI_CONVERSION } = require('../constants');
 const { getLogger } = require('../utils/logger');
 const blockchain = require('../api/blockchain');
+const Wallet = require('../api/wallet');
+const BodhiToken = require('../api/bodhi_token');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -235,6 +241,26 @@ const buildTransactionFilters = ({ OR = [], type, status, topicAddress, oracleAd
   return filters;
 };
 
+const updateBotBalance = async (address, addressObjs) => {
+  try {
+    let botBalance = new BigNumber(0);
+
+    // Get BOT balance
+    const res = await bodhiToken.balanceOf({
+      owner: address,
+      senderAddress: address,
+    });
+    botBalance = res.balance;
+  } catch (err) {
+    getLogger().error(`updateBotBalance BodhiToken.balanceOf: ${err.message}`);
+    botBalance = '0';
+  }
+
+  // Update BOT balance for address
+  const found = _.find(addressObjs, { address });
+  found.bot = botBalance.toString(10);
+};
+
 module.exports = {
   allTopics: async (root, {
     filter, orderBy, limit, skip,
@@ -337,7 +363,8 @@ module.exports = {
     };
   },
 
-  getAddressBalances: async () => {
+  // Gets the QTUM and BOT balances for all ever used addresses
+  addressBalances: async () => {
     const addressObjs = [];
     const addressList = [];
 
@@ -356,54 +383,12 @@ module.exports = {
         });
       });
     } catch (err) {
-      throw Error(`getAddressBalances listAddressGroupings: ${err.message}`);
+      getLogger().error(`getAddressBalances listAddressGroupings: ${err.message}`);
     }
-
-    // Get BOT balances of every address
-    
-    
-    const addressBatches = _.chunk(addressList, 20);
-    await new Promise(async (resolve) => {
-      sequentialLoop(addressBatches.length, async (loop) => {
-        const getBotBalancePromises = [];
-
-        _.map(addressBatches[loop.iteration()], async (address) => {
-          const getBotBalancePromise = new Promise(async (getBotBalanceResolve) => {
-            let botBalance = new BigNumber(0);
-
-            // Get BOT balance
-            try {
-              const resp = await bodhiToken.balanceOf({
-                owner: address,
-                senderAddress: address,
-              });
-
-              botBalance = resp.balance;
-            } catch (err) {
-              getLogger().error(`BalanceOf ${address}: ${err.message}`);
-              botBalance = '0';
-            }
-
-            // Update BOT balance for address
-            const found = _.find(addressObjs, { address });
-            found.bot = botBalance.toString(10);
-
-            getBotBalanceResolve();
-          });
-
-          getBotBalancePromises.push(getBotBalancePromise);
-        });
-
-        await Promise.all(getBotBalancePromises);
-        loop.next();
-      }, () => {
-        resolve();
-      });
-    });
 
     // Add default address with zero balances if no address was used before
     if (_.isEmpty(addressObjs)) {
-      const address = await wallet.getAccountAddress({ accountName: '' });
+      const address = await Wallet.getAccountAddress({ accountName: '' });
       addressObjs.push({
         address,
         qtum: '0',
@@ -411,6 +396,33 @@ module.exports = {
       });
     }
 
+    // Get BOT balances of every address
+    const getBotBalancePromises = [];
+    _.each(addressList, (address) => {
+      getBotBalancePromises.push(new Promise(async (resolve) => {
+        try {
+          let botBalance = new BigNumber(0);
+
+          // Get BOT balance
+          const res = await BodhiToken.balanceOf({
+            owner: address,
+            senderAddress: address,
+          });
+          botBalance = res.balance;
+        } catch (err) {
+          getLogger().error(`getAddressBalances BodhiToken.balanceOf: ${err.message}`);
+          botBalance = '0';
+        }
+
+        // Update BOT balance for address
+        const found = _.find(addressObjs, { address });
+        found.bot = botBalance.toString(10);
+      }));
+    });
+    async.parallelLimit(getBotBalancePromises, 10);
+
     return addressObjs;
   },
 };
+
+
