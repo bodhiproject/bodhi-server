@@ -18,11 +18,11 @@ async function updatePendingTxs(currentBlockCount) {
   try {
     pendingTxs = await db.Transactions.cfind({ status: txState.PENDING }).sort({ createdTime: -1 }).exec();
   } catch (err) {
-    getLogger().error(`Get pending Transactions: ${err.message}`);
-    throw err;
+    getLogger().error(`Get pending txs: ${err.message}`);
+    return;
   }
 
-  // TODO(frank): batch to void too many rpc calls
+  // TODO: batch to avoid too many rpc calls
   const updatePromises = [];
   _.each(pendingTxs, (tx) => {
     updatePromises.push(new Promise(async (resolve) => {
@@ -104,8 +104,8 @@ async function updateDB(tx) {
         }
       }
     } catch (err) {
-      getLogger().error(`Error: Update Transaction ${tx.type} txid:${tx.txid}: ${err.message}`);
-      throw err;
+      getLogger().error(`Update Transaction ${tx.type} txid:${tx.txid} ${err.message}`);
+      return;
     }
   }
 }
@@ -130,8 +130,8 @@ async function onSuccessfulTx(tx) {
           senderAddress: tx.senderAddress,
         });
       } catch (err) {
-        getLogger().error(`Error calling EventFactory.createTopic: ${err.message}`);
-        throw err;
+        getLogger().error(`onSuccessfulTx EventFactory.createTopic: ${err.message}`);
+        return;
       }
 
       // Update Topic's approve txid with the createTopic txid
@@ -171,8 +171,8 @@ async function onSuccessfulTx(tx) {
           senderAddress: tx.senderAddress,
         });
       } catch (err) {
-        getLogger().error(`Error calling CentralizedOracle.setResult: ${err.message}`);
-        throw err;
+        getLogger().error(`onSuccessfulTx CentralizedOracle.setResult: ${err.message}`);
+        return;
       }
 
       await DBHelper.insertTransaction(Transactions, {
@@ -207,8 +207,8 @@ async function onSuccessfulTx(tx) {
           gasLimit,
         });
       } catch (err) {
-        getLogger().error(`Error calling DecentralizedOracle.vote: ${err.message}`);
-        throw err;
+        getLogger().error(`onSuccessfulTx DecentralizedOracle.vote: ${err.message}`);
+        return;
       }
 
       await DBHelper.insertTransaction(Transactions, {
@@ -274,8 +274,8 @@ async function resetApproveAmount(tx, spender) {
       senderAddress: tx.senderAddress,
     });
   } catch (err) {
-    getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
-    throw err;
+    getLogger().error(`resetApproveAmount BodhiToken.approve: ${err.message}`);
+    return;
   }
 
   await DBHelper.insertTransaction(db.Transactions, {
