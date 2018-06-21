@@ -26,7 +26,7 @@ class Vote {
   decode() {
     this.version = this.rawLog._version.toNumber();
     this.oracleAddress = this.rawLog._oracleAddress;
-    this.participant = Decoder.toQtumAddress(this.rawLog._participant, isMainnet())
+    this.participant = Decoder.toQtumAddress(this.rawLog._participant, isMainnet());
     this.resultIndex = this.rawLog._resultIndex.toNumber();
     this.votedAmount = Web3Utils.hexToNumberString(this.rawLog._votedAmount);
     this.token = Utils.toUtf8(this.rawLog._token);

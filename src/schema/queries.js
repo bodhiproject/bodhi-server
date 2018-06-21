@@ -30,7 +30,9 @@ const buildCursorOptions = (cursor, orderBy, limit, skip) => {
   return cursor;
 };
 
-const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorAddress }) => {
+const buildTopicFilters = ({
+  OR = [], txid, address, status, resultIdx, creatorAddress,
+}) => {
   const filter = (txid || address || status || resultIdx || creatorAddress) ? {} : null;
 
   if (txid) {
@@ -60,7 +62,9 @@ const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorA
   return filters;
 };
 
-const buildOracleFilters = ({ OR = [], txid, address, topicAddress, resultSetterQAddress, excludeResultSetterQAddress, status, token }) => {
+const buildOracleFilters = ({
+  OR = [], txid, address, topicAddress, resultSetterQAddress, excludeResultSetterQAddress, status, token,
+}) => {
   const filter = (
     txid
     || address
@@ -69,8 +73,8 @@ const buildOracleFilters = ({ OR = [], txid, address, topicAddress, resultSetter
     || status
     || token
     || excludeResultSetterQAddress
-    ) ? {} : null;
-  
+  ) ? {} : null;
+
   if (txid) {
     filter.txid = txid;
   }
@@ -122,7 +126,9 @@ const buildSearchOracleFilter = (searchPhrase) => {
   return filters;
 };
 
-const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, voterQAddress, optionIdx }) => {
+const buildVoteFilters = ({
+  OR = [], topicAddress, oracleAddress, voterAddress, voterQAddress, optionIdx,
+}) => {
   const filter = (topicAddress || oracleAddress || voterAddress || voterQAddress || optionIdx) ? {} : null;
 
   if (topicAddress) {
@@ -152,7 +158,9 @@ const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, 
   return filters;
 };
 
-const buildResultSetFilters = ({ OR = [], txid, fromAddress, topicAddress, oracleAddress, resultIdx }) => {
+const buildResultSetFilters = ({
+  OR = [], txid, fromAddress, topicAddress, oracleAddress, resultIdx,
+}) => {
   const filter = (txid || fromAddress || topicAddress || oracleAddress || resultIdx) ? {} : null;
 
   if (txid) {
@@ -182,7 +190,9 @@ const buildResultSetFilters = ({ OR = [], txid, fromAddress, topicAddress, oracl
   return filters;
 };
 
-const buildWithdrawFilters = ({ OR = [], txid, topicAddress, withdrawerAddress, type }) => {
+const buildWithdrawFilters = ({
+  OR = [], txid, topicAddress, withdrawerAddress, type,
+}) => {
   const filter = (txid || topicAddress || withdrawerAddress || type) ? {} : null;
 
   if (txid) {
@@ -208,7 +218,9 @@ const buildWithdrawFilters = ({ OR = [], txid, topicAddress, withdrawerAddress, 
   return filters;
 };
 
-const buildTransactionFilters = ({ OR = [], type, status, topicAddress, oracleAddress, senderAddress, senderQAddress }) => {
+const buildTransactionFilters = ({
+  OR = [], type, status, topicAddress, oracleAddress, senderAddress, senderQAddress,
+}) => {
   const filter = (type || status || topicAddress || oracleAddress || senderAddress || senderQAddress) ? {} : null;
 
   if (type) {
