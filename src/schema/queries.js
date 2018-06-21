@@ -2,7 +2,7 @@ const _ = require('lodash');
 const async = require('async');
 const BigNumber = require('bignumber.js');
 
-const { calculateSyncPercent } = require('../sync');
+const { calculateSyncPercent } = require('./subscriptions');
 const { getInstance } = require('../qclient');
 const { SATOSHI_CONVERSION } = require('../constants');
 const { getLogger } = require('../utils/logger');

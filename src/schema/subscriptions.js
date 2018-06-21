@@ -1,3 +1,12 @@
+const _ = require('lodash');
+const moment = require('moment');
+
+const { addressBalances } = require('./queries');
+const pubsub = require('../pubsub');
+const { getInstance } = require('../qclient');
+const { getLogger } = require('../utils/logger');
+
+// Gets the highest synced block number from connected peers
 const peerHighestSyncedHeader = async () => {
   let peerBlockHeader = null;
   try {
@@ -8,19 +17,21 @@ const peerHighestSyncedHeader = async () => {
       }
     });
   } catch (err) {
-    getLogger().error(`Error calling getPeerInfo: ${err.message}`);
+    getLogger().error(`peerHighestSyncedHeader getPeerInfo: ${err.message}`);
     return null;
   }
 
   return peerBlockHeader;
 };
 
-const calculateSyncPercent = async (blockCount, blockTime) => {
+// Calculates the current sync percentage of the current block number
+const calculateSyncPercent = async (blockNum, blockTime) => {
   const peerBlockHeader = await peerHighestSyncedHeader();
   if (_.isNull(peerBlockHeader)) {
     // estimate by blockTime
     let syncPercent = 100;
     const timestampNow = moment().unix();
+
     // if blockTime is 20 min behind, we are not fully synced
     if (blockTime < timestampNow - SYNC_THRESHOLD_SECS) {
       syncPercent = Math.floor(((blockTime - BLOCK_0_TIMESTAMP) / (timestampNow - BLOCK_0_TIMESTAMP)) * 100);
@@ -28,17 +39,23 @@ const calculateSyncPercent = async (blockCount, blockTime) => {
     return syncPercent;
   }
 
-  return Math.floor((blockCount / peerBlockHeader) * 100);
+  // Calculate accurate percentage
+  return Math.floor((blockNum / peerBlockHeader) * 100);
 };
 
 // Send syncInfo subscription
-const sendSyncInfo = (syncBlockNum, syncBlockTime, syncPercent, addressBalances) => {
+const publishSyncInfo = (blockNum, blockTime) => {
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
-      syncBlockNum,
-      syncBlockTime,
-      syncPercent,
-      addressBalances,
+      blockNum,
+      blockTime,
+      await calculateSyncPercent(blockNum, blockTime),
+      await addressBalances(),
     },
   });
+};
+
+module.exports = {
+  publishSyncInfo,
+  calculateSyncPercent,
 };

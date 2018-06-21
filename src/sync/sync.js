@@ -7,6 +7,7 @@ const { withdrawType } = require('../constants');
 const { getContractMetadata, isMainnet } = require('../config');
 const { db, DBHelper } = require('../db');
 const { getLogger } = require('../utils/logger');
+const { publishSyncInfo } = require('../schema/subscriptions');
 const Topic = require('../models/topic');
 const CentralizedOracle = require('../models/centralizedOracle');
 const DecentralizedOracle = require('../models/decentralizedOracle');
@@ -493,7 +494,7 @@ const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   await insertBlock(currentBlockNum, currentBlockTime);
 
   if (shouldSendSyncInfo) {
-    
+    publishSyncInfo(currentBlockNum, currentBlockTime);
   }
 
   // No delay if next block is already confirmed
