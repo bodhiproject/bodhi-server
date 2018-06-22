@@ -7,8 +7,8 @@ const moment = require('moment');
 const BigNumber = require('bignumber.js');
 const { getContractMetadata, isMainnet } = require('../config');
 const { BLOCK_0_TIMESTAMP, SATOSHI_CONVERSION } = require('../constants');
-const { db, DBHelper } = require('../db/nedb');
-const updateTxDB = require('./update_tx');
+const { db, DBHelper } = require('../db');
+const updateTxDB = require('./updateLocalTx');
 
 const Topic = require('../models/topic');
 const CentralizedOracle = require('../models/centralizedOracle');
