@@ -44,9 +44,9 @@ function initLogger() {
       transports.push(new Papertrail({
         host: 'logs5.papertrailapp.com',
         port: 46145,
-        level: 'debug',
+        level: 'info',
         colorize: true,
-        logFormat: (level, message) => `<<< ${level} >>> ${message}`,
+        logFormat: (level, message) => `< ${level} > ${message}`,
       }));
     }
 
