@@ -10,12 +10,6 @@ const { Config } = require('../config');
 
 const graphqlRouter = Router();
 
-// Log each request
-// graphqlRouter.use((req, res, next) => {
-//   console.log(req.method, req.path, res.statusCode);
-//   next();
-// });
-
 graphqlRouter.use('/graphql', bodyParser.json(), graphqlExpress({ 
   context: { db },
   schema,

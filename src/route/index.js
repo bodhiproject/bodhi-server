@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const expressWinston = require('express-winston');
 
 const apiRouter = require('./api');
 const { graphqlRouter, createSubscriptionServer } = require('./graphql');
@@ -16,18 +17,19 @@ const initApiServer = () => {
     next();
   });
   
+  // Setup for JSON and url encoded bodies
   server.use(bodyParser.json());
   server.use(bodyParser.urlencoded({ extended: true }));
   server.use(express.json());
   server.use(express.urlencoded());
 
-  // server.use((req, res, next) => {
-  //   // if (route) {
-  //   //   getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
-  //   // } else {
-  //   //   getLogger().error(`${err.message}`);
-  //   // }
-  // });
+  // Route responses to Winston logger
+  server.use(expressWinston.logger({
+    winstonInstance: getLogger(),
+    meta: false,
+    msg: "{{req.method}} {{req.path}} {{res.statusCode}}",
+    colorize: true,
+  }));
 
   // Apply all routes
   server.use('/', apiRouter);

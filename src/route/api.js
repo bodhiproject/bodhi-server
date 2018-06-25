@@ -17,12 +17,6 @@ const { getInstance } = require('../qclient');
 
 const router = Router();
 
-// Log each request
-// router.use((req, res, next) => {
-//   console.log(req.method, req.path, res.statusCode);
-//   next();
-// });
-
 const onRequestSuccess = (res, body, next) => {
   res.status(res.statusCode).send(body);
   next();
