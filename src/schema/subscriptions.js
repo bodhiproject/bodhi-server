@@ -50,7 +50,7 @@ const calculateSyncPercent = async (blockNum, blockTime) => {
 const publishSyncInfo = async (syncBlockNum, syncBlockTime) => {
   const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
   const peerNodeCount = await Network.getPeerNodeCount();
-  const addressBalances = await require('./queries').addressBalances();
+  const addressBalances = await require('./queries').addressBalances(); // eslint-disable-line global-require
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
       syncBlockNum,
