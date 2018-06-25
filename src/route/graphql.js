@@ -10,10 +10,9 @@ const { Config } = require('../config');
 
 const graphqlRouter = Router();
 
-graphqlRouter.use('/graphql', bodyParser.json(), graphqlExpress({ 
-  context: { db },
-  schema,
-}));
+const options = graphqlExpress({ context: { db }, schema});
+graphqlRouter.get('/graphql', options);
+graphqlRouter.post('/graphql', bodyParser.json(), options);
 
 // GraphQL web interface for querying
 graphqlRouter.use('/graphiql', graphiqlExpress({

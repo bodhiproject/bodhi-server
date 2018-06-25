@@ -27,7 +27,7 @@ const initApiServer = () => {
   server.use(expressWinston.logger({
     winstonInstance: getLogger(),
     meta: false,
-    msg: "{{req.method}} {{req.path}} {{res.statusCode}}",
+    msg: "{{req.method}} {{req.path}} {{res.statusCode}} {{res.body}}",
     colorize: true,
   }));
 
