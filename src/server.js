@@ -23,7 +23,6 @@ const Wallet = require('./api/wallet');
 const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
 
 let qtumProcess;
-let server;
 let encryptOk = false;
 let isEncrypted = false;
 let checkInterval;
@@ -276,10 +275,6 @@ async function startServer(env, qtumPath, encryptionAllowed) {
   }
 }
 
-function getServer() {
-  return server;
-}
-
 function exit(signal) {
   getLogger().info(`Received ${signal}, exiting...`);
 
@@ -302,6 +297,5 @@ module.exports = {
   killQtumProcess,
   startServices,
   startServer,
-  getServer,
   startQtumWallet,
 };
