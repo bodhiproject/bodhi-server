@@ -17,15 +17,21 @@ const { getInstance } = require('../qclient');
 
 const router = Router();
 
-function onRequestSuccess(res, result, next) {
+// Log each request
+router.use((req, res, next) => {
+  console.log(req.method, req.path, res.statusCode);
+  next();
+});
+
+const onRequestSuccess = (res, result, next) => {
   res.send(200, { result });
   next();
-}
+};
 
-function onRequestError(res, err, next) {
+const onRequestError = (res, err, next) => {
   res.send(500, { error: err.message });
   next();
-}
+};
 
 /* Misc */
 router.post('/is-connected', (req, res, next) => {
