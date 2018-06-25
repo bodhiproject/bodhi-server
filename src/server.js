@@ -1,7 +1,5 @@
 const _ = require('lodash');
 const { spawn, spawnSync } = require('child_process');
-const { execute, subscribe } = require('graphql');
-const { SubscriptionServer } = require('subscriptions-transport-ws');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
@@ -12,7 +10,6 @@ const {
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitterHelper');
-const schema = require('./schema');
 const { startSync } = require('./sync');
 const { getInstance } = require('./qclient');
 const initApiServer = require('./route');

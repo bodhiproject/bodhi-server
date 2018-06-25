@@ -23,7 +23,10 @@ function initLogger() {
           return moment().format('YYYY-MM-DD HH:mm:ss');
         },
         formatter(options) {
-          return `${options.timestamp()} ${winstonCfg.colorize(options.level, options.level.toUpperCase())} ${(options.message ? options.message : '')} ${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
+          return `${options.timestamp()} `
+            + `${winstonCfg.colorize(options.level, options.level.toUpperCase())} `
+            + `${(options.message ? options.message : '')} `
+            + `${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
         },
       }),
       new (winston.transports.DailyRotateFile)({
@@ -32,7 +35,10 @@ function initLogger() {
           return moment().format('YYYY-MM-DD HH:mm:ss');
         },
         formatter(options) {
-          return `${options.timestamp()} ${winstonCfg.colorize(options.level, options.level.toUpperCase())} ${(options.message ? options.message : '')} ${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
+          return `${options.timestamp()} `
+            + `${winstonCfg.colorize(options.level, options.level.toUpperCase())} `
+            + `${(options.message ? options.message : '')} `
+            + `${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
         },
         json: false,
         maxFiles: '14d',

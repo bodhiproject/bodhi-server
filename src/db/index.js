@@ -110,54 +110,56 @@ async function migrateDB() {
 }
 
 class DBHelper {
-  static async getCount(db, query) {
+  static async getCount(database, query) {
     try {
-      return await db.count(query);
+      return await database.count(query);
     } catch (err) {
-      getLogger().error(`Error getting DB count. db:${db} err:${err.message}`);
+      getLogger().error(`Error getting DB count. db:${database} err:${err.message}`);
     }
   }
 
   /*
   * Returns the fields of the object in one of the tables searched by the query.
-  * @param db The DB table.
+  * @param database {Object} The DB table.
   * @param query {Object} The query by items.
   * @param fields {Array} The fields to return for the found item in an array.
   */
-  static async findOne(db, query, fields) {
+  static async findOne(database, query, fields) {
     let fieldsObj;
     if (!_.isEmpty(fields)) {
       fieldsObj = {};
-      _.each(fields, field => fieldsObj[field] = 1);
+      _.each(fields, (field) => {
+        fieldsObj[field] = 1;
+      });
     }
 
-    const found = await db.findOne(query, fieldsObj);
+    const found = await database.findOne(query, fieldsObj);
     if (!found) {
-      const { filename } = db.nedb;
-      throw Error(`Could not findOne ${filename.substr(filename.lastIndexOf('/') + 1)} by query ${JSON.stringify(query)}`);
+      const { filename } = database.nedb;
+      throw Error(`findOne ${filename.substr(filename.lastIndexOf('/') + 1)} by query ${JSON.stringify(query)}`);
     }
     return found;
   }
 
-  static async insertTopic(db, topic) {
+  static async insertTopic(database, topic) {
     try {
-      await db.insert(topic);
+      await database.insert(topic);
     } catch (err) {
       getLogger().error(`Error insert Topic ${topic}: ${err.message}`);
     }
   }
 
-  static async updateObjectByQuery(db, query, update) {
+  static async updateObjectByQuery(database, query, update) {
     try {
-      await db.update(query, { $set: update }, {});
+      await database.update(query, { $set: update }, {});
     } catch (err) {
       getLogger().error(`Error update ${update} object by query:${query}: ${err.message}`);
     }
   }
 
-  static async updateTopicByQuery(db, query, topic) {
+  static async updateTopicByQuery(database, query, topic) {
     try {
-      await db.update(
+      await database.update(
         query,
         {
           $set: {
@@ -190,17 +192,17 @@ class DBHelper {
     }
   }
 
-  static async insertOracle(db, oracle) {
+  static async insertOracle(database, oracle) {
     try {
-      await db.insert(oracle);
+      await database.insert(oracle);
     } catch (err) {
       getLogger().error(`Error insert COracle:${oracle}: ${err.message}`);
     }
   }
 
-  static async updateOracleByQuery(db, query, oracle) {
+  static async updateOracleByQuery(database, query, oracle) {
     try {
-      await db.update(
+      await database.update(
         query,
         {
           $set: {
@@ -241,10 +243,10 @@ class DBHelper {
     }
   }
 
-  static async insertTransaction(db, tx) {
+  static async insertTransaction(database, tx) {
     try {
       getLogger().debug(`Mutation Insert: Transaction ${tx.type} txid:${tx.txid}`);
-      await db.insert(tx);
+      await database.insert(tx);
     } catch (err) {
       getLogger().error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);
       throw err;

@@ -41,7 +41,7 @@ module.exports = {
     ],
     "no-unused-vars": [1,
       {
-        "args": "all",
+        "args": "none",
         "caughtErrors": "none"
       }
     ],

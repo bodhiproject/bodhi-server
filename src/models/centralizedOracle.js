@@ -27,7 +27,7 @@ class CentralizedOracle {
     this.version = this.rawLog._version.toNumber();
     this.contractAddress = this.rawLog._contractAddress;
     this.eventAddress = this.rawLog._eventAddress;
-    this.oracle = Decoder.toQtumAddress(this.rawLog._oracle, isMainnet()),
+    this.oracle = Decoder.toQtumAddress(this.rawLog._oracle, isMainnet());
     this.numOfResults = this.rawLog._numOfResults.toNumber();
     this.bettingStartTime = this.rawLog._bettingStartTime.toNumber();
     this.bettingEndTime = this.rawLog._bettingEndTime.toNumber();

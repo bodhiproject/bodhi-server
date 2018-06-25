@@ -1,10 +1,12 @@
+/* eslint-disable no-underscore-dangle */
+
 const _ = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
 const updateLocalTx = require('./updateLocalTx');
 const { getInstance } = require('../qclient');
 const { withdrawType } = require('../constants');
-const { getContractMetadata, isMainnet } = require('../config');
+const { getContractMetadata } = require('../config');
 const { db, DBHelper } = require('../db');
 const { getLogger } = require('../utils/logger');
 const { publishSyncInfo } = require('../schema/subscriptions');
@@ -201,13 +203,23 @@ const syncOracleResultVoted = async (currentBlockNum) => {
             const topic = await DBHelper.findOne(db.Topics, { address: oracle.topicAddress });
             switch (vote.token) {
               case 'QTUM': {
-                topic.qtumAmount[vote.optionIdx] = new BigNumber(topic.qtumAmount[vote.optionIdx]).plus(voteBn).toString(10);
-                await DBHelper.updateObjectByQuery(db.Topics, { address: topic.address }, { qtumAmount: topic.qtumAmount });
+                topic.qtumAmount[vote.optionIdx] =
+                  new BigNumber(topic.qtumAmount[vote.optionIdx]).plus(voteBn).toString(10);
+                await DBHelper.updateObjectByQuery(db.Topics, {
+                  address: topic.address,
+                }, {
+                  qtumAmount: topic.qtumAmount,
+                });
                 break;
               }
               case 'BOT': {
-                topic.botAmount[vote.optionIdx] = new BigNumber(topic.botAmount[vote.optionIdx]).plus(voteBn).toString(10);
-                await DBHelper.updateObjectByQuery(db.Topics, { address: topic.address }, { botAmount: topic.botAmount });
+                topic.botAmount[vote.optionIdx] =
+                  new BigNumber(topic.botAmount[vote.optionIdx]).plus(voteBn).toString(10);
+                await DBHelper.updateObjectByQuery(db.Topics, {
+                  address: topic.address,
+                }, {
+                  botAmount: topic.botAmount,
+                });
                 break;
               }
               default: {
@@ -447,7 +459,7 @@ const insertBlock = async (currentBlockNum, currentBlockTime) => {
 const delayThenSync = (delay, shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   getLogger().debug('sleep');
   setTimeout(() => {
-    startSync(shouldUpdateLocalTxs, shouldSendSyncInfo);
+    startSync(shouldUpdateLocalTxs, shouldSendSyncInfo); // eslint-disable-line no-use-before-define
   }, delay);
 };
 
@@ -506,3 +518,5 @@ const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
 module.exports = {
   startSync,
 };
+
+/* eslint-enable no-underscore-dangle */
