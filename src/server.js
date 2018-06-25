@@ -1,6 +1,4 @@
 const _ = require('lodash');
-const restify = require('restify');
-const corsMiddleware = require('restify-cors-middleware');
 const { spawn, spawnSync } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
