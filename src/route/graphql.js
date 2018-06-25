@@ -8,14 +8,14 @@ const { db } = require('../db');
 const schema = require('../schema');
 const { Config } = require('../config');
 
-const graphqlRouter = Router();
+const router = Router();
 
 const options = graphqlExpress({ context: { db }, schema });
-graphqlRouter.get('/graphql', options);
-graphqlRouter.post('/graphql', bodyParser.json(), options);
+router.get('/graphql', options);
+router.post('/graphql', bodyParser.json(), options);
 
 // GraphQL web interface for querying
-graphqlRouter.use('/graphiql', graphiqlExpress({
+router.use('/graphiql', graphiqlExpress({
   endpointURL: '/graphql',
   subscriptionsEndpoint: `ws://${Config.HOSTNAME}:${Config.PORT}/subscriptions`,
 }));
@@ -28,6 +28,6 @@ const createSubscriptionServer = (server) => {
 };
 
 module.exports = {
-  graphqlRouter,
+  graphqlRouter: router,
   createSubscriptionServer,
 };
