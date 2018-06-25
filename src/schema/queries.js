@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const async = require('async');
 const BigNumber = require('bignumber.js');
 
 const { calculateSyncPercent } = require('./subscriptions');
