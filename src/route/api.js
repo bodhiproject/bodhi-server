@@ -1,4 +1,4 @@
-const { Router } = require('restify-router');
+const { Router } = require('express');
 
 const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
@@ -15,7 +15,7 @@ const QtumUtils = require('../api/qtum_utils');
 const EmitterHelper = require('../utils/emitterHelper');
 const { getInstance } = require('../qclient');
 
-const apiRouter = new Router();
+const apiRouter = Router();
 
 function onRequestSuccess(res, result, next) {
   res.send(200, { result });

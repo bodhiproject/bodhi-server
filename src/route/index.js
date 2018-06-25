@@ -1,10 +1,14 @@
 const express = require('express');
 
+const server;
+
 const initApiServer = () => {
-  server = restify.createServer({ title: 'Bodhi API' });
+  server = express();
+
   const cors = corsMiddleware({ origins: ['*'] });
   server.pre(cors.preflight);
   server.use(cors.actual);
+  
   server.use(restify.plugins.bodyParser({ mapParams: true }));
   server.use(restify.plugins.queryParser());
   server.on('after', (req, res, route, err) => {

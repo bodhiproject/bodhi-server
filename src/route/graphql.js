@@ -1,23 +1,22 @@
-const { graphqlRestify, graphiqlRestify } = require('apollo-server-restify');
-const Router = require('restify-router').Router;
+const { Router } = require('express');
+const bodyParser = require('body-parser');
+const { graphqlExpress } = require('apollo-server-express');
 
 const { db } = require('../db');
 const schema = require('../schema');
 const { Config } = require('../config');
 
-const syncRouter = new Router();
+const router = Router();
 
-const graphQLOptions = async () => ({
+router.use('/graphql', bodyParser.json(), graphqlExpress({ 
   context: { db },
-  schema,
-});
-
-syncRouter.get('/graphql', graphqlRestify(graphQLOptions));
-syncRouter.post('/graphql', graphqlRestify(graphQLOptions));
-
-syncRouter.get('/graphiql', graphiqlRestify({
-  endpointURL: '/graphql',
-  subscriptionsEndpoint: `ws://${Config.HOSTNAME}:${Config.PORT}/subscriptions`,
+  schema 
 }));
 
-module.exports = syncRouter;
+// GraphQL web interface for querying
+// router.get('/graphiql', graphiqlRestify({
+//   endpointURL: '/graphql',
+//   subscriptionsEndpoint: `ws://${Config.HOSTNAME}:${Config.PORT}/subscriptions`,
+// }));
+
+module.exports = router;
