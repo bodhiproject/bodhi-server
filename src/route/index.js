@@ -1,14 +1,13 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 
-const apiRoutes = require('./api');
-const { graphqlRouter, getSubscriptionServer } = require('./graphql');
+const apiRouter = require('./api');
+const { graphqlRouter, createSubscriptionServer } = require('./graphql');
 const { getLogger } = require('../utils/logger');
 const { Config } = require('../config');
 
-const server;
-
 const initApiServer = () => {
-  server = express();
+  const server = express();
 
   // Allow CORS
   server.use((req, res, next) => {
@@ -16,9 +15,11 @@ const initApiServer = () => {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
   });
-
-  // Handle parsing application/json
-  server.use(bodyParser.json()); 
+  
+  server.use(bodyParser.json());
+  server.use(bodyParser.urlencoded({ extended: true }));
+  server.use(express.json());
+  server.use(express.urlencoded());
 
   // server.on('after', (req, res, route, err) => {
   //   if (route) {
@@ -29,11 +30,11 @@ const initApiServer = () => {
   // });
 
   // Apply all routes
-  server.use('/', apiRoutes);
-  server.use('/', graphqlRoutes);
+  server.use('/', apiRouter);
+  server.use('/', graphqlRouter);
 
   server.listen(Config.PORT, () => {
-    createSubscriptionServer();
+    createSubscriptionServer(server);
     getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT}.`);
   });
 };

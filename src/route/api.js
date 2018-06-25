@@ -45,7 +45,7 @@ router.post('/is-connected', (req, res, next) => {
 
 /* QtumUtils */
 router.post('/validate-address', (req, res, next) => {
-  QtumUtils.validateAddress(req.params)
+  QtumUtils.validateAddress(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -55,7 +55,7 @@ router.post('/validate-address', (req, res, next) => {
 
 /* Wallet */
 router.post('/get-account-address', (req, res, next) => {
-  Wallet.getAccountAddress(req.params)
+  Wallet.getAccountAddress(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -64,7 +64,7 @@ router.post('/get-account-address', (req, res, next) => {
 });
 
 router.post('/get-transaction', (req, res, next) => {
-  Wallet.getTransaction(req.params)
+  Wallet.getTransaction(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -100,7 +100,7 @@ router.get('/list-unspent', (req, res, next) => {
 });
 
 router.post('/wallet-passphrase', (req, res, next) => {
-  Wallet.walletPassphrase(req.params)
+  Wallet.walletPassphrase(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -109,7 +109,7 @@ router.post('/wallet-passphrase', (req, res, next) => {
 });
 
 router.post('/wallet-lock', (req, res, next) => {
-  Wallet.walletLock(req.params)
+  Wallet.walletLock(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -118,7 +118,7 @@ router.post('/wallet-lock', (req, res, next) => {
 });
 
 router.post('/encrypt-wallet', (req, res, next) => {
-  Wallet.encryptWallet(req.params)
+  Wallet.encryptWallet(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -127,7 +127,7 @@ router.post('/encrypt-wallet', (req, res, next) => {
 });
 
 router.post('/wallet-passphrase-change', (req, res, next) => {
-  Wallet.walletPassphraseChange(req.params)
+  Wallet.walletPassphraseChange(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -149,7 +149,7 @@ router.post('/import-wallet', (req, res, next) => {
 
 /* Blockchain */
 router.post('/get-block', (req, res, next) => {
-  Blockchain.getBlock(req.params)
+  Blockchain.getBlock(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -176,7 +176,7 @@ router.get('/get-block-count', (req, res, next) => {
 });
 
 router.post('/get-block-hash', (req, res, next) => {
-  Blockchain.getBlockHash(req.params)
+  Blockchain.getBlockHash(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -185,7 +185,7 @@ router.post('/get-block-hash', (req, res, next) => {
 });
 
 router.post('/get-transaction-receipt', (req, res, next) => {
-  Blockchain.getTransactionReceipt(req.params)
+  Blockchain.getTransactionReceipt(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -194,7 +194,7 @@ router.post('/get-transaction-receipt', (req, res, next) => {
 });
 
 router.post('/search-logs', (req, res, next) => {
-  Blockchain.searchLogs(req.params)
+  Blockchain.searchLogs(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -204,7 +204,7 @@ router.post('/search-logs', (req, res, next) => {
 
 /* AddressManager */
 router.post('/event-escrow-amount', (req, res, next) => {
-  AddressManager.eventEscrowAmount(req.params)
+  AddressManager.eventEscrowAmount(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -213,7 +213,7 @@ router.post('/event-escrow-amount', (req, res, next) => {
 });
 
 router.post('/last-event-factory-index', (req, res, next) => {
-  AddressManager.getLastEventFactoryIndex(req.params)
+  AddressManager.getLastEventFactoryIndex(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -222,7 +222,7 @@ router.post('/last-event-factory-index', (req, res, next) => {
 });
 
 router.post('/last-oracle-factory-index', (req, res, next) => {
-  AddressManager.getLastOracleFactoryIndex(req.params)
+  AddressManager.getLastOracleFactoryIndex(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -232,7 +232,7 @@ router.post('/last-oracle-factory-index', (req, res, next) => {
 
 /* BodhiToken */
 router.post('/approve', (req, res, next) => {
-  BodhiToken.approve(req.params)
+  BodhiToken.approve(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -241,7 +241,7 @@ router.post('/approve', (req, res, next) => {
 });
 
 router.post('/allowance', (req, res, next) => {
-  BodhiToken.allowance(req.params)
+  BodhiToken.allowance(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -250,7 +250,7 @@ router.post('/allowance', (req, res, next) => {
 });
 
 router.post('/bot-balance', (req, res, next) => {
-  BodhiToken.balanceOf(req.params)
+  BodhiToken.balanceOf(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -260,7 +260,7 @@ router.post('/bot-balance', (req, res, next) => {
 
 /* BaseContract */
 router.post('/version', (req, res, next) => {
-  BaseContract.version(req.params)
+  BaseContract.version(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -269,7 +269,7 @@ router.post('/version', (req, res, next) => {
 });
 
 router.post('/get-result', (req, res, next) => {
-  BaseContract.resultIndex(req.params)
+  BaseContract.resultIndex(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -278,7 +278,7 @@ router.post('/get-result', (req, res, next) => {
 });
 
 router.post('/bet-balances', (req, res, next) => {
-  BaseContract.getBetBalances(req.params)
+  BaseContract.getBetBalances(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -287,7 +287,7 @@ router.post('/bet-balances', (req, res, next) => {
 });
 
 router.post('/vote-balances', (req, res, next) => {
-  BaseContract.getVoteBalances(req.params)
+  BaseContract.getVoteBalances(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -296,7 +296,7 @@ router.post('/vote-balances', (req, res, next) => {
 });
 
 router.post('/total-bets', (req, res, next) => {
-  BaseContract.getTotalBets(req.params)
+  BaseContract.getTotalBets(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -305,7 +305,7 @@ router.post('/total-bets', (req, res, next) => {
 });
 
 router.post('/total-votes', (req, res, next) => {
-  BaseContract.getTotalVotes(req.params)
+  BaseContract.getTotalVotes(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -315,7 +315,7 @@ router.post('/total-votes', (req, res, next) => {
 
 /* EventFactory */
 router.post('/create-topic', (req, res, next) => {
-  EventFactory.createTopic(req.params)
+  EventFactory.createTopic(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -324,7 +324,7 @@ router.post('/create-topic', (req, res, next) => {
 });
 
 router.post('/event-factory-version', (req, res, next) => {
-  EventFactory.version(req.params)
+  EventFactory.version(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -334,7 +334,7 @@ router.post('/event-factory-version', (req, res, next) => {
 
 /* TopicEvent */
 router.post('/withdraw', (req, res, next) => {
-  TopicEvent.withdrawWinnings(req.params)
+  TopicEvent.withdrawWinnings(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -343,7 +343,7 @@ router.post('/withdraw', (req, res, next) => {
 });
 
 router.post('/withdraw-escrow', (req, res, next) => {
-  TopicEvent.withdrawEscrow(req.params)
+  TopicEvent.withdrawEscrow(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -352,7 +352,7 @@ router.post('/withdraw-escrow', (req, res, next) => {
 });
 
 router.post('/total-qtum-value', (req, res, next) => {
-  TopicEvent.totalQtumValue(req.params)
+  TopicEvent.totalQtumValue(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -361,7 +361,7 @@ router.post('/total-qtum-value', (req, res, next) => {
 });
 
 router.post('/total-bot-value', (req, res, next) => {
-  TopicEvent.totalBotValue(req.params)
+  TopicEvent.totalBotValue(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -370,7 +370,7 @@ router.post('/total-bot-value', (req, res, next) => {
 });
 
 router.post('/final-result', (req, res, next) => {
-  TopicEvent.getFinalResult(req.params)
+  TopicEvent.getFinalResult(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -379,7 +379,7 @@ router.post('/final-result', (req, res, next) => {
 });
 
 router.post('/status', (req, res, next) => {
-  TopicEvent.status(req.params)
+  TopicEvent.status(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -388,7 +388,7 @@ router.post('/status', (req, res, next) => {
 });
 
 router.post('/did-withdraw', (req, res, next) => {
-  TopicEvent.didWithdraw(req.params)
+  TopicEvent.didWithdraw(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -397,7 +397,7 @@ router.post('/did-withdraw', (req, res, next) => {
 });
 
 router.post('/winnings', (req, res, next) => {
-  TopicEvent.calculateWinnings(req.params)
+  TopicEvent.calculateWinnings(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -407,7 +407,7 @@ router.post('/winnings', (req, res, next) => {
 
 /* Oracle */
 router.post('/event-address', (req, res, next) => {
-  Oracle.eventAddress(req.params)
+  Oracle.eventAddress(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -416,7 +416,7 @@ router.post('/event-address', (req, res, next) => {
 });
 
 router.post('/consensus-threshold', (req, res, next) => {
-  Oracle.consensusThreshold(req.params)
+  Oracle.consensusThreshold(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -425,7 +425,7 @@ router.post('/consensus-threshold', (req, res, next) => {
 });
 
 router.post('/finished', (req, res, next) => {
-  Oracle.finished(req.params)
+  Oracle.finished(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -435,7 +435,7 @@ router.post('/finished', (req, res, next) => {
 
 /* CentralizedOracle */
 router.post('/bet', (req, res, next) => {
-  CentralizedOracle.bet(req.params)
+  CentralizedOracle.bet(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -444,7 +444,7 @@ router.post('/bet', (req, res, next) => {
 });
 
 router.post('/set-result', (req, res, next) => {
-  CentralizedOracle.setResult(req.params)
+  CentralizedOracle.setResult(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -453,7 +453,7 @@ router.post('/set-result', (req, res, next) => {
 });
 
 router.post('/oracle', (req, res, next) => {
-  CentralizedOracle.oracle(req.params)
+  CentralizedOracle.oracle(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -462,7 +462,7 @@ router.post('/oracle', (req, res, next) => {
 });
 
 router.post('/bet-start-block', (req, res, next) => {
-  CentralizedOracle.bettingStartBlock(req.params)
+  CentralizedOracle.bettingStartBlock(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -471,7 +471,7 @@ router.post('/bet-start-block', (req, res, next) => {
 });
 
 router.post('/bet-end-block', (req, res, next) => {
-  CentralizedOracle.bettingEndBlock(req.params)
+  CentralizedOracle.bettingEndBlock(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -480,7 +480,7 @@ router.post('/bet-end-block', (req, res, next) => {
 });
 
 router.post('/result-set-start-block', (req, res, next) => {
-  CentralizedOracle.resultSettingStartBlock(req.params)
+  CentralizedOracle.resultSettingStartBlock(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -489,7 +489,7 @@ router.post('/result-set-start-block', (req, res, next) => {
 });
 
 router.post('/result-set-end-block', (req, res, next) => {
-  CentralizedOracle.resultSettingEndBlock(req.params)
+  CentralizedOracle.resultSettingEndBlock(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -499,7 +499,7 @@ router.post('/result-set-end-block', (req, res, next) => {
 
 /* DecentralizedOracle */
 router.post('/vote', (req, res, next) => {
-  DecentralizedOracle.vote(req.params)
+  DecentralizedOracle.vote(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -508,7 +508,7 @@ router.post('/vote', (req, res, next) => {
 });
 
 router.post('/finalize-result', (req, res, next) => {
-  DecentralizedOracle.finalizeResult(req.params)
+  DecentralizedOracle.finalizeResult(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -517,7 +517,7 @@ router.post('/finalize-result', (req, res, next) => {
 });
 
 router.post('/arbitration-end-block', (req, res, next) => {
-  DecentralizedOracle.arbitrationEndBlock(req.params)
+  DecentralizedOracle.arbitrationEndBlock(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -526,7 +526,7 @@ router.post('/arbitration-end-block', (req, res, next) => {
 });
 
 router.post('/last-result-index', (req, res, next) => {
-  DecentralizedOracle.lastResultIndex(req.params)
+  DecentralizedOracle.lastResultIndex(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -536,7 +536,7 @@ router.post('/last-result-index', (req, res, next) => {
 
 /* Transactions */
 router.post('/transaction-cost', (req, res, next) => {
-  Transaction.transactionCost(req.params)
+  Transaction.transactionCost(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {

@@ -24,6 +24,7 @@
     "async": "^2.6.1",
     "babel-polyfill": "^6.26.0",
     "bignumber.js": "^7.2.1",
+    "body-parser": "^1.18.3",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^6.0.0",

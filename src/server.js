@@ -15,7 +15,7 @@ const EmitterHelper = require('./utils/emitterHelper');
 const schema = require('./schema');
 const { startSync } = require('./sync');
 const { getInstance } = require('./qclient');
-const { initApiServer } = require('./route');
+const initApiServer = require('./route');
 const Wallet = require('./api/wallet');
 
 const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
