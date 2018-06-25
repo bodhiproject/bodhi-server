@@ -21,12 +21,12 @@ const initApiServer = () => {
   server.use(express.json());
   server.use(express.urlencoded());
 
-  // server.on('after', (req, res, route, err) => {
-  //   if (route) {
-  //     getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
-  //   } else {
-  //     getLogger().error(`${err.message}`);
-  //   }
+  // server.use((req, res, next) => {
+  //   // if (route) {
+  //   //   getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+  //   // } else {
+  //   //   getLogger().error(`${err.message}`);
+  //   // }
   // });
 
   // Apply all routes
