@@ -444,9 +444,11 @@ const insertBlock = async (currentBlockNum, currentBlockTime) => {
 };
 
 // Delay then startSync
-const delayThenSync = (delay) => {
+const delayThenSync = (delay, shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   getLogger().debug('sleep');
-  setTimeout(startSync, delay);
+  setTimeout(() => {
+    startSync(shouldUpdateLocalTxs, shouldSendSyncInfo);
+  }, delay);
 };
 
 /*
@@ -468,7 +470,7 @@ const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   } catch (err) {
     if (err.message === 'Block height out of range') {
       // Add delay since trying to parse a future block
-      delayThenSync(SYNC_START_DELAY);
+      delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs, shouldSendSyncInfo);
       return;
     }
     throw Error(`getBlockHash or getBlock: ${err.message}`);
@@ -498,7 +500,7 @@ const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   }
 
   // No delay if next block is already confirmed
-  delayThenSync(0);
+  delayThenSync(0, shouldUpdateLocalTxs, shouldSendSyncInfo);
 };
 
 module.exports = {

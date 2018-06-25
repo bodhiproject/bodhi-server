@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const moment = require('moment');
 
-const { addressBalances } = require('./queries');
 const pubsub = require('../pubsub');
 const { getInstance } = require('../qclient');
 const Network = require('../api/network');
@@ -48,17 +47,17 @@ const calculateSyncPercent = async (blockNum, blockTime) => {
 };
 
 // Send syncInfo subscription
-const publishSyncInfo = async (blockNum, blockTime) => {
-  const syncPercent = await calculateSyncPercent(blockNum, blockTime);
+const publishSyncInfo = async (syncBlockNum, syncBlockTime) => {
+  const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
   const peerNodeCount = await Network.getPeerNodeCount();
-  const balances = await addressBalances();
+  const addressBalances = await require('./queries').addressBalances();
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
-      blockNum,
-      blockTime,
+      syncBlockNum,
+      syncBlockTime,
       syncPercent,
       peerNodeCount,
-      addressBalances: balances,
+      addressBalances,
     },
   });
 };

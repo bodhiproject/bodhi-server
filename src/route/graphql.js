@@ -10,7 +10,7 @@ const { Config } = require('../config');
 
 const graphqlRouter = Router();
 
-const options = graphqlExpress({ context: { db }, schema});
+const options = graphqlExpress({ context: { db }, schema });
 graphqlRouter.get('/graphql', options);
 graphqlRouter.post('/graphql', bodyParser.json(), options);
 
