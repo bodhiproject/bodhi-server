@@ -15,7 +15,7 @@ const QtumUtils = require('../api/qtum_utils');
 const EmitterHelper = require('../utils/emitterHelper');
 const { getInstance } = require('../qclient');
 
-const apiRouter = Router();
+const router = Router();
 
 function onRequestSuccess(res, result, next) {
   res.send(200, { result });
@@ -28,7 +28,7 @@ function onRequestError(res, err, next) {
 }
 
 /* Misc */
-apiRouter.post('/is-connected', (req, res, next) => {
+router.post('/is-connected', (req, res, next) => {
   getInstance().isConnected()
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -38,7 +38,7 @@ apiRouter.post('/is-connected', (req, res, next) => {
 });
 
 /* QtumUtils */
-apiRouter.post('/validate-address', (req, res, next) => {
+router.post('/validate-address', (req, res, next) => {
   QtumUtils.validateAddress(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -48,7 +48,7 @@ apiRouter.post('/validate-address', (req, res, next) => {
 });
 
 /* Wallet */
-apiRouter.post('/get-account-address', (req, res, next) => {
+router.post('/get-account-address', (req, res, next) => {
   Wallet.getAccountAddress(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -57,7 +57,7 @@ apiRouter.post('/get-account-address', (req, res, next) => {
     });
 });
 
-apiRouter.post('/get-transaction', (req, res, next) => {
+router.post('/get-transaction', (req, res, next) => {
   Wallet.getTransaction(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -66,7 +66,7 @@ apiRouter.post('/get-transaction', (req, res, next) => {
     });
 });
 
-apiRouter.get('/get-wallet-info', (req, res, next) => {
+router.get('/get-wallet-info', (req, res, next) => {
   Wallet.getWalletInfo()
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -75,7 +75,7 @@ apiRouter.get('/get-wallet-info', (req, res, next) => {
     });
 });
 
-apiRouter.get('/list-address-groupings', (req, res, next) => {
+router.get('/list-address-groupings', (req, res, next) => {
   Wallet.listAddressGroupings()
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -84,7 +84,7 @@ apiRouter.get('/list-address-groupings', (req, res, next) => {
     });
 });
 
-apiRouter.get('/list-unspent', (req, res, next) => {
+router.get('/list-unspent', (req, res, next) => {
   Wallet.listUnspent()
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -93,7 +93,7 @@ apiRouter.get('/list-unspent', (req, res, next) => {
     });
 });
 
-apiRouter.post('/wallet-passphrase', (req, res, next) => {
+router.post('/wallet-passphrase', (req, res, next) => {
   Wallet.walletPassphrase(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -102,7 +102,7 @@ apiRouter.post('/wallet-passphrase', (req, res, next) => {
     });
 });
 
-apiRouter.post('/wallet-lock', (req, res, next) => {
+router.post('/wallet-lock', (req, res, next) => {
   Wallet.walletLock(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -111,7 +111,7 @@ apiRouter.post('/wallet-lock', (req, res, next) => {
     });
 });
 
-apiRouter.post('/encrypt-wallet', (req, res, next) => {
+router.post('/encrypt-wallet', (req, res, next) => {
   Wallet.encryptWallet(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -120,7 +120,7 @@ apiRouter.post('/encrypt-wallet', (req, res, next) => {
     });
 });
 
-apiRouter.post('/wallet-passphrase-change', (req, res, next) => {
+router.post('/wallet-passphrase-change', (req, res, next) => {
   Wallet.walletPassphraseChange(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -129,20 +129,20 @@ apiRouter.post('/wallet-passphrase-change', (req, res, next) => {
     });
 });
 
-apiRouter.post('/backup-wallet', (req, res, next) => {
+router.post('/backup-wallet', (req, res, next) => {
   EmitterHelper.onBackupWallet();
   res.send(200);
   next();
 });
 
-apiRouter.post('/import-wallet', (req, res, next) => {
+router.post('/import-wallet', (req, res, next) => {
   EmitterHelper.onImportWallet();
   res.send(200);
   next();
 });
 
 /* Blockchain */
-apiRouter.post('/get-block', (req, res, next) => {
+router.post('/get-block', (req, res, next) => {
   Blockchain.getBlock(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -151,7 +151,7 @@ apiRouter.post('/get-block', (req, res, next) => {
     });
 });
 
-apiRouter.get('/get-blockchain-info', (req, res, next) => {
+router.get('/get-blockchain-info', (req, res, next) => {
   Blockchain.getBlockchainInfo()
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -160,7 +160,7 @@ apiRouter.get('/get-blockchain-info', (req, res, next) => {
     });
 });
 
-apiRouter.get('/get-block-count', (req, res, next) => {
+router.get('/get-block-count', (req, res, next) => {
   Blockchain.getBlockCount()
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -169,7 +169,7 @@ apiRouter.get('/get-block-count', (req, res, next) => {
     });
 });
 
-apiRouter.post('/get-block-hash', (req, res, next) => {
+router.post('/get-block-hash', (req, res, next) => {
   Blockchain.getBlockHash(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -178,7 +178,7 @@ apiRouter.post('/get-block-hash', (req, res, next) => {
     });
 });
 
-apiRouter.post('/get-transaction-receipt', (req, res, next) => {
+router.post('/get-transaction-receipt', (req, res, next) => {
   Blockchain.getTransactionReceipt(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -187,7 +187,7 @@ apiRouter.post('/get-transaction-receipt', (req, res, next) => {
     });
 });
 
-apiRouter.post('/search-logs', (req, res, next) => {
+router.post('/search-logs', (req, res, next) => {
   Blockchain.searchLogs(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -197,7 +197,7 @@ apiRouter.post('/search-logs', (req, res, next) => {
 });
 
 /* AddressManager */
-apiRouter.post('/event-escrow-amount', (req, res, next) => {
+router.post('/event-escrow-amount', (req, res, next) => {
   AddressManager.eventEscrowAmount(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -206,7 +206,7 @@ apiRouter.post('/event-escrow-amount', (req, res, next) => {
     });
 });
 
-apiRouter.post('/last-event-factory-index', (req, res, next) => {
+router.post('/last-event-factory-index', (req, res, next) => {
   AddressManager.getLastEventFactoryIndex(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -215,7 +215,7 @@ apiRouter.post('/last-event-factory-index', (req, res, next) => {
     });
 });
 
-apiRouter.post('/last-oracle-factory-index', (req, res, next) => {
+router.post('/last-oracle-factory-index', (req, res, next) => {
   AddressManager.getLastOracleFactoryIndex(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -225,7 +225,7 @@ apiRouter.post('/last-oracle-factory-index', (req, res, next) => {
 });
 
 /* BodhiToken */
-apiRouter.post('/approve', (req, res, next) => {
+router.post('/approve', (req, res, next) => {
   BodhiToken.approve(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -234,7 +234,7 @@ apiRouter.post('/approve', (req, res, next) => {
     });
 });
 
-apiRouter.post('/allowance', (req, res, next) => {
+router.post('/allowance', (req, res, next) => {
   BodhiToken.allowance(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -243,7 +243,7 @@ apiRouter.post('/allowance', (req, res, next) => {
     });
 });
 
-apiRouter.post('/bot-balance', (req, res, next) => {
+router.post('/bot-balance', (req, res, next) => {
   BodhiToken.balanceOf(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -253,7 +253,7 @@ apiRouter.post('/bot-balance', (req, res, next) => {
 });
 
 /* BaseContract */
-apiRouter.post('/version', (req, res, next) => {
+router.post('/version', (req, res, next) => {
   BaseContract.version(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -262,7 +262,7 @@ apiRouter.post('/version', (req, res, next) => {
     });
 });
 
-apiRouter.post('/get-result', (req, res, next) => {
+router.post('/get-result', (req, res, next) => {
   BaseContract.resultIndex(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -271,7 +271,7 @@ apiRouter.post('/get-result', (req, res, next) => {
     });
 });
 
-apiRouter.post('/bet-balances', (req, res, next) => {
+router.post('/bet-balances', (req, res, next) => {
   BaseContract.getBetBalances(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -280,7 +280,7 @@ apiRouter.post('/bet-balances', (req, res, next) => {
     });
 });
 
-apiRouter.post('/vote-balances', (req, res, next) => {
+router.post('/vote-balances', (req, res, next) => {
   BaseContract.getVoteBalances(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -289,7 +289,7 @@ apiRouter.post('/vote-balances', (req, res, next) => {
     });
 });
 
-apiRouter.post('/total-bets', (req, res, next) => {
+router.post('/total-bets', (req, res, next) => {
   BaseContract.getTotalBets(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -298,7 +298,7 @@ apiRouter.post('/total-bets', (req, res, next) => {
     });
 });
 
-apiRouter.post('/total-votes', (req, res, next) => {
+router.post('/total-votes', (req, res, next) => {
   BaseContract.getTotalVotes(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -308,7 +308,7 @@ apiRouter.post('/total-votes', (req, res, next) => {
 });
 
 /* EventFactory */
-apiRouter.post('/create-topic', (req, res, next) => {
+router.post('/create-topic', (req, res, next) => {
   EventFactory.createTopic(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -317,7 +317,7 @@ apiRouter.post('/create-topic', (req, res, next) => {
     });
 });
 
-apiRouter.post('/event-factory-version', (req, res, next) => {
+router.post('/event-factory-version', (req, res, next) => {
   EventFactory.version(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -327,7 +327,7 @@ apiRouter.post('/event-factory-version', (req, res, next) => {
 });
 
 /* TopicEvent */
-apiRouter.post('/withdraw', (req, res, next) => {
+router.post('/withdraw', (req, res, next) => {
   TopicEvent.withdrawWinnings(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -336,7 +336,7 @@ apiRouter.post('/withdraw', (req, res, next) => {
     });
 });
 
-apiRouter.post('/withdraw-escrow', (req, res, next) => {
+router.post('/withdraw-escrow', (req, res, next) => {
   TopicEvent.withdrawEscrow(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -345,7 +345,7 @@ apiRouter.post('/withdraw-escrow', (req, res, next) => {
     });
 });
 
-apiRouter.post('/total-qtum-value', (req, res, next) => {
+router.post('/total-qtum-value', (req, res, next) => {
   TopicEvent.totalQtumValue(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -354,7 +354,7 @@ apiRouter.post('/total-qtum-value', (req, res, next) => {
     });
 });
 
-apiRouter.post('/total-bot-value', (req, res, next) => {
+router.post('/total-bot-value', (req, res, next) => {
   TopicEvent.totalBotValue(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -363,7 +363,7 @@ apiRouter.post('/total-bot-value', (req, res, next) => {
     });
 });
 
-apiRouter.post('/final-result', (req, res, next) => {
+router.post('/final-result', (req, res, next) => {
   TopicEvent.getFinalResult(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -372,7 +372,7 @@ apiRouter.post('/final-result', (req, res, next) => {
     });
 });
 
-apiRouter.post('/status', (req, res, next) => {
+router.post('/status', (req, res, next) => {
   TopicEvent.status(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -381,7 +381,7 @@ apiRouter.post('/status', (req, res, next) => {
     });
 });
 
-apiRouter.post('/did-withdraw', (req, res, next) => {
+router.post('/did-withdraw', (req, res, next) => {
   TopicEvent.didWithdraw(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -390,7 +390,7 @@ apiRouter.post('/did-withdraw', (req, res, next) => {
     });
 });
 
-apiRouter.post('/winnings', (req, res, next) => {
+router.post('/winnings', (req, res, next) => {
   TopicEvent.calculateWinnings(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -400,7 +400,7 @@ apiRouter.post('/winnings', (req, res, next) => {
 });
 
 /* Oracle */
-apiRouter.post('/event-address', (req, res, next) => {
+router.post('/event-address', (req, res, next) => {
   Oracle.eventAddress(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -409,7 +409,7 @@ apiRouter.post('/event-address', (req, res, next) => {
     });
 });
 
-apiRouter.post('/consensus-threshold', (req, res, next) => {
+router.post('/consensus-threshold', (req, res, next) => {
   Oracle.consensusThreshold(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -418,7 +418,7 @@ apiRouter.post('/consensus-threshold', (req, res, next) => {
     });
 });
 
-apiRouter.post('/finished', (req, res, next) => {
+router.post('/finished', (req, res, next) => {
   Oracle.finished(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -428,7 +428,7 @@ apiRouter.post('/finished', (req, res, next) => {
 });
 
 /* CentralizedOracle */
-apiRouter.post('/bet', (req, res, next) => {
+router.post('/bet', (req, res, next) => {
   CentralizedOracle.bet(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -437,7 +437,7 @@ apiRouter.post('/bet', (req, res, next) => {
     });
 });
 
-apiRouter.post('/set-result', (req, res, next) => {
+router.post('/set-result', (req, res, next) => {
   CentralizedOracle.setResult(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -446,7 +446,7 @@ apiRouter.post('/set-result', (req, res, next) => {
     });
 });
 
-apiRouter.post('/oracle', (req, res, next) => {
+router.post('/oracle', (req, res, next) => {
   CentralizedOracle.oracle(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -455,7 +455,7 @@ apiRouter.post('/oracle', (req, res, next) => {
     });
 });
 
-apiRouter.post('/bet-start-block', (req, res, next) => {
+router.post('/bet-start-block', (req, res, next) => {
   CentralizedOracle.bettingStartBlock(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -464,7 +464,7 @@ apiRouter.post('/bet-start-block', (req, res, next) => {
     });
 });
 
-apiRouter.post('/bet-end-block', (req, res, next) => {
+router.post('/bet-end-block', (req, res, next) => {
   CentralizedOracle.bettingEndBlock(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -473,7 +473,7 @@ apiRouter.post('/bet-end-block', (req, res, next) => {
     });
 });
 
-apiRouter.post('/result-set-start-block', (req, res, next) => {
+router.post('/result-set-start-block', (req, res, next) => {
   CentralizedOracle.resultSettingStartBlock(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -482,7 +482,7 @@ apiRouter.post('/result-set-start-block', (req, res, next) => {
     });
 });
 
-apiRouter.post('/result-set-end-block', (req, res, next) => {
+router.post('/result-set-end-block', (req, res, next) => {
   CentralizedOracle.resultSettingEndBlock(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -492,7 +492,7 @@ apiRouter.post('/result-set-end-block', (req, res, next) => {
 });
 
 /* DecentralizedOracle */
-apiRouter.post('/vote', (req, res, next) => {
+router.post('/vote', (req, res, next) => {
   DecentralizedOracle.vote(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -501,7 +501,7 @@ apiRouter.post('/vote', (req, res, next) => {
     });
 });
 
-apiRouter.post('/finalize-result', (req, res, next) => {
+router.post('/finalize-result', (req, res, next) => {
   DecentralizedOracle.finalizeResult(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -510,7 +510,7 @@ apiRouter.post('/finalize-result', (req, res, next) => {
     });
 });
 
-apiRouter.post('/arbitration-end-block', (req, res, next) => {
+router.post('/arbitration-end-block', (req, res, next) => {
   DecentralizedOracle.arbitrationEndBlock(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -519,7 +519,7 @@ apiRouter.post('/arbitration-end-block', (req, res, next) => {
     });
 });
 
-apiRouter.post('/last-result-index', (req, res, next) => {
+router.post('/last-result-index', (req, res, next) => {
   DecentralizedOracle.lastResultIndex(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -529,7 +529,7 @@ apiRouter.post('/last-result-index', (req, res, next) => {
 });
 
 /* Transactions */
-apiRouter.post('/transaction-cost', (req, res, next) => {
+router.post('/transaction-cost', (req, res, next) => {
   Transaction.transactionCost(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
@@ -538,4 +538,4 @@ apiRouter.post('/transaction-cost', (req, res, next) => {
     });
 });
 
-module.exports = apiRouter;
+module.exports = router;
