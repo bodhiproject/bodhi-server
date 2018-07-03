@@ -232,7 +232,11 @@ async function checkApiInit() {
     const res = await fetch(`http://${Config.HOSTNAME}:${Config.PORT}/graphql`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+<<<<<<< HEAD
       body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
+=======
+      body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,peerNodeNum,syncPercent}}"}',
+>>>>>>> add peerNodeNum and getPeerNodeCount to Blockchain
     });
 
     if (res.status >= 200 && res.status < 300) {
