@@ -273,15 +273,17 @@ module.exports = {
         syncBlockTime = (await blockchain.getBlock({ blockHash })).time;
       }
       const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
-
       let addressBalances = [];
       if (includeBalance || false) {
         addressBalances = await getAddressBalances();
       }
 
+      const peerNodeNum = await blockchain.getPeerNodeCount();
+
       return {
         syncBlockNum,
         syncBlockTime,
+        peerNodeNum,
         syncPercent,
         addressBalances,
       };
@@ -289,7 +291,7 @@ module.exports = {
   },
 
   Mutation: {
-    createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
+    createTopic: async (data, { db: { Topics, Oracles, Transactions } }) => {
       const {
         name,
         options,
