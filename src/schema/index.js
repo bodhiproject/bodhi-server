@@ -93,7 +93,6 @@ type Block {
 type syncInfo {
   syncBlockNum: Int
   syncBlockTime: String
-  peerNodeNum: Int
   syncPercent: Int
   peerNodeCount: Int
   addressBalances: [AddressBalance]!

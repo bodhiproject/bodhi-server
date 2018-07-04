@@ -279,12 +279,9 @@ module.exports = {
       }
       const peerNodeCount = await network.getPeerNodeCount();
 
-      const peerNodeNum = await blockchain.getPeerNodeCount();
-
       return {
         syncBlockNum,
         syncBlockTime,
-        peerNodeNum,
         syncPercent,
         peerNodeCount,
         addressBalances,
@@ -293,7 +290,7 @@ module.exports = {
   },
 
   Mutation: {
-    createTopic: async (data, { db: { Topics, Oracles, Transactions } }) => {
+    createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
       const {
         name,
         options,

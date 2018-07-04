@@ -233,10 +233,14 @@ async function checkApiInit() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
 <<<<<<< HEAD
+<<<<<<< HEAD
       body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
 =======
       body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,peerNodeNum,syncPercent}}"}',
 >>>>>>> add peerNodeNum and getPeerNodeCount to Blockchain
+=======
+      body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
+>>>>>>> update and change to peerNodeCount
     });
 
     if (res.status >= 200 && res.status < 300) {
