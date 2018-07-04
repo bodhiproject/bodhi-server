@@ -1,10 +1,10 @@
 const _ = require('lodash');
-const Web3Utils = require('web3-utils');
 const moment = require('moment');
 
 const pubsub = require('../pubsub');
 const { getLogger } = require('../utils/logger');
 const blockchain = require('../api/blockchain');
+const network = require('../api/network');
 const wallet = require('../api/wallet');
 const bodhiToken = require('../api/bodhi_token');
 const eventFactory = require('../api/event_factory');
@@ -277,21 +277,20 @@ module.exports = {
       if (includeBalance || false) {
         addressBalances = await getAddressBalances();
       }
-
-      const peerNodeNum = await blockchain.getPeerNodeCount();
+      const peerNodeCount = await network.getPeerNodeCount();
 
       return {
         syncBlockNum,
         syncBlockTime,
-        peerNodeNum,
         syncPercent,
+        peerNodeCount,
         addressBalances,
       };
     },
   },
 
   Mutation: {
-    createTopic: async (data, { db: { Topics, Oracles, Transactions } }) => {
+    createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
       const {
         name,
         options,

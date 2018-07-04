@@ -531,13 +531,13 @@ async function calculateSyncPercent(blockCount, blockTime) {
 }
 
 // Send syncInfo subscription
-function sendSyncInfo(syncBlockNum, syncBlockTime, peerNodeNum, syncPercent, addressBalances) {
+function sendSyncInfo(syncBlockNum, syncBlockTime, syncPercent, peerNodeCount, addressBalances) {
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
       syncBlockNum,
       syncBlockTime,
-      peerNodeNum,
       syncPercent,
+      peerNodeCount,
       addressBalances,
     },
   });
