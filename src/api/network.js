@@ -1,8 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 const _ = require('lodash');
 
 >>>>>>> update and change to peerNodeCount
+=======
+>>>>>>> remove _ in network.js
 const { getInstance } = require('../qclient');
 
 const Network = {
