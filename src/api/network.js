@@ -2,7 +2,8 @@ const { getInstance } = require('../qclient');
 
 const Network = {
   async getPeerNodeCount() {
-    return getInstance().getPeerInfo().length || 0;
+    const nodeCount = await getInstance().getPeerInfo();
+    return await nodeCount.length || 0;
   },
 };
 
