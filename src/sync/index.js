@@ -90,7 +90,7 @@ async function sync(db) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
 
-  const numOfIterations = Math.ceil((currentBlockCount - startBlock + 1) / BLOCK_BATCH_SIZE);
+  const numOfIterations = Math.ceil(((currentBlockCount - startBlock) + 1) / BLOCK_BATCH_SIZE);
 
   sequentialLoop(
     numOfIterations,
@@ -531,12 +531,13 @@ async function calculateSyncPercent(blockCount, blockTime) {
 }
 
 // Send syncInfo subscription
-function sendSyncInfo(syncBlockNum, syncBlockTime, syncPercent, addressBalances) {
+function sendSyncInfo(syncBlockNum, syncBlockTime, syncPercent, peerNodeCount, addressBalances) {
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
       syncBlockNum,
       syncBlockTime,
       syncPercent,
+      peerNodeCount,
       addressBalances,
     },
   });
