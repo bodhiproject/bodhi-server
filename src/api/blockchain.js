@@ -24,10 +24,6 @@ const Blockchain = {
     return getInstance().getBlockCount();
   },
 
-  async getPeerNodeCount() {
-    return getInstance().getPeerInfo().length || 0;
-  },
-
   async getBlockHash(args) {
     const {
       blockNum, // number
