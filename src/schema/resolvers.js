@@ -278,7 +278,6 @@ module.exports = {
         addressBalances = await getAddressBalances();
       }
       const peerNodeCount = await network.getPeerNodeCount();
-      console.log(peerNodeCount);
 
       return {
         syncBlockNum,
