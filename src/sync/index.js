@@ -19,6 +19,7 @@ const FinalResultSet = require('../models/finalResultSet');
 const bodhiToken = require('../api/bodhi_token');
 const baseContract = require('../api/base_contract');
 const wallet = require('../api/wallet');
+const network = require('../api/network');
 
 const { getInstance } = require('../qclient');
 
@@ -162,6 +163,7 @@ async function sync(db) {
             currentBlockCount,
             currentBlockTime,
             await calculateSyncPercent(currentBlockCount, currentBlockTime),
+            await network.getPeerNodeCount(),
             await getAddressBalances(),
           );
         }
