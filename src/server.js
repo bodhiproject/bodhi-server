@@ -138,16 +138,22 @@ async function checkWalletEncryption() {
       return;
     }
 
+    let flagFound = false;
     _.each(process.argv, (arg) => {
       if (arg === '--encryptok') {
         // For Electron, flag passed via command-line
         EmitterHelper.onWalletEncrypted();
+        flagFound = true;
       } else if (arg.startsWith('--passphrase=')) {
         // For server, unlock wallet directly in server
         const passphrase = (_.split(arg, '=', 2))[1];
         unlockWallet(passphrase);
+        flagFound = true;
       }
     });
+    if (flagFound) {
+      return;
+    }
 
     // No flags found to handle encryption, crash server
     EmitterHelper.onServerStartError(walletEncryptedMessage);
