@@ -110,18 +110,48 @@ function killQtumProcess(emitEvent) {
   }
 }
 
+async function unlockWallet(passphrase) {
+  // Unlock wallet
+  await Wallet.walletPassphrase({ passphrase, timeout: Config.UNLOCK_SECONDS });
+
+  // Ensure wallet is unlocked
+  const info = await Wallet.getWalletInfo();
+  if (info.unlocked_until > 0) {
+    getLogger().info('Wallet unlocked');
+    startServices();
+  } else {
+    const errMessage = 'Wallet unlock failed';
+    getLogger().error(errMessage);
+    throw Error(errMessage);
+  }
+}
+
 // Checks if the wallet is encrypted to prompt the wallet unlock dialog
 async function checkWalletEncryption() {
   const res = await Wallet.getWalletInfo();
   isEncrypted = !_.isUndefined(res.unlocked_until);
 
   if (isEncrypted) {
-    if (_.includes(process.argv, '--encryptok') || encryptOk) {
+    // For Electron, flag passed via Electron Builder
+    if (encryptOk) {
       EmitterHelper.onWalletEncrypted();
-    } else {
-      EmitterHelper.onServerStartError(walletEncryptedMessage);
-      throw Error(walletEncryptedMessage);
+      return;
     }
+
+    _.each(process.argv, (arg) => {
+      if (arg === '--encryptok') {
+        // For Electron, flag passed via command-line
+        EmitterHelper.onWalletEncrypted();
+      } else if (arg.startsWith('--passphrase=')) {
+        // For server, unlock wallet directly in server
+        const passphrase = (_.split(arg, '=', 2))[1];
+        unlockWallet(passphrase);
+      }
+    });
+
+    // No flags found to handle encryption, crash server
+    EmitterHelper.onServerStartError(walletEncryptedMessage);
+    throw Error(walletEncryptedMessage);
   } else {
     startServices();
   }
