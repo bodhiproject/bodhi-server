@@ -145,7 +145,7 @@ async function checkWalletEncryption() {
         EmitterHelper.onWalletEncrypted();
         flagFound = true;
       } else if (arg.startsWith('--passphrase=')) {
-        // For server, unlock wallet directly in server
+        // For dev purposes, unlock wallet directly in server
         const passphrase = (_.split(arg, '=', 2))[1];
         unlockWallet(passphrase);
         flagFound = true;
