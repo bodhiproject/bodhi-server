@@ -291,9 +291,8 @@ const getAddressBalances = async () => {
   const getBotBalancePromises = [];
   _.each(addressList, (address) => {
     getBotBalancePromises.push(new Promise(async (resolve) => {
+      let botBalance = new BigNumber(0);
       try {
-        let botBalance = new BigNumber(0);
-
         // Get BOT balance
         const res = await BodhiToken.balanceOf({
           owner: address,
