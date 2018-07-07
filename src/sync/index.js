@@ -345,30 +345,12 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
     const txid = event.transactionHash;
     const contractAddress = event.contractAddress;
 
-<<<<<<< HEAD
-  return Math.floor((blockCount / peerBlockHeader) * 100);
-}
-
-// Send syncInfo subscription
-function sendSyncInfo(syncBlockNum, syncBlockTime, syncPercent, peerNodeCount, addressBalances) {
-  pubsub.publish('onSyncInfo', {
-    onSyncInfo: {
-      syncBlockNum,
-      syncBlockTime,
-      syncPercent,
-      peerNodeCount,
-      addressBalances,
-    },
-  });
-}
-=======
     _.forEachRight(event.log, (rawLog) => {
       if (rawLog._eventName === 'WinningsWithdrawn') {
         winningsWithdrawnPromises.push(new Promise(async (resolve) => {
           try {
             const withdraw = new Withdraw(blockNum, txid, contractAddress, rawLog, withdrawType.WINNINGS).translate();
             await db.Withdraws.insert(withdraw);
->>>>>>> Remove old sync code
 
             resolve();
           } catch (err) {
