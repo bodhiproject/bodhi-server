@@ -156,7 +156,7 @@ async function sync(db) {
         getLogger().debug('Updating Oracles Passed End Times');
         await updateOraclesPassedEndTime(currentBlockTime, db);
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
-        await updateCOraclesPassedResultSetEndTime(currentBlockTime, db);
+        await updateOraclesPassedResultSetEndTime(currentBlockTime, db);
 
         if (numOfIterations > 0) {
           sendSyncInfo(
@@ -659,7 +659,7 @@ async function updateOraclesPassedEndTime(currentBlockTime, db) {
 }
 
 // central oracles with WAITRESULT status and resultSetEndTime less than currentBlockTime
-async function updateCOraclesPassedResultSetEndTime(currentBlockTime, db) {
+async function updateOraclesPassedResultSetEndTime(currentBlockTime, db) {
   try {
     await db.Oracles.update(
       { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
@@ -667,7 +667,7 @@ async function updateCOraclesPassedResultSetEndTime(currentBlockTime, db) {
     );
     getLogger().debug('Updated COracles Passed Result Set End Time');
   } catch (err) {
-    getLogger().error(`updateCOraclesPassedResultSetEndTime ${err.message}`);
+    getLogger().error(`updateOraclesPassedResultSetEndTime ${err.message}`);
   }
 }
 
