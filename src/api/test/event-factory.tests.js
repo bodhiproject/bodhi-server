@@ -1,7 +1,7 @@
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
-const EventFactory = require('../../api/event_factory');
+const EventFactory = require('../../api/event-factory');
 const ContractUtils = require('./util/contract-utils');
 const Mocks = require('./mock/event-factory');
 
