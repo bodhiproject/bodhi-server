@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const { txState } = require('../constants');
 const { Config, getContractMetadata } = require('../config');
-const { DBHelper } = require('../db');
+const DBHelper = require('../db/db-helper');
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
 const bodhiToken = require('../api/bodhi_token');
