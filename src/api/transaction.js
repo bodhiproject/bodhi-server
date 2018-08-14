@@ -156,7 +156,7 @@ const Transaction = {
         break;
       }
       default: {
-        throw new Error(`Invalid transactionType: ${transactionType}`);
+        throw new Error(`Invalid transactionType: ${txType}`);
       }
     }
 

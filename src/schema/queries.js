@@ -1,12 +1,12 @@
 const _ = require('lodash');
-const async = require('async');
 const BigNumber = require('bignumber.js');
 
 const { calculateSyncPercent } = require('./subscriptions');
 const { getInstance } = require('../qclient');
 const { SATOSHI_CONVERSION } = require('../constants');
 const { getLogger } = require('../utils/logger');
-const blockchain = require('../api/blockchain');
+const sequentialLoop = require('../utils/sequentialLoop');
+const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
 const BodhiToken = require('../api/bodhi_token');
 const Network = require('../api/network');
@@ -277,7 +277,7 @@ const getAddressBalances = async () => {
     getLogger().error(`getAddressBalances listAddressGroupings: ${err.message}`);
   }
 
-  // Add default address with zero balances if no address was used before
+  // Add default address with zero balances if no address was used before and return
   if (_.isEmpty(addressObjs)) {
     const address = await Wallet.getAccountAddress({ accountName: '' });
     addressObjs.push({
@@ -285,31 +285,44 @@ const getAddressBalances = async () => {
       qtum: '0',
       bot: '0',
     });
+    return addressObjs;
   }
 
   // Get BOT balances of every address
-  const getBotBalancePromises = [];
-  _.each(addressList, (address) => {
-    getBotBalancePromises.push(new Promise(async (resolve) => {
-      let botBalance = new BigNumber(0);
-      try {
-        // Get BOT balance
-        const res = await BodhiToken.balanceOf({
-          owner: address,
-          senderAddress: address,
-        });
-        botBalance = res.balance;
-      } catch (err) {
-        getLogger().error(`getAddressBalances BodhiToken.balanceOf: ${err.message}`);
-        botBalance = '0';
-      }
+  const batches = _.chunk(addressList, 10);
+  await new Promise(async (resolve) => {
+    sequentialLoop(batches.length, async (loop) => {
+      const promises = [];
 
-      // Update BOT balance for address
-      const found = _.find(addressObjs, { address });
-      found.bot = botBalance.toString(10);
-    }));
+      _.map(batches[loop.iteration()], async (address) => {
+        promises.push(new Promise(async (getBotBalanceResolve) => {
+          let botBalance = new BigNumber(0);
+
+          // Get BOT balance
+          try {
+            const res = await BodhiToken.balanceOf({
+              owner: address,
+              senderAddress: address,
+            });
+            botBalance = res.balance;
+          } catch (err) {
+            getLogger().error(`getAddressBalances BodhiToken.balanceOf ${address}: ${err.message}`);
+          }
+
+          // Update BOT balance for address
+          const found = _.find(addressObjs, { address });
+          found.bot = botBalance.toString(10);
+
+          getBotBalanceResolve();
+        }));
+      });
+
+      await Promise.all(promises);
+      loop.next();
+    }, () => {
+      resolve();
+    });
   });
-  async.parallelLimit(getBotBalancePromises, 10);
 
   return addressObjs;
 };
@@ -395,9 +408,9 @@ module.exports = {
       syncBlockTime = blocks[0].blockTime;
     } else {
       // Fetch current block from qtum
-      syncBlockNum = Math.max(0, await blockchain.getBlockCount());
-      const blockHash = await blockchain.getBlockHash({ blockNum: syncBlockNum });
-      syncBlockTime = (await blockchain.getBlock({ blockHash })).time;
+      syncBlockNum = Math.max(0, await Blockchain.getBlockCount());
+      const blockHash = await Blockchain.getBlockHash({ blockNum: syncBlockNum });
+      syncBlockTime = (await Blockchain.getBlock({ blockHash })).time;
     }
     const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
     const peerNodeCount = await Network.getPeerNodeCount();
@@ -417,5 +430,5 @@ module.exports = {
   },
 
   // Gets the QTUM and BOT balances for all ever used addresses
-  addressBalances: async () => await getAddressBalances(),
+  addressBalances: async () => getAddressBalances(),
 };
