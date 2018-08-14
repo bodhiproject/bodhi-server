@@ -12,7 +12,7 @@ const CentralizedOracle = require('../api/centralized_oracle');
 const DecentralizedOracle = require('../api/decentralized_oracle');
 const Transaction = require('../api/transaction');
 const QtumUtils = require('../api/qtum_utils');
-const EmitterHelper = require('../utils/emitterHelper');
+const EmitterHelper = require('../utils/emitter-helper');
 const { getInstance } = require('../qclient');
 
 const router = Router();
