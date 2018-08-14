@@ -45,7 +45,6 @@ const syncTopicCreated = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, contractMetadata.EventFactory.address,
       [contractMetadata.EventFactory.TopicCreated], contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} TopicCreated entries`);
   } catch (err) {
     throw Error(`searchlog TopicCreated: ${err.message}`);
   }
@@ -88,7 +87,6 @@ const syncCentralizedOracleCreated = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, contractMetadata.EventFactory.address,
       [contractMetadata.OracleFactory.CentralizedOracleCreated], contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} CentralizedOracleCreated entries`);
   } catch (err) {
     throw Error(`searchlog CentralizedOracleCreated: ${err.message}`);
   }
@@ -136,7 +134,6 @@ const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime)
       currentBlockNum, currentBlockNum, [],
       contractMetadata.OracleFactory.DecentralizedOracleCreated, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} DecentralizedOracleCreated entries`);
   } catch (err) {
     throw Error(`searchlog DecentralizedOracleCreated: ${err.message}`);
   }
@@ -178,7 +175,6 @@ const syncOracleResultVoted = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, [],
       contractMetadata.CentralizedOracle.OracleResultVoted, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} OracleResultVoted entries`);
   } catch (err) {
     throw Error(`searchlog OracleResultVoted: ${err.message}`);
   }
@@ -252,7 +248,6 @@ const syncOracleResultSet = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, [],
       contractMetadata.CentralizedOracle.OracleResultSet, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} OracleResultSet entries`);
   } catch (err) {
     throw Error(`searchlog OracleResultSet: ${err.message}`);
   }
@@ -299,7 +294,6 @@ const syncFinalResultSet = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, [],
       contractMetadata.TopicEvent.FinalResultSet, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} FinalResultSet entries`);
   } catch (err) {
     throw Error(`searchlog FinalResultSet: ${err.message}`);
   }
@@ -347,7 +341,6 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, [],
       contractMetadata.TopicEvent.WinningsWithdrawn, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} WinningsWithdrawn entries`);
   } catch (err) {
     throw Error(`searchlog WinningsWithdrawn: ${err.message}`);
   }
@@ -385,7 +378,6 @@ const syncEscrowWithdrawn = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, [],
       contractMetadata.AddressManager.EscrowWithdrawn, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} EscrowWithdrawn entries`);
   } catch (err) {
     throw Error(`searchlog EscrowWithdrawn: ${err.message}`);
   }
@@ -418,12 +410,11 @@ const syncEscrowWithdrawn = async (currentBlockNum) => {
 // Update all Centralized and Decentralized Oracles statuses that are passed the endTime
 const updateOraclesDoneVoting = async (currentBlockTime) => {
   try {
-    const res = await db.Oracles.update(
+    await db.Oracles.update(
       { endTime: { $lt: currentBlockTime }, status: 'VOTING' },
       { $set: { status: 'WAITRESULT' } },
       { multi: true },
     );
-    getLogger().debug(`${res} updateOraclesDoneVoting entries`);
   } catch (err) {
     getLogger().error(`updateOraclesDoneVoting: ${err.message}`);
   }
@@ -432,12 +423,11 @@ const updateOraclesDoneVoting = async (currentBlockTime) => {
 // Update Centralized Oracles to Open Result Set that are passed the resultSetEndTime
 const updateCOraclesDoneResultSet = async (currentBlockTime) => {
   try {
-    const res = await db.Oracles.update(
+    await db.Oracles.update(
       { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
       { $set: { status: 'OPENRESULTSET' } },
       { multi: true },
     );
-    getLogger().debug(`${res} updateCOraclesDoneResultSet entries`);
   } catch (err) {
     getLogger().error(`updateCOraclesDoneResultSet ${err.message}`);
   }
