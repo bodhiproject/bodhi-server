@@ -13,7 +13,7 @@ let logger;
 function initLogger() {
   // Don't initialize logger for tests
   if (!_.includes(process.argv, '--test')) {
-    const logDir = require('./index').getLogDir();
+    const logDir = require('./index').getLogDir(); // eslint-disable-line global-require
     fs.ensureDirSync(logDir); // Create log dir if needed
 
     const winstonCfg = winston.config;
@@ -23,7 +23,10 @@ function initLogger() {
           return moment().format('YYYY-MM-DD HH:mm:ss');
         },
         formatter(options) {
-          return `${options.timestamp()} ${winstonCfg.colorize(options.level, options.level.toUpperCase())} ${(options.message ? options.message : '')} ${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
+          return `${options.timestamp()} `
+            + `${winstonCfg.colorize(options.level, options.level.toUpperCase())} `
+            + `${(options.message ? options.message : '')} `
+            + `${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
         },
       }),
       new (winston.transports.DailyRotateFile)({
@@ -32,7 +35,10 @@ function initLogger() {
           return moment().format('YYYY-MM-DD HH:mm:ss');
         },
         formatter(options) {
-          return `${options.timestamp()} ${winstonCfg.colorize(options.level, options.level.toUpperCase())} ${(options.message ? options.message : '')} ${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
+          return `${options.timestamp()} `
+            + `${winstonCfg.colorize(options.level, options.level.toUpperCase())} `
+            + `${(options.message ? options.message : '')} `
+            + `${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
         },
         json: false,
         maxFiles: '14d',
@@ -40,7 +46,7 @@ function initLogger() {
     ];
 
     // add Papertrail remote logging if prod env
-    if (!require('./index').isDevEnv()) {
+    if (!require('./index').isDevEnv()) { // eslint-disable-line global-require
       transports.push(new Papertrail({
         host: 'logs5.papertrailapp.com',
         port: 46145,

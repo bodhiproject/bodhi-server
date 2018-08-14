@@ -1,11 +1,14 @@
+/* eslint-disable no-underscore-dangle */
+
 const _ = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
 const updateLocalTx = require('./updateLocalTx');
 const { getInstance } = require('../qclient');
 const { withdrawType } = require('../constants');
-const { getContractMetadata, isMainnet } = require('../config');
-const { db, DBHelper } = require('../db');
+const { getContractMetadata } = require('../config');
+const { db } = require('../db');
+const DBHelper = require('../db/db-helper');
 const { getLogger } = require('../utils/logger');
 const { publishSyncInfo } = require('../schema/subscriptions');
 const Topic = require('../models/topic');
@@ -42,7 +45,6 @@ const syncTopicCreated = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, contractMetadata.EventFactory.address,
       [contractMetadata.EventFactory.TopicCreated], contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} TopicCreated entries`);
   } catch (err) {
     throw Error(`searchlog TopicCreated: ${err.message}`);
   }
@@ -85,7 +87,6 @@ const syncCentralizedOracleCreated = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, contractMetadata.EventFactory.address,
       [contractMetadata.OracleFactory.CentralizedOracleCreated], contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} CentralizedOracleCreated entries`);
   } catch (err) {
     throw Error(`searchlog CentralizedOracleCreated: ${err.message}`);
   }
@@ -133,7 +134,6 @@ const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime)
       currentBlockNum, currentBlockNum, [],
       contractMetadata.OracleFactory.DecentralizedOracleCreated, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} DecentralizedOracleCreated entries`);
   } catch (err) {
     throw Error(`searchlog DecentralizedOracleCreated: ${err.message}`);
   }
@@ -175,7 +175,6 @@ const syncOracleResultVoted = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, [],
       contractMetadata.CentralizedOracle.OracleResultVoted, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} OracleResultVoted entries`);
   } catch (err) {
     throw Error(`searchlog OracleResultVoted: ${err.message}`);
   }
@@ -201,13 +200,23 @@ const syncOracleResultVoted = async (currentBlockNum) => {
             const topic = await DBHelper.findOne(db.Topics, { address: oracle.topicAddress });
             switch (vote.token) {
               case 'QTUM': {
-                topic.qtumAmount[vote.optionIdx] = new BigNumber(topic.qtumAmount[vote.optionIdx]).plus(voteBn).toString(10);
-                await DBHelper.updateObjectByQuery(db.Topics, { address: topic.address }, { qtumAmount: topic.qtumAmount });
+                topic.qtumAmount[vote.optionIdx] =
+                  new BigNumber(topic.qtumAmount[vote.optionIdx]).plus(voteBn).toString(10);
+                await DBHelper.updateObjectByQuery(db.Topics, {
+                  address: topic.address,
+                }, {
+                  qtumAmount: topic.qtumAmount,
+                });
                 break;
               }
               case 'BOT': {
-                topic.botAmount[vote.optionIdx] = new BigNumber(topic.botAmount[vote.optionIdx]).plus(voteBn).toString(10);
-                await DBHelper.updateObjectByQuery(db.Topics, { address: topic.address }, { botAmount: topic.botAmount });
+                topic.botAmount[vote.optionIdx] =
+                  new BigNumber(topic.botAmount[vote.optionIdx]).plus(voteBn).toString(10);
+                await DBHelper.updateObjectByQuery(db.Topics, {
+                  address: topic.address,
+                }, {
+                  botAmount: topic.botAmount,
+                });
                 break;
               }
               default: {
@@ -239,7 +248,6 @@ const syncOracleResultSet = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, [],
       contractMetadata.CentralizedOracle.OracleResultSet, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} OracleResultSet entries`);
   } catch (err) {
     throw Error(`searchlog OracleResultSet: ${err.message}`);
   }
@@ -286,7 +294,6 @@ const syncFinalResultSet = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, [],
       contractMetadata.TopicEvent.FinalResultSet, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} FinalResultSet entries`);
   } catch (err) {
     throw Error(`searchlog FinalResultSet: ${err.message}`);
   }
@@ -334,7 +341,6 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, [],
       contractMetadata.TopicEvent.WinningsWithdrawn, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} WinningsWithdrawn entries`);
   } catch (err) {
     throw Error(`searchlog WinningsWithdrawn: ${err.message}`);
   }
@@ -372,7 +378,6 @@ const syncEscrowWithdrawn = async (currentBlockNum) => {
       currentBlockNum, currentBlockNum, [],
       contractMetadata.AddressManager.EscrowWithdrawn, contractMetadata, REMOVE_HEX_PREFIX,
     );
-    getLogger().debug(`${result.length} EscrowWithdrawn entries`);
   } catch (err) {
     throw Error(`searchlog EscrowWithdrawn: ${err.message}`);
   }
@@ -405,12 +410,11 @@ const syncEscrowWithdrawn = async (currentBlockNum) => {
 // Update all Centralized and Decentralized Oracles statuses that are passed the endTime
 const updateOraclesDoneVoting = async (currentBlockTime) => {
   try {
-    const res = await db.Oracles.update(
+    await db.Oracles.update(
       { endTime: { $lt: currentBlockTime }, status: 'VOTING' },
       { $set: { status: 'WAITRESULT' } },
       { multi: true },
     );
-    getLogger().debug(`${res} updateOraclesDoneVoting entries`);
   } catch (err) {
     getLogger().error(`updateOraclesDoneVoting: ${err.message}`);
   }
@@ -419,12 +423,11 @@ const updateOraclesDoneVoting = async (currentBlockTime) => {
 // Update Centralized Oracles to Open Result Set that are passed the resultSetEndTime
 const updateCOraclesDoneResultSet = async (currentBlockTime) => {
   try {
-    const res = await db.Oracles.update(
+    await db.Oracles.update(
       { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
       { $set: { status: 'OPENRESULTSET' } },
       { multi: true },
     );
-    getLogger().debug(`${res} updateCOraclesDoneResultSet entries`);
   } catch (err) {
     getLogger().error(`updateCOraclesDoneResultSet ${err.message}`);
   }
@@ -444,9 +447,11 @@ const insertBlock = async (currentBlockNum, currentBlockTime) => {
 };
 
 // Delay then startSync
-const delayThenSync = (delay) => {
+const delayThenSync = (delay, shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   getLogger().debug('sleep');
-  setTimeout(startSync, delay);
+  setTimeout(() => {
+    startSync(shouldUpdateLocalTxs, shouldSendSyncInfo); // eslint-disable-line no-use-before-define
+  }, delay);
 };
 
 /*
@@ -468,7 +473,7 @@ const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   } catch (err) {
     if (err.message === 'Block height out of range') {
       // Add delay since trying to parse a future block
-      delayThenSync(SYNC_START_DELAY);
+      delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs, shouldSendSyncInfo);
       return;
     }
     throw Error(`getBlockHash or getBlock: ${err.message}`);
@@ -498,9 +503,11 @@ const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   }
 
   // No delay if next block is already confirmed
-  delayThenSync(0);
+  delayThenSync(0, shouldUpdateLocalTxs, shouldSendSyncInfo);
 };
 
 module.exports = {
   startSync,
 };
+
+/* eslint-enable no-underscore-dangle */
