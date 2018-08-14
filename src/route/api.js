@@ -2,16 +2,16 @@ const { Router } = require('express');
 
 const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
-const AddressManager = require('../api/address_manager');
-const BodhiToken = require('../api/bodhi_token');
-const BaseContract = require('../api/base_contract');
-const EventFactory = require('../api/event_factory');
-const TopicEvent = require('../api/topic_event');
+const AddressManager = require('../api/address-manager');
+const BodhiToken = require('../api/bodhi-token');
+const BaseContract = require('../api/base-contract');
+const EventFactory = require('../api/event-factory');
+const TopicEvent = require('../api/topic-event');
 const Oracle = require('../api/oracle');
-const CentralizedOracle = require('../api/centralized_oracle');
-const DecentralizedOracle = require('../api/decentralized_oracle');
+const CentralizedOracle = require('../api/centralized-oracle');
+const DecentralizedOracle = require('../api/decentralized-oracle');
 const Transaction = require('../api/transaction');
-const QtumUtils = require('../api/qtum_utils');
+const QtumUtils = require('../api/qtum-utils');
 const EmitterHelper = require('../utils/emitter-helper');
 const { getInstance } = require('../qclient');
 

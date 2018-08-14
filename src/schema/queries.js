@@ -8,7 +8,7 @@ const { getLogger } = require('../utils/logger');
 const sequentialLoop = require('../utils/sequential-loop');
 const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
-const BodhiToken = require('../api/bodhi_token');
+const BodhiToken = require('../api/bodhi-token');
 const Network = require('../api/network');
 
 const DEFAULT_LIMIT_NUM = 50;

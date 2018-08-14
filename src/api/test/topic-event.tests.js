@@ -2,8 +2,8 @@ const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
 const TopicEvent = require('../../api/topic_event');
-const ContractUtils = require('./util/contract_utils');
-const TestConfig = require('./config/test_config');
+const ContractUtils = require('./util/contract-utils');
+const TestConfig = require('./config/test-config');
 const Mocks = require('./mock/topic_event');
 
 Chai.use(ChaiAsPromised);

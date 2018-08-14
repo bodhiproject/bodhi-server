@@ -1,10 +1,10 @@
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
-const BodhiToken = require('../../api/bodhi_token');
-const ContractUtils = require('./util/contract_utils');
-const TestConfig = require('./config/test_config');
-const Mocks = require('./mock/bodhi_token');
+const BodhiToken = require('../../api/bodhi-token');
+const ContractUtils = require('./util/contract-utils');
+const TestConfig = require('./config/test-config');
+const Mocks = require('./mock/bodhi-token');
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;
