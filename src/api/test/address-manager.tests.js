@@ -1,8 +1,8 @@
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
-const AddressManager = require('../../api/address_manager');
-const Mocks = require('./mock/address_manager');
+const AddressManager = require('../address-manager');
+const Mocks = require('./mock/address-manager');
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;

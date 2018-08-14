@@ -3,10 +3,10 @@ const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 const { Decoder } = require('qweb3');
 
-const CentralizedOracle = require('../../api/centralized_oracle');
-const ContractUtils = require('./util/contract_utils');
-const TestConfig = require('./config/test_config');
-const Mocks = require('./mock/centralized_oracle');
+const CentralizedOracle = require('../../api/centralized-oracle');
+const ContractUtils = require('./util/contract-utils');
+const TestConfig = require('./config/test-config');
+const Mocks = require('./mock/centralized-oracle');
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;

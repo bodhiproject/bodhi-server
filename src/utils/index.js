@@ -154,7 +154,7 @@ function hexArrayToDecimalArray(array) {
 
 async function isAllowanceEnough(owner, spender, amount) {
   try {
-    const res = await require('../api/bodhi_token').allowance({ // eslint-disable-line global-require
+    const res = await require('../api/bodhi-token').allowance({ // eslint-disable-line global-require
       owner,
       spender,
       senderAddress: owner,

@@ -2,9 +2,9 @@ const _ = require('lodash');
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
-const BaseContract = require('../../api/base_contract');
-const TestConfig = require('./config/test_config');
-const Mocks = require('./mock/base_contract');
+const BaseContract = require('../../api/base-contract');
+const TestConfig = require('./config/test-config');
+const Mocks = require('./mock/base-contract');
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;
