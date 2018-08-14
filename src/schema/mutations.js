@@ -6,11 +6,11 @@ const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
-const bodhiToken = require('../api/bodhi_token');
-const eventFactory = require('../api/event_factory');
-const topicEvent = require('../api/topic_event');
-const centralizedOracle = require('../api/centralized_oracle');
-const decentralizedOracle = require('../api/decentralized_oracle');
+const bodhiToken = require('../api/bodhi-token');
+const eventFactory = require('../api/event-factory');
+const topicEvent = require('../api/topic-event');
+const centralizedOracle = require('../api/centralized-oracle');
+const decentralizedOracle = require('../api/decentralized-oracle');
 const wallet = require('../api/wallet');
 
 module.exports = {

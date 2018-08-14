@@ -2,10 +2,10 @@ const Web3Utils = require('web3-utils');
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
-const DecentralizedOracle = require('../../api/decentralized_oracle');
-const ContractUtils = require('./util/contract_utils');
-const TestConfig = require('./config/test_config');
-const Mocks = require('./mock/decentralized_oracle');
+const DecentralizedOracle = require('../../api/decentralized-oracle');
+const ContractUtils = require('./util/contract-utils');
+const TestConfig = require('./config/test-config');
+const Mocks = require('./mock/decentralized-oracle');
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;

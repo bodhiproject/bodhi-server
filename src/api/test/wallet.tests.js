@@ -5,7 +5,7 @@ const path = require('path');
 const Utils = require('qweb3').Utils;
 
 const Wallet = require('../../api/wallet');
-const TestConfig = require('./config/test_config');
+const TestConfig = require('./config/test-config');
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;

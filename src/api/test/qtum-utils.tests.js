@@ -1,7 +1,7 @@
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
-const QtumUtils = require('../../api/qtum_utils');
+const QtumUtils = require('../../api/qtum-utils');
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;

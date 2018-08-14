@@ -9,7 +9,7 @@ const {
 } = require('./config');
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
-const EmitterHelper = require('./utils/emitterHelper');
+const EmitterHelper = require('./utils/emitter-helper');
 const { startSync } = require('./sync');
 const { getInstance } = require('./qclient');
 const initApiServer = require('./route');
