@@ -3,7 +3,7 @@ const fs = require('fs-extra');
 
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
-const migrateTxDB = require('./migrations/migrateTx');
+const migrateTxDB = require('./migrations/migrate-tx');
 
 const db = {
   Topics: undefined,

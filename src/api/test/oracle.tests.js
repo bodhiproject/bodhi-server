@@ -3,7 +3,7 @@ const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
 const Oracle = require('../../api/oracle');
-const TestConfig = require('./config/test_config');
+const TestConfig = require('./config/test-config');
 const Mocks = require('./mock/oracle');
 
 Chai.use(ChaiAsPromised);
