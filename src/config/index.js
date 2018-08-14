@@ -2,8 +2,8 @@ const _ = require('lodash');
 const crypto = require('crypto');
 
 const { blockchainEnv } = require('../constants');
-const mainnetMetadata = require('./mainnet/contract_metadata');
-const testnetMetadata = require('./testnet/contract_metadata');
+const mainnetMetadata = require('./mainnet/contract-metadata');
+const testnetMetadata = require('./testnet/contract-metadata');
 
 const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 const EXPLORER_MAINNET = 'https://explorer.qtum.org';
