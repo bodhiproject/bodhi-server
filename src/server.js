@@ -1,9 +1,5 @@
 const _ = require('lodash');
-const restify = require('restify');
-const corsMiddleware = require('restify-cors-middleware');
 const { spawn, spawnSync } = require('child_process');
-const { execute, subscribe } = require('graphql');
-const { SubscriptionServer } = require('subscriptions-transport-ws');
 const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
@@ -14,17 +10,14 @@ const {
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitterHelper');
-const schema = require('./schema');
-const syncRouter = require('./route/sync');
-const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const { getInstance } = require('./qclient');
+const initApiServer = require('./route');
 const Wallet = require('./api/wallet');
 
 const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
 
 let qtumProcess;
-let server;
 let encryptOk = false;
 let isEncrypted = false;
 let checkInterval;
@@ -234,34 +227,6 @@ function startQtumProcess(reindex) {
   }
 }
 
-// Create Restify server and apply routes
-async function startAPI() {
-  server = restify.createServer({ title: 'Bodhi API' });
-  const cors = corsMiddleware({ origins: ['*'] });
-  server.pre(cors.preflight);
-  server.use(cors.actual);
-  server.use(restify.plugins.bodyParser({ mapParams: true }));
-  server.use(restify.plugins.queryParser());
-  server.on('after', (req, res, route, err) => {
-    if (route) {
-      getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
-    } else {
-      getLogger().error(`${err.message}`);
-    }
-  });
-
-  syncRouter.applyRoutes(server);
-  apiRouter.applyRoutes(server);
-
-  server.listen(Config.PORT, () => {
-    SubscriptionServer.create(
-      { execute, subscribe, schema },
-      { server, path: '/subscriptions' },
-    );
-    getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT}.`);
-  });
-}
-
 // Ensure API is running before loading UI
 async function checkApiInit() {
   try {
@@ -281,8 +246,8 @@ async function checkApiInit() {
 }
 
 function startServices() {
-  startSync();
-  startAPI();
+  startSync(true, true);
+  initApiServer();
 
   checkApiInterval = setInterval(checkApiInit, 500);
 }
@@ -303,10 +268,6 @@ async function startServer(env, qtumPath, encryptionAllowed) {
   } catch (err) {
     EmitterHelper.onServerStartError(err.message);
   }
-}
-
-function getServer() {
-  return server;
 }
 
 function exit(signal) {
@@ -331,6 +292,5 @@ module.exports = {
   killQtumProcess,
   startServices,
   startServer,
-  getServer,
   startQtumWallet,
 };
