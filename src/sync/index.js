@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
-const updateLocalTx = require('./updateLocalTx');
+const updateLocalTx = require('./update-local-tx');
 const { getInstance } = require('../qclient');
 const { withdrawType } = require('../constants');
 const { getContractMetadata } = require('../config');
