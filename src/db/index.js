@@ -1,5 +1,4 @@
 const datastore = require('nedb-promise');
-const _ = require('lodash');
 const fs = require('fs-extra');
 
 const Utils = require('../utils');

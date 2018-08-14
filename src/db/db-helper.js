@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const { getLogger } = require('../utils/logger');
 
 class DBHelper {
