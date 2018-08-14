@@ -12,11 +12,11 @@ const DBHelper = require('../db/db-helper');
 const { getLogger } = require('../utils/logger');
 const { publishSyncInfo } = require('../schema/subscriptions');
 const Topic = require('../models/topic');
-const CentralizedOracle = require('../models/centralizedOracle');
-const DecentralizedOracle = require('../models/decentralizedOracle');
+const CentralizedOracle = require('../models/centralized-oracle');
+const DecentralizedOracle = require('../models/decentralized-oracle');
 const Vote = require('../models/vote');
-const OracleResultSet = require('../models/oracleResultSet');
-const FinalResultSet = require('../models/finalResultSet');
+const OracleResultSet = require('../models/oracle-result-set');
+const FinalResultSet = require('../models/final-result-set');
 const Withdraw = require('../models/withdraw');
 
 const SYNC_START_DELAY = 5000;
