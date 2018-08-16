@@ -110,15 +110,16 @@ function getLogDir() {
  * Gets the path for the Qtum binaries. Can either:
  * 1. Set QTUM_PATH in .env file. eg. QTUM_PATH=./qtum/mac/bin
  * 2. Pass the path in the --qtumpath flag via commandline. eg. --qtumpath=./qtum/mac/bin
+ * The QTUM_PATH in .env will take priority over the qtumpath cli flag.
  * @return {string} The path to the Qtum bin folder.
  */
 function getDevQtumExecPath() {
   // Must pass in the absolute path to the bin/ folder
   let qtumPath;
 
-  if (process.QTUMPATH) {
+  if (process.env.QTUM_PATH) {
     // QTUMPATH found in .env
-    qtumPath = process.QTUMPATH;
+    qtumPath = process.env.QTUM_PATH;
   } else {
     // Search for --qtumpath flag in command-line args
     _.each(process.argv, (arg) => {
