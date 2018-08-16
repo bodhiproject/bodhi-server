@@ -8,7 +8,6 @@ module.exports = {
     SERVER_START_ERROR: 'server-start-error',
     QTUMD_ERROR: 'qtumd-error',
     QTUMD_KILLED: 'qtumd-killed',
-    API_INITIALIZED: 'api-initialized',
     WALLET_ENCRYPTED: 'wallet-encrypted',
     WALLET_BACKUP: 'wallet-backup',
     WALLET_IMPORT: 'wallet-import',
