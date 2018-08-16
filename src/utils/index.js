@@ -106,21 +106,30 @@ function getLogDir() {
   return logDir;
 }
 
-/*
-* Gets the path for the Qtum binaries. Must pass the path in a flag via commandline.
-* return {String} The full path for the Qtum binaries folder.
-*/
+/**
+ * Gets the path for the Qtum binaries. Can either:
+ * 1. Set QTUM_PATH in .env file. eg. QTUM_PATH=./qtum/mac/bin
+ * 2. Pass the path in the --qtumpath flag via commandline. eg. --qtumpath=./qtum/mac/bin
+ * @return {string} The path to the Qtum bin folder.
+ */
 function getDevQtumExecPath() {
   // Must pass in the absolute path to the bin/ folder
   let qtumPath;
-  _.each(process.argv, (arg) => {
-    if (_.includes(arg, '-qtumpath')) {
-      qtumPath = (_.split(arg, '=', 2))[1];
-    }
-  });
+
+  if (process.QTUMPATH) {
+    // QTUMPATH found in .env
+    qtumPath = process.QTUMPATH;
+  } else {
+    // Search for --qtumpath flag in command-line args
+    _.each(process.argv, (arg) => {
+      if (_.includes(arg, '--qtumpath')) {
+        qtumPath = (_.split(arg, '=', 2))[1];
+      }
+    });
+  }
 
   if (!qtumPath) {
-    throw Error('Must pass in the --qtumpath flag with the path to qtum bin folder.');
+    throw Error('Qtum path was not found.');
   }
   return qtumPath;
 }
