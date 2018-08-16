@@ -45,6 +45,7 @@ const initApiServer = () => {
       getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT_API}.`);
     });
   } catch (err) {
+    getLogger().error(`Error starting API Server: ${err.message}`);
     killQtumProcess(false);
   }
 };
@@ -55,6 +56,7 @@ const initWebServer = () => {
     app.use(express.static(uiDir));
     http.createServer(app).listen(Config.PORT_HTTP);
   } catch (err) {
+    getLogger().error(`Error starting Web Server: ${err.message}`);
     killQtumProcess(false);
   }
 };
