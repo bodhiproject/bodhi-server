@@ -134,6 +134,5 @@ $RECYCLE.BIN/
 # Distributables
 dist/
 
-# log file
-src/logs/
-
+# .env
+.env
