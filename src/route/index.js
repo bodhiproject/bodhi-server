@@ -5,6 +5,7 @@ const expressWinston = require('express-winston');
 const http = require('http');
 
 const apiRouter = require('./api');
+const { killQtumProcess } = require('../server');
 const { graphqlRouter, createSubscriptionServer } = require('./graphql');
 const { getLogger } = require('../utils/logger');
 const { Config } = require('../config');
@@ -12,42 +13,50 @@ const { Config } = require('../config');
 const app = express();
 
 const initApiServer = () => {
-  // Allow CORS
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    next();
-  });
+  try {
+    // Allow CORS
+    app.use((req, res, next) => {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+      next();
+    });
 
-  // Setup for JSON and url encoded bodies
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+    // Setup for JSON and url encoded bodies
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
 
-  // Route responses to Winston logger
-  app.use(expressWinston.logger({
-    winstonInstance: getLogger(),
-    meta: false,
-    msg: '{{req.method}} {{req.path}} {{res.statusCode}} {{res.body}}',
-    colorize: true,
-  }));
+    // Route responses to Winston logger
+    app.use(expressWinston.logger({
+      winstonInstance: getLogger(),
+      meta: false,
+      msg: '{{req.method}} {{req.path}} {{res.statusCode}} {{res.body}}',
+      colorize: true,
+    }));
 
-  // Apply all routes
-  app.use('/', apiRouter);
-  app.use('/', graphqlRouter);
+    // Apply all routes
+    app.use('/', apiRouter);
+    app.use('/', graphqlRouter);
 
-  // Wrap server for subscriptions
-  http.createServer(app).listen(Config.PORT_API, () => {
-    createSubscriptionServer(app);
-    getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT_API}.`);
-  });
+    // Wrap server for subscriptions
+    http.createServer(app).listen(Config.PORT_API, () => {
+      createSubscriptionServer(app);
+      getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT_API}.`);
+    });
+  } catch (err) {
+    killQtumProcess(false);
+  }
 };
 
 const initWebServer = () => {
-  const uiDir = path.join(__dirname, '../../node_modules/bodhi-ui/build');
-  app.use(express.static(uiDir));
-  http.createServer(app).listen(Config.PORT_HTTP);
+  try {
+    const uiDir = path.join(__dirname, '../../node_modules/bodhi-ui/build');
+    app.use(express.static(uiDir));
+    http.createServer(app).listen(Config.PORT_HTTP);
+  } catch (err) {
+    killQtumProcess(false);
+  }
 };
 
 module.exports = {
