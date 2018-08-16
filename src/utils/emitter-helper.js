@@ -19,10 +19,6 @@ class EmitterHelper {
     this.emitter.emit(ipcEvent.QTUMD_KILLED);
   }
 
-  onApiInitialized() {
-    this.emitter.emit(ipcEvent.API_INITIALIZED);
-  }
-
   onWalletEncrypted() {
     this.emitter.emit(ipcEvent.WALLET_ENCRYPTED);
   }

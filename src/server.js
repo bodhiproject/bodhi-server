@@ -12,7 +12,7 @@ const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitter-helper');
 const { startSync } = require('./sync');
 const { getInstance } = require('./qclient');
-const initApiServer = require('./route');
+const { initApiServer, initWebServer } = require('./route');
 const Wallet = require('./api/wallet');
 
 const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
@@ -230,7 +230,7 @@ function startQtumProcess(reindex) {
 // Ensure API is running before loading UI
 async function checkApiInit() {
   try {
-    const res = await fetch(`http://${Config.HOSTNAME}:${Config.PORT}/graphql`, {
+    const res = await fetch(`http://${Config.HOSTNAME}:${Config.PORT_API}/graphql`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
@@ -238,7 +238,7 @@ async function checkApiInit() {
 
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
-      setTimeout(() => EmitterHelper.onApiInitialized(), 1000);
+      initWebServer();
     }
   } catch (err) {
     getLogger().debug(err.message);
