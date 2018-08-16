@@ -17,7 +17,7 @@ router.post('/graphql', bodyParser.json(), options);
 // GraphQL web interface for querying
 router.use('/graphiql', graphiqlExpress({
   endpointURL: '/graphql',
-  subscriptionsEndpoint: `ws://${Config.HOSTNAME}:${Config.PORT}/subscriptions`,
+  subscriptionsEndpoint: `ws://${Config.HOSTNAME}:${Config.PORT_API}/subscriptions`,
 }));
 
 const createSubscriptionServer = (server) => {
