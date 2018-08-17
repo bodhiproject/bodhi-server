@@ -16,8 +16,8 @@ if os.path.isfile(path) and os.access(path, os.R_OK):
     os.remove(path)
 
 # copy nginx server block files to sites-available
-sitesDir = os.listdir('./nginx-sites')
-for filename in SITES:
+sites_dir = os.listdir('./nginx-sites')
+for filename in sites_dir:
     full_filename = os.path.join(sitesDir, filename)
     if (os.path.isfile(full_filename)):
         shutil.copy(full_filename, '/etc/nginx/sites-available/')
