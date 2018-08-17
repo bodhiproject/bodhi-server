@@ -286,6 +286,7 @@ function exit(signal) {
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
+process.on('uncaughtException', exit);
 
 module.exports = {
   getQtumProcess,
