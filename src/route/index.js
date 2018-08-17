@@ -3,6 +3,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const expressWinston = require('express-winston');
 const http = require('http');
+const helmet = require('helmet');
 
 const apiRouter = require('./api');
 const { killQtumProcess } = require('../server');
@@ -20,6 +21,9 @@ const initApiServer = () => {
       res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
       next();
     });
+
+    // Set security-related HTTPS headers
+    app.use(helmet());
 
     // Setup for JSON and url encoded bodies
     app.use(bodyParser.json());
