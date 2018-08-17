@@ -14,7 +14,7 @@ sudo rm /etc/nginx/sites-enabled/default &&
 
 # copy sites-enabled setups to default nginx config location
 echo 'Copying sites-enabled config...' &&
-sudo cp -a ./nginx/sites-enabled/. /etc/nginx/sites-enabled/ &&
+sudo cp -a nginx/sites-enabled/. /etc/nginx/sites-enabled/ &&
 
 # add symlink to sites-available
 echo 'Adding symlinks...' &&
