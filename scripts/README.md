@@ -4,6 +4,6 @@
     sudo apt-get update
     sudo apt-get install nginx
 
-2. Run setup.py (requires Python 2.7)
+2. Run setup script (requires Python 2.7)
 
     python setup.py
