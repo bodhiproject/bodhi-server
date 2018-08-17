@@ -4,7 +4,7 @@ import shutil
 from subprocess import call
 
 def fileExists(path):
-    return os.path.isfile(path) and os.access(path, os.R_OK):
+    return os.path.isfile(path) and os.access(path, os.R_OK)
 
 # remove the default sites-available config
 path = '/etc/nginx/sites-available/default'
