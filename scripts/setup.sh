@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # This script is meant for Linux-based systems only.
 # It will install nginx and setup the port routing for the UI.
@@ -9,6 +9,8 @@ if [ "$(dpkg-query -W nginx)" == "dpkg-query: no packages found matching nginx" 
     echo 'Installing nginx...' &&
     sudo apt-get update &&
     sudo apt-get install nginx &&
+else
+    echo 'nginx already installed.' &&
 fi
 
 # remove the default sites-available config
