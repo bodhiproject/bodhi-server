@@ -25,6 +25,6 @@ sudo ln -s /etc/nginx/sites-available/node /etc/nginx/sites-enabled/node &
 echo 'Restarting nginx...' &&
 sudo service nginx restart &&
 
-# copy 
+# add cert renew script to daily cronjob
 echo 'Copying cert renew script to cron.daily...' &&
 sudo cp renewcert.sh /etc/cron.daily
