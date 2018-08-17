@@ -1,7 +1,7 @@
-### First Time Setup
+## First Time Setup
 This is meant to be setup on an Linux-based OS. This will remove the default config files for `nginx` and add the server block config for routing to the website. It will also add a daily cronjob script to renew the 
 
-#### Instructions
+### Instructions
 1. Install nginx
 
     sudo apt-get update
