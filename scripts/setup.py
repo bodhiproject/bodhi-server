@@ -3,15 +3,18 @@ import os.path
 import shutil
 from subprocess import call
 
+def fileExists(path):
+    return os.path.isfile(path) and os.access(path, os.R_OK):
+
 # remove the default sites-available config
 path = '/etc/nginx/sites-available/default'
-if os.path.isfile(path) and os.access(path, os.R_OK):
+if fileExists(path):
     print 'Removing default sites-available...'
     os.remove(path)
 
 # remove the default sites-enabled config
 path = '/etc/nginx/sites-enabled/default'
-if os.path.isfile(path) and os.access(path, os.R_OK):
+if fileExists(path):
     print 'Removing default sites-enabled...'
     os.remove(path)
 
@@ -23,8 +26,10 @@ for filename in os.listdir(sites_dir):
         shutil.copy(full_filename, '/etc/nginx/sites-available/')
 
 # add symlink to sites-available
-print 'Adding symlinks...'
-call(['sudo', 'ln', '-s', '/etc/nginx/sites-available/node', '/etc/nginx/sites-enabled/node'])
+path = '/etc/nginx/sites-enabled/node'
+if !fileExists(path):
+    print 'Adding symlinks...'
+    call(['sudo', 'ln', '-s', '/etc/nginx/sites-available/node', '/etc/nginx/sites-enabled/node'])
 
 # restart nginx
 print 'Restarting nginx...'
