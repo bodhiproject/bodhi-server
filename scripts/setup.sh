@@ -5,7 +5,7 @@
 # Meant for first-time usage.
 
 # install nginx if necessary
-if [ "$(dpkg-query -W nginx)" == "dpkg-query: no packages found matching nginx" ]
+if [ "$(dpkg-query -W nginx)" == "dpkg-query: no packages found matching nginx" ];
 then
     echo 'Installing nginx...' &&
     sudo apt-get update &&
@@ -15,14 +15,14 @@ else
 fi
 
 # remove the default sites-available config
-if [ "$(ls /etc/nginx/sites-available/default)" == "/etc/nginx/sites-available/default" ]
+if [ "$(ls /etc/nginx/sites-available/default)" == "/etc/nginx/sites-available/default" ];
 then
     echo 'Removing default sites-available...' &&
     sudo rm /etc/nginx/sites-available/default &&
 fi
 
 # remove the default sites-enabled config
-if [ "$(ls /etc/nginx/sites-enabled/default)" == "/etc/nginx/sites-enabled/default" ]
+if [ "$(ls /etc/nginx/sites-enabled/default)" == "/etc/nginx/sites-enabled/default" ];
 then
     echo 'Removing default sites-enabled...' &&
     sudo rm /etc/nginx/sites-enabled/default &&
@@ -33,7 +33,7 @@ echo 'Copying sites-enabled config...' &&
 sudo cp -a ./nginx-sites/. /etc/nginx/sites-available/ &&
 
 # add symlink to sites-available
-if [ "$(ls /etc/nginx/sites-enabled/node)" == "ls: cannot access '/etc/nginx/sites-enabled/node': No such file or directory" ]
+if [ "$(ls /etc/nginx/sites-enabled/node)" == "ls: cannot access '/etc/nginx/sites-enabled/node': No such file or directory" ];
 then
     echo 'Adding symlinks...' &&
     sudo ln -s /etc/nginx/sites-available/node /etc/nginx/sites-enabled/node &
