@@ -27,7 +27,7 @@ for filename in os.listdir(sites_dir):
 
 # add symlink to sites-available
 path = '/etc/nginx/sites-enabled/node'
-if !fileExists(path):
+if not fileExists(path):
     print 'Adding symlinks...'
     call(['sudo', 'ln', '-s', '/etc/nginx/sites-available/node', '/etc/nginx/sites-enabled/node'])
 
