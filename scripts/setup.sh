@@ -5,7 +5,7 @@
 
 # install nginx
 echo 'Installing nginx...'
-sudo apt-update &&
+sudo apt-get update &&
 sudo apt-get install nginx &&
 
 # remove the default sites-enabled config
