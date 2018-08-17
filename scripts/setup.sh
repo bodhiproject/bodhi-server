@@ -12,9 +12,9 @@ sudo apt-get install nginx &&
 echo 'Removing default sites-enabled...' &&
 sudo rm /etc/nginx/sites-enabled/default &&
 
-# copy sites-enabled setups to default nginx config location
+# copy nginx config to sites-available
 echo 'Copying sites-enabled config...' &&
-sudo cp -a ./nginx-sites/. /etc/nginx/sites-enabled/ &&
+sudo cp -a ./nginx-sites/. /etc/nginx/sites-available/ &&
 
 # add symlink to sites-available
 echo 'Adding symlinks...' &&
