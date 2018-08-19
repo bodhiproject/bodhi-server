@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/bodhiproject/bodhi-server.svg?branch=master)](https://travis-ci.org/bodhiproject/bodhi-server)
 
-# Prerequisites
+## Prerequisites
 1. Node 9 installed
 2. You will need the Qtum client for the OS you are testing on (or building against). Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the correct OS and put the `bin/` folder in the corresponding dir:
 
@@ -10,17 +10,23 @@
         bodhi-server/qtum/linux64/bin     qtum-0.14.16-x86_64-linux-gnu.tar.gz
         bodhi-server/qtum/linux32/bin     qtum-0.14.16-i686-pc-linux-gnu.tar.gz
 
-# Install
+## Install
 1. `git clone https://github.com/bodhiproject/bodhi-server.git`
 2. `cd bodhi-server`
 3. `npm install`
 
-# Run Testnet Environment
-1. `cd bodhi-server`
-2. `npm run start-test`
-3. App at `127.0.0.1:8989` or GraphiQL at `127.0.0.1:8989/graphiql`
+## Running Server
 
-# Run Mainnet Environment
-1. `cd bodhi-server`
-2. `npm run start-main`
-3. App at `127.0.0.1:8989` or GraphiQL at `127.0.0.1:8989/graphiql`
+### Local
+
+        npm run start-test // testnet
+        npm run start-main // mainnet
+        // API at `127.0.0.1:8989` or GraphiQL at `127.0.0.1:8989/graphiql`
+
+### Docker
+
+        // Build image
+        docker build -t bodhi-server .
+
+        // Run in container
+        docker run -p 3000:3000 -p 8989:8989 -d bodhi-server
