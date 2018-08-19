@@ -29,4 +29,4 @@
         docker build -t bodhi-server .
 
         // Run in container
-        docker run -p 3000:3000 -p 8989:8989 -d bodhi-server
+        docker run -p 3000:3000 -d bodhi-server
