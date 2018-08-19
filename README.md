@@ -19,14 +19,14 @@
 
 ### Local
 
-        npm run start-test // testnet
-        npm run start-main // mainnet
-        // API at `127.0.0.1:8989` or GraphiQL at `127.0.0.1:8989/graphiql`
+    npm run start-test // testnet
+    npm run start-main // mainnet
+    // API at `127.0.0.1:8989` or GraphiQL at `127.0.0.1:8989/graphiql`
 
 ### Docker
 
-        // Build image
-        docker build -t bodhi-server .
+    // Build image
+    docker build -t bodhi-server .
 
-        // Run in container
-        docker run -p 3000:3000 -d bodhi-server
+    // Run in container
+    docker run -p 3000:3000 -d bodhi-server
