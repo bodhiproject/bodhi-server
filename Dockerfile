@@ -15,8 +15,7 @@ RUN npm install
 COPY . .
 
 # Expose ports for UI and API
-EXPOSE 3000
-EXPOSE 8989
+EXPOSE 3000 8989
 
 # Run server
 CMD [ "npm", "run", "start-test" ]
