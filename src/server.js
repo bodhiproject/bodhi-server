@@ -235,7 +235,10 @@ async function checkApiInit() {
   try {
     if (!axiosClient) {
       const creds = getSSLCredentials();
-      const agent = new https.Agent({ ca: creds.cert });
+      const agent = new https.Agent({
+        ca: creds.cert,
+        rejectUnauthorized: false,
+      });
       axiosClient = axios.create({ httpsAgent: agent });
     }
 
