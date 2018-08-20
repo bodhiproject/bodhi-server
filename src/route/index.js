@@ -37,7 +37,7 @@ const initExpressApp = () => {
   return app;
 };
 
-const createServer = app => https.createServer(Object.assign(app, getSSLCredentials()));
+const createServer = app => https.createServer(getSSLCredentials(), app);
 
 const initApiServer = () => {
   try {
