@@ -236,7 +236,7 @@ async function checkApiInit() {
     if (!axiosClient) {
       const creds = getSSLCredentials();
       const agent = new https.Agent({ ca: creds.cert });
-      axiosClient = axios.create({ agent });
+      axiosClient = axios.create({ httpsAgent: agent });
     }
 
     const res = await axiosClient.post(`https://${Config.HOSTNAME}:${Config.PORT_API}/graphql`, {
