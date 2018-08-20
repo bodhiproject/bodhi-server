@@ -163,7 +163,7 @@ router.get('/get-blockchain-info', (req, res, next) => {
 router.get('/get-block-count', (req, res, next) => {
   Blockchain.getBlockCount()
     .then((result) => {
-      onRequestSuccess(res, result, next);
+      onRequestSuccess(res, result.toString(), next);
     }, (err) => {
       onRequestError(res, err, next);
     });
