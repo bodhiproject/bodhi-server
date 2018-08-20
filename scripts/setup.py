@@ -31,11 +31,6 @@ if not fileExists(path):
     print 'Adding website symlink...'
     call(['sudo', 'ln', '-s', '/etc/nginx/sites-available/website', '/etc/nginx/sites-enabled/website'])
 
-path = '/etc/nginx/sites-enabled/server'
-if not fileExists(path):
-    print 'Adding server symlink...'
-    call(['sudo', 'ln', '-s', '/etc/nginx/sites-available/server', '/etc/nginx/sites-enabled/server'])
-
 # restart nginx
 print 'Restarting nginx...'
 call(['sudo', 'service', 'nginx', 'restart'])
