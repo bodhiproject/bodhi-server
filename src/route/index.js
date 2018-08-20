@@ -12,10 +12,10 @@ const { graphqlRouter, createSubscriptionServer } = require('./graphql');
 const { getLogger } = require('../utils/logger');
 const { Config } = require('../config');
 
-const app = express();
-
 const initApiServer = () => {
   try {
+    const app = express();
+
     // Allow CORS
     app.use((req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
@@ -45,7 +45,7 @@ const initApiServer = () => {
     app.use('/', graphqlRouter);
 
     // Wrap server for subscriptions
-    const server = http.createServer(app).listen(Config.PORT_API, () => {
+    const server = app.listen(Config.PORT_API, () => {
       createSubscriptionServer(app);
       getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT_API}.`);
     });
@@ -58,9 +58,23 @@ const initApiServer = () => {
 
 const initWebServer = () => {
   try {
+    const app = express();
+
+    // Allow CORS
+    app.use((req, res, next) => {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+      next();
+    });
+
+    // Set security-related HTTPS headers
+    app.use(helmet());
+
     const uiDir = path.join(__dirname, '../../node_modules/bodhi-ui/build');
     app.use(express.static(uiDir));
-    http.createServer(app).listen(Config.PORT_HTTP);
+    app.listen(Config.PORT_HTTP, () => {
+      getLogger().info(`Bodhi UI is running at http://${Config.HOSTNAME}:${Config.PORT_HTTP}.`);
+    });
   } catch (err) {
     getLogger().error(`Error starting Web Server: ${err.message}`);
     killQtumProcess(false);
