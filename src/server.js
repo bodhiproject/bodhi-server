@@ -229,20 +229,20 @@ function startQtumProcess(reindex) {
 
 // Ensure API is running before loading UI
 async function checkApiInit() {
-  try {
-    const res = await fetch(`http://${Config.HOSTNAME}:${Config.PORT_API}/graphql`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
-    });
+  // try {
+  //   const res = await fetch(`http://${Config.HOSTNAME}:${Config.PORT_API}/graphql`, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
+  //   });
 
-    if (res.status >= 200 && res.status < 300) {
+  //   if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
       initWebServer();
-    }
-  } catch (err) {
-    getLogger().debug(err.message);
-  }
+  //   }
+  // } catch (err) {
+  //   getLogger().debug(err.message);
+  // }
 }
 
 function startServices() {
