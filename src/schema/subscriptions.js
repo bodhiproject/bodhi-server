@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const moment = require('moment');
 
-const pubsub = require('../pubsub');
+const pubsub = require('../route/pubsub');
 const { getInstance } = require('../qclient');
 const Network = require('../api/network');
 const { getLogger } = require('../utils/logger');

@@ -3,7 +3,7 @@ const _ = require('lodash');
 const Queries = require('./queries');
 const Mutations = require('./mutations');
 const { phase } = require('../constants');
-const pubsub = require('../pubsub');
+const pubsub = require('../route/pubsub');
 
 /**
  * Takes an oracle object and returns which phase it is in.
