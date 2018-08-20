@@ -246,7 +246,7 @@ async function checkApiInit() {
 }
 
 function startServices() {
-  startSync(true, true);
+  startSync(true);
   initApiServer();
 
   checkApiInterval = setInterval(checkApiInit, 500);
