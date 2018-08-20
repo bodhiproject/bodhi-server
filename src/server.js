@@ -239,7 +239,7 @@ async function checkApiInit() {
       axiosClient = axios.create({ agent });
     }
 
-    const res = await axiosClient.post(`http://${Config.HOSTNAME}:${Config.PORT_API}/graphql`, {
+    const res = await axiosClient.post(`https://${Config.HOSTNAME}:${Config.PORT_API}/graphql`, {
       data: {
         body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
       },
