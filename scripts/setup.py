@@ -26,10 +26,15 @@ for filename in os.listdir(sites_dir):
         shutil.copy(full_filename, '/etc/nginx/sites-available/')
 
 # add symlink to sites-available
-path = '/etc/nginx/sites-enabled/node'
+path = '/etc/nginx/sites-enabled/website'
 if not fileExists(path):
-    print 'Adding symlinks...'
-    call(['sudo', 'ln', '-s', '/etc/nginx/sites-available/node', '/etc/nginx/sites-enabled/node'])
+    print 'Adding website symlink...'
+    call(['sudo', 'ln', '-s', '/etc/nginx/sites-available/website', '/etc/nginx/sites-enabled/website'])
+
+path = '/etc/nginx/sites-enabled/server'
+if not fileExists(path):
+    print 'Adding server symlink...'
+    call(['sudo', 'ln', '-s', '/etc/nginx/sites-available/server', '/etc/nginx/sites-enabled/server'])
 
 # restart nginx
 print 'Restarting nginx...'
