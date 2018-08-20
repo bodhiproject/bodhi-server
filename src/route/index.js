@@ -7,7 +7,6 @@ const helmet = require('helmet');
 
 const apiRouter = require('./api');
 const { createApolloServer, handleSubscriptions } = require('./graphql');
-const { killQtumProcess } = require('../server');
 const { getLogger } = require('../utils/logger');
 const { Config } = require('../config');
 
@@ -67,7 +66,7 @@ const initApiServer = () => {
     });
   } catch (err) {
     getLogger().error(`Error starting API Server: ${err.message}`);
-    killQtumProcess(false);
+    require('../server').exit('SIGTERM'); // eslint-disable-line
   }
 };
 
@@ -84,7 +83,7 @@ const initWebServer = () => {
     });
   } catch (err) {
     getLogger().error(`Error starting Web Server: ${err.message}`);
-    killQtumProcess(false);
+    require('../server').exit('SIGTERM'); // eslint-disable-line
   }
 };
 
