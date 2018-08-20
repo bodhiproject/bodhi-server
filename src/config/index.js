@@ -1,3 +1,4 @@
+const fs = require('fs');
 const _ = require('lodash');
 const crypto = require('crypto');
 
@@ -86,6 +87,17 @@ function getQtumExplorerUrl() {
   return isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET;
 }
 
+function getSSLCredentials() {
+  if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
+    throw Error('SSL Key and Cert paths not found.');
+  }
+
+  return {
+    key: fs.readFileSync(process.env.SSL_KEY_PATH),
+    cert: fs.readFileSync(process.env.SSL_CERT_PATH),
+  };
+}
+
 /*
 * Gets the smart contract metadata based on version and environment.
 * @param versionNum {Number} The version number of the contracts to get, ie. 0, 1, 2.
@@ -121,5 +133,6 @@ module.exports = {
   getRPCPassword,
   getQtumRPCAddress,
   getQtumExplorerUrl,
+  getSSLCredentials,
   getContractMetadata,
 };

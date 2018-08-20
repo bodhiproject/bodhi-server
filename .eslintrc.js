@@ -50,6 +50,11 @@ module.exports = {
         "allowAllPropertiesOnSameLine": true
       }
     ],
+    "object-curly-newline": [2,
+      {
+        "ImportDeclaration": "never",
+      }
+    ],
     "prefer-destructuring": [0
     ]
   }
