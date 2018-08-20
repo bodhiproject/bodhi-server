@@ -53,7 +53,7 @@ const initApiServer = () => {
 
     httpServer.listen(Config.PORT_API, () => {
       getLogger().info(`API served at http://${Config.HOSTNAME}:${Config.PORT_API}`);
-      getLogger().info(`Subscriptions served at ws://${Config.HOSTNAME}:${Config.PORT_API}`);
+      getLogger().info(`Subscriptions served at ws://${Config.HOSTNAME}:${Config.PORT_API}/graphql`);
     });
   } catch (err) {
     getLogger().error(`Error starting API Server: ${err.message}`);
