@@ -45,8 +45,7 @@
     "web3-utils": "^1.0.0-beta.26",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^3.2.1",
-    "winston-papertrail": "^1.0.5",
-    "ws": "^6.0.0"
+    "winston-papertrail": "^1.0.5"
   },
   "devDependencies": {
     "eslint": "^4.16.0",
