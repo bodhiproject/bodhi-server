@@ -243,6 +243,10 @@ async function checkApiInit() {
       data: {
         body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
       },
+      proxy: {
+        host: `https://puti.io/graphql`,
+        port: 8989,
+      }
     });
 
     if (res.status >= 200 && res.status < 300) {
