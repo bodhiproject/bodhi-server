@@ -23,6 +23,7 @@
   "dependencies": {
     "apollo-server": "^2.0.4",
     "apollo-server-express": "^2.0.3",
+    "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
     "bignumber.js": "^7.2.1",
     "bodhi-ui": "^0.8.3",
@@ -38,7 +39,6 @@
     "lodash": "^4.17.4",
     "moment": "^2.22.2",
     "nedb-promise": "^2.0.1",
-    "node-fetch": "^2.1.2",
     "portscanner": "^2.1.1",
     "qweb3": "^0.8.0",
     "subscriptions-transport-ws": "^0.9.9",

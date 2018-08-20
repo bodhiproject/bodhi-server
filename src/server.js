@@ -1,11 +1,13 @@
 const _ = require('lodash');
 const { spawn, spawnSync } = require('child_process');
-const fetch = require('node-fetch');
+const axios = require('axios');
+const https = require('https');
+const fs = require('fs');
 const portscanner = require('portscanner');
 
 const { execFile } = require('./constants');
 const {
-  Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword,
+  Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword, getSSLCredentials,
 } = require('./config');
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
@@ -18,6 +20,7 @@ const Wallet = require('./api/wallet');
 const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
 
 let qtumProcess;
+let axiosClient;
 let encryptOk = false;
 let isEncrypted = false;
 let checkInterval;
@@ -229,20 +232,26 @@ function startQtumProcess(reindex) {
 
 // Ensure API is running before loading UI
 async function checkApiInit() {
-  // try {
-  //   const res = await fetch(`http://${Config.HOSTNAME}:${Config.PORT_API}/graphql`, {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
-  //   });
+  try {
+    if (!axiosClient) {
+      const creds = getSSLCredentials();
+      const agent = new https.Agent({ ca: creds.cert });
+      axiosClient = axios.create({ agent });
+    }
 
-  //   if (res.status >= 200 && res.status < 300) {
+    const res = await axiosClient.post(`http://${Config.HOSTNAME}:${Config.PORT_API}/graphql`, {
+      data: {
+        body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
+      },
+    });
+
+    if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
       initWebServer();
-  //   }
-  // } catch (err) {
-  //   getLogger().debug(err.message);
-  // }
+    }
+  } catch (err) {
+    getLogger().debug(err.message);
+  }
 }
 
 function startServices() {
