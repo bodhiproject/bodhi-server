@@ -1,5 +1,50 @@
 module.exports = `
 
+enum _OracleStatusType {
+  CREATED
+  VOTING
+  WAITRESULT
+  OPENRESULTSET
+  PENDING
+  WITHDRAW
+}
+
+enum _WithdrawType {
+  ESCROW
+  WINNINGS
+}
+
+enum _TokenType {
+  QTUM
+  BOT
+}
+
+enum _OrderDirection {
+  DESC
+  ASC
+}
+
+enum _TransactionType {
+  APPROVECREATEEVENT
+  CREATEEVENT
+  BET
+  APPROVESETRESULT
+  SETRESULT
+  APPROVEVOTE
+  VOTE
+  RESETAPPROVE
+  FINALIZERESULT
+  WITHDRAW
+  WITHDRAWESCROW
+  TRANSFER
+}
+
+enum _TransactionStatus {
+   PENDING
+   FAIL
+   SUCCESS
+}
+
 type Topic {
   txid: String!
   version: Int!
@@ -121,11 +166,6 @@ type AddressBalance {
   bot: String!
 }
 
-type TopicSubscriptionPayload {
-  mutation: _ModelMutationType!
-  node: Topic
-}
-
 input TopicFilter {
   OR: [TopicFilter!]
   txid: String
@@ -183,64 +223,9 @@ input TransactionFilter {
   senderQAddress: String
 }
 
-input topicSubscriptionFilter {
-  mutation_in: [_ModelMutationType!]
-}
-
 input Order {
   field: String!
   direction: _OrderDirection!
-}
-
-enum _ModelMutationType {
-  CREATED
-  UPDATED
-  DELETED
-}
-
-enum _OracleStatusType {
-  CREATED
-  VOTING
-  WAITRESULT
-  OPENRESULTSET
-  PENDING
-  WITHDRAW
-}
-
-enum _WithdrawType {
-  ESCROW
-  WINNINGS
-}
-
-enum _TokenType {
-  QTUM
-  BOT
-}
-
-enum _OrderDirection {
-  DESC
-  ASC
-}
-
-enum _TransactionType {
-  APPROVECREATEEVENT
-  CREATEEVENT
-  BET
-  APPROVESETRESULT
-  SETRESULT
-  APPROVEVOTE
-  VOTE
-  RESETAPPROVE
-  FINALIZERESULT
-  WITHDRAW
-  WITHDRAWESCROW
-  TRANSFER
-}
-
-enum _TransactionStatus {
-   PENDING
-   FAIL
-   SUCCESS
 }
 
 type Query {
