@@ -1,5 +1,4 @@
 const express = require('express');
-const fs = require('fs');
 const https = require('https');
 const path = require('path');
 const expressWinston = require('express-winston');
@@ -8,7 +7,7 @@ const helmet = require('helmet');
 const apiRouter = require('./api');
 const { createApolloServer, handleSubscriptions } = require('./graphql');
 const { getLogger } = require('../utils/logger');
-const { Config } = require('../config');
+const { Config, getSSLCredentials } = require('../config');
 
 const initExpressApp = () => {
   const app = express();
@@ -38,18 +37,7 @@ const initExpressApp = () => {
   return app;
 };
 
-const createServer = (app) => {
-  if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
-    throw Error('SSL Key and Cert paths not found.');
-  }
-
-  const options = {
-    key: fs.readFileSync(process.env.SSL_KEY_PATH),
-    cert: fs.readFileSync(process.env.SSL_CERT_PATH),
-  };
-
-  return https.createServer(Object.assign(app, options));
-};
+const createServer = app => https.createServer(Object.assign(app, getSSLCredentials()));
 
 const initApiServer = () => {
   try {

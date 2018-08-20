@@ -1,3 +1,4 @@
+const fs = require('fs');
 const _ = require('lodash');
 const crypto = require('crypto');
 
@@ -79,11 +80,22 @@ function getRPCPassword() {
 
 function getQtumRPCAddress() {
   const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  return `http://${Config.RPC_USER}:${getRPCPassword()}@localhost:${port}`;
+  return `https://${Config.RPC_USER}:${getRPCPassword()}@localhost:${port}`;
 }
 
 function getQtumExplorerUrl() {
   return isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET;
+}
+
+function getSSLCredentials() {
+  if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
+    throw Error('SSL Key and Cert paths not found.');
+  }
+
+  return {
+    key: fs.readFileSync(process.env.SSL_KEY_PATH),
+    cert: fs.readFileSync(process.env.SSL_CERT_PATH),
+  };
 }
 
 /*
@@ -121,5 +133,6 @@ module.exports = {
   getRPCPassword,
   getQtumRPCAddress,
   getQtumExplorerUrl,
+  getSSLCredentials,
   getContractMetadata,
 };
