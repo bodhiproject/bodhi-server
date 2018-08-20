@@ -447,19 +447,18 @@ const insertBlock = async (currentBlockNum, currentBlockTime) => {
 };
 
 // Delay then startSync
-const delayThenSync = (delay, shouldUpdateLocalTxs, shouldSendSyncInfo) => {
+const delayThenSync = (delay, shouldUpdateLocalTxs) => {
   getLogger().debug('sleep');
   setTimeout(() => {
-    startSync(shouldUpdateLocalTxs, shouldSendSyncInfo); // eslint-disable-line no-use-before-define
+    startSync(shouldUpdateLocalTxs); // eslint-disable-line no-use-before-define
   }, delay);
 };
 
 /*
 * Starts the sync logic. It will loop indefinitely until cancelled.
 * @param shouldUpdateLocalTxs {Boolean} Should it update the local txs or not.
-* @param shouldSendSyncInfo {Boolean} Should it should send the syncInfo subscription message.
 */
-const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
+const startSync = async (shouldUpdateLocalTxs) => {
   contractMetadata = getContractMetadata();
 
   const currentBlockNum = await getStartBlock();
@@ -473,7 +472,7 @@ const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   } catch (err) {
     if (err.message === 'Block height out of range') {
       // Add delay since trying to parse a future block
-      delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs, shouldSendSyncInfo);
+      delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs);
       return;
     }
     throw Error(`getBlockHash or getBlock: ${err.message}`);
@@ -498,12 +497,11 @@ const startSync = async (shouldUpdateLocalTxs, shouldSendSyncInfo) => {
   await updateCOraclesDoneResultSet(currentBlockTime);
   await insertBlock(currentBlockNum, currentBlockTime);
 
-  if (shouldSendSyncInfo) {
-    await publishSyncInfo(currentBlockNum, currentBlockTime);
-  }
+  // Send syncInfo subscription message
+  await publishSyncInfo(currentBlockNum, currentBlockTime);
 
   // No delay if next block is already confirmed
-  delayThenSync(0, shouldUpdateLocalTxs, shouldSendSyncInfo);
+  delayThenSync(0, shouldUpdateLocalTxs);
 };
 
 module.exports = {
