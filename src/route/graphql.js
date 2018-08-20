@@ -10,6 +10,7 @@ const { Config } = require('../config');
 
 const router = Router();
 
+// Apply GraphQL routes
 const options = graphqlExpress({ context: { db }, schema });
 router.get('/graphql', options);
 router.post('/graphql', bodyParser.json(), options);
@@ -21,7 +22,7 @@ router.use('/graphiql', graphiqlExpress({
 }));
 
 const createSubscriptionServer = (server) => {
-  SubscriptionServer.create(
+  new SubscriptionServer( // eslint-disable-line
     { execute, subscribe, schema },
     { server, path: '/subscriptions' },
   );

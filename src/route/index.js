@@ -1,5 +1,6 @@
 const express = require('express');
 const WebSocketServer = require('ws').Server;
+const { createServer } = require('http');
 const path = require('path');
 const bodyParser = require('body-parser');
 const expressWinston = require('express-winston');
@@ -49,12 +50,16 @@ const initApiServer = () => {
     app.use('/', apiRouter);
     app.use('/', graphqlRouter);
 
-    // Wrap server for subscriptions
-    const server = app.listen(Config.PORT_API, () => {
+    // Create server
+    const server = createServer(app);
+    server.listen(Config.PORT_API, () => {
+      // Apply subscription route
       createSubscriptionServer(app);
-      getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT_API}.`);
+      getLogger().info(`API served at http://${Config.HOSTNAME}:${Config.PORT_API}`);
     });
-    const wss = new WebSocketServer({ server });
+    // const wss = new WebSocketServer({ server }, () => {
+    //   getLogger().info(`Subscriptions served at http://${Config.HOSTNAME}:${Config.PORT_API}`);
+    // });
   } catch (err) {
     getLogger().error(`Error starting API Server: ${err.message}`);
     killQtumProcess(false);
@@ -67,7 +72,7 @@ const initWebServer = () => {
     const uiDir = path.join(__dirname, '../../node_modules/bodhi-ui/build');
     app.use(express.static(uiDir));
     app.listen(Config.PORT_HTTP, () => {
-      getLogger().info(`Bodhi UI is running at http://${Config.HOSTNAME}:${Config.PORT_HTTP}.`);
+      getLogger().info(`UI served at http://${Config.HOSTNAME}:${Config.PORT_HTTP}`);
     });
   } catch (err) {
     getLogger().error(`Error starting Web Server: ${err.message}`);
