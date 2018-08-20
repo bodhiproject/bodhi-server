@@ -1,4 +1,5 @@
 const express = require('express');
+const WebSocketServer = require('ws').Server;
 const path = require('path');
 const bodyParser = require('body-parser');
 const expressWinston = require('express-winston');
@@ -44,10 +45,11 @@ const initApiServer = () => {
     app.use('/', graphqlRouter);
 
     // Wrap server for subscriptions
-    http.createServer(app).listen(Config.PORT_API, () => {
+    const server = http.createServer(app).listen(Config.PORT_API, () => {
       createSubscriptionServer(app);
       getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT_API}.`);
     });
+    const wss = new WebSocketServer({ server });
   } catch (err) {
     getLogger().error(`Error starting API Server: ${err.message}`);
     killQtumProcess(false);
