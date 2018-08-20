@@ -1,33 +1,21 @@
-const { Router } = require('express');
-const bodyParser = require('body-parser');
-const { graphqlExpress, graphiqlExpress } = require('apollo-server-express');
-const { execute, subscribe } = require('graphql');
-const { SubscriptionServer } = require('subscriptions-transport-ws');
+const { ApolloServer } = require('apollo-server-express');
 
+const typeDefs = require('../graphql/schema');
+const resolvers = require('../graphql/resolvers');
 const { db } = require('../db');
-const schema = require('../schema');
-const { Config } = require('../config');
 
-const router = Router();
+let apollo;
 
-const options = graphqlExpress({ context: { db }, schema });
-router.get('/graphql', options);
-router.post('/graphql', bodyParser.json(), options);
+const createApolloServer = (app) => {
+  apollo = new ApolloServer({ typeDefs, resolvers, context: { db } });
+  apollo.applyMiddleware({ app });
+};
 
-// GraphQL web interface for querying
-router.use('/graphiql', graphiqlExpress({
-  endpointURL: '/graphql',
-  subscriptionsEndpoint: `ws://${Config.HOSTNAME}:${Config.PORT_API}/subscriptions`,
-}));
-
-const createSubscriptionServer = (server) => {
-  SubscriptionServer.create(
-    { execute, subscribe, schema },
-    { server, path: '/subscriptions' },
-  );
+const handleSubscriptions = (httpServer) => {
+  apollo.installSubscriptionHandlers(httpServer);
 };
 
 module.exports = {
-  graphqlRouter: router,
-  createSubscriptionServer,
+  createApolloServer,
+  handleSubscriptions,
 };
