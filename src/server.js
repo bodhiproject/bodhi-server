@@ -230,7 +230,7 @@ function startQtumProcess(reindex) {
 // Ensure API is running before loading UI
 async function checkApiInit() {
   try {
-    const res = await fetch(`https://${Config.HOSTNAME}:${Config.PORT_API}/graphql`, {
+    const res = await fetch(`http://${Config.HOSTNAME}:${Config.PORT_API}/graphql`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
