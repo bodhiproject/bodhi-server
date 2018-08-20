@@ -1,14 +1,12 @@
 const express = require('express');
-const WebSocketServer = require('ws').Server;
 const { createServer } = require('http');
 const path = require('path');
-const bodyParser = require('body-parser');
 const expressWinston = require('express-winston');
 const helmet = require('helmet');
 
 const apiRouter = require('./api');
+const { createApolloServer, handleSubscriptions } = require('./graphql');
 const { killQtumProcess } = require('../server');
-const { graphqlRouter, createSubscriptionServer } = require('./graphql');
 const { getLogger } = require('../utils/logger');
 const { Config } = require('../config');
 
@@ -26,8 +24,6 @@ const initExpressApp = () => {
   app.use(helmet());
 
   // Setup for JSON and url encoded bodies
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
@@ -46,20 +42,19 @@ const initApiServer = () => {
   try {
     const app = initExpressApp();
 
-    // Apply all routes
+    // Apply API routes
     app.use('/', apiRouter);
-    app.use('/', graphqlRouter);
 
-    // Create server
-    const server = createServer(app);
-    server.listen(Config.PORT_API, () => {
-      // Apply subscription route
-      createSubscriptionServer(app);
+    // Apply GraphQL routes
+    createApolloServer(app);
+
+    const httpServer = createServer(app);
+    handleSubscriptions(httpServer);
+
+    httpServer.listen(Config.PORT_API, () => {
       getLogger().info(`API served at http://${Config.HOSTNAME}:${Config.PORT_API}`);
+      getLogger().info(`Subscriptions served at ws://${Config.HOSTNAME}:${Config.PORT_API}`);
     });
-    // const wss = new WebSocketServer({ server }, () => {
-    //   getLogger().info(`Subscriptions served at http://${Config.HOSTNAME}:${Config.PORT_API}`);
-    // });
   } catch (err) {
     getLogger().error(`Error starting API Server: ${err.message}`);
     killQtumProcess(false);
@@ -69,8 +64,11 @@ const initApiServer = () => {
 const initWebServer = () => {
   try {
     const app = initExpressApp();
+
+    // Apply UI route
     const uiDir = path.join(__dirname, '../../node_modules/bodhi-ui/build');
     app.use(express.static(uiDir));
+
     app.listen(Config.PORT_HTTP, () => {
       getLogger().info(`UI served at http://${Config.HOSTNAME}:${Config.PORT_HTTP}`);
     });

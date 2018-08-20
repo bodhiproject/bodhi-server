@@ -1,8 +1,4 @@
-const { makeExecutableSchema } = require('graphql-tools');
-const resolvers = require('./resolvers');
-
-// Define your types here.
-const typeDefs = `
+module.exports = `
 
 type Topic {
   txid: String!
@@ -125,25 +121,9 @@ type AddressBalance {
   bot: String!
 }
 
-type Subscription {
-  onSyncInfo : syncInfo
-}
-
 type TopicSubscriptionPayload {
   mutation: _ModelMutationType!
   node: Topic
-}
-
-type Query {
-  allTopics(filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): [Topic]!
-  allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): [Oracle]!
-  searchOracles(searchPhrase: String, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
-  allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
-  resultSets(filter: ResultSetFilter, orderBy: [Order!], limit: Int, skip: Int): [ResultSet]!
-  withdraws(filter: WithdrawFilter, orderBy: [Order!], limit: Int, skip: Int): [Withdraw]!
-  allTransactions(filter: TransactionFilter, orderBy: [Order!], limit: Int, skip: Int): [Transaction]!
-  syncInfo(includeBalance: Boolean): syncInfo!
-  addressBalances: [AddressBalance!]
 }
 
 input TopicFilter {
@@ -212,6 +192,69 @@ input Order {
   direction: _OrderDirection!
 }
 
+enum _ModelMutationType {
+  CREATED
+  UPDATED
+  DELETED
+}
+
+enum _OracleStatusType {
+  CREATED
+  VOTING
+  WAITRESULT
+  OPENRESULTSET
+  PENDING
+  WITHDRAW
+}
+
+enum _WithdrawType {
+  ESCROW
+  WINNINGS
+}
+
+enum _TokenType {
+  QTUM
+  BOT
+}
+
+enum _OrderDirection {
+  DESC
+  ASC
+}
+
+enum _TransactionType {
+  APPROVECREATEEVENT
+  CREATEEVENT
+  BET
+  APPROVESETRESULT
+  SETRESULT
+  APPROVEVOTE
+  VOTE
+  RESETAPPROVE
+  FINALIZERESULT
+  WITHDRAW
+  WITHDRAWESCROW
+  TRANSFER
+}
+
+enum _TransactionStatus {
+   PENDING
+   FAIL
+   SUCCESS
+}
+
+type Query {
+  allTopics(filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): [Topic]!
+  allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): [Oracle]!
+  searchOracles(searchPhrase: String, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
+  allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
+  resultSets(filter: ResultSetFilter, orderBy: [Order!], limit: Int, skip: Int): [ResultSet]!
+  withdraws(filter: WithdrawFilter, orderBy: [Order!], limit: Int, skip: Int): [Withdraw]!
+  allTransactions(filter: TransactionFilter, orderBy: [Order!], limit: Int, skip: Int): [Transaction]!
+  syncInfo(includeBalance: Boolean): syncInfo!
+  addressBalances: [AddressBalance!]
+}
+
 type Mutation {
   createTopic(
     senderAddress: String!
@@ -274,57 +317,7 @@ type Mutation {
   ): Transaction
 }
 
-enum _ModelMutationType {
-  CREATED
-  UPDATED
-  DELETED
-}
-
-enum _OracleStatusType {
-  CREATED
-  VOTING
-  WAITRESULT
-  OPENRESULTSET
-  PENDING
-  WITHDRAW
-}
-
-enum _WithdrawType {
-  ESCROW
-  WINNINGS
-}
-
-enum _TokenType {
-  QTUM
-  BOT
-}
-
-enum _OrderDirection {
-  DESC
-  ASC
-}
-
-enum _TransactionType {
-  APPROVECREATEEVENT
-  CREATEEVENT
-  BET
-  APPROVESETRESULT
-  SETRESULT
-  APPROVEVOTE
-  VOTE
-  RESETAPPROVE
-  FINALIZERESULT
-  WITHDRAW
-  WITHDRAWESCROW
-  TRANSFER
-}
-
-enum _TransactionStatus {
-   PENDING
-   FAIL
-   SUCCESS
+type Subscription {
+  onSyncInfo : syncInfo
 }
 `;
-
-// Generate the schema object from your types definition.
-module.exports = makeExecutableSchema({ typeDefs, resolvers });
