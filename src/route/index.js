@@ -1,5 +1,6 @@
 const express = require('express');
-const { createServer } = require('http');
+const fs = require('fs');
+const https = require('https');
 const path = require('path');
 const expressWinston = require('express-winston');
 const helmet = require('helmet');
@@ -38,20 +39,29 @@ const initExpressApp = () => {
   return app;
 };
 
+const createServer = (app) => {
+  if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
+    throw Error('SSL Key and Cert paths not found.');
+  }
+
+  const options = {
+    key: fs.readFileSync(process.env.SSL_KEY_PATH),
+    cert: fs.readFileSync(process.env.SSL_CERT_PATH),
+  };
+
+  return https.createServer(Object.assign(app, options));
+};
+
 const initApiServer = () => {
   try {
     const app = initExpressApp();
 
-    // Apply API routes
-    app.use('/', apiRouter);
+    app.use('/', apiRouter); // Apply API routes
+    createApolloServer(app); // Apply GraphQL routes
 
-    // Apply GraphQL routes
-    createApolloServer(app);
-
-    const httpServer = createServer(app);
-    handleSubscriptions(httpServer);
-
-    httpServer.listen(Config.PORT_API, () => {
+    const server = createServer(app);
+    handleSubscriptions(server);
+    server.listen(Config.PORT_API, () => {
       getLogger().info(`API served at http://${Config.HOSTNAME}:${Config.PORT_API}`);
       getLogger().info(`Subscriptions served at ws://${Config.HOSTNAME}:${Config.PORT_API}/graphql`);
     });
@@ -65,11 +75,11 @@ const initWebServer = () => {
   try {
     const app = initExpressApp();
 
-    // Apply UI route
     const uiDir = path.join(__dirname, '../../node_modules/bodhi-ui/build');
     app.use(express.static(uiDir));
 
-    app.listen(Config.PORT_HTTP, () => {
+    const server = createServer(app);
+    server.listen(Config.PORT_HTTP, () => {
       getLogger().info(`UI served at http://${Config.HOSTNAME}:${Config.PORT_HTTP}`);
     });
   } catch (err) {
