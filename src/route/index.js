@@ -1,14 +1,13 @@
 const express = require('express');
-const { createServer } = require('http');
+const https = require('https');
 const path = require('path');
 const expressWinston = require('express-winston');
 const helmet = require('helmet');
 
 const apiRouter = require('./api');
 const { createApolloServer, handleSubscriptions } = require('./graphql');
-const { killQtumProcess } = require('../server');
 const { getLogger } = require('../utils/logger');
-const { Config } = require('../config');
+const { Config, getSSLCredentials } = require('../config');
 
 const initExpressApp = () => {
   const app = express();
@@ -38,26 +37,24 @@ const initExpressApp = () => {
   return app;
 };
 
+const createServer = app => https.createServer(getSSLCredentials(), app);
+
 const initApiServer = () => {
   try {
     const app = initExpressApp();
 
-    // Apply API routes
-    app.use('/', apiRouter);
+    app.use('/', apiRouter); // Apply API routes
+    createApolloServer(app); // Apply GraphQL routes
 
-    // Apply GraphQL routes
-    createApolloServer(app);
-
-    const httpServer = createServer(app);
-    handleSubscriptions(httpServer);
-
-    httpServer.listen(Config.PORT_API, () => {
+    const server = createServer(app);
+    handleSubscriptions(server);
+    server.listen(Config.PORT_API, () => {
       getLogger().info(`API served at http://${Config.HOSTNAME}:${Config.PORT_API}`);
       getLogger().info(`Subscriptions served at ws://${Config.HOSTNAME}:${Config.PORT_API}/graphql`);
     });
   } catch (err) {
     getLogger().error(`Error starting API Server: ${err.message}`);
-    killQtumProcess(false);
+    require('../server').exit('SIGTERM'); // eslint-disable-line
   }
 };
 
@@ -65,16 +62,16 @@ const initWebServer = () => {
   try {
     const app = initExpressApp();
 
-    // Apply UI route
     const uiDir = path.join(__dirname, '../../node_modules/bodhi-ui/build');
     app.use(express.static(uiDir));
 
-    app.listen(Config.PORT_HTTP, () => {
+    const server = createServer(app);
+    server.listen(Config.PORT_HTTP, () => {
       getLogger().info(`UI served at http://${Config.HOSTNAME}:${Config.PORT_HTTP}`);
     });
   } catch (err) {
     getLogger().error(`Error starting Web Server: ${err.message}`);
-    killQtumProcess(false);
+    require('../server').exit('SIGTERM'); // eslint-disable-line
   }
 };
 
