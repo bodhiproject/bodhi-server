@@ -2,13 +2,10 @@ const _ = require('lodash');
 const { spawn, spawnSync } = require('child_process');
 const axios = require('axios');
 const https = require('https');
-const fs = require('fs');
 const portscanner = require('portscanner');
 
 const { execFile } = require('./constants');
-const {
-  Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword, getSSLCredentials,
-} = require('./config');
+const { Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword, getSSLCredentials } = require('./config');
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitter-helper');
