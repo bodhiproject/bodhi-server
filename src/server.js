@@ -235,20 +235,11 @@ async function checkApiInit() {
   try {
     if (!axiosClient) {
       const creds = getSSLCredentials();
-      const agent = new https.Agent({
-        ca: creds.cert,
-        rejectUnauthorized: false,
-      });
+      const agent = new https.Agent({ ca: creds.cert, rejectUnauthorized: false });
       axiosClient = axios.create({ httpsAgent: agent });
     }
 
-    const res = await axiosClient.get(`https://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`, {
-      // proxy: {
-      //   host: `https://puti.io/graphql`,
-      //   port: 8989,
-      // },
-    });
-
+    const res = await axiosClient.get(`https://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
       initWebServer();
