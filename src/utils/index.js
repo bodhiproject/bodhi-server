@@ -15,6 +15,7 @@ function isDevEnv() {
 
 /**
  * Returns the base data dir path, and also creates the directory if it doesn't exist. This will vary based on OS.
+ * @return {string} Absolute path to the base data directory.
  */
 function getBaseDataDir() {
   let osBasePath;
@@ -54,27 +55,9 @@ function getLocalCacheDataDir() {
   return dataDir;
 }
 
-// Returns the path where the blockchain version directory is.
-function getVersionDir() {
-  const basePath = getBaseDataDir();
-  const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
-  const regexGroups = regex.exec(version);
-  if (regexGroups === null) {
-    throw new Error(`Invalid version number: ${version}`);
-  }
-
-  // Example: 0.6.5-c0-d1
-  // c0 = contract version 0, d1 = db version 1
-  const versionDir = `${basePath}/${regexGroups[4]}_${regexGroups[5]}`; // c0_d1
-
-  // Create data dir if needed
-  fs.ensureDirSync(versionDir);
-
-  return versionDir;
-}
-
 /**
  * Returns the full path to the database directory, and creates the directory if it doesn't exist.
+ * @return {string} Absolute path to database directory.
  */
 function getDataDir() {
   const basePath = getBaseDataDir();
@@ -83,17 +66,15 @@ function getDataDir() {
   return path;
 }
 
-/*
-* Returns the path where the blockchain log directory is, and also creates the directory if it doesn't exist.
-*/
+/**
+ * Returns the full path to the logs directory, and creates the directory if it doesn't exist.
+ * @return {string} Absolute path to logs directory.
+ */
 function getLogDir() {
-  const versionDir = getVersionDir();
-  const logDir = `${versionDir}/logs`;
-
-  // Create data dir if needed
-  fs.ensureDirSync(logDir);
-
-  return logDir;
+  const basePath = getBaseDataDir();
+  const path = `${basePath}/logs`;
+  fs.ensureDirSync(path); // Create dir if needed
+  return path;
 }
 
 /**
@@ -189,7 +170,6 @@ module.exports = {
   isDevEnv,
   getBaseDataDir,
   getLocalCacheDataDir,
-  getVersionDir,
   getDataDir,
   getLogDir,
   getDevQtumExecPath,
