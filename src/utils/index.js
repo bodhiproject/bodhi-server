@@ -1,48 +1,43 @@
 const fs = require('fs-extra');
-const _ = require('lodash');
+const { includes, each, split, map } = require('lodash');
 const Web3Utils = require('web3-utils');
 
 const { Config, isMainnet } = require('../config');
-const { version } = require('../../package.json');
 const { getLogger } = require('./logger');
 
 /*
 * Checks for dev flag
 */
 function isDevEnv() {
-  return _.includes(process.argv, '--dev');
+  return includes(process.argv, '--dev');
 }
 
-/*
-* Returns the path where the data directory is, and also creates the directory if it doesn't exist.
-*/
+/**
+ * Returns the base data dir path, and also creates the directory if it doesn't exist. This will vary based on OS.
+ * @return {string} Absolute path to the base data directory.
+ */
 function getBaseDataDir() {
-  let osDataDir;
+  let osBasePath;
   switch (process.platform) {
     case 'darwin': {
-      osDataDir = `${process.env.HOME}/Library/Application Support`;
+      osBasePath = `${process.env.HOME}/Library/Application Support/Bodhi`;
       break;
     }
     case 'win32': {
-      osDataDir = process.env.APPDATA;
+      osBasePath = `${process.env.APPDATA}/Bodhi`;
       break;
     }
     case 'linux': {
-      osDataDir = `${process.env.HOME}/.config`;
+      osBasePath = `${process.env.HOME}/.bodhi`;
       break;
     }
     default: {
       throw Error(`Operating system not supported: ${process.platform}`);
     }
   }
-  osDataDir += '/Bodhi';
-
-  const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
-  let basePath = `${osDataDir}/${pathPrefix}`;
-  if (isDevEnv()) {
-    basePath += '/dev';
-  }
-  return basePath;
+  const envDir = isMainnet() ? 'mainnet' : 'testnet';
+  const dataDir = isDevEnv() ? 'dev' : 'data';
+  return `${osBasePath}/${envDir}/${dataDir}`;
 }
 
 /*
@@ -59,51 +54,26 @@ function getLocalCacheDataDir() {
   return dataDir;
 }
 
-// Returns the path where the blockchain version directory is.
-function getVersionDir() {
-  const basePath = getBaseDataDir();
-  const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
-  const regexGroups = regex.exec(version);
-  if (regexGroups === null) {
-    throw new Error(`Invalid version number: ${version}`);
-  }
-
-  // Example: 0.6.5-c0-d1
-  // c0 = contract version 0, d1 = db version 1
-  const versionDir = `${basePath}/${regexGroups[4]}_${regexGroups[5]}`; // c0_d1
-
-  // Create data dir if needed
-  fs.ensureDirSync(versionDir);
-
-  return versionDir;
-}
-
-/*
-* Returns the path where the blockchain data directory is, and also creates the directory if it doesn't exist.
-*/
+/**
+ * Returns the full path to the database directory, and creates the directory if it doesn't exist.
+ * @return {string} Absolute path to database directory.
+ */
 function getDataDir() {
-  const versionDir = getVersionDir();
-
-  // production
-  const dataDir = `${versionDir}/nedb`;
-
-  // Create data dir if needed
-  fs.ensureDirSync(dataDir);
-
-  return dataDir;
+  const basePath = getBaseDataDir();
+  const path = `${basePath}/nedb`;
+  fs.ensureDirSync(path); // Create dir if needed
+  return path;
 }
 
-/*
-* Returns the path where the blockchain log directory is, and also creates the directory if it doesn't exist.
-*/
+/**
+ * Returns the full path to the logs directory, and creates the directory if it doesn't exist.
+ * @return {string} Absolute path to logs directory.
+ */
 function getLogDir() {
-  const versionDir = getVersionDir();
-  const logDir = `${versionDir}/logs`;
-
-  // Create data dir if needed
-  fs.ensureDirSync(logDir);
-
-  return logDir;
+  const basePath = getBaseDataDir();
+  const path = `${basePath}/logs`;
+  fs.ensureDirSync(path); // Create dir if needed
+  return path;
 }
 
 /**
@@ -122,9 +92,9 @@ function getDevQtumExecPath() {
     qtumPath = process.env.QTUM_PATH;
   } else {
     // Search for --qtumpath flag in command-line args
-    _.each(process.argv, (arg) => {
-      if (_.includes(arg, '--qtumpath')) {
-        qtumPath = (_.split(arg, '=', 2))[1];
+    each(process.argv, (arg) => {
+      if (includes(arg, '--qtumpath')) {
+        qtumPath = (split(arg, '=', 2))[1];
       }
     });
   }
@@ -159,7 +129,7 @@ function hexArrayToDecimalArray(array) {
   if (!array) {
     return undefined;
   }
-  return _.map(array, item => hexToDecimalString(item));
+  return map(array, item => hexToDecimalString(item));
 }
 
 async function isAllowanceEnough(owner, spender, amount) {
@@ -199,7 +169,6 @@ module.exports = {
   isDevEnv,
   getBaseDataDir,
   getLocalCacheDataDir,
-  getVersionDir,
   getDataDir,
   getLogDir,
   getDevQtumExecPath,

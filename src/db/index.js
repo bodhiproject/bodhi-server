@@ -3,7 +3,6 @@ const fs = require('fs-extra');
 
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
-const migrateTxDB = require('./migrations/migrate-tx');
 
 const db = {
   Topics: undefined,
@@ -15,19 +14,23 @@ const db = {
   Transactions: undefined,
 };
 
-// Init datastores
+/**
+ * Apply necessary migrations.
+ * Be sure to wrap each migration script in a try/catch and throw on Error.
+ * We don't want the server to run if the migration failed.
+ */
+async function applyMigrations() {
+  // Run migration scripts here
+}
+
+/**
+ * Run all the migrations and initializes all the datastores.
+ */
 async function initDB() {
-  try {
-    await migrateDB();
-  } catch (err) {
-    throw new Error(`DB Migration Error: ${err.message}`);
-  }
+  await applyMigrations();
 
   const blockchainDataPath = Utils.getDataDir();
   getLogger().info(`Blockchain data path: ${blockchainDataPath}`);
-
-  const localCacheDataPath = Utils.getLocalCacheDataDir();
-  getLogger().info(`Local cache data path: ${localCacheDataPath}`);
 
   db.Topics = datastore({ filename: `${blockchainDataPath}/topics.db` });
   db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
@@ -35,7 +38,7 @@ async function initDB() {
   db.ResultSets = datastore({ filename: `${blockchainDataPath}/resultsets.db` });
   db.Withdraws = datastore({ filename: `${blockchainDataPath}/withdraws.db` });
   db.Blocks = datastore({ filename: `${blockchainDataPath}/blocks.db` });
-  db.Transactions = datastore({ filename: `${localCacheDataPath}/transactions.db` });
+  db.Transactions = datastore({ filename: `${blockchainDataPath}/transactions.db` });
 
   try {
     await Promise.all([
@@ -100,12 +103,6 @@ function deleteBodhiData() {
   }
 
   logger.info('Bodhi data deleted.');
-}
-
-// Migrate DB
-async function migrateDB() {
-  // check migration script in migration folder
-  await migrateTxDB();
 }
 
 module.exports = {
