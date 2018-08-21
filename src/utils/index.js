@@ -13,36 +13,31 @@ function isDevEnv() {
   return _.includes(process.argv, '--dev');
 }
 
-/*
-* Returns the path where the data directory is, and also creates the directory if it doesn't exist.
-*/
+/**
+ * Returns the base data dir path, and also creates the directory if it doesn't exist. This will vary based on OS.
+ */
 function getBaseDataDir() {
-  let osDataDir;
+  let osBasePath;
   switch (process.platform) {
     case 'darwin': {
-      osDataDir = `${process.env.HOME}/Library/Application Support`;
+      osBasePath = `${process.env.HOME}/Library/Application Support/Bodhi`;
       break;
     }
     case 'win32': {
-      osDataDir = process.env.APPDATA;
+      osBasePath = `${process.env.APPDATA}/Bodhi`;
       break;
     }
     case 'linux': {
-      osDataDir = `${process.env.HOME}/.config`;
+      osBasePath = `${process.env.HOME}/.bodhi`;
       break;
     }
     default: {
       throw Error(`Operating system not supported: ${process.platform}`);
     }
   }
-  osDataDir += '/Bodhi';
-
-  const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
-  let basePath = `${osDataDir}/${pathPrefix}`;
-  if (isDevEnv()) {
-    basePath += '/dev';
-  }
-  return basePath;
+  const envDir = isMainnet() ? 'mainnet' : 'testnet';
+  const dataDir = isDevEnv() ? 'dev' : 'data';
+  return `${osBasePath}/${envDir}/${dataDir}`;
 }
 
 /*
@@ -78,19 +73,14 @@ function getVersionDir() {
   return versionDir;
 }
 
-/*
-* Returns the path where the blockchain data directory is, and also creates the directory if it doesn't exist.
-*/
+/**
+ * Returns the full path to the database directory, and creates the directory if it doesn't exist.
+ */
 function getDataDir() {
-  const versionDir = getVersionDir();
-
-  // production
-  const dataDir = `${versionDir}/nedb`;
-
-  // Create data dir if needed
-  fs.ensureDirSync(dataDir);
-
-  return dataDir;
+  const basePath = getBaseDataDir();
+  const path = `${basePath}/nedb`;
+  fs.ensureDirSync(path); // Create dir if needed
+  return path;
 }
 
 /*
