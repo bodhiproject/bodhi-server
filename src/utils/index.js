@@ -1,16 +1,15 @@
 const fs = require('fs-extra');
-const _ = require('lodash');
+const { includes, each, split, map } = require('lodash');
 const Web3Utils = require('web3-utils');
 
 const { Config, isMainnet } = require('../config');
-const { version } = require('../../package.json');
 const { getLogger } = require('./logger');
 
 /*
 * Checks for dev flag
 */
 function isDevEnv() {
-  return _.includes(process.argv, '--dev');
+  return includes(process.argv, '--dev');
 }
 
 /**
@@ -93,9 +92,9 @@ function getDevQtumExecPath() {
     qtumPath = process.env.QTUM_PATH;
   } else {
     // Search for --qtumpath flag in command-line args
-    _.each(process.argv, (arg) => {
-      if (_.includes(arg, '--qtumpath')) {
-        qtumPath = (_.split(arg, '=', 2))[1];
+    each(process.argv, (arg) => {
+      if (includes(arg, '--qtumpath')) {
+        qtumPath = (split(arg, '=', 2))[1];
       }
     });
   }
@@ -130,7 +129,7 @@ function hexArrayToDecimalArray(array) {
   if (!array) {
     return undefined;
   }
-  return _.map(array, item => hexToDecimalString(item));
+  return map(array, item => hexToDecimalString(item));
 }
 
 async function isAllowanceEnough(owner, spender, amount) {
