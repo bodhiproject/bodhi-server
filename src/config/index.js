@@ -10,13 +10,13 @@ const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 const EXPLORER_MAINNET = 'https://explorer.qtum.org';
 
 const Config = {
-  HOSTNAME: '127.0.0.1',
+  HOSTNAME: 'localhost',
   PORT_API: 8989,
   PORT_HTTP: 3000,
   RPC_USER: 'bodhi',
   RPC_PORT_TESTNET: 13889,
   RPC_PORT_MAINNET: 3889,
-  DEFAULT_LOGLVL: 'debug',
+  DEFAULT_LOG_LEVEL: 'debug',
   CONTRACT_VERSION_NUM: 0,
   TRANSFER_MIN_CONFIRMATIONS: 1,
   DEFAULT_GAS_LIMIT: 250000,

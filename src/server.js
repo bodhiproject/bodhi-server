@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const { spawn, spawnSync } = require('child_process');
 const axios = require('axios');
-const https = require('https');
 const portscanner = require('portscanner');
 
 const { execFile } = require('./constants');
@@ -17,7 +16,6 @@ const Wallet = require('./api/wallet');
 const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
 
 let qtumProcess;
-let axiosClient;
 let encryptOk = false;
 let isEncrypted = false;
 let checkInterval;
@@ -230,13 +228,7 @@ function startQtumProcess(reindex) {
 // Ensure API is running before loading UI
 async function checkApiInit() {
   try {
-    if (!axiosClient) {
-      const creds = getSSLCredentials();
-      const agent = new https.Agent({ ca: creds.cert, rejectUnauthorized: false });
-      axiosClient = axios.create({ httpsAgent: agent });
-    }
-
-    const res = await axiosClient.get(`https://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
+    const res = await axios.get(`https://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
       initWebServer();
