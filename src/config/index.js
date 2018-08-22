@@ -70,7 +70,7 @@ function isMainnet() {
 function getRPCPassword() {
   let password = rpcPassword;
   _.each(process.argv, (arg) => {
-    if (_.includes(arg, '-rpcpassword')) {
+    if (_.includes(arg, '--rpcpassword')) {
       password = (_.split(arg, '=', 2))[1];
     }
   });
