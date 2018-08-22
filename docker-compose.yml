@@ -1,8 +1,8 @@
-version: '3.7'
+version: '3'
 services:
   web:
+    container_name: 'bodhi-server'
     build: .
     ports:
      - "3000:3000"
      - "8989:8989"
-container_name: 'bodhi-server'
