@@ -14,8 +14,8 @@
   ],
   "main": "src/index.js",
   "scripts": {
-    "devtest": "node src/index.js --testnet --dev --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
-    "devmain": "node src/index.js --mainnet --dev --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
+    "devtest": "node src/index.js --testnet --dev --nossl --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
+    "devmain": "node src/index.js --mainnet --dev --nossl --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
     "prodtest": "node src/index.js --testnet",
     "prodmain": "node src/index.js --mainnet",
     "test": "mocha --recursive src/**/*.tests.js --timeout 10000 --rpcpassword=bodhi --test",

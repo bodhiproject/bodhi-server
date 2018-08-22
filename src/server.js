@@ -4,7 +4,7 @@ const axios = require('axios');
 const portscanner = require('portscanner');
 
 const { execFile } = require('./constants');
-const { Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword, getSSLCredentials } = require('./config');
+const { Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword } = require('./config');
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitter-helper');
@@ -228,7 +228,7 @@ function startQtumProcess(reindex) {
 // Ensure API is running before loading UI
 async function checkApiInit() {
   try {
-    const res = await axios.get(`https://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
+    const res = await axios.get(`${Config.PROTOCOL}://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
       initWebServer();
