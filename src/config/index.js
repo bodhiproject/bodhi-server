@@ -1,5 +1,5 @@
 const fs = require('fs');
-const _ = require('lodash');
+const { includes, isEmpty, each, split, isNumber } = require('lodash');
 const crypto = require('crypto');
 
 const { blockchainEnv } = require('../constants');
@@ -10,8 +10,8 @@ const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 const EXPLORER_MAINNET = 'https://explorer.qtum.org';
 
 const Config = {
-  IS_DEV: _.includes(process.argv, '--dev'),
-  PROTOCOL: _.includes(process.argv, '--nossl') ? 'http' : 'https',
+  IS_DEV: includes(process.argv, '--dev'),
+  PROTOCOL: includes(process.argv, '--nossl') ? 'http' : 'https',
   HOSTNAME: 'localhost',
   PORT_API: 8989,
   PORT_HTTP: 3000,
@@ -33,10 +33,10 @@ let qtumEnv; // Qtumd environment var: testnet/mainnet
 let qtumPath; // Path to Qtum executables
 
 function setQtumEnv(env, path) {
-  if (_.isEmpty(env)) {
+  if (isEmpty(env)) {
     throw Error('env cannot be empty.');
   }
-  if (_.isEmpty(path)) {
+  if (isEmpty(path)) {
     throw Error('path cannot be empty.');
   }
   if (qtumEnv) {
@@ -71,9 +71,9 @@ function isMainnet() {
 
 function getRPCPassword() {
   let password = rpcPassword;
-  _.each(process.argv, (arg) => {
-    if (_.includes(arg, '--rpcpassword')) {
-      password = (_.split(arg, '=', 2))[1];
+  each(process.argv, (arg) => {
+    if (includes(arg, '--rpcpassword')) {
+      password = (split(arg, '=', 2))[1];
     }
   });
 
@@ -107,7 +107,7 @@ function getSSLCredentials() {
 * @return {Object} The contract metadata.
 */
 function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
-  if (!_.isNumber(versionNum)) {
+  if (!isNumber(versionNum)) {
     throw new Error('Must supply a version number');
   }
 
