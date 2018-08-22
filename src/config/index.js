@@ -83,7 +83,7 @@ function getRPCPassword() {
 
 function getQtumRPCAddress() {
   const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  return `${Config.PROTOCOL}://${Config.RPC_USER}:${getRPCPassword()}@${Config.HOSTNAME}:${port}`;
+  return `http://${Config.RPC_USER}:${getRPCPassword()}@${Config.HOSTNAME}:${port}`;
 }
 
 function getQtumExplorerUrl() {
