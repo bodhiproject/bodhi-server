@@ -3,7 +3,7 @@
   "description": "Server that parses, stores, sends, and receives Bodhi-related data from the blockchain.",
   "author": "bodhi.network",
   "license": "LGPL-3.0",
-  "version": "1.0.0-c0-d4",
+  "version": "1.0.0",
   "repository": "git@github.com:bodhiproject/bodhi-server.git",
   "keywords": [
     "bodhi",
@@ -26,7 +26,7 @@
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
     "bignumber.js": "^7.2.1",
-    "bodhi-ui": "^0.8.3",
+    "bodhi-ui": "^1.0.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^6.0.0",
