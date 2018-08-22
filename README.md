@@ -19,9 +19,24 @@
 
 ### Local
 
-    npm run start-test // testnet
-    npm run start-main // mainnet
-    // API at `127.0.0.1:8989` or GraphiQL at `127.0.0.1:8989/graphiql`
+    // Acceptable flags
+    --dev                       // Runs development environment
+    --noweb                     // Does not host website. Use this if you will run Bodhi-UI separately.
+    --testnet                   // Use testnet
+    --mainnet                   // Use mainnet
+    --rpcpassword=myPassword    // Force starting qtumd with this rpc pw
+    --qtumpath=/path/to/bin     // Path to the qtumd binaries
+
+    // Running development environment: dev data dir and no papertrail logging
+    npm run devtest // dev testnet
+    npm run devmain // dev mainnet
+
+    // Running production environment
+    npm run prodtest // prod testnet
+    npm run prodmain // prod mainnet
+
+    // API at `localhost:8989`
+    // GraphQL Playground at `localhost:8989/graphql`
 
 ### Docker
 
