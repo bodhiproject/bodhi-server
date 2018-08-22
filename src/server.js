@@ -24,9 +24,6 @@ let checkInterval;
 let checkApiInterval;
 let shutdownInterval;
 
-const fs = require('fs');
-console.log(fs.readFileSync('/run/secrets/privkey.pem'));
-
 /*
 * Shuts down the already running qtumd and starts qtum-qt.
 * @param qtumqtPath {String} The full path to the qtum-qt binary.

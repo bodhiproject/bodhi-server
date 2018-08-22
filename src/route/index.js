@@ -40,6 +40,10 @@ const initExpressApp = () => {
 const createServer = app => https.createServer(getSSLCredentials(), app);
 
 const initApiServer = () => {
+  const fs = require('fs');
+  const key = fs.readFileSync('/run/secrets/privkey.pem');
+  console.log(key);
+
   try {
     const app = initExpressApp();
 
