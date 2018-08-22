@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const https = require('https');
 const path = require('path');
 const expressWinston = require('express-winston');
@@ -37,7 +38,12 @@ const initExpressApp = () => {
   return app;
 };
 
-const createServer = app => https.createServer(getSSLCredentials(), app);
+const createServer = (app) => {
+  if (Config.PROTOCOL === 'https') {
+    return https.createServer(getSSLCredentials(), app);
+  }
+  return http.createServer(app);
+};
 
 const initApiServer = () => {
   try {
@@ -49,8 +55,7 @@ const initApiServer = () => {
     const server = createServer(app);
     handleSubscriptions(server);
     server.listen(Config.PORT_API, () => {
-      getLogger().info(`API served at http://${Config.HOSTNAME}:${Config.PORT_API}`);
-      getLogger().info(`Subscriptions served at ws://${Config.HOSTNAME}:${Config.PORT_API}/graphql`);
+      getLogger().info(`API served at ${Config.PROTOCOL}://${Config.HOSTNAME}:${Config.PORT_API}`);
     });
   } catch (err) {
     getLogger().error(`Error starting API Server: ${err.message}`);
@@ -67,7 +72,7 @@ const initWebServer = () => {
 
     const server = createServer(app);
     server.listen(Config.PORT_HTTP, () => {
-      getLogger().info(`UI served at http://${Config.HOSTNAME}:${Config.PORT_HTTP}`);
+      getLogger().info(`UI served at ${Config.PROTOCOL}://${Config.HOSTNAME}:${Config.PORT_HTTP}`);
     });
   } catch (err) {
     getLogger().error(`Error starting Web Server: ${err.message}`);

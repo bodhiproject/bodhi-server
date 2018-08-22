@@ -5,13 +5,6 @@ const Web3Utils = require('web3-utils');
 const { Config, isMainnet } = require('../config');
 const { getLogger } = require('./logger');
 
-/*
-* Checks for dev flag
-*/
-function isDevEnv() {
-  return includes(process.argv, '--dev');
-}
-
 /**
  * Returns the base data dir path, and also creates the directory if it doesn't exist. This will vary based on OS.
  * @return {string} Absolute path to the base data directory.
@@ -36,7 +29,7 @@ function getBaseDataDir() {
     }
   }
   const envDir = isMainnet() ? 'mainnet' : 'testnet';
-  const dataDir = isDevEnv() ? 'dev' : 'data';
+  const dataDir = Config.IS_DEV ? 'dev' : 'data';
   return `${osBasePath}/${envDir}/${dataDir}`;
 }
 
@@ -166,7 +159,6 @@ async function getVotingGasLimit(oraclesDb, oracleAddress, voteOptionIdx, voteAm
 }
 
 module.exports = {
-  isDevEnv,
   getBaseDataDir,
   getLocalCacheDataDir,
   getDataDir,

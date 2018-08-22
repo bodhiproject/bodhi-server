@@ -17,12 +17,12 @@ const Wallet = require('./api/wallet');
 const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
 
 let qtumProcess;
-let axiosClient;
 let encryptOk = false;
 let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
 let shutdownInterval;
+let axiosClient;
 
 /*
 * Shuts down the already running qtumd and starts qtum-qt.
@@ -235,8 +235,13 @@ async function checkApiInit() {
       const agent = new https.Agent({ ca: creds.cert, rejectUnauthorized: false });
       axiosClient = axios.create({ httpsAgent: agent });
     }
+  } catch (err) {
+    console.error(err);
+    exit('SIGTERM');
+  }
 
-    const res = await axiosClient.get(`https://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
+  try {
+    const res = await axiosClient.get(`${Config.PROTOCOL}://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
       initWebServer();
@@ -250,7 +255,10 @@ function startServices() {
   startSync(true);
   initApiServer();
 
-  checkApiInterval = setInterval(checkApiInit, 500);
+  // No need to check the API if not hosting the webserver
+  if (!Config.IS_LOCAL) {
+    checkApiInterval = setInterval(checkApiInit, 500);
+  }
 }
 
 /*
