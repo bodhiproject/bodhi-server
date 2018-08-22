@@ -11,6 +11,7 @@ const EXPLORER_MAINNET = 'https://explorer.qtum.org';
 
 const Config = {
   IS_DEV: includes(process.argv, '--dev'),
+  NO_WEB: includes(process.argv, '--noweb'),
   PROTOCOL: includes(process.argv, '--nossl') ? 'http' : 'https',
   HOSTNAME: 'localhost',
   PORT_API: 8989,
@@ -82,7 +83,7 @@ function getRPCPassword() {
 
 function getQtumRPCAddress() {
   const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  return `http://${Config.RPC_USER}:${getRPCPassword()}@localhost:${port}`;
+  return `${Config.PROTOCOL}://${Config.RPC_USER}:${getRPCPassword()}@${Config.HOSTNAME}:${port}`;
 }
 
 function getQtumExplorerUrl() {

@@ -65,6 +65,10 @@ const initApiServer = () => {
 
 const initWebServer = () => {
   try {
+    if (Config.NO_WEB) {
+      return;
+    }
+
     const app = initExpressApp();
 
     const uiDir = path.join(__dirname, '../../node_modules/bodhi-ui/build');
