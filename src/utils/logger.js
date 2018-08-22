@@ -46,7 +46,7 @@ function initLogger() {
     ];
 
     // add Papertrail remote logging if prod env
-    if (!require('./index').isDevEnv()) { // eslint-disable-line global-require
+    if (!Config.IS_DEV) { // eslint-disable-line global-require
       transports.push(new Papertrail({
         host: 'logs5.papertrailapp.com',
         port: 46145,

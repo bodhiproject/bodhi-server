@@ -10,7 +10,8 @@ const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 const EXPLORER_MAINNET = 'https://explorer.qtum.org';
 
 const Config = {
-  PROTOCOL: process.argv.includes('--nossl') ? 'http' : 'https',
+  IS_DEV: _.includes(process.argv, '--dev'),
+  PROTOCOL: _.includes(process.argv, '--nossl') ? 'http' : 'https',
   HOSTNAME: 'localhost',
   PORT_API: 8989,
   PORT_HTTP: 3000,
