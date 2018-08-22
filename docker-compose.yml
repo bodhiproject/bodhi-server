@@ -6,6 +6,9 @@ services:
     ports:
       - "3000:3000"
       - "8989:8989"
+    environment:
+      - SSL_CERT_PATH=/run/secrets/fullchain.pem
+      - SSL_KEY_PATH=/run/secrets/privkey.pem
     secrets:
       - privkey.pem
       - fullchain.pem
