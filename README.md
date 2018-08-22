@@ -20,21 +20,28 @@
 ### Local
 
     // Acceptable flags
-    --dev                       // Runs development environment
-    --noweb                     // Does not host website. Use this if you will run Bodhi-UI separately.
-    --testnet                   // Use testnet
-    --mainnet                   // Use mainnet
+    --dev                       // Runs development environment. /dev data dir and no Papertrail logging.
+    --local                     // Does not host webserver and uses http protocol. Use this if you will run Bodhi-UI separately.
+    --testnet                   // Use testnet blockchain
+    --mainnet                   // Use mainnet blockchain
     --rpcpassword=myPassword    // Force starting qtumd with this rpc pw
     --qtumpath=/path/to/bin     // Path to the qtumd binaries
     --passphrase=myPassphrase   // Passphrase used to unlock the your wallet
 
-    // Running development environment: dev data dir and no papertrail logging
-    npm run devtest // dev testnet
-    npm run devmain // dev mainnet
+    // Run local environment. Meant with usage with bodhi-ui dev server.
+    // dev data dir, no Papertrail, no webserver, HTTP protocol
+    npm run localtest // testnet
+    npm run localmain // mainnet
+
+    // Run staging environment. Meant for usage on remote server.
+    // dev data dir, no Papertrail, hosts webserver, HTTPS protocol
+    npm run stagetest // testnet
+    npm run stagemain // mainnet
 
     // Running production environment
-    npm run prodtest // prod testnet
-    npm run prodmain // prod mainnet
+    // data dir, Papertrail enabled, hosts webserver, HTTPS protocol
+    npm run prodtest // testnet
+    npm run prodmain // mainnet
 
     // API at `localhost:8989`
     // GraphQL Playground at `localhost:8989/graphql`
@@ -53,6 +60,14 @@
 
     // Stop Docker container
     docker-compose stop
+
+## Environment Setup
+You can specify certain attributes in a `.env` file at the root folder. `QTUM_PATH` in `.env` will take priority over the flag `--qtumpath=/path/to/bin`.
+
+    QTUM_PATH=./qtum/linux64/bin
+    LOG_LEVEL=debug
+    SSL_KEY_PATH=/etc/letsencrypt/live/puti.io/privkey.pem
+    SSL_CERT_PATH=/etc/letsencrypt/live/puti.io/fullchain.pem
 
 ## First Time Setup for Remote Server
 This is meant to be setup on an Linux-based OS. This will remove the default config files for `nginx` and add the server block config for routing to the website. It will also add a daily cronjob script to renew the TLS certificate.

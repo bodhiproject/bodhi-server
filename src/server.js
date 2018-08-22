@@ -256,7 +256,7 @@ function startServices() {
   initApiServer();
 
   // No need to check the API if not hosting the webserver
-  if (!Config.NO_WEB) {
+  if (!Config.IS_LOCAL) {
     checkApiInterval = setInterval(checkApiInit, 500);
   }
 }

@@ -11,8 +11,8 @@ const EXPLORER_MAINNET = 'https://explorer.qtum.org';
 
 const Config = {
   IS_DEV: includes(process.argv, '--dev'),
-  NO_WEB: includes(process.argv, '--noweb'),
-  PROTOCOL: includes(process.argv, '--nossl') ? 'http' : 'https',
+  IS_LOCAL: includes(process.argv, '--local'),
+  PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
   HOSTNAME: 'localhost',
   PORT_API: 8989,
   PORT_HTTP: 3000,
