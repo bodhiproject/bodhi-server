@@ -26,6 +26,7 @@
     --mainnet                   // Use mainnet
     --rpcpassword=myPassword    // Force starting qtumd with this rpc pw
     --qtumpath=/path/to/bin     // Path to the qtumd binaries
+    --passphrase=myPassphrase   // Passphrase used to unlock the your wallet
 
     // Running development environment: dev data dir and no papertrail logging
     npm run devtest // dev testnet
