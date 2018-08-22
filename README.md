@@ -38,7 +38,7 @@
     npm run stagetest // testnet
     npm run stagemain // mainnet
 
-    // Running production environment
+    // Running production environment. Meant for usage on remote server.
     // data dir, Papertrail enabled, hosts webserver, HTTPS protocol
     npm run prodtest // testnet
     npm run prodmain // mainnet
