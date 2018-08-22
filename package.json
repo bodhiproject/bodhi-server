@@ -14,9 +14,12 @@
   ],
   "main": "src/index.js",
   "scripts": {
-    "start-test-mon": "nodemon src/index.js --testnet --dev --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
-    "start-test": "node src/index.js --testnet --dev --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
-    "start-main": "node src/index.js --mainnet --dev --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
+    "localtest": "node src/index.js --testnet --dev --local --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
+    "localmain": "node src/index.js --mainnet --dev --local --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
+    "stagetest": "node src/index.js --testnet --dev",
+    "stagemain": "node src/index.js --mainnet --dev",
+    "prodtest": "node src/index.js --testnet",
+    "prodmain": "node src/index.js --mainnet",
     "test": "mocha --recursive src/**/*.tests.js --timeout 10000 --rpcpassword=bodhi --test",
     "lint:fix": "eslint --fix -- src/."
   },

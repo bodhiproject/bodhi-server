@@ -46,7 +46,7 @@ function initLogger() {
     ];
 
     // add Papertrail remote logging if prod env
-    if (!require('./index').isDevEnv()) { // eslint-disable-line global-require
+    if (!Config.IS_DEV) { // eslint-disable-line global-require
       transports.push(new Papertrail({
         host: 'logs5.papertrailapp.com',
         port: 46145,
@@ -57,7 +57,7 @@ function initLogger() {
     }
 
     logger = new (winston.Logger)({ transports, exitOnError: false });
-    logger.level = process.env.LOG_LEVEL || Config.DEFAULT_LOGLVL;
+    logger.level = process.env.LOG_LEVEL || Config.DEFAULT_LOG_LEVEL;
     logger.info(`Logs path: ${logDir}`);
   }
 }

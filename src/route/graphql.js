@@ -7,7 +7,13 @@ const { db } = require('../db');
 let apollo;
 
 const createApolloServer = (app) => {
-  apollo = new ApolloServer({ typeDefs, resolvers, context: { db } });
+  apollo = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: { db },
+    introspection: true, // enabled playground in prod
+    playground: true, // enabled playground in prod
+  });
   apollo.applyMiddleware({ app });
 };
 

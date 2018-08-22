@@ -1,5 +1,5 @@
 const fs = require('fs');
-const _ = require('lodash');
+const { includes, isEmpty, each, split, isNumber } = require('lodash');
 const crypto = require('crypto');
 
 const { blockchainEnv } = require('../constants');
@@ -10,13 +10,16 @@ const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 const EXPLORER_MAINNET = 'https://explorer.qtum.org';
 
 const Config = {
-  HOSTNAME: '127.0.0.1',
+  IS_DEV: includes(process.argv, '--dev'),
+  IS_LOCAL: includes(process.argv, '--local'),
+  PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
+  HOSTNAME: 'localhost',
   PORT_API: 8989,
   PORT_HTTP: 3000,
   RPC_USER: 'bodhi',
   RPC_PORT_TESTNET: 13889,
   RPC_PORT_MAINNET: 3889,
-  DEFAULT_LOGLVL: 'debug',
+  DEFAULT_LOG_LEVEL: 'debug',
   CONTRACT_VERSION_NUM: 0,
   TRANSFER_MIN_CONFIRMATIONS: 1,
   DEFAULT_GAS_LIMIT: 250000,
@@ -31,10 +34,10 @@ let qtumEnv; // Qtumd environment var: testnet/mainnet
 let qtumPath; // Path to Qtum executables
 
 function setQtumEnv(env, path) {
-  if (_.isEmpty(env)) {
+  if (isEmpty(env)) {
     throw Error('env cannot be empty.');
   }
-  if (_.isEmpty(path)) {
+  if (isEmpty(path)) {
     throw Error('path cannot be empty.');
   }
   if (qtumEnv) {
@@ -69,9 +72,9 @@ function isMainnet() {
 
 function getRPCPassword() {
   let password = rpcPassword;
-  _.each(process.argv, (arg) => {
-    if (_.includes(arg, '-rpcpassword')) {
-      password = (_.split(arg, '=', 2))[1];
+  each(process.argv, (arg) => {
+    if (includes(arg, '--rpcpassword')) {
+      password = (split(arg, '=', 2))[1];
     }
   });
 
@@ -80,7 +83,7 @@ function getRPCPassword() {
 
 function getQtumRPCAddress() {
   const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  return `http://${Config.RPC_USER}:${getRPCPassword()}@localhost:${port}`;
+  return `${Config.PROTOCOL}://${Config.RPC_USER}:${getRPCPassword()}@${Config.HOSTNAME}:${port}`;
 }
 
 function getQtumExplorerUrl() {
@@ -105,7 +108,7 @@ function getSSLCredentials() {
 * @return {Object} The contract metadata.
 */
 function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
-  if (!_.isNumber(versionNum)) {
+  if (!isNumber(versionNum)) {
     throw new Error('Must supply a version number');
   }
 
