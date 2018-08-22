@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 3000 8989
 
 # Run server
-CMD [ "npm", "run", "start-test" ]
+CMD [ "npm", "run", "devtest" ]
