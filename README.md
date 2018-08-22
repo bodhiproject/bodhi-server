@@ -25,6 +25,10 @@
 
 ### Docker
 
+    // Install Docker
+    apt install docker
+    apt install docker-compose
+
     // Start Docker container
     docker-compose up -d
 
