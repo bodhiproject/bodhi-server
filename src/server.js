@@ -1,10 +1,11 @@
 const _ = require('lodash');
 const { spawn, spawnSync } = require('child_process');
 const axios = require('axios');
+const https = require('https');
 const portscanner = require('portscanner');
 
 const { execFile } = require('./constants');
-const { Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword } = require('./config');
+const { Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword, getSSLCredentials } = require('./config');
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitter-helper');
@@ -21,6 +22,7 @@ let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
 let shutdownInterval;
+let axiosClient;
 
 /*
 * Shuts down the already running qtumd and starts qtum-qt.
@@ -228,7 +230,18 @@ function startQtumProcess(reindex) {
 // Ensure API is running before loading UI
 async function checkApiInit() {
   try {
-    const res = await axios.get(`${Config.PROTOCOL}://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
+    if (!axiosClient) {
+      const creds = getSSLCredentials();
+      const agent = new https.Agent({ ca: creds.cert, rejectUnauthorized: false });
+      axiosClient = axios.create({ httpsAgent: agent });
+    }
+  } catch (err) {
+    console.error(err);
+    exit('SIGTERM');
+  }
+
+  try {
+    const res = await axiosClient.get(`${Config.PROTOCOL}://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
       initWebServer();
@@ -242,7 +255,10 @@ function startServices() {
   startSync(true);
   initApiServer();
 
-  checkApiInterval = setInterval(checkApiInit, 500);
+  // No need to check the API if not hosting the webserver
+  if (!Config.NO_WEB) {
+    checkApiInterval = setInterval(checkApiInit, 500);
+  }
 }
 
 /*
