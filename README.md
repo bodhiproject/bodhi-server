@@ -25,11 +25,18 @@
 
 ### Docker
 
-    // Build image
-    docker build -t bodhi-server .
+    // Install Docker
+    apt install docker
 
-    // Run in container
-    docker run -p 3000:3000 -d bodhi-server
+    // Install Docker-Compose
+    sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+
+    // Start Docker container
+    docker-compose up -d
+
+    // Stop Docker container
+    docker-compose stop
 
 ## First Time Setup for Remote Server
 This is meant to be setup on an Linux-based OS. This will remove the default config files for `nginx` and add the server block config for routing to the website. It will also add a daily cronjob script to renew the TLS certificate.
