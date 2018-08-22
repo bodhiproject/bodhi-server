@@ -11,6 +11,6 @@ services:
       - fullchain.pem
 secrets:
   privkey.pem:
-    external: true
+    file: /etc/letsencrypt/live/puti.io/privkey.pem
   fullchain.pem:
-    external: true
+    file: /etc/letsencrypt/live/puti.io/fullchain.pem
