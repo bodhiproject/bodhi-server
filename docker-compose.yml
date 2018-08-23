@@ -14,6 +14,10 @@ services:
     secrets:
       - privkey.pem
       - fullchain.pem
+    volumes:
+      - type: bind
+        source: /root/.qtum
+        target: /root/.qtum
 secrets:
   privkey.pem:
     file: /etc/letsencrypt/live/puti.io/privkey.pem
