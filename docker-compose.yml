@@ -20,6 +20,12 @@ services:
       - type: volume
         source: bodhidata
         target: /root/.dockervol
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
 secrets:
   privkey.pem:
     file: /etc/letsencrypt/live/puti.io/privkey.pem
