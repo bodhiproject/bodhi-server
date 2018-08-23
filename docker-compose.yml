@@ -15,11 +15,13 @@ services:
       - privkey.pem
       - fullchain.pem
     volumes:
-      - type: bind
-        source: /root/.qtum
-        target: /root/.qtum
+      - type: volume
+        source: bodhidata
+        target: /root/.dockervol
 secrets:
   privkey.pem:
     file: /etc/letsencrypt/live/puti.io/privkey.pem
   fullchain.pem:
     file: /etc/letsencrypt/live/puti.io/fullchain.pem
+volumes:
+  bodhidata:
