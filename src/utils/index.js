@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const { includes, each, split, map } = require('lodash');
+const { isEmpty, includes, each, split, map } = require('lodash');
 const Web3Utils = require('web3-utils');
 
 const { Config, isMainnet } = require('../config');
@@ -10,6 +10,11 @@ const { getLogger } = require('./logger');
  * @return {string} Absolute path to the base data directory.
  */
 function getBaseDataDir() {
+  // DATA_DIR is defined in environment variables
+  if (!isEmpty(process.env.DATA_DIR)) {
+    return process.env.DATA_DIR;
+  }
+
   let osBasePath;
   switch (process.platform) {
     case 'darwin': {

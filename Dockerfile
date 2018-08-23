@@ -1,6 +1,10 @@
 FROM node:9
 
-WORKDIR /usr/src/app
+WORKDIR /root/server
+
+# Create data directories if needed
+RUN mkdir -p /root/.dockervol/.qtum
+RUN mkdir -p /root/.dockervol/.bodhi
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
