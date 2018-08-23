@@ -34,6 +34,7 @@
     npm run localtest // testnet
     npm run localmain // mainnet
 
+    // UI at localhost:4000
     // API at localhost:6767
     // GraphQL Playground at localhost:6767/graphql
 
@@ -44,6 +45,7 @@
     npm run stagetest // testnet
     npm run stagemain // mainnet
 
+    // UI at localhost:4000
     // API at localhost:6767
     // GraphQL Playground at localhost:6767/graphql
 
@@ -54,6 +56,7 @@
     npm run prodtest // testnet
     npm run prodmain // mainnet
 
+    // UI at localhost:3000
     // API at localhost:8989
     // GraphQL Playground at localhost:8989/graphql
 
