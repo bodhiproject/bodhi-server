@@ -7,10 +7,12 @@ services:
       - "3000:3000"
       - "8989:8989"
     environment:
+      - QTUM_PATH=./qtum/linux64/bin
+      - QTUM_DATA_DIR=/root/.dockervol/.qtum
+      - DATA_DIR=/root/.dockervol/.bodhi
       - SSL_CERT_PATH=/run/secrets/fullchain.pem
       - SSL_KEY_PATH=/run/secrets/privkey.pem
       - LOG_LEVEL=debug
-      - QTUM_PATH=./qtum/linux64/bin
     secrets:
       - privkey.pem
       - fullchain.pem
