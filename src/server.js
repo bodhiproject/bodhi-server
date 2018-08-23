@@ -181,13 +181,15 @@ function startQtumProcess(reindex) {
       '-rpcworkqueue=32',
       `-rpcuser=${Config.RPC_USER}`,
       `-rpcpassword=${getRPCPassword()}`,
-      !_.isEmpty(process.env.QTUM_DATA_DIR) ? `-datadir=${process.env.QTUM_DATA_DIR}` : undefined,
     ];
     if (!isMainnet()) {
       flags.push('-testnet');
     }
     if (reindex) {
       flags.push('-reindex');
+    }
+    if (!_.isEmpty(process.env.QTUM_DATA_DIR)) {
+      flags.push(`-datadir=${process.env.QTUM_DATA_DIR}`);
     }
 
     const qtumdPath = `${getQtumPath()}/${execFile.QTUMD}`;
