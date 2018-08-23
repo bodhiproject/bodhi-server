@@ -200,7 +200,7 @@ function startQtumProcess(reindex) {
       getLogger().debug(`qtumd output: ${data}`);
     });
 
-    qtumProcess.stderr.on('data', (data) =>
+    qtumProcess.stderr.on('data', (data) => {
       getLogger().error(`qtumd failed with error: ${data}`);
 
       if (data.includes('You need to rebuild the database using -reindex-chainstate')) {
