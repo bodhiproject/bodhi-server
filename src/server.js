@@ -176,7 +176,13 @@ async function checkQtumdInit() {
 
 function startQtumProcess(reindex) {
   try {
-    const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
+    const flags = [
+      '-logevents',
+      '-rpcworkqueue=32',
+      `-rpcuser=${Config.RPC_USER}`,
+      `-rpcpassword=${getRPCPassword()}`,
+      !_.isEmpty(process.env.QTUM_DATA_DIR) ? `-datadir=${process.env.QTUM_DATA_DIR}` : undefined,
+    ];
     if (!isMainnet()) {
       flags.push('-testnet');
     }
