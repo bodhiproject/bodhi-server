@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const { isEmpty, isUndefined, each, split } = require('lodash');
 const { spawn, spawnSync } = require('child_process');
 const axios = require('axios');
 const https = require('https');
@@ -122,7 +122,7 @@ async function unlockWallet(passphrase) {
 // Checks if the wallet is encrypted to prompt the wallet unlock dialog
 async function checkWalletEncryption() {
   const res = await Wallet.getWalletInfo();
-  isEncrypted = !_.isUndefined(res.unlocked_until);
+  isEncrypted = !isUndefined(res.unlocked_until);
 
   if (isEncrypted) {
     // For Electron, flag passed via Electron Builder
@@ -132,14 +132,14 @@ async function checkWalletEncryption() {
     }
 
     let flagFound = false;
-    _.each(process.argv, (arg) => {
+    each(process.argv, (arg) => {
       if (arg === '--encryptok') {
         // For Electron, flag passed via command-line
         EmitterHelper.onWalletEncrypted();
         flagFound = true;
       } else if (arg.startsWith('--passphrase=')) {
         // For dev purposes, unlock wallet directly in server
-        const passphrase = (_.split(arg, '=', 2))[1];
+        const passphrase = (split(arg, '=', 2))[1];
         unlockWallet(passphrase);
         flagFound = true;
       }
@@ -188,7 +188,7 @@ function startQtumProcess(reindex) {
     if (reindex) {
       flags.push('-reindex');
     }
-    if (!_.isEmpty(process.env.QTUM_DATA_DIR)) {
+    if (!isEmpty(process.env.QTUM_DATA_DIR)) {
       flags.push(`-datadir=${process.env.QTUM_DATA_DIR}`);
     }
 
