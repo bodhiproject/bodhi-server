@@ -1,6 +1,6 @@
 FROM node:9
 
-WORKDIR /usr/src/app
+WORKDIR /root/server
 
 # Create qtum data directory if needed
 RUN mkdir -p /root/.dockervol/.qtum
