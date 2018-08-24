@@ -752,7 +752,7 @@ Gets the current status of a TopicEvent.
     }
 
 ### POST /did-withdraw
-Did the address already withdraw their winnings.
+Returns true if the address already withdrew their winnings.
 
 **Body**
 
@@ -783,4 +783,55 @@ Returns the amount of BOT and QTUM the participant will receive for winning.
     {
         "0": "1000000000",  // amount of BOT senderAddress will receive
         "1": "2000000000"   // amount of QTUM senderAddress will receive
+    }
+
+### POST /event-address
+Returns the TopicEvent address of the Oracle.
+
+**Body**
+
+    {
+        "contractAddress": "5dff33b2b0af0ad3a12fdb1615b5188fce16cf09",
+        "oracleType": "centralized",                                    // centralized or decentralized
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "45348630dd236f4107a12ed35637fe3b1eac6b64"
+    }
+
+### POST /consensus-threshold
+Returns the consensus threshold of the Oracle.
+
+**Body**
+
+    {
+        "contractAddress": "5dff33b2b0af0ad3a12fdb1615b5188fce16cf09",
+        "oracleType": "centralized",                                    // centralized or decentralized
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "10000000000"  // Botoshi
+    }
+
+### POST /finished
+Returns true if the Oracle's result is set.
+
+**Body**
+
+    {
+        "contractAddress": "2535dfc5fc52ee2499754f9e364a46d90a8aa2d8",
+        "oracleType": "centralized",                                    // centralized or decentralized
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": true
     }
