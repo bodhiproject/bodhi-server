@@ -100,3 +100,11 @@ This is meant to be setup on an Linux-based OS. This will remove the default con
 
         cd scripts
         python setup.py
+
+## GraphQL
+To view the entire schema, go to:
+- Local/Staging Server: `localhost:6767/graphql`
+- Production Server: `localhost:8989/graphql`
+- Puti.io: `https://puti.io:8989/graphql`
+- Click on `SCHEMA` button on the right side
+- Browse through all the queries, mutations, or subscriptions
