@@ -685,3 +685,102 @@ Gets the total vote balances of a TopicEvent, CentralizedOracle, or Decentralize
             "0"
         ]
     }
+
+## POST /total-qtum-value
+Gets the total QTUM value of a TopicEvent.
+
+**Body**
+
+    {
+        "contractAddress": "02e91962156da21fae38e65038279c020347e4ff",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "500000000"    // Satoshi
+    }
+
+## POST /total-bot-value
+Gets the total BOT value of a TopicEvent.
+
+**Body**
+
+    {
+        "contractAddress": "02e91962156da21fae38e65038279c020347e4ff",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "500000000"    // Botoshi
+    }
+
+## POST /final-result
+Gets the final result of a TopicEvent.
+
+**Body**
+
+    {
+        "contractAddress": "02e91962156da21fae38e65038279c020347e4ff",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "255", // result index, 255 means none has been set
+        "1": false  // flag to indicate if this is the final result index
+    }
+
+## POST /status
+Gets the current status of a TopicEvent.
+
+**Body**
+
+    {
+        "contractAddress": "02e91962156da21fae38e65038279c020347e4ff",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "0"    // [Betting, OracleVoting, Collection]
+    }
+
+## POST /did-withdraw
+Did the address already withdraw their winnings.
+
+**Body**
+
+    {
+        "contractAddress": "ec1c7a01c24b97dd26611c31733ee36365f8a485",
+        "address": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": false
+    }
+
+## POST /winnings
+Returns the amount of BOT and QTUM the participant will receive for winning.
+
+**Body**
+
+    {
+        "contractAddress": "02e91962156da21fae38e65038279c020347e4ff",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "1000000000",  // amount of BOT senderAddress will receive
+        "1": "2000000000"   // amount of QTUM senderAddress will receive
+    }
