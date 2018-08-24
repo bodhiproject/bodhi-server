@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/bodhiproject/bodhi-server.svg?branch=master)](https://travis-ci.org/bodhiproject/bodhi-server)
 
-## Prerequisites
+# Prerequisites
 1. Node 9 installed
 2. You will need the Qtum client for the OS you are testing on (or building against). Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the correct OS and put the `bin/` folder in the corresponding dir:
 
@@ -10,12 +10,12 @@
         bodhi-server/qtum/linux64/bin     qtum-0.14.16-x86_64-linux-gnu.tar.gz
         bodhi-server/qtum/linux32/bin     qtum-0.14.16-i686-pc-linux-gnu.tar.gz
 
-## Install
+# Install
 1. `git clone https://github.com/bodhiproject/bodhi-server.git`
 2. `cd bodhi-server`
 3. `npm install`
 
-## Running Server
+# Running Server
 
 ### Acceptable Flags
 
@@ -75,7 +75,7 @@
     // Stop Docker container
     docker-compose stop
 
-## Environment Setup
+# Environment Setup
 You can specify certain attributes in a `.env` file at the root folder. `QTUM_PATH` in `.env` will take priority over the flag `--qtumpath=/path/to/bin`.
 
     QTUM_PATH=./qtum/linux64/bin
@@ -85,7 +85,7 @@ You can specify certain attributes in a `.env` file at the root folder. `QTUM_PA
     SSL_CERT_PATH=/etc/letsencrypt/live/puti.io/fullchain.pem
     LOG_LEVEL=debug
 
-## First Time Setup for Remote Server
+# First Time Setup for Remote Server
 This is meant to be setup on an Linux-based OS. This will remove the default config files for `nginx` and add the server block config for routing to the website. It will also add a daily cronjob script to renew the TLS certificate.
 
 ### Instructions
@@ -101,7 +101,7 @@ This is meant to be setup on an Linux-based OS. This will remove the default con
         cd scripts
         python setup.py
 
-## GraphQL
+# GraphQL
 To view the entire schema, go to:
 - Local/Staging Server: `localhost:6767/graphql`
 - Production Server: `localhost:8989/graphql`
@@ -109,7 +109,7 @@ To view the entire schema, go to:
 - Click on `SCHEMA` button on the right side
 - Browse through all the queries, mutations, or subscriptions
 
-## API
+# API
 
 ## POST /is-connected
 **Response 200**
