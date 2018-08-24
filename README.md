@@ -466,3 +466,70 @@ To view the entire schema, go to:
             ]
         }
     ]
+
+## POST /event-escrow-amount
+**Body**
+
+    {
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "500000000"
+    }
+
+## POST /approve
+**Body**
+
+    {
+        "spender": "7cde77dbe43dadea8a707858645f504ca7bf90ad",  // approvee
+        "value": "0",                                           // amount to approve in Botoshi
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"   // approver
+    }
+    
+**Response 200**
+
+    {
+        "txid": "23c63ce12a4ab56c67677b15a119261c83fdd855f6bad49abb784cc7c3620ce0",
+        "sender": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna",
+        "hash160": "2bdd237124cd69d2e2e15dea8d9537eebdd2b7bf",
+        "args": {
+            "contractAddress": "a6dd0b0399dc6162cedde85ed50c6fa4a0dd44f1",
+            "amount": 0,
+            "gasLimit": 250000,
+            "gasPrice": 4e-7
+        }
+    }
+
+## POST /allowance
+**Body**
+
+    {
+        "owner": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna",          // approver
+        "spender": "7cde77dbe43dadea8a707858645f504ca7bf90ad",  // approvee
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "0",
+        "remaining": "0"
+    }
+
+## POST /bot-balance
+**Body**
+
+    {
+        "owner": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "31701300000000",
+        "balance": "31701300000000" // Botoshi
+    }
