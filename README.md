@@ -111,13 +111,13 @@ To view the entire schema, go to:
 
 ## API
 
-### POST /is-connected
+## POST /is-connected
 **Response 200**
 
     true
 
 
-### POST /validate-address
+## POST /validate-address
 **Body**
 
     {
@@ -141,7 +141,7 @@ To view the entire schema, go to:
         "hdmasterkeyid": "bdaa41c1c27632679040f9f92763f97a395864cf"
     }
 
-### POST /get-account-address
+## POST /get-account-address
 **Body**
 
     {
@@ -153,7 +153,7 @@ To view the entire schema, go to:
     qZEj5uvN7v8HCkZojCKC2NguPns8qnckKK
     
 
-### GET /get-wallet-info
+## GET /get-wallet-info
 **Response 200**
 
     {
@@ -171,7 +171,7 @@ To view the entire schema, go to:
         "hdmasterkeyid": "ad53676a8050991dbc8313ebcc606af6d00081b4"
     }
     
-### GET /list-address-groupings
+## GET /list-address-groupings
 **Response 200**
 
     [
@@ -184,7 +184,7 @@ To view the entire schema, go to:
         ]
     ]
 
-### GET /list-unspent
+## GET /list-unspent
 **Response 200**
 
     [
@@ -202,7 +202,7 @@ To view the entire schema, go to:
         }
     ]
 
-### POST /wallet-passphrase
+## POST /wallet-passphrase
 **Body**
 
     {
@@ -214,12 +214,12 @@ To view the entire schema, go to:
 
     // empty if successful
 
-### POST /wallet-lock    
+## POST /wallet-lock    
 **Response 200**
 
     // empty if successful
 
-### POST /encrypt-wallet
+## POST /encrypt-wallet
 **Body**
 
     {
@@ -230,7 +230,7 @@ To view the entire schema, go to:
 
     // TODO:
 
-### POST /wallet-passphrase-change
+## POST /wallet-passphrase-change
 **Body**
 
     {
@@ -242,7 +242,7 @@ To view the entire schema, go to:
 
     // TODO:
     
-### POST /backup-wallet
+## POST /backup-wallet
 **Body**
 
     {
@@ -253,7 +253,7 @@ To view the entire schema, go to:
 
     // TODO:
     
-### POST /import-wallet
+## POST /import-wallet
 **Body**
 
     {
@@ -264,7 +264,7 @@ To view the entire schema, go to:
 
     // TODO:
 
-### POST /get-block
+## POST /get-block
 **Body**
 
     {
@@ -306,7 +306,7 @@ To view the entire schema, go to:
         "signature": "3044022005e9f844a4432a3e5fb54f62e58acfb1d04dfa77de6b972ed722c80b45cb61a302205422f27c604ab82df161c9a5e1f126e1257935f4aa38f4c22d51ce9acaeb3921"
     }
 
-### GET /get-blockchain-info
+## GET /get-blockchain-info
 **Response 200**
 
     {
@@ -358,12 +358,12 @@ To view the entire schema, go to:
         }
     }
 
-### GET /get-block-count
+## GET /get-block-count
 **Response 200**
 
     200731
 
-### POST /get-block-hash
+## POST /get-block-hash
 **Body**
 
     {
@@ -374,7 +374,7 @@ To view the entire schema, go to:
 
     0000e803ee215c0684ca0d2f9220594d3f828617972aad66feb2ba51f5e14222
 
-### POST /get-transaction-receipt
+## POST /get-transaction-receipt
 **Body**
 
     {
@@ -409,7 +409,7 @@ To view the entire schema, go to:
         }
     ]
 
-### POST /search-logs
+## POST /search-logs
 **Body**
 
     {
