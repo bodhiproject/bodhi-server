@@ -108,3 +108,158 @@ To view the entire schema, go to:
 - Puti.io: `https://puti.io:8989/graphql`
 - Click on `SCHEMA` button on the right side
 - Browse through all the queries, mutations, or subscriptions
+
+## API
+
+### POST /is-connected
+**Response 200**
+
+    true
+
+
+### POST /validate-address
+**Body**
+
+    {
+	    "address": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+
+**Response 200**
+
+    {
+        "isvalid": true,
+        "address": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna",
+        "scriptPubKey": "76a9142bdd237124cd69d2e2e15dea8d9537eebdd2b7bf88ac",
+        "ismine": true,
+        "iswatchonly": false,
+        "isscript": false,
+        "pubkey": "03e9a15471175bf84315e7d3d41290562a212d654772d6523054d0dd79fa96c18d",
+        "iscompressed": true,
+        "account": "",
+        "timestamp": 1523913008,
+        "hdkeypath": "m/88'/0'/1'",
+        "hdmasterkeyid": "bdaa41c1c27632679040f9f92763f97a395864cf"
+    }
+
+### POST /get-account-address
+**Body**
+
+    {
+        "accountName": ""   // name of the account
+    }
+
+**Response 200**
+
+    qZEj5uvN7v8HCkZojCKC2NguPns8qnckKK
+    
+
+### GET /get-wallet-info
+**Response 200**
+
+    {
+        "walletname": "wallet.dat",
+        "walletversion": 130000,
+        "balance": 730082.985266,
+        "stake": 53789.73537221,
+        "unconfirmed_balance": 0,
+        "immature_balance": 0,
+        "txcount": 3194,
+        "keypoololdest": 1523913717,
+        "keypoolsize": 1000,
+        "unlocked_until": 1535714484,
+        "paytxfee": 0,
+        "hdmasterkeyid": "ad53676a8050991dbc8313ebcc606af6d00081b4"
+    }
+    
+### GET /list-address-groupings
+**Response 200**
+
+    [
+        [
+            [
+                "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna",
+                730082.985266,
+                ""
+            ]
+        ]
+    ]
+
+### GET /list-unspent
+**Response 200**
+
+    [
+        {
+            "txid": "389f0f1a4a560f90455a979633f39b2be636326551800abdea7bc3a9619d240f",
+            "vout": 1,
+            "address": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna",
+            "account": "",
+            "scriptPubKey": "2103e9a15471175bf84315e7d3d41290562a212d654772d6523054d0dd79fa96c18dac",
+            "amount": 1927.89,
+            "confirmations": 23797,
+            "spendable": true,
+            "solvable": true,
+            "safe": true
+        }
+    ]
+
+### POST /wallet-passphrase
+**Body**
+
+    {
+        "passphrase": "mypassphrase",   // encrypted wallet passphrase
+    	"timeout": 60                   // number of seconds to keep unlocked
+    }
+    
+**Response 200**
+
+    // empty if successful
+
+### POST /wallet-lock    
+**Response 200**
+
+    // empty if successful
+
+### POST /encrypt-wallet
+**Body**
+
+    {
+        "passphrase": "mypassphrase"    // passphrase to encrypt wallet
+    }
+    
+**Response 200**
+
+    // TODO:
+
+### POST /wallet-passphrase-change
+**Body**
+
+    {
+        "oldPassphrase": "myoldpassphrase",
+        "newPassphrase": "mynewpassphrase"
+    }
+    
+**Response 200**
+
+    // TODO:
+    
+### POST /backup-wallet
+**Body**
+
+    {
+        "destination": "/path/to/backup"
+    }
+    
+**Response 200**
+
+    // TODO:
+    
+### POST /import-wallet
+**Body**
+
+    {
+        "filename": "/path/to/wallet/file"
+    }
+    
+**Response 200**
+
+    // TODO:
