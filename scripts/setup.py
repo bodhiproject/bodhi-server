@@ -23,13 +23,13 @@ sites_dir = './nginx-sites'
 for filename in os.listdir(sites_dir):
     full_filename = os.path.join(sites_dir, filename)
     if (os.path.isfile(full_filename)):
+        # copy file
+        print 'Copying %s to /etc/nginx/sites-available/' % filename
         shutil.copy(full_filename, '/etc/nginx/sites-available/')
 
-# add symlink to sites-available
-path = '/etc/nginx/sites-enabled/website'
-if not fileExists(path):
-    print 'Adding website symlink...'
-    call(['sudo', 'ln', '-s', '/etc/nginx/sites-available/website', '/etc/nginx/sites-enabled/website'])
+        # create symlink
+        print 'Creating %s symlink' % filename
+        call(['sudo', 'ln', '-s', '/etc/nginx/sites-available/' + filename, '/etc/nginx/sites-enabled/' + filename])
 
 # restart nginx
 print 'Restarting nginx...'
