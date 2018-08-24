@@ -835,3 +835,66 @@ Returns true if the Oracle's result is set.
     {
         "0": true
     }
+
+### POST /oracle
+Returns the result setter's hex address of the Centralized Oracle.
+
+**Body**
+
+    {
+        "contractAddress": "407c7e405c3627fb3f281b1aaa2bc6ab546045a5",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "17e7888aa7412a735f336d2f6d784caefabb6fa3"
+    }
+
+### POST /last-result-index
+Returns the last round's result index of the Decentralized Oracle.
+
+**Body**
+
+    {
+        "contractAddress": "c46489624c5d47bbe69f68f8d55701d7c84718b2",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "2"
+    }
+
+### POST /transaction-cost
+Returns an array of transaction fees for a specific transaction.
+
+**Body**
+
+    {
+        "type": "APPROVECREATEEVENT",                           // [APPROVECREATEEVENT, CREATEEVENT, BET, APPROVESETRESULT, SETRESULT, APPROVEVOTE, VOTE, FINALIZERESULT, WITHDRAW, WITHDRAWESCROW, TRANSFER]
+        "token": "BOT",                                         // [QTUM, BOT]
+        "amount": "50000000",                                   // Satoshi/Botoshi
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    [
+        {
+            "type": "approve",
+            "gasLimit": 250000,
+            "gasCost": "0.10",      // QTUM
+            "token": "BOT",
+            "amount": "50000000"    // Botoshi
+        },
+        {
+            "type": "createEvent",
+            "gasLimit": 3500000,
+            "gasCost": "1.40",
+            "token": "BOT",
+            "amount": "50000000"
+        }
+    ]
