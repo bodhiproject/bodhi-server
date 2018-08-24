@@ -116,7 +116,6 @@ To view the entire schema, go to:
 
     true
 
-
 ### POST /validate-address
 **Body**
 
