@@ -111,7 +111,7 @@ To view the entire schema, go to:
 
 # API
 
-### POST /is-connected
+### <div color="#2E86C1">POST /is-connected</div>
 **Response 200**
 
     true
