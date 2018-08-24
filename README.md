@@ -468,6 +468,8 @@ To view the entire schema, go to:
     ]
 
 ## POST /event-escrow-amount
+Gets the event escrow amount.
+
 **Body**
 
     {
@@ -477,10 +479,12 @@ To view the entire schema, go to:
 **Response 200**
 
     {
-        "0": "500000000"
+        "0": "500000000"    // Botoshi
     }
 
 ## POST /approve
+Gives the spender approval to transfer BOT from your wallet address.
+
 **Body**
 
     {
@@ -504,6 +508,8 @@ To view the entire schema, go to:
     }
 
 ## POST /allowance
+Gets the allowance of a prior approve transaction between an approver and approvee.
+
 **Body**
 
     {
@@ -516,10 +522,12 @@ To view the entire schema, go to:
 
     {
         "0": "0",
-        "remaining": "0"
+        "remaining": "0"    // Botoshi
     }
 
 ## POST /bot-balance
+Gets the BOT balance of an address.
+
 **Body**
 
     {
@@ -532,4 +540,148 @@ To view the entire schema, go to:
     {
         "0": "31701300000000",
         "balance": "31701300000000" // Botoshi
+    }
+
+## POST /version
+Gets the internal version code of a TopicEvent, CentralizedOracle, or DecentralizedOracle contract.
+
+**Body**
+
+    {
+        "contractAddress": "426038e7d19b115a41a0102af91bce369222ad26",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "0"
+    }
+
+## POST /get-result
+Gets the result index of a TopicEvent, CentralizedOracle, or DecentralizedOracle contract.
+
+**Body**
+
+    {
+        "contractAddress": "5dff33b2b0af0ad3a12fdb1615b5188fce16cf09",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": "255"  // result index, 255 means the result has not been set
+    }
+
+## POST /bet-balances
+Gets the bet balances of a TopicEvent, CentralizedOracle, or DecentralizedOracle contract.
+
+**Body**
+
+    {
+        "contractAddress": "02e91962156da21fae38e65038279c020347e4ff",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": [
+            "0",            // 0 Satoshi on index 0
+            "100000000",    // 100000000 Satoshi on index 1
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+        ]
+    }
+
+## POST /vote-balances
+Gets the vote balances of a TopicEvent, CentralizedOracle, or DecentralizedOracle contract.
+
+**Body**
+
+    {
+        "contractAddress": "02e91962156da21fae38e65038279c020347e4ff",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": [
+            "0",            // 0 Botoshi on index 0
+            "100000000",    // 100000000 Botoshi on index 1
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+        ]
+    }
+
+## POST /total-bets
+Gets the total bet balances of a TopicEvent, CentralizedOracle, or DecentralizedOracle contract.
+
+**Body**
+
+    {
+        "contractAddress": "02e91962156da21fae38e65038279c020347e4ff",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": [
+            "0",            // 0 Satoshi total on index 0
+            "100000000",    // 100000000 Satoshi total on index 1
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+        ]
+    }
+
+## POST /total-votes
+Gets the total vote balances of a TopicEvent, CentralizedOracle, or DecentralizedOracle contract.
+
+**Body**
+
+    {
+        "contractAddress": "02e91962156da21fae38e65038279c020347e4ff",
+        "senderAddress": "qMZK8FNPRm54jvTLAGEs1biTCgyCkcsmna"
+    }
+    
+**Response 200**
+
+    {
+        "0": [
+            "0",            // 0 Botoshi total on index 0
+            "100000000",    // 100000000 Botoshi total on index 1
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+        ]
     }
