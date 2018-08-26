@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const { each, isEmpty } = require('lodash');
 const moment = require('moment');
 
 const { getLogger } = require('../utils/logger');
@@ -25,7 +25,7 @@ async function updatePendingTxs(currentBlockCount) {
 
   // TODO: batch to avoid too many rpc calls
   const updatePromises = [];
-  _.each(pendingTxs, (tx) => {
+  each(pendingTxs, (tx) => {
     updatePromises.push(new Promise(async (resolve) => {
       await updateTx(tx, currentBlockCount);
       await updateDB(tx);
@@ -56,16 +56,19 @@ async function updateTx(tx, currentBlockCount) {
   // Update tx status based on EVM tx logs
   const resp = await blockchain.getTransactionReceipt({ transactionId: tx.txid });
 
-  if (_.isEmpty(resp)) {
+  // Response has no receipt, still not accepted by blockchain
+  if (isEmpty(resp)) {
     tx.status = txState.PENDING;
-  } else {
-    const blockInfo = await blockchain.getBlock({ blockHash: resp[0].blockHash });
-
-    tx.status = _.isEmpty(resp[0].log) ? txState.FAIL : txState.SUCCESS;
-    tx.gasUsed = resp[0].gasUsed;
-    tx.blockNum = resp[0].blockNumber;
-    tx.blockTime = blockInfo.time;
+    return;
   }
+
+  // Receipt found, update existing pending tx
+  const { log, gasUsed, blockNumber, blockHash } = resp[0];
+  tx.status = isEmpty(log) ? txState.FAIL : txState.SUCCESS;
+  tx.gasUsed = gasUsed;
+  tx.blockNum = blockNumber;
+  const blockInfo = await blockchain.getBlock({ blockHash });
+  tx.blockTime = blockInfo.time;
 }
 
 // Update the DB with new Transaction info
@@ -82,9 +85,7 @@ async function updateDB(tx) {
             blockNum: tx.blockNum,
           },
         },
-        {
-          returnUpdatedDocs: true,
-        },
+        { returnUpdatedDocs: true },
       );
       const updatedTx = updateRes[1];
 
