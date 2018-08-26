@@ -39,5 +39,10 @@ module.exports = {
     WINNINGS: 'WINNINGS',
   },
 
+  token: {
+    QTUM: 'QTUM',
+    BOT: 'BOT',
+  },
+
   SATOSHI_CONVERSION: 10 ** 8,
 };

@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const moment = require('moment');
 
-const { txState } = require('../constants');
+const { txState, token } = require('../constants');
 const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
 const Utils = require('../utils');
@@ -13,12 +13,13 @@ const TopicEvent = require('../api/topic-event');
 const CentralizedOracle = require('../api/centralized-oracle');
 const DecentralizedOracle = require('../api/decentralized-oracle');
 const Wallet = require('../api/wallet');
+const Transaction = require('../models/transaction');
 
-const getCurrentBlock = async () => {
+const getBlockNum = async () => {
   try {
     return await Blockchain.getBlockCount();
   } catch (err) {
-    getLogger().error(`getCurrentBlock error: ${err.message}`);
+    getLogger().error(`getBlockNum error: ${err.message}`);
     throw err;
   }
 };
@@ -83,10 +84,11 @@ module.exports = {
     const version = Config.CONTRACT_VERSION_NUM;
 
     // Insert Transaction
-    const tx = {
-      txid: sentTx.txid,
+    const tx = new Transaction({
       type,
+      txid: sentTx.txid,
       status: txState.PENDING,
+      createdBlock: await getBlockNum(),
       createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
       gasPrice: sentTx.args.gasPrice.toFixed(8),
@@ -100,8 +102,8 @@ module.exports = {
       resultSettingStartTime,
       resultSettingEndTime,
       amount,
-      token: 'BOT',
-    };
+      token: token.BOT,
+    });
     await DBHelper.insertTransaction(Transactions, tx);
 
     // Insert Topic
@@ -125,7 +127,7 @@ module.exports = {
       status: 'CREATED',
       version,
       resultSetterAddress,
-      token: 'QTUM',
+      token: token.QTUM,
       name,
       options,
       optionIdxs: Array.from(Array(options).keys()),
