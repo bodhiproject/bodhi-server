@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const moment = require('moment');
 
-const { txState, TOKEN } = require('../constants');
+const { txState, TX_TYPE, TOKEN } = require('../constants');
 const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
 const Utils = require('../utils');
@@ -50,7 +50,7 @@ module.exports = {
     let sentTx;
     if (await Utils.isAllowanceEnough(senderAddress, addressManagerAddr, amount)) {
       // Send createTopic tx
-      type = 'CREATEEVENT';
+      type = TX_TYPE.CREATEEVENT;
       try {
         sentTx = await EventFactory.createTopic({
           oracleAddress: resultSetterAddress,
@@ -68,7 +68,7 @@ module.exports = {
       }
     } else {
       // Send approve first since allowance is not enough
-      type = 'APPROVECREATEEVENT';
+      type = TX_TYPE.APPROVECREATEEVENT;
       try {
         sentTx = await BodhiToken.approve({
           spender: addressManagerAddr,
@@ -169,7 +169,7 @@ module.exports = {
 
     // Insert Transaction
     const tx = new Transaction({
-      type: 'BET',
+      type: TX_TYPE.BET,
       txid: sentTx.txid,
       status: txState.PENDING,
       createdBlock: await getBlockNum(),
@@ -204,7 +204,7 @@ module.exports = {
     let sentTx;
     if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
       // Send setResult since the allowance is enough
-      type = 'SETRESULT';
+      type = TX_TYPE.SETRESULT;
       try {
         sentTx = await CentralizedOracle.setResult({
           contractAddress: oracleAddress,
@@ -217,7 +217,7 @@ module.exports = {
       }
     } else {
       // Send approve first since allowance is not enough
-      type = 'APPROVESETRESULT';
+      type = TX_TYPE.APPROVESETRESULT;
       try {
         sentTx = await BodhiToken.approve({
           spender: topicAddress,
@@ -267,7 +267,7 @@ module.exports = {
     let sentTx;
     if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
       // Send vote since allowance is enough
-      type = 'VOTE';
+      type = TX_TYPE.VOTE;
       try {
         // Find if voting over threshold to set correct gas limit
         const gasLimit = await Utils.getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
@@ -285,7 +285,7 @@ module.exports = {
       }
     } else {
       // Send approve first because allowance is not enough
-      type = 'APPROVEVOTE';
+      type = TX_TYPE.APPROVEVOTE;
       try {
         sentTx = await BodhiToken.approve({
           spender: topicAddress,
@@ -358,7 +358,7 @@ module.exports = {
 
     // Insert Transaction
     const tx = new Transaction({
-      type: 'FINALIZERESULT',
+      type: TX_TYPE.FINALIZERESULT,
       txid: sentTx.txid,
       status: txState.PENDING,
       createdBlock: await getBlockNum(),
@@ -386,7 +386,7 @@ module.exports = {
 
     let sentTx;
     switch (type) {
-      case 'WITHDRAW': {
+      case TX_TYPE.WITHDRAW: {
         // Send withdrawWinnings tx
         try {
           sentTx = await TopicEvent.withdrawWinnings({
@@ -399,7 +399,7 @@ module.exports = {
         }
         break;
       }
-      case 'WITHDRAWESCROW': {
+      case TX_TYPE.WITHDRAWESCROW: {
         // Send withdrawEscrow tx
         try {
           sentTx = await TopicEvent.withdrawEscrow({
@@ -487,7 +487,7 @@ module.exports = {
     const gasLimit = sentTx ? sentTx.args.gasLimit : Config.DEFAULT_GAS_LIMIT;
     const gasPrice = sentTx ? sentTx.args.gasPrice : Config.DEFAULT_GAS_PRICE;
     const tx = new Transaction({
-      type: 'TRANSFER',
+      type: TX_TYPE.TRANSFER,
       txid,
       status: txState.PENDING,
       createdBlock: await getBlockNum(),
