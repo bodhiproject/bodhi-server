@@ -39,7 +39,7 @@ module.exports = {
     WINNINGS: 'WINNINGS',
   },
 
-  token: {
+  TOKEN: {
     QTUM: 'QTUM',
     BOT: 'BOT',
   },

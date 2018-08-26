@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const moment = require('moment');
 
-const { txState, token } = require('../constants');
+const { txState, TOKEN } = require('../constants');
 const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
 const Utils = require('../utils');
@@ -102,7 +102,7 @@ module.exports = {
       resultSettingStartTime,
       resultSettingEndTime,
       amount,
-      token: token.BOT,
+      token: TOKEN.BOT,
     });
     await DBHelper.insertTransaction(Transactions, tx);
 
@@ -127,7 +127,7 @@ module.exports = {
       status: 'CREATED',
       version,
       resultSetterAddress,
-      token: token.QTUM,
+      token: TOKEN.QTUM,
       name,
       options,
       optionIdxs: Array.from(Array(options).keys()),
@@ -181,7 +181,7 @@ module.exports = {
       topicAddress,
       oracleAddress,
       optionIdx,
-      token: token.QTUM,
+      token: TOKEN.QTUM,
       amount,
     });
     await DBHelper.insertTransaction(Transactions, tx);
@@ -244,7 +244,7 @@ module.exports = {
       topicAddress,
       oracleAddress,
       optionIdx,
-      token: token.BOT,
+      token: TOKEN.BOT,
       amount,
     });
     await DBHelper.insertTransaction(Transactions, tx);
@@ -312,7 +312,7 @@ module.exports = {
       topicAddress,
       oracleAddress,
       optionIdx,
-      token: token.BOT,
+      token: TOKEN.BOT,
       amount,
     });
     await DBHelper.insertTransaction(Transactions, tx);
