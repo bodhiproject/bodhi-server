@@ -357,19 +357,20 @@ module.exports = {
     }
 
     // Insert Transaction
-    const tx = {
-      txid: sentTx.txid,
+    const tx = new Transaction({
       type: 'FINALIZERESULT',
+      txid: sentTx.txid,
       status: txState.PENDING,
+      createdBlock: await getBlockNum(),
+      createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
       gasPrice: sentTx.args.gasPrice.toFixed(8),
-      createdTime: moment().unix(),
       senderAddress,
       version,
       topicAddress,
       oracleAddress,
       optionIdx: winningIndex,
-    };
+    });
     await DBHelper.insertTransaction(Transactions, tx);
 
     return tx;
