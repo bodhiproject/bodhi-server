@@ -448,7 +448,7 @@ module.exports = {
     let txid;
     let sentTx;
     switch (token) {
-      case 'QTUM': {
+      case TOKEN.QTUM: {
         // Send sendToAddress tx
         try {
           txid = await Wallet.sendToAddress({
@@ -463,7 +463,7 @@ module.exports = {
         }
         break;
       }
-      case 'BOT': {
+      case TOKEN.BOT: {
         // Send transfer tx
         try {
           sentTx = await BodhiToken.transfer({
@@ -479,26 +479,27 @@ module.exports = {
         break;
       }
       default: {
-        throw new Error(`Invalid token transfer type: ${token}`);
+        throw Error(`Invalid token transfer type: ${token}`);
       }
     }
 
     // Insert Transaction
     const gasLimit = sentTx ? sentTx.args.gasLimit : Config.DEFAULT_GAS_LIMIT;
     const gasPrice = sentTx ? sentTx.args.gasPrice : Config.DEFAULT_GAS_PRICE;
-    const tx = {
-      txid,
+    const tx = new Transaction({
       type: 'TRANSFER',
+      txid,
       status: txState.PENDING,
+      createdBlock: await getBlockNum(),
+      createdTime: moment().unix(),
       gasLimit: gasLimit.toString(10),
       gasPrice: gasPrice.toFixed(8),
-      createdTime: moment().unix(),
       senderAddress,
       version,
       receiverAddress,
       token,
       amount,
-    };
+    });
     await DBHelper.insertTransaction(Transactions, tx);
 
     return tx;
