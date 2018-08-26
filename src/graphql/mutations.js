@@ -6,12 +6,22 @@ const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
+const Blockchain = require('../api/blockchain');
 const BodhiToken = require('../api/bodhi-token');
 const EventFactory = require('../api/event-factory');
 const TopicEvent = require('../api/topic-event');
 const CentralizedOracle = require('../api/centralized-oracle');
 const DecentralizedOracle = require('../api/decentralized-oracle');
 const Wallet = require('../api/wallet');
+
+const getCurrentBlock = async () => {
+  try {
+    return await Blockchain.getBlockCount();
+  } catch (err) {
+    getLogger().error(`getCurrentBlock error: ${err.message}`);
+    throw err;
+  }
+};
 
 module.exports = {
   createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
