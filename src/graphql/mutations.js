@@ -6,12 +6,12 @@ const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
-const bodhiToken = require('../api/bodhi-token');
-const eventFactory = require('../api/event-factory');
-const topicEvent = require('../api/topic-event');
-const centralizedOracle = require('../api/centralized-oracle');
-const decentralizedOracle = require('../api/decentralized-oracle');
-const wallet = require('../api/wallet');
+const BodhiToken = require('../api/bodhi-token');
+const EventFactory = require('../api/event-factory');
+const TopicEvent = require('../api/topic-event');
+const CentralizedOracle = require('../api/centralized-oracle');
+const DecentralizedOracle = require('../api/decentralized-oracle');
+const Wallet = require('../api/wallet');
 
 module.exports = {
   createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
@@ -41,7 +41,7 @@ module.exports = {
       // Send createTopic tx
       type = 'CREATEEVENT';
       try {
-        sentTx = await eventFactory.createTopic({
+        sentTx = await EventFactory.createTopic({
           oracleAddress: resultSetterAddress,
           eventName: name,
           resultNames: options,
@@ -59,7 +59,7 @@ module.exports = {
       // Send approve first since allowance is not enough
       type = 'APPROVECREATEEVENT';
       try {
-        sentTx = await bodhiToken.approve({
+        sentTx = await BodhiToken.approve({
           spender: addressManagerAddr,
           value: amount,
           senderAddress,
@@ -144,7 +144,7 @@ module.exports = {
     // Send bet tx
     let sentTx;
     try {
-      sentTx = await centralizedOracle.bet({
+      sentTx = await CentralizedOracle.bet({
         contractAddress: oracleAddress,
         index: optionIdx,
         amount,
@@ -193,7 +193,7 @@ module.exports = {
       // Send setResult since the allowance is enough
       type = 'SETRESULT';
       try {
-        sentTx = await centralizedOracle.setResult({
+        sentTx = await CentralizedOracle.setResult({
           contractAddress: oracleAddress,
           resultIndex: optionIdx,
           senderAddress,
@@ -206,7 +206,7 @@ module.exports = {
       // Send approve first since allowance is not enough
       type = 'APPROVESETRESULT';
       try {
-        sentTx = await bodhiToken.approve({
+        sentTx = await BodhiToken.approve({
           spender: topicAddress,
           value: amount,
           senderAddress,
@@ -258,7 +258,7 @@ module.exports = {
         // Find if voting over threshold to set correct gas limit
         const gasLimit = await Utils.getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
 
-        sentTx = await decentralizedOracle.vote({
+        sentTx = await DecentralizedOracle.vote({
           contractAddress: oracleAddress,
           resultIndex: optionIdx,
           botAmount: amount,
@@ -273,7 +273,7 @@ module.exports = {
       // Send approve first because allowance is not enough
       type = 'APPROVEVOTE';
       try {
-        sentTx = await bodhiToken.approve({
+        sentTx = await BodhiToken.approve({
           spender: topicAddress,
           value: amount,
           senderAddress,
@@ -332,7 +332,7 @@ module.exports = {
     // Send finalizeResult tx
     let sentTx;
     try {
-      sentTx = await decentralizedOracle.finalizeResult({
+      sentTx = await DecentralizedOracle.finalizeResult({
         contractAddress: oracleAddress,
         senderAddress,
       });
@@ -373,7 +373,7 @@ module.exports = {
       case 'WITHDRAW': {
         // Send withdrawWinnings tx
         try {
-          sentTx = await topicEvent.withdrawWinnings({
+          sentTx = await TopicEvent.withdrawWinnings({
             contractAddress: topicAddress,
             senderAddress,
           });
@@ -386,7 +386,7 @@ module.exports = {
       case 'WITHDRAWESCROW': {
         // Send withdrawEscrow tx
         try {
-          sentTx = await topicEvent.withdrawEscrow({
+          sentTx = await TopicEvent.withdrawEscrow({
             contractAddress: topicAddress,
             senderAddress,
           });
@@ -434,7 +434,7 @@ module.exports = {
       case 'QTUM': {
         // Send sendToAddress tx
         try {
-          txid = await wallet.sendToAddress({
+          txid = await Wallet.sendToAddress({
             address: receiverAddress,
             amount,
             senderAddress,
@@ -449,7 +449,7 @@ module.exports = {
       case 'BOT': {
         // Send transfer tx
         try {
-          sentTx = await bodhiToken.transfer({
+          sentTx = await BodhiToken.transfer({
             to: receiverAddress,
             value: amount,
             senderAddress,
