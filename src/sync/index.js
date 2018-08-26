@@ -202,21 +202,21 @@ const syncOracleResultVoted = async (currentBlockNum) => {
               case 'QTUM': {
                 topic.qtumAmount[vote.optionIdx] =
                   new BigNumber(topic.qtumAmount[vote.optionIdx]).plus(voteBn).toString(10);
-                await DBHelper.updateObjectByQuery(db.Topics, {
-                  address: topic.address,
-                }, {
-                  qtumAmount: topic.qtumAmount,
-                });
+                await DBHelper.updateObjectByQuery(
+                  db.Topics,
+                  { address: topic.address },
+                  { qtumAmount: topic.qtumAmount },
+                );
                 break;
               }
               case 'BOT': {
                 topic.botAmount[vote.optionIdx] =
                   new BigNumber(topic.botAmount[vote.optionIdx]).plus(voteBn).toString(10);
-                await DBHelper.updateObjectByQuery(db.Topics, {
-                  address: topic.address,
-                }, {
-                  botAmount: topic.botAmount,
-                });
+                await DBHelper.updateObjectByQuery(
+                  db.Topics,
+                  { address: topic.address },
+                  { botAmount: topic.botAmount },
+                );
                 break;
               }
               default: {
@@ -504,8 +504,6 @@ const startSync = async (shouldUpdateLocalTxs) => {
   delayThenSync(0, shouldUpdateLocalTxs);
 };
 
-module.exports = {
-  startSync,
-};
+module.exports = { startSync };
 
 /* eslint-enable no-underscore-dangle */
