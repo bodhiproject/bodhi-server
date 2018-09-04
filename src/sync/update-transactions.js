@@ -15,20 +15,30 @@ const { Config, getContractMetadata } = require('../config');
 const { txState, TX_TYPE, TOKEN } = require('../constants');
 const Transaction = require('../models/transaction');
 
+/**
+ * Updates all pending transactions.
+ * @param {number} currentBlockCount Current block number.
+ */
 async function updatePendingTxs(currentBlockCount) {
+  let pendingTxs;
   try {
-    let pendingTxs = await db.Transactions.cfind({ status: txState.PENDING }).sort({ createdTime: -1 }).exec();
+    pendingTxs = await db.Transactions.cfind({ status: txState.PENDING }).sort({ createdTime: -1 }).exec();
     pendingTxs = map(pendingTxs, tx => new Transaction(tx));
-    each(pendingTxs, async (tx) => {
-      await updateTx(tx, currentBlockCount);
-      await updateDB(tx);
-    });
   } catch (err) {
     getLogger().error(`Get pending txs: ${err.message}`);
   }
+
+  each(pendingTxs, async (tx) => {
+    await updateTx(tx, currentBlockCount);
+    await updateDB(tx);
+  });
 }
 
-// Update the Transaction info
+/**
+ * Updates a transaction based on the type.
+ * @param {Transaction} tx Transaction to update.
+ * @param {*} currentBlockCount Current block number.
+ */
 async function updateTx(tx, currentBlockCount) {
   // sendtoaddress does not use the same confirmation method as EVM txs
   if (tx.type === 'TRANSFER' && tx.token === 'QTUM' && !tx.blockNum) {
@@ -46,15 +56,19 @@ async function updateTx(tx, currentBlockCount) {
  * @param {number} currentBlockCount Current block number.
  */
 async function updateQtumTransferTx(tx, currentBlockCount) {
-  const txInfo = await Wallet.getTransaction({ txid: tx.txid });
+  try {
+    const txInfo = await Wallet.getTransaction({ txid: tx.txid });
 
-  if (txInfo.confirmations > 0) {
-    const status = txState.SUCCESS;
-    const gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
-    const blockNum = (currentBlockCount - txInfo.confirmations) + 1;
-    const blockHash = await Blockchain.getBlockHash({ blockNum: tx.blockNum });
-    const blockTime = (await Blockchain.getBlock({ blockHash })).time;
-    tx.onConfirmed(status, blockNum, blockTime, gasUsed);
+    if (txInfo.confirmations > 0) {
+      const status = txState.SUCCESS;
+      const gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
+      const blockNum = (currentBlockCount - txInfo.confirmations) + 1;
+      const blockHash = await Blockchain.getBlockHash({ blockNum: tx.blockNum });
+      const blockTime = (await Blockchain.getBlock({ blockHash })).time;
+      tx.onConfirmed(status, blockNum, blockTime, gasUsed);
+    }
+  } catch (err) {
+    getLogger().error(`updateQtumTransferTx: ${err.message}`);
   }
 }
 
@@ -63,20 +77,24 @@ async function updateQtumTransferTx(tx, currentBlockCount) {
  * @param {Transaction} tx Transaction to update.
  */
 async function updateEvmTx(tx) {
-  const resp = await Blockchain.getTransactionReceipt({ transactionId: tx.txid });
+  try {
+    const resp = await Blockchain.getTransactionReceipt({ transactionId: tx.txid });
 
-  // Response has no receipt, still not written to blockchain
-  if (isEmpty(resp)) {
-    tx.status = txState.PENDING;
-    return;
+    // Response has no receipt, still not written to blockchain
+    if (isEmpty(resp)) {
+      tx.status = txState.PENDING;
+      return;
+    }
+
+    // Receipt found, update existing pending tx
+    const { log, gasUsed, blockNumber, blockHash } = resp[0];
+    const status = isEmpty(log) ? txState.FAIL : txState.SUCCESS;
+    const blockNum = blockNumber;
+    const blockTime = (await Blockchain.getBlock({ blockHash })).time;
+    tx.onConfirmed(status, blockNum, blockTime, gasUsed);
+  } catch (err) {
+    getLogger().error(`updateEvmTx: ${err.message}`);
   }
-
-  // Receipt found, update existing pending tx
-  const { log, gasUsed, blockNumber, blockHash } = resp[0];
-  const status = isEmpty(log) ? txState.FAIL : txState.SUCCESS;
-  const blockNum = blockNumber;
-  const blockTime = (await Blockchain.getBlock({ blockHash })).time;
-  tx.onConfirmed(status, blockNum, blockTime, gasUsed);
 }
 
 /**
@@ -261,68 +279,78 @@ async function executeVote(tx) {
   }
 }
 
-// Execute follow-up transaction for failed txs
+/**
+ * Execute follow-up transaction for failed txs.
+ * @param {Transaction} tx Failed transaction.
+ */
 async function onFailedTx(tx) {
   switch (tx.type) {
     // Approve failed. Reset allowance and delete created Topic/COracle.
-    case 'APPROVECREATEEVENT': {
-      resetApproveAmount(tx, getContractMetadata().AddressManager.address);
-      removeCreatedTopicAndOracle(tx);
+    case TX_TYPE.APPROVECREATEEVENT: {
+      await resetApproveAmount(tx, getContractMetadata().AddressManager.address);
+      await removeCreatedTopicAndOracle(tx);
       break;
     }
-
     // CreateTopic failed. Delete created Topic/COracle.
-    case 'CREATEEVENT': {
-      removeCreatedTopicAndOracle(tx);
+    case TX_TYPE.CREATEEVENT: {
+      await removeCreatedTopicAndOracle(tx);
       break;
     }
-
     // Approve failed. Reset allowance.
-    case 'APPROVESETRESULT':
-    case 'APPROVEVOTE': {
-      resetApproveAmount(tx, tx.topicAddress);
+    case TX_TYPE.APPROVESETRESULT:
+    case TX_TYPE.APPROVEVOTE: {
+      await resetApproveAmount(tx, tx.topicAddress);
       break;
     }
-
     default: {
       break;
     }
   }
 }
 
-// Failed approve tx so call approve for 0.
+/**
+ * Resets the approve amount to 0.
+ * This is a necessary step when trying to approve for an amount greater than the current approved balance.
+ * @param {Transaction} tx Failed transaction.
+ * @param {string} spender Address to approve.
+ */
 async function resetApproveAmount(tx, spender) {
-  let sentTx;
   try {
-    sentTx = await BodhiToken.approve({
+    const approveTx = await BodhiToken.approve({
       spender,
       value: 0,
       senderAddress: tx.senderAddress,
     });
-  } catch (err) {
-    getLogger().error(`resetApproveAmount BodhiToken.approve: ${err.message}`);
-    return;
-  }
 
-  await DBHelper.insertTransaction(db.Transactions, {
-    txid: sentTx.txid,
-    type: 'RESETAPPROVE',
-    status: txState.PENDING,
-    gasLimit: sentTx.args.gasLimit.toString(10),
-    gasPrice: sentTx.args.gasPrice.toFixed(8),
-    createdTime: moment().unix(),
-    version: tx.version,
-    senderAddress: tx.senderAddress,
-    topicAddress: tx.topicAddress,
-    oracleAddress: tx.oracleAddress,
-    name: tx.name,
-  });
+    await DBHelper.insertTransaction(db.Transactions, {
+      type: TX_TYPE.RESETAPPROVE,
+      txid: approveTx.txid,
+      status: txState.PENDING,
+      gasLimit: approveTx.args.gasLimit.toString(10),
+      gasPrice: approveTx.args.gasPrice.toFixed(8),
+      createdTime: moment().unix(),
+      version: tx.version,
+      senderAddress: tx.senderAddress,
+      topicAddress: tx.topicAddress,
+      oracleAddress: tx.oracleAddress,
+      name: tx.name,
+    });
+  } catch (err) {
+    getLogger().error(`resetApproveAmount: ${err.message}`);
+  }
 }
 
-// Remove created Topic/COracle because tx failed
+/**
+ * Removes the Topic and Centralized Oracle from the DB since the tx failed.
+ * @param {Transaction} tx Failed transaction.
+ */
 async function removeCreatedTopicAndOracle(tx) {
-  await DBHelper.removeTopicsByQuery(db.Topics, { txid: tx.txid });
-  await DBHelper.removeOraclesByQuery(db.Oracles, { txid: tx.txid });
+  try {
+    await DBHelper.removeTopicsByQuery(db.Topics, { txid: tx.txid });
+    await DBHelper.removeOraclesByQuery(db.Oracles, { txid: tx.txid });
+  } catch (err) {
+    getLogger().error(`removeCreatedTopicAndOracle: ${err.message}`);
+  }
 }
 
 module.exports = updatePendingTxs;
