@@ -4,7 +4,7 @@ services:
     container_name: "bodhi-server"
     build:
       context: ./
-      dockerfile: ./docker/prod
+      dockerfile: ./docker/prod/Dockerfile
     ports:
       - "3000:3000"
       - "8989:8989"
@@ -31,7 +31,7 @@ services:
     container_name: "bodhi-server"
     build:
       context: ./
-      dockerfile: ./docker/regtest
+      dockerfile: ./docker/regtest/Dockerfile
     ports:
       - "4000:4000"
       - "6767:6767"
