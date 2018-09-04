@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
-const updateLocalTx = require('./update-local-tx');
+const updateTransactions = require('./update-transactions');
 const { getInstance } = require('../qclient');
 const { withdrawType } = require('../constants');
 const { getContractMetadata } = require('../config');
@@ -481,7 +481,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
   getLogger().debug(`Syncing block ${currentBlockNum}`);
 
   if (shouldUpdateLocalTxs) {
-    await updateLocalTx(currentBlockNum);
+    await updateTransactions(currentBlockNum);
     getLogger().debug('Updated local txs');
   }
 
