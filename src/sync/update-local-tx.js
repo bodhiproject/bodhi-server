@@ -1,18 +1,18 @@
 const { map, each, isEmpty } = require('lodash');
 const moment = require('moment');
 
+const Blockchain = require('../api/blockchain');
+const Wallet = require('../api/wallet');
+const BodhiToken = require('../api/bodhi-token');
+const EventFactory = require('../api/event-factory');
+const CentralizedOracle = require('../api/centralized-oracle');
+const DecentralizedOracle = require('../api/decentralized-oracle');
+const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
-const blockchain = require('../api/blockchain');
-const wallet = require('../api/wallet');
-const bodhiToken = require('../api/bodhi-token');
-const eventFactory = require('../api/event-factory');
-const centralizedOracle = require('../api/centralized-oracle');
-const decentralizedOracle = require('../api/decentralized-oracle');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const { Config, getContractMetadata } = require('../config');
 const { txState } = require('../constants');
-const Utils = require('../utils');
 const Transaction = require('../models/transaction');
 
 async function updatePendingTxs(currentBlockCount) {
@@ -41,22 +41,22 @@ async function updatePendingTxs(currentBlockCount) {
 async function updateTx(tx, currentBlockCount) {
   // sendtoaddress does not use the same confirmation method as EVM txs
   if (tx.type === 'TRANSFER' && tx.token === 'QTUM' && !tx.blockNum) {
-    const txInfo = await wallet.getTransaction({ txid: tx.txid });
+    const txInfo = await Wallet.getTransaction({ txid: tx.txid });
 
     if (txInfo.confirmations > 0) {
       tx.status = txState.SUCCESS;
       tx.gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
 
       tx.blockNum = (currentBlockCount - txInfo.confirmations) + 1;
-      const blockHash = await blockchain.getBlockHash({ blockNum: tx.blockNum });
-      const blockInfo = await blockchain.getBlock({ blockHash });
+      const blockHash = await Blockchain.getBlockHash({ blockNum: tx.blockNum });
+      const blockInfo = await Blockchain.getBlock({ blockHash });
       tx.blockTime = blockInfo.time;
     }
     return;
   }
 
   // Update tx status based on EVM tx logs
-  const resp = await blockchain.getTransactionReceipt({ transactionId: tx.txid });
+  const resp = await Blockchain.getTransactionReceipt({ transactionId: tx.txid });
 
   // Response has no receipt, still not accepted by blockchain
   if (isEmpty(resp)) {
@@ -69,7 +69,7 @@ async function updateTx(tx, currentBlockCount) {
   tx.status = isEmpty(log) ? txState.FAIL : txState.SUCCESS;
   tx.gasUsed = gasUsed;
   tx.blockNum = blockNumber;
-  const blockInfo = await blockchain.getBlock({ blockHash });
+  const blockInfo = await Blockchain.getBlock({ blockHash });
   tx.blockTime = blockInfo.time;
 }
 
@@ -122,7 +122,7 @@ async function onSuccessfulTx(tx) {
     // Approve was accepted. Sending createEvent.
     case 'APPROVECREATEEVENT': {
       try {
-        sentTx = await eventFactory.createTopic({
+        sentTx = await EventFactory.createTopic({
           oracleAddress: tx.resultSetterAddress,
           eventName: tx.name,
           resultNames: tx.options,
@@ -168,7 +168,7 @@ async function onSuccessfulTx(tx) {
     // Approve was accepted. Sending setResult.
     case 'APPROVESETRESULT': {
       try {
-        sentTx = await centralizedOracle.setResult({
+        sentTx = await CentralizedOracle.setResult({
           contractAddress: tx.oracleAddress,
           resultIndex: tx.optionIdx,
           senderAddress: tx.senderAddress,
@@ -202,7 +202,7 @@ async function onSuccessfulTx(tx) {
         // Find if voting over threshold to set correct gas limit
         const gasLimit = await Utils.getVotingGasLimit(Oracles, tx.oracleAddress, tx.optionIdx, tx.amount);
 
-        sentTx = await decentralizedOracle.vote({
+        sentTx = await DecentralizedOracle.vote({
           contractAddress: tx.oracleAddress,
           resultIndex: tx.optionIdx,
           botAmount: tx.amount,
@@ -271,7 +271,7 @@ async function onFailedTx(tx) {
 async function resetApproveAmount(tx, spender) {
   let sentTx;
   try {
-    sentTx = await bodhiToken.approve({
+    sentTx = await BodhiToken.approve({
       spender,
       value: 0,
       senderAddress: tx.senderAddress,
