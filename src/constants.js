@@ -28,7 +28,7 @@ module.exports = {
     WITHDRAWING: 'withdrawing',
   },
 
-  withdrawType: {
+  WITHDRAW_TYPE: {
     ESCROW: 'ESCROW',
     WINNINGS: 'WINNINGS',
   },

@@ -5,7 +5,7 @@ const { BigNumber } = require('bignumber.js');
 
 const updateTransactions = require('./update-transactions');
 const { getInstance } = require('../qclient');
-const { withdrawType } = require('../constants');
+const { WITHDRAW_TYPE } = require('../constants');
 const { getContractMetadata } = require('../config');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
@@ -355,7 +355,7 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
       if (rawLog._eventName === 'WinningsWithdrawn') {
         winningsWithdrawnPromises.push(new Promise(async (resolve) => {
           try {
-            const withdraw = new Withdraw(blockNum, txid, contractAddress, rawLog, withdrawType.WINNINGS).translate();
+            const withdraw = new Withdraw(blockNum, txid, contractAddress, rawLog, WITHDRAW_TYPE.WINNINGS).translate();
             await db.Withdraws.insert(withdraw);
 
             resolve();
@@ -391,7 +391,7 @@ const syncEscrowWithdrawn = async (currentBlockNum) => {
       if (rawLog._eventName === 'EscrowWithdrawn') {
         escrowWithdrawnPromises.push(new Promise(async (resolve) => {
           try {
-            const withdraw = new Withdraw(blockNum, txid, undefined, rawLog, withdrawType.ESCROW).translate();
+            const withdraw = new Withdraw(blockNum, txid, undefined, rawLog, WITHDRAW_TYPE.ESCROW).translate();
             await db.Withdraws.insert(withdraw);
 
             resolve();

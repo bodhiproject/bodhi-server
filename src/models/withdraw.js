@@ -4,7 +4,7 @@ const Decoder = require('qweb3').Decoder;
 const Web3Utils = require('web3-utils');
 
 const { isMainnet } = require('../config');
-const { withdrawType } = require('../constants');
+const { WITHDRAW_TYPE } = require('../constants');
 
 class Withdraw {
   constructor(blockNum, txid, contractAddress, rawLog, type) {
@@ -17,7 +17,7 @@ class Withdraw {
     if (_.isEmpty(rawLog)) {
       throw Error('rawLog must not be empty');
     }
-    if (type !== withdrawType.ESCROW && type !== withdrawType.WINNINGS) {
+    if (type !== WITHDRAW_TYPE.ESCROW && type !== WITHDRAW_TYPE.WINNINGS) {
       throw Error(`Invalid escrow type: ${type}`);
     }
 
@@ -31,7 +31,7 @@ class Withdraw {
 
   decode() {
     switch (this.type) {
-      case withdrawType.ESCROW: {
+      case WITHDRAW_TYPE.ESCROW: {
         this.version = null;
         this.topicAddress = this.rawLog._eventAddress;
         this.withdrawerAddress = Decoder.toQtumAddress(this.rawLog._depositer, isMainnet());
@@ -39,7 +39,7 @@ class Withdraw {
         this.botAmount = Web3Utils.hexToNumberString(this.rawLog.escrowAmount);
         break;
       }
-      case withdrawType.WINNINGS: {
+      case WITHDRAW_TYPE.WINNINGS: {
         this.version = this.rawLog._version.toNumber();
         this.topicAddress = this.contractAddress;
         this.withdrawerAddress = Decoder.toQtumAddress(this.rawLog._winner, isMainnet());
