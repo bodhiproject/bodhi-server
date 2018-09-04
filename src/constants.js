@@ -1,10 +1,10 @@
 module.exports = {
-  blockchainEnv: {
+  BLOCKCHAIN_ENV: {
     MAINNET: 'mainnet',
     TESTNET: 'testnet',
   },
 
-  ipcEvent: {
+  IPC_EVENT: {
     SERVER_START_ERROR: 'server-start-error',
     QTUMD_ERROR: 'qtumd-error',
     QTUMD_KILLED: 'qtumd-killed',
@@ -13,13 +13,13 @@ module.exports = {
     WALLET_IMPORT: 'wallet-import',
   },
 
-  execFile: {
+  BIN_TYPE: {
     QTUMD: 'qtumd',
     QTUM_QT: 'qtum-qt',
     QTUM_CLI: 'qtum-cli',
   },
 
-  phase: {
+  PHASE: {
     BETTING: 'betting',
     VOTING: 'voting',
     RESULT_SETTING: 'resultSetting',

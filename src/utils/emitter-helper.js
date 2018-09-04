@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 
-const { ipcEvent } = require('../constants');
+const { IPC_EVENT } = require('../constants');
 
 class EmitterHelper {
   constructor() {
@@ -8,27 +8,27 @@ class EmitterHelper {
   }
 
   onServerStartError(error) {
-    this.emitter.emit(ipcEvent.SERVER_START_ERROR, error);
+    this.emitter.emit(IPC_EVENT.SERVER_START_ERROR, error);
   }
 
   onQtumError(error) {
-    this.emitter.emit(ipcEvent.QTUMD_ERROR, error);
+    this.emitter.emit(IPC_EVENT.QTUMD_ERROR, error);
   }
 
   onQtumKilled() {
-    this.emitter.emit(ipcEvent.QTUMD_KILLED);
+    this.emitter.emit(IPC_EVENT.QTUMD_KILLED);
   }
 
   onWalletEncrypted() {
-    this.emitter.emit(ipcEvent.WALLET_ENCRYPTED);
+    this.emitter.emit(IPC_EVENT.WALLET_ENCRYPTED);
   }
 
   onBackupWallet() {
-    this.emitter.emit(ipcEvent.WALLET_BACKUP);
+    this.emitter.emit(IPC_EVENT.WALLET_BACKUP);
   }
 
   onImportWallet() {
-    this.emitter.emit(ipcEvent.WALLET_IMPORT);
+    this.emitter.emit(IPC_EVENT.WALLET_IMPORT);
   }
 }
 

@@ -4,7 +4,7 @@ const axios = require('axios');
 const https = require('https');
 const portscanner = require('portscanner');
 
-const { execFile } = require('./constants');
+const { BIN_TYPE } = require('./constants');
 const { Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword, getSSLCredentials } = require('./config');
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
@@ -30,7 +30,7 @@ let axiosClient;
 */
 function startQtumWallet() {
   // Start qtum-qt
-  const qtumqtPath = `${getQtumPath()}/${execFile.QTUM_QT}`;
+  const qtumqtPath = `${getQtumPath()}/${BIN_TYPE.QTUM_QT}`;
   getLogger().debug(`qtum-qt dir: ${qtumqtPath}`);
 
   // Construct flags
@@ -84,7 +84,7 @@ function killQtumProcess(emitEvent) {
     }
     flags.push('stop');
 
-    const qtumcliPath = `${getQtumPath()}/${execFile.QTUM_CLI}`;
+    const qtumcliPath = `${getQtumPath()}/${BIN_TYPE.QTUM_CLI}`;
     const res = spawnSync(qtumcliPath, flags);
     const code = res.status;
     if (res.stdout) {
@@ -192,7 +192,7 @@ function startQtumProcess(reindex) {
       flags.push(`-datadir=${process.env.QTUM_DATA_DIR}`);
     }
 
-    const qtumdPath = `${getQtumPath()}/${execFile.QTUMD}`;
+    const qtumdPath = `${getQtumPath()}/${BIN_TYPE.QTUMD}`;
     getLogger().info(`qtumd dir: ${qtumdPath}`);
 
     qtumProcess = spawn(qtumdPath, flags);
@@ -271,7 +271,7 @@ function startServices() {
 
 /*
 * Sets the env and inits all the required processes.
-* @param env {String} blockchainEnv var for mainnet or testnet.
+* @param env {String} BLOCKCHAIN_ENV var for mainnet or testnet.
 * @param qtumPath {String} Full path to the Qtum execs folder.
 * @param encryptionAllowed {Boolean} Are encrypted Qtum wallets allowed.
 */

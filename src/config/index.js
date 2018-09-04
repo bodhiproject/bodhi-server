@@ -2,7 +2,7 @@ const fs = require('fs');
 const { includes, isEmpty, each, split, isNumber } = require('lodash');
 const crypto = require('crypto');
 
-const { blockchainEnv } = require('../constants');
+const { BLOCKCHAIN_ENV } = require('../constants');
 const mainnetMetadata = require('./mainnet/contract-metadata');
 const testnetMetadata = require('./testnet/contract-metadata');
 
@@ -67,7 +67,7 @@ function isMainnet() {
     throw Error('qtumEnv not initialized yet before checking env');
   }
 
-  return qtumEnv === blockchainEnv.MAINNET;
+  return qtumEnv === BLOCKCHAIN_ENV.MAINNET;
 }
 
 function getRPCPassword() {
