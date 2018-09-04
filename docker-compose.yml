@@ -1,8 +1,8 @@
 version: '3.7'
 services:
-  web:
-    container_name: 'bodhi-server'
-    build: .
+  prod:
+    container_name: "bodhi-server"
+    build: ./docker/prod
     ports:
       - "3000:3000"
       - "8989:8989"
@@ -10,8 +10,8 @@ services:
       - QTUM_PATH=./qtum/linux64/bin
       - QTUM_DATA_DIR=/root/.dockervol/.qtum
       - DATA_DIR=/root/.dockervol/.bodhi
-      - SSL_CERT_PATH=/run/secrets/fullchain.pem
       - SSL_KEY_PATH=/run/secrets/privkey.pem
+      - SSL_CERT_PATH=/run/secrets/fullchain.pem
       - LOG_LEVEL=debug
     secrets:
       - privkey.pem
@@ -25,11 +25,11 @@ services:
       options:
         max-size: "1m"
         max-file: "10"
-
 secrets:
   privkey.pem:
     file: /etc/letsencrypt/live/puti.io/privkey.pem
   fullchain.pem:
     file: /etc/letsencrypt/live/puti.io/fullchain.pem
 volumes:
-  bodhidata:
+  bodhiprod:
+  bodhidev:
