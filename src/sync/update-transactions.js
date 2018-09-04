@@ -37,11 +37,11 @@ async function updatePendingTxs(currentBlockCount) {
 /**
  * Updates a transaction based on the type.
  * @param {Transaction} tx Transaction to update.
- * @param {*} currentBlockCount Current block number.
+ * @param {number} currentBlockCount Current block number.
  */
 async function updateTx(tx, currentBlockCount) {
   // sendtoaddress does not use the same confirmation method as EVM txs
-  if (tx.type === 'TRANSFER' && tx.token === 'QTUM' && !tx.blockNum) {
+  if (tx.type === TX_TYPE.TRANSFER && tx.token === TOKEN.QTUM && !tx.blockNum) {
     await updateQtumTransferTx(tx, currentBlockCount);
     return;
   }
