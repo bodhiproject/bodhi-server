@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const { each, split, includes } = require('lodash');
 
 const BodhiServer = require('./server');
 const BodhiConfig = require('./config');
@@ -23,13 +23,19 @@ const Wallet = require('./api/wallet');
 const { startServer } = BodhiServer;
 const { BLOCKCHAIN_ENV } = Constants;
 const { getDevQtumExecPath } = Utils;
-if (_.includes(process.argv, '--testnet')) {
-  startServer(BLOCKCHAIN_ENV.TESTNET, getDevQtumExecPath());
-} else if (_.includes(process.argv, '--mainnet')) {
-  startServer(BLOCKCHAIN_ENV.MAINNET, getDevQtumExecPath());
-} else {
-  console.log('testnet/mainnet flag not found. startServer() will need to be called explicitly.');
-}
+
+// Find chain type (mainnet/testnet/regtest) from flags and start server
+each(process.argv, (arg) => {
+  if (arg.startsWith('--chain')) {
+    const { MAINNET, TESTNET, REGTEST } = BLOCKCHAIN_ENV;
+    const chain = (split(arg, '=', 2))[1];
+    if (includes([MAINNET, TESTNET, REGTEST], chain)) {
+      startServer(chain, getDevQtumExecPath());
+    } else {
+      throw Error(`Invalid type for --chain: ${chain}`);
+    }
+  }
+});
 
 module.exports = {
   BodhiServer,
