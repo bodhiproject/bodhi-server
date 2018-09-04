@@ -60,8 +60,8 @@ function initLogger() {
     logger.level = process.env.LOG_LEVEL || Config.DEFAULT_LOG_LEVEL;
 
     // Log env and paths
-    logger.info(`Chain Network: ${getQtumEnv()}`);
-    logger.info(`Qtum Path: ${getQtumPath()}`);
+    logger.info(`Chain network: ${getQtumEnv()}`);
+    logger.info(`Qtum path: ${getQtumPath()}`);
     logger.info(`Logs path: ${logDir}`);
   }
 }
