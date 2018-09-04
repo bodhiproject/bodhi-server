@@ -12,7 +12,7 @@ const { getLogger } = require('../utils/logger');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const { Config, getContractMetadata } = require('../config');
-const { txState, TX_TYPE } = require('../constants');
+const { txState, TX_TYPE, TOKEN } = require('../constants');
 const Transaction = require('../models/transaction');
 
 async function updatePendingTxs(currentBlockCount) {
@@ -123,85 +123,22 @@ async function updateDB(tx) {
 
 /**
  * Execute follow-up transaction for successful txs.
- * @param {Transaction} tx Updated transaction.
+ * @param {Transaction} tx Successful transaction.
  */
 async function onSuccessfulTx(tx) {
-  const { Oracles, Transactions } = db;
-  let sentTx;
-
   switch (tx.type) {
-    case 'APPROVECREATEEVENT': {
-      executeCreateEvent(tx);
+    case TX_TYPE.APPROVECREATEEVENT: {
+      await executeCreateEvent(tx);
       break;
     }
-
-    // Approve was accepted. Sending setResult.
-    case 'APPROVESETRESULT': {
-      try {
-        sentTx = await CentralizedOracle.setResult({
-          contractAddress: tx.oracleAddress,
-          resultIndex: tx.optionIdx,
-          senderAddress: tx.senderAddress,
-        });
-      } catch (err) {
-        getLogger().error(`onSuccessfulTx CentralizedOracle.setResult: ${err.message}`);
-        return;
-      }
-
-      await DBHelper.insertTransaction(Transactions, {
-        txid: sentTx.txid,
-        version: tx.version,
-        type: 'SETRESULT',
-        status: txState.PENDING,
-        gasLimit: sentTx.args.gasLimit.toString(10),
-        gasPrice: sentTx.args.gasPrice.toFixed(8),
-        createdTime: moment().unix(),
-        senderAddress: tx.senderAddress,
-        topicAddress: tx.topicAddress,
-        oracleAddress: tx.oracleAddress,
-        optionIdx: tx.optionIdx,
-        token: 'BOT',
-        amount: tx.amount,
-      });
+    case TX_TYPE.APPROVESETRESULT: {
+      await executeSetResult(tx);
       break;
     }
-
-    // Approve was accepted. Sending vote.
-    case 'APPROVEVOTE': {
-      try {
-        // Find if voting over threshold to set correct gas limit
-        const gasLimit = await Utils.getVotingGasLimit(Oracles, tx.oracleAddress, tx.optionIdx, tx.amount);
-
-        sentTx = await DecentralizedOracle.vote({
-          contractAddress: tx.oracleAddress,
-          resultIndex: tx.optionIdx,
-          botAmount: tx.amount,
-          senderAddress: tx.senderAddress,
-          gasLimit,
-        });
-      } catch (err) {
-        getLogger().error(`onSuccessfulTx DecentralizedOracle.vote: ${err.message}`);
-        return;
-      }
-
-      await DBHelper.insertTransaction(Transactions, {
-        txid: sentTx.txid,
-        version: tx.version,
-        type: 'VOTE',
-        status: txState.PENDING,
-        gasLimit: sentTx.args.gasLimit.toString(10),
-        gasPrice: sentTx.args.gasPrice.toFixed(8),
-        createdTime: moment().unix(),
-        senderAddress: tx.senderAddress,
-        topicAddress: tx.topicAddress,
-        oracleAddress: tx.oracleAddress,
-        optionIdx: tx.optionIdx,
-        token: 'BOT',
-        amount: tx.amount,
-      });
+    case TX_TYPE.APPROVEVOTE: {
+      await executeVote(tx);
       break;
     }
-
     default: {
       break;
     }
@@ -252,6 +189,75 @@ async function executeCreateEvent(tx) {
     });
   } catch (err) {
     getLogger().error(`executeCreateEvent: ${err.message}`);
+  }
+}
+
+/**
+ * The approve for a set result was accepted. Execute the set result tx.
+ * @param {Transaction} tx Accepted APPROVESETRESULT tx.
+ */
+async function executeSetResult(tx) {
+  try {
+    const setResultTx = await CentralizedOracle.setResult({
+      contractAddress: tx.oracleAddress,
+      resultIndex: tx.optionIdx,
+      senderAddress: tx.senderAddress,
+    });
+
+    await DBHelper.insertTransaction(db.Transactions, {
+      type: TX_TYPE.SETRESULT,
+      txid: setResultTx.txid,
+      version: tx.version,
+      status: txState.PENDING,
+      gasLimit: setResultTx.args.gasLimit.toString(10),
+      gasPrice: setResultTx.args.gasPrice.toFixed(8),
+      createdTime: moment().unix(),
+      senderAddress: tx.senderAddress,
+      topicAddress: tx.topicAddress,
+      oracleAddress: tx.oracleAddress,
+      optionIdx: tx.optionIdx,
+      token: TOKEN.BOT,
+      amount: tx.amount,
+    });
+  } catch (err) {
+    getLogger().error(`executeSetResult: ${err.message}`);
+  }
+}
+
+/**
+ * The approve for a vote was accepted. Execute the vote tx.
+ * @param {Transaction} tx Accepted APPROVEVOTE tx.
+ */
+async function executeVote(tx) {
+  try {
+    // Find if voting over threshold to set correct gas limit
+    const gasLimit = await Utils.getVotingGasLimit(db.Oracles, tx.oracleAddress, tx.optionIdx, tx.amount);
+
+    const voteTx = await DecentralizedOracle.vote({
+      contractAddress: tx.oracleAddress,
+      resultIndex: tx.optionIdx,
+      botAmount: tx.amount,
+      senderAddress: tx.senderAddress,
+      gasLimit,
+    });
+
+    await DBHelper.insertTransaction(db.Transactions, {
+      type: TX_TYPE.VOTE,
+      txid: voteTx.txid,
+      version: tx.version,
+      status: txState.PENDING,
+      gasLimit: voteTx.args.gasLimit.toString(10),
+      gasPrice: voteTx.args.gasPrice.toFixed(8),
+      createdTime: moment().unix(),
+      senderAddress: tx.senderAddress,
+      topicAddress: tx.topicAddress,
+      oracleAddress: tx.oracleAddress,
+      optionIdx: tx.optionIdx,
+      token: TOKEN.BOT,
+      amount: tx.amount,
+    });
+  } catch (err) {
+    getLogger().error(`executeVote: ${err.message}`);
   }
 }
 
