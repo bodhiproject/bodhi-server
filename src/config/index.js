@@ -49,8 +49,6 @@ function setQtumEnv(env, path) {
 
   qtumEnv = env;
   qtumPath = path;
-  console.log(`Chain Network: ${qtumEnv}`);
-  console.log(`Qtum Path: ${qtumPath}`);
 }
 
 function getQtumEnv() {
