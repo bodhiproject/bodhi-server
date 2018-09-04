@@ -22,4 +22,4 @@ COPY . .
 EXPOSE 4000 6767
 
 # Run server
-CMD [ "npm", "run", "stagetest" ]
+CMD [ "npm", "run", "stagereg" ]
