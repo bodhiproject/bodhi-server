@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   prod:
-    container_name: "bodhi-server"
+    container_name: "bodhi-server-prod"
     build:
       context: ./
       dockerfile: ./docker/prod/Dockerfile
@@ -28,7 +28,7 @@ services:
         max-size: "1m"
         max-file: "10"
   regtest:
-    container_name: "bodhi-server"
+    container_name: "bodhi-server-regtest"
     build:
       context: ./
       dockerfile: ./docker/regtest/Dockerfile
