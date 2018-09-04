@@ -1,4 +1,4 @@
-const { each, isEmpty } = require('lodash');
+const { map, each, isEmpty } = require('lodash');
 const moment = require('moment');
 
 const { getLogger } = require('../utils/logger');
@@ -13,11 +13,13 @@ const DBHelper = require('../db/db-helper');
 const { Config, getContractMetadata } = require('../config');
 const { txState } = require('../constants');
 const Utils = require('../utils');
+const Transaction = require('../models/transaction');
 
 async function updatePendingTxs(currentBlockCount) {
   let pendingTxs;
   try {
     pendingTxs = await db.Transactions.cfind({ status: txState.PENDING }).sort({ createdTime: -1 }).exec();
+    pendingTxs = map(pendingTxs, tx => new Transaction(tx));
   } catch (err) {
     getLogger().error(`Get pending txs: ${err.message}`);
     return;
