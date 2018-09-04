@@ -17,7 +17,10 @@ module.exports = {
     "consistent-return": 0,
     "max-len": [2,
       {
-        "code": 120
+        "code": 120,
+        "ignoreComments": true,
+        "ignoreUrls": true,
+        "ignoreStrings": true
       }
     ],
     "no-console": 0,

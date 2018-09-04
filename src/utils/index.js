@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const { isEmpty, includes, each, split, map } = require('lodash');
 const Web3Utils = require('web3-utils');
 
-const { Config, isMainnet } = require('../config');
+const { Config, getQtumEnv } = require('../config');
 const { getLogger } = require('./logger');
 
 /**
@@ -33,7 +33,7 @@ function getBaseDataDir() {
       throw Error(`Operating system not supported: ${process.platform}`);
     }
   }
-  const envDir = isMainnet() ? 'mainnet' : 'testnet';
+  const envDir = getQtumEnv();
   const dataDir = Config.IS_DEV ? 'dev' : 'data';
   return `${osBasePath}/${envDir}/${dataDir}`;
 }

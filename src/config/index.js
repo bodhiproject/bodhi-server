@@ -30,8 +30,8 @@ const Config = {
 };
 const rpcPassword = getRandomPassword(); // Generate random password for every session
 
-let qtumEnv; // Qtumd environment var: testnet/mainnet
-let qtumPath; // Path to Qtum executables
+let qtumEnv; // qtumd chain network: mainnet/testnet/regtest
+let qtumPath; // path to Qtum executables
 
 function setQtumEnv(env, path) {
   if (isEmpty(env)) {
@@ -49,11 +49,16 @@ function setQtumEnv(env, path) {
 
   qtumEnv = env;
   qtumPath = path;
-  console.log(`Environment: ${qtumEnv}`);
+  console.log(`Chain Network: ${qtumEnv}`);
   console.log(`Qtum Path: ${qtumPath}`);
 }
 
 function getQtumEnv() {
+  // Throw an error to ensure no code is using this check before it is initialized
+  if (!qtumEnv) {
+    throw Error('qtumEnv not initialized yet before checking env');
+  }
+
   return qtumEnv;
 }
 
