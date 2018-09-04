@@ -2,6 +2,7 @@ module.exports = {
   BLOCKCHAIN_ENV: {
     MAINNET: 'mainnet',
     TESTNET: 'testnet',
+    REGTEST: 'regtest',
   },
 
   IPC_EVENT: {
