@@ -12,53 +12,60 @@ const { getLogger } = require('../utils/logger');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const { Config, getContractMetadata } = require('../config');
-const { txState } = require('../constants');
+const { txState, TX_TYPE } = require('../constants');
 const Transaction = require('../models/transaction');
 
 async function updatePendingTxs(currentBlockCount) {
-  let pendingTxs;
   try {
-    pendingTxs = await db.Transactions.cfind({ status: txState.PENDING }).sort({ createdTime: -1 }).exec();
+    let pendingTxs = await db.Transactions.cfind({ status: txState.PENDING }).sort({ createdTime: -1 }).exec();
     pendingTxs = map(pendingTxs, tx => new Transaction(tx));
-  } catch (err) {
-    getLogger().error(`Get pending txs: ${err.message}`);
-    return;
-  }
-
-  // TODO: batch to avoid too many rpc calls
-  const updatePromises = [];
-  each(pendingTxs, (tx) => {
-    updatePromises.push(new Promise(async (resolve) => {
+    each(pendingTxs, async (tx) => {
       await updateTx(tx, currentBlockCount);
       await updateDB(tx);
-      resolve();
-    }));
-  });
-  await Promise.all(updatePromises);
+    });
+  } catch (err) {
+    getLogger().error(`Get pending txs: ${err.message}`);
+  }
 }
 
 // Update the Transaction info
 async function updateTx(tx, currentBlockCount) {
   // sendtoaddress does not use the same confirmation method as EVM txs
   if (tx.type === 'TRANSFER' && tx.token === 'QTUM' && !tx.blockNum) {
-    const txInfo = await Wallet.getTransaction({ txid: tx.txid });
-
-    if (txInfo.confirmations > 0) {
-      tx.status = txState.SUCCESS;
-      tx.gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
-
-      tx.blockNum = (currentBlockCount - txInfo.confirmations) + 1;
-      const blockHash = await Blockchain.getBlockHash({ blockNum: tx.blockNum });
-      const blockInfo = await Blockchain.getBlock({ blockHash });
-      tx.blockTime = blockInfo.time;
-    }
+    await updateQtumTransferTx(tx, currentBlockCount);
     return;
   }
 
   // Update tx status based on EVM tx logs
+  await updateEvmTx(tx);
+}
+
+/**
+ * Updates a Qtum transfer tx. The confirmation method is not the same as an EVM tx confirmation.
+ * @param {Transaction} tx Transaction to update.
+ * @param {number} currentBlockCount Current block number.
+ */
+async function updateQtumTransferTx(tx, currentBlockCount) {
+  const txInfo = await Wallet.getTransaction({ txid: tx.txid });
+
+  if (txInfo.confirmations > 0) {
+    const status = txState.SUCCESS;
+    const gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
+    const blockNum = (currentBlockCount - txInfo.confirmations) + 1;
+    const blockHash = await Blockchain.getBlockHash({ blockNum: tx.blockNum });
+    const blockTime = (await Blockchain.getBlock({ blockHash })).time;
+    tx.onConfirmed(status, blockNum, blockTime, gasUsed);
+  }
+}
+
+/**
+ * Updates an EVM tx based on the returned logs.
+ * @param {Transaction} tx Transaction to update.
+ */
+async function updateEvmTx(tx) {
   const resp = await Blockchain.getTransactionReceipt({ transactionId: tx.txid });
 
-  // Response has no receipt, still not accepted by blockchain
+  // Response has no receipt, still not written to blockchain
   if (isEmpty(resp)) {
     tx.status = txState.PENDING;
     return;
@@ -66,18 +73,19 @@ async function updateTx(tx, currentBlockCount) {
 
   // Receipt found, update existing pending tx
   const { log, gasUsed, blockNumber, blockHash } = resp[0];
-  tx.status = isEmpty(log) ? txState.FAIL : txState.SUCCESS;
-  tx.gasUsed = gasUsed;
-  tx.blockNum = blockNumber;
-  const blockInfo = await Blockchain.getBlock({ blockHash });
-  tx.blockTime = blockInfo.time;
+  const status = isEmpty(log) ? txState.FAIL : txState.SUCCESS;
+  const blockNum = blockNumber;
+  const blockTime = (await Blockchain.getBlock({ blockHash })).time;
+  tx.onConfirmed(status, blockNum, blockTime, gasUsed);
 }
 
-// Update the DB with new Transaction info
+/**
+ * Update the DB with new transaction info.
+ * @param {Transaction} tx Updated transaction.
+ */
 async function updateDB(tx) {
   if (tx.status !== txState.PENDING) {
     try {
-      getLogger().debug(`Update: ${tx.status} Transaction ${tx.type} txid:${tx.txid}`);
       const updateRes = await db.Transactions.update(
         { txid: tx.txid },
         {
@@ -113,55 +121,17 @@ async function updateDB(tx) {
   }
 }
 
-// Execute follow-up transaction for successful txs
+/**
+ * Execute follow-up transaction for successful txs.
+ * @param {Transaction} tx Updated transaction.
+ */
 async function onSuccessfulTx(tx) {
   const { Oracles, Transactions } = db;
   let sentTx;
 
   switch (tx.type) {
-    // Approve was accepted. Sending createEvent.
     case 'APPROVECREATEEVENT': {
-      try {
-        sentTx = await EventFactory.createTopic({
-          oracleAddress: tx.resultSetterAddress,
-          eventName: tx.name,
-          resultNames: tx.options,
-          bettingStartTime: tx.bettingStartTime,
-          bettingEndTime: tx.bettingEndTime,
-          resultSettingStartTime: tx.resultSettingStartTime,
-          resultSettingEndTime: tx.resultSettingEndTime,
-          senderAddress: tx.senderAddress,
-        });
-      } catch (err) {
-        getLogger().error(`onSuccessfulTx EventFactory.createTopic: ${err.message}`);
-        return;
-      }
-
-      // Update Topic's approve txid with the createTopic txid
-      await DBHelper.updateObjectByQuery(db.Topics, { txid: tx.txid }, { txid: sentTx.txid });
-
-      // Update Oracle's approve txid with the createTopic txid
-      await DBHelper.updateObjectByQuery(db.Oracles, { txid: tx.txid }, { txid: sentTx.txid });
-
-      await DBHelper.insertTransaction(Transactions, {
-        txid: sentTx.txid,
-        version: tx.version,
-        type: 'CREATEEVENT',
-        status: txState.PENDING,
-        gasLimit: sentTx.args.gasLimit.toString(10),
-        gasPrice: sentTx.args.gasPrice.toFixed(8),
-        createdTime: moment().unix(),
-        senderAddress: tx.senderAddress,
-        name: tx.name,
-        options: tx.options,
-        resultSetterAddress: tx.resultSetterAddress,
-        bettingStartTime: tx.bettingStartTime,
-        bettingEndTime: tx.bettingEndTime,
-        resultSettingStartTime: tx.resultSettingStartTime,
-        resultSettingEndTime: tx.resultSettingEndTime,
-        amount: tx.amount,
-        token: tx.token,
-      });
+      executeCreateEvent(tx);
       break;
     }
 
@@ -235,6 +205,53 @@ async function onSuccessfulTx(tx) {
     default: {
       break;
     }
+  }
+}
+
+/**
+ * The approve for a create event was accepted. Execute the create event tx.
+ * @param {Transaction} tx Accepted APPROVECREATEEVENT tx.
+ */
+async function executeCreateEvent(tx) {
+  try {
+    const createEventTx = await EventFactory.createTopic({
+      oracleAddress: tx.resultSetterAddress,
+      eventName: tx.name,
+      resultNames: tx.options,
+      bettingStartTime: tx.bettingStartTime,
+      bettingEndTime: tx.bettingEndTime,
+      resultSettingStartTime: tx.resultSettingStartTime,
+      resultSettingEndTime: tx.resultSettingEndTime,
+      senderAddress: tx.senderAddress,
+    });
+
+    // Update Topic's approve txid with the createTopic txid
+    await DBHelper.updateObjectByQuery(db.Topics, { txid: tx.txid }, { txid: createEventTx.txid });
+
+    // Update Oracle's approve txid with the createTopic txid
+    await DBHelper.updateObjectByQuery(db.Oracles, { txid: tx.txid }, { txid: createEventTx.txid });
+
+    await DBHelper.insertTransaction(db.Transactions, {
+      type: TX_TYPE.CREATEEVENT,
+      txid: createEventTx.txid,
+      version: tx.version,
+      status: txState.PENDING,
+      gasLimit: createEventTx.args.gasLimit.toString(10),
+      gasPrice: createEventTx.args.gasPrice.toFixed(8),
+      createdTime: moment().unix(),
+      senderAddress: tx.senderAddress,
+      name: tx.name,
+      options: tx.options,
+      resultSetterAddress: tx.resultSetterAddress,
+      bettingStartTime: tx.bettingStartTime,
+      bettingEndTime: tx.bettingEndTime,
+      resultSettingStartTime: tx.resultSettingStartTime,
+      resultSettingEndTime: tx.resultSettingEndTime,
+      amount: tx.amount,
+      token: tx.token,
+    });
+  } catch (err) {
+    getLogger().error(`executeCreateEvent: ${err.message}`);
   }
 }
 

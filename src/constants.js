@@ -56,7 +56,7 @@ module.exports = {
     WITHDRAW: 'WITHDRAW',
     WITHDRAWESCROW: 'WITHDRAWESCROW',
     TRANSFER: 'TRANSFER',
-  }
+  },
 
   SATOSHI_CONVERSION: 10 ** 8,
 };
