@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const moment = require('moment');
 
-const { txState, TX_TYPE, TOKEN } = require('../constants');
+const { TX_STATE, TX_TYPE, TOKEN } = require('../constants');
 const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
 const Utils = require('../utils');
@@ -87,7 +87,7 @@ module.exports = {
     const tx = new Transaction({
       type,
       txid: sentTx.txid,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       createdBlock: await getBlockNum(),
       createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
@@ -171,7 +171,7 @@ module.exports = {
     const tx = new Transaction({
       type: TX_TYPE.BET,
       txid: sentTx.txid,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       createdBlock: await getBlockNum(),
       createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
@@ -234,7 +234,7 @@ module.exports = {
     const tx = new Transaction({
       type,
       txid: sentTx.txid,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       createdBlock: await getBlockNum(),
       createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
@@ -302,7 +302,7 @@ module.exports = {
     const tx = new Transaction({
       type,
       txid: sentTx.txid,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       createdBlock: await getBlockNum(),
       createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
@@ -360,7 +360,7 @@ module.exports = {
     const tx = new Transaction({
       type: TX_TYPE.FINALIZERESULT,
       txid: sentTx.txid,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       createdBlock: await getBlockNum(),
       createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
@@ -421,7 +421,7 @@ module.exports = {
     const tx = new Transaction({
       type,
       txid: sentTx.txid,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       createdBlock: await getBlockNum(),
       createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
@@ -489,7 +489,7 @@ module.exports = {
     const tx = new Transaction({
       type: TX_TYPE.TRANSFER,
       txid,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       createdBlock: await getBlockNum(),
       createdTime: moment().unix(),
       gasLimit: gasLimit.toString(10),

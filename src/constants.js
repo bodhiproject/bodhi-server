@@ -13,12 +13,6 @@ module.exports = {
     WALLET_IMPORT: 'wallet-import',
   },
 
-  txState: {
-    PENDING: 'PENDING',
-    SUCCESS: 'SUCCESS',
-    FAIL: 'FAIL',
-  },
-
   execFile: {
     QTUMD: 'qtumd',
     QTUM_QT: 'qtum-qt',
@@ -57,6 +51,12 @@ module.exports = {
     WITHDRAWESCROW: 'WITHDRAWESCROW',
     TRANSFER: 'TRANSFER',
     RESETAPPROVE: 'RESETAPPROVE',
+  },
+
+  TX_STATE: {
+    PENDING: 'PENDING',
+    SUCCESS: 'SUCCESS',
+    FAIL: 'FAIL',
   },
 
   SATOSHI_CONVERSION: 10 ** 8,

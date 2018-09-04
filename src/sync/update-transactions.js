@@ -12,7 +12,7 @@ const { getLogger } = require('../utils/logger');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const { Config, getContractMetadata } = require('../config');
-const { txState, TX_TYPE, TOKEN } = require('../constants');
+const { TX_STATE, TX_TYPE, TOKEN } = require('../constants');
 const Transaction = require('../models/transaction');
 
 /**
@@ -22,7 +22,7 @@ const Transaction = require('../models/transaction');
 async function updatePendingTxs(currentBlockCount) {
   let pendingTxs;
   try {
-    pendingTxs = await db.Transactions.cfind({ status: txState.PENDING }).sort({ createdTime: -1 }).exec();
+    pendingTxs = await db.Transactions.cfind({ status: TX_STATE.PENDING }).sort({ createdTime: -1 }).exec();
     pendingTxs = map(pendingTxs, tx => new Transaction(tx));
   } catch (err) {
     getLogger().error(`Get pending txs: ${err.message}`);
@@ -60,7 +60,7 @@ async function updateQtumTransferTx(tx, currentBlockCount) {
     const txInfo = await Wallet.getTransaction({ txid: tx.txid });
 
     if (txInfo.confirmations > 0) {
-      const status = txState.SUCCESS;
+      const status = TX_STATE.SUCCESS;
       const gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
       const blockNum = (currentBlockCount - txInfo.confirmations) + 1;
       const blockHash = await Blockchain.getBlockHash({ blockNum: tx.blockNum });
@@ -82,13 +82,13 @@ async function updateEvmTx(tx) {
 
     // Response has no receipt, still not written to blockchain
     if (isEmpty(resp)) {
-      tx.status = txState.PENDING;
+      tx.status = TX_STATE.PENDING;
       return;
     }
 
     // Receipt found, update existing pending tx
     const { log, gasUsed, blockNumber, blockHash } = resp[0];
-    const status = isEmpty(log) ? txState.FAIL : txState.SUCCESS;
+    const status = isEmpty(log) ? TX_STATE.FAIL : TX_STATE.SUCCESS;
     const blockNum = blockNumber;
     const blockTime = (await Blockchain.getBlock({ blockHash })).time;
     tx.onConfirmed(status, blockNum, blockTime, gasUsed);
@@ -102,7 +102,7 @@ async function updateEvmTx(tx) {
  * @param {Transaction} tx Updated transaction.
  */
 async function updateDB(tx) {
-  if (tx.status !== txState.PENDING) {
+  if (tx.status !== TX_STATE.PENDING) {
     try {
       const updateRes = await db.Transactions.update(
         { txid: tx.txid },
@@ -120,11 +120,11 @@ async function updateDB(tx) {
       // Execute follow up tx
       if (updatedTx) {
         switch (updatedTx.status) {
-          case txState.SUCCESS: {
+          case TX_STATE.SUCCESS: {
             await onSuccessfulTx(updatedTx);
             break;
           }
-          case txState.FAIL: {
+          case TX_STATE.FAIL: {
             await onFailedTx(updatedTx);
             break;
           }
@@ -190,7 +190,7 @@ async function executeCreateEvent(tx) {
       type: TX_TYPE.CREATEEVENT,
       txid: createEventTx.txid,
       version: tx.version,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       gasLimit: createEventTx.args.gasLimit.toString(10),
       gasPrice: createEventTx.args.gasPrice.toFixed(8),
       createdTime: moment().unix(),
@@ -226,7 +226,7 @@ async function executeSetResult(tx) {
       type: TX_TYPE.SETRESULT,
       txid: setResultTx.txid,
       version: tx.version,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       gasLimit: setResultTx.args.gasLimit.toString(10),
       gasPrice: setResultTx.args.gasPrice.toFixed(8),
       createdTime: moment().unix(),
@@ -263,7 +263,7 @@ async function executeVote(tx) {
       type: TX_TYPE.VOTE,
       txid: voteTx.txid,
       version: tx.version,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       gasLimit: voteTx.args.gasLimit.toString(10),
       gasPrice: voteTx.args.gasPrice.toFixed(8),
       createdTime: moment().unix(),
@@ -325,7 +325,7 @@ async function resetApproveAmount(tx, spender) {
     await DBHelper.insertTransaction(db.Transactions, {
       type: TX_TYPE.RESETAPPROVE,
       txid: approveTx.txid,
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
       gasLimit: approveTx.args.gasLimit.toString(10),
       gasPrice: approveTx.args.gasPrice.toFixed(8),
       createdTime: moment().unix(),
