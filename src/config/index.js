@@ -54,20 +54,25 @@ function setQtumEnv(env, path) {
 function getQtumEnv() {
   // Throw an error to ensure no code is using this check before it is initialized
   if (!qtumEnv) {
-    throw Error('qtumEnv not initialized yet before checking env');
+    throw Error('qtumEnv not initialized yet.');
   }
 
   return qtumEnv;
 }
 
 function getQtumPath() {
+  // Throw an error to ensure no code is using this check before it is initialized
+  if (!qtumPath) {
+    throw Error('qtumPath not initialized yet.');
+  }
+
   return qtumPath;
 }
 
 function isMainnet() {
   // Throw an error to ensure no code is using this check before it is initialized
   if (!qtumEnv) {
-    throw Error('qtumEnv not initialized yet before checking env');
+    throw Error('qtumEnv not initialized yet.');
   }
 
   return qtumEnv === BLOCKCHAIN_ENV.MAINNET;
