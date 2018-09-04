@@ -1,10 +1,10 @@
 module.exports = {
-  blockchainEnv: {
+  BLOCKCHAIN_ENV: {
     MAINNET: 'mainnet',
     TESTNET: 'testnet',
   },
 
-  ipcEvent: {
+  IPC_EVENT: {
     SERVER_START_ERROR: 'server-start-error',
     QTUMD_ERROR: 'qtumd-error',
     QTUMD_KILLED: 'qtumd-killed',
@@ -13,19 +13,13 @@ module.exports = {
     WALLET_IMPORT: 'wallet-import',
   },
 
-  txState: {
-    PENDING: 'PENDING',
-    SUCCESS: 'SUCCESS',
-    FAIL: 'FAIL',
-  },
-
-  execFile: {
+  BIN_TYPE: {
     QTUMD: 'qtumd',
     QTUM_QT: 'qtum-qt',
     QTUM_CLI: 'qtum-cli',
   },
 
-  phase: {
+  PHASE: {
     BETTING: 'betting',
     VOTING: 'voting',
     RESULT_SETTING: 'resultSetting',
@@ -34,9 +28,35 @@ module.exports = {
     WITHDRAWING: 'withdrawing',
   },
 
-  withdrawType: {
+  WITHDRAW_TYPE: {
     ESCROW: 'ESCROW',
     WINNINGS: 'WINNINGS',
+  },
+
+  TOKEN: {
+    QTUM: 'QTUM',
+    BOT: 'BOT',
+  },
+
+  TX_TYPE: {
+    CREATEEVENT: 'CREATEEVENT',
+    APPROVECREATEEVENT: 'APPROVECREATEEVENT',
+    BET: 'BET',
+    SETRESULT: 'SETRESULT',
+    APPROVESETRESULT: 'APPROVESETRESULT',
+    VOTE: 'VOTE',
+    APPROVEVOTE: 'APPROVEVOTE',
+    FINALIZERESULT: 'FINALIZERESULT',
+    WITHDRAW: 'WITHDRAW',
+    WITHDRAWESCROW: 'WITHDRAWESCROW',
+    TRANSFER: 'TRANSFER',
+    RESETAPPROVE: 'RESETAPPROVE',
+  },
+
+  TX_STATE: {
+    PENDING: 'PENDING',
+    SUCCESS: 'SUCCESS',
+    FAIL: 'FAIL',
   },
 
   SATOSHI_CONVERSION: 10 ** 8,

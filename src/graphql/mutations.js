@@ -1,17 +1,28 @@
 const _ = require('lodash');
 const moment = require('moment');
 
-const { txState } = require('../constants');
+const { TX_STATE, TX_TYPE, TOKEN } = require('../constants');
 const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
-const bodhiToken = require('../api/bodhi-token');
-const eventFactory = require('../api/event-factory');
-const topicEvent = require('../api/topic-event');
-const centralizedOracle = require('../api/centralized-oracle');
-const decentralizedOracle = require('../api/decentralized-oracle');
-const wallet = require('../api/wallet');
+const Blockchain = require('../api/blockchain');
+const BodhiToken = require('../api/bodhi-token');
+const EventFactory = require('../api/event-factory');
+const TopicEvent = require('../api/topic-event');
+const CentralizedOracle = require('../api/centralized-oracle');
+const DecentralizedOracle = require('../api/decentralized-oracle');
+const Wallet = require('../api/wallet');
+const Transaction = require('../models/transaction');
+
+const getBlockNum = async () => {
+  try {
+    return await Blockchain.getBlockCount();
+  } catch (err) {
+    getLogger().error(`getBlockNum error: ${err.message}`);
+    throw err;
+  }
+};
 
 module.exports = {
   createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
@@ -39,9 +50,9 @@ module.exports = {
     let sentTx;
     if (await Utils.isAllowanceEnough(senderAddress, addressManagerAddr, amount)) {
       // Send createTopic tx
-      type = 'CREATEEVENT';
+      type = TX_TYPE.CREATEEVENT;
       try {
-        sentTx = await eventFactory.createTopic({
+        sentTx = await EventFactory.createTopic({
           oracleAddress: resultSetterAddress,
           eventName: name,
           resultNames: options,
@@ -57,9 +68,9 @@ module.exports = {
       }
     } else {
       // Send approve first since allowance is not enough
-      type = 'APPROVECREATEEVENT';
+      type = TX_TYPE.APPROVECREATEEVENT;
       try {
-        sentTx = await bodhiToken.approve({
+        sentTx = await BodhiToken.approve({
           spender: addressManagerAddr,
           value: amount,
           senderAddress,
@@ -73,10 +84,11 @@ module.exports = {
     const version = Config.CONTRACT_VERSION_NUM;
 
     // Insert Transaction
-    const tx = {
-      txid: sentTx.txid,
+    const tx = new Transaction({
       type,
-      status: txState.PENDING,
+      txid: sentTx.txid,
+      status: TX_STATE.PENDING,
+      createdBlock: await getBlockNum(),
       createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
       gasPrice: sentTx.args.gasPrice.toFixed(8),
@@ -90,8 +102,8 @@ module.exports = {
       resultSettingStartTime,
       resultSettingEndTime,
       amount,
-      token: 'BOT',
-    };
+      token: TOKEN.BOT,
+    });
     await DBHelper.insertTransaction(Transactions, tx);
 
     // Insert Topic
@@ -115,7 +127,7 @@ module.exports = {
       status: 'CREATED',
       version,
       resultSetterAddress,
-      token: 'QTUM',
+      token: TOKEN.QTUM,
       name,
       options,
       optionIdxs: Array.from(Array(options).keys()),
@@ -144,7 +156,7 @@ module.exports = {
     // Send bet tx
     let sentTx;
     try {
-      sentTx = await centralizedOracle.bet({
+      sentTx = await CentralizedOracle.bet({
         contractAddress: oracleAddress,
         index: optionIdx,
         amount,
@@ -156,21 +168,22 @@ module.exports = {
     }
 
     // Insert Transaction
-    const tx = {
+    const tx = new Transaction({
+      type: TX_TYPE.BET,
       txid: sentTx.txid,
-      type: 'BET',
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
+      createdBlock: await getBlockNum(),
+      createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
       gasPrice: sentTx.args.gasPrice.toFixed(8),
-      createdTime: moment().unix(),
       senderAddress,
       version,
       topicAddress,
       oracleAddress,
       optionIdx,
-      token: 'QTUM',
+      token: TOKEN.QTUM,
       amount,
-    };
+    });
     await DBHelper.insertTransaction(Transactions, tx);
 
     return tx;
@@ -191,9 +204,9 @@ module.exports = {
     let sentTx;
     if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
       // Send setResult since the allowance is enough
-      type = 'SETRESULT';
+      type = TX_TYPE.SETRESULT;
       try {
-        sentTx = await centralizedOracle.setResult({
+        sentTx = await CentralizedOracle.setResult({
           contractAddress: oracleAddress,
           resultIndex: optionIdx,
           senderAddress,
@@ -204,9 +217,9 @@ module.exports = {
       }
     } else {
       // Send approve first since allowance is not enough
-      type = 'APPROVESETRESULT';
+      type = TX_TYPE.APPROVESETRESULT;
       try {
-        sentTx = await bodhiToken.approve({
+        sentTx = await BodhiToken.approve({
           spender: topicAddress,
           value: amount,
           senderAddress,
@@ -218,21 +231,22 @@ module.exports = {
     }
 
     // Insert Transaction
-    const tx = {
-      txid: sentTx.txid,
+    const tx = new Transaction({
       type,
-      status: txState.PENDING,
+      txid: sentTx.txid,
+      status: TX_STATE.PENDING,
+      createdBlock: await getBlockNum(),
+      createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
       gasPrice: sentTx.args.gasPrice.toFixed(8),
-      createdTime: moment().unix(),
       senderAddress,
       version,
       topicAddress,
       oracleAddress,
       optionIdx,
-      token: 'BOT',
+      token: TOKEN.BOT,
       amount,
-    };
+    });
     await DBHelper.insertTransaction(Transactions, tx);
 
     return tx;
@@ -253,12 +267,12 @@ module.exports = {
     let sentTx;
     if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
       // Send vote since allowance is enough
-      type = 'VOTE';
+      type = TX_TYPE.VOTE;
       try {
         // Find if voting over threshold to set correct gas limit
         const gasLimit = await Utils.getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
 
-        sentTx = await decentralizedOracle.vote({
+        sentTx = await DecentralizedOracle.vote({
           contractAddress: oracleAddress,
           resultIndex: optionIdx,
           botAmount: amount,
@@ -271,9 +285,9 @@ module.exports = {
       }
     } else {
       // Send approve first because allowance is not enough
-      type = 'APPROVEVOTE';
+      type = TX_TYPE.APPROVEVOTE;
       try {
-        sentTx = await bodhiToken.approve({
+        sentTx = await BodhiToken.approve({
           spender: topicAddress,
           value: amount,
           senderAddress,
@@ -285,21 +299,22 @@ module.exports = {
     }
 
     // Insert Transaction
-    const tx = {
-      txid: sentTx.txid,
+    const tx = new Transaction({
       type,
-      status: txState.PENDING,
+      txid: sentTx.txid,
+      status: TX_STATE.PENDING,
+      createdBlock: await getBlockNum(),
+      createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
       gasPrice: sentTx.args.gasPrice.toFixed(8),
-      createdTime: moment().unix(),
       senderAddress,
       version,
       topicAddress,
       oracleAddress,
       optionIdx,
-      token: 'BOT',
+      token: TOKEN.BOT,
       amount,
-    };
+    });
     await DBHelper.insertTransaction(Transactions, tx);
 
     return tx;
@@ -332,7 +347,7 @@ module.exports = {
     // Send finalizeResult tx
     let sentTx;
     try {
-      sentTx = await decentralizedOracle.finalizeResult({
+      sentTx = await DecentralizedOracle.finalizeResult({
         contractAddress: oracleAddress,
         senderAddress,
       });
@@ -342,19 +357,20 @@ module.exports = {
     }
 
     // Insert Transaction
-    const tx = {
+    const tx = new Transaction({
+      type: TX_TYPE.FINALIZERESULT,
       txid: sentTx.txid,
-      type: 'FINALIZERESULT',
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
+      createdBlock: await getBlockNum(),
+      createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
       gasPrice: sentTx.args.gasPrice.toFixed(8),
-      createdTime: moment().unix(),
       senderAddress,
       version,
       topicAddress,
       oracleAddress,
       optionIdx: winningIndex,
-    };
+    });
     await DBHelper.insertTransaction(Transactions, tx);
 
     return tx;
@@ -370,10 +386,10 @@ module.exports = {
 
     let sentTx;
     switch (type) {
-      case 'WITHDRAW': {
+      case TX_TYPE.WITHDRAW: {
         // Send withdrawWinnings tx
         try {
-          sentTx = await topicEvent.withdrawWinnings({
+          sentTx = await TopicEvent.withdrawWinnings({
             contractAddress: topicAddress,
             senderAddress,
           });
@@ -383,10 +399,10 @@ module.exports = {
         }
         break;
       }
-      case 'WITHDRAWESCROW': {
+      case TX_TYPE.WITHDRAWESCROW: {
         // Send withdrawEscrow tx
         try {
-          sentTx = await topicEvent.withdrawEscrow({
+          sentTx = await TopicEvent.withdrawEscrow({
             contractAddress: topicAddress,
             senderAddress,
           });
@@ -402,17 +418,18 @@ module.exports = {
     }
 
     // Insert Transaction
-    const tx = {
-      txid: sentTx.txid,
+    const tx = new Transaction({
       type,
-      status: txState.PENDING,
+      txid: sentTx.txid,
+      status: TX_STATE.PENDING,
+      createdBlock: await getBlockNum(),
+      createdTime: moment().unix(),
       gasLimit: sentTx.args.gasLimit.toString(10),
       gasPrice: sentTx.args.gasPrice.toFixed(8),
-      createdTime: moment().unix(),
       senderAddress,
       version,
       topicAddress,
-    };
+    });
     await DBHelper.insertTransaction(Transactions, tx);
 
     return tx;
@@ -431,10 +448,10 @@ module.exports = {
     let txid;
     let sentTx;
     switch (token) {
-      case 'QTUM': {
+      case TOKEN.QTUM: {
         // Send sendToAddress tx
         try {
-          txid = await wallet.sendToAddress({
+          txid = await Wallet.sendToAddress({
             address: receiverAddress,
             amount,
             senderAddress,
@@ -446,10 +463,10 @@ module.exports = {
         }
         break;
       }
-      case 'BOT': {
+      case TOKEN.BOT: {
         // Send transfer tx
         try {
-          sentTx = await bodhiToken.transfer({
+          sentTx = await BodhiToken.transfer({
             to: receiverAddress,
             value: amount,
             senderAddress,
@@ -462,26 +479,27 @@ module.exports = {
         break;
       }
       default: {
-        throw new Error(`Invalid token transfer type: ${token}`);
+        throw Error(`Invalid token transfer type: ${token}`);
       }
     }
 
     // Insert Transaction
     const gasLimit = sentTx ? sentTx.args.gasLimit : Config.DEFAULT_GAS_LIMIT;
     const gasPrice = sentTx ? sentTx.args.gasPrice : Config.DEFAULT_GAS_PRICE;
-    const tx = {
+    const tx = new Transaction({
+      type: TX_TYPE.TRANSFER,
       txid,
-      type: 'TRANSFER',
-      status: txState.PENDING,
+      status: TX_STATE.PENDING,
+      createdBlock: await getBlockNum(),
+      createdTime: moment().unix(),
       gasLimit: gasLimit.toString(10),
       gasPrice: gasPrice.toFixed(8),
-      createdTime: moment().unix(),
       senderAddress,
       version,
       receiverAddress,
       token,
       amount,
-    };
+    });
     await DBHelper.insertTransaction(Transactions, tx);
 
     return tx;

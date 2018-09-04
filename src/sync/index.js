@@ -3,9 +3,9 @@
 const _ = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
-const updateLocalTx = require('./update-local-tx');
+const updateTransactions = require('./update-transactions');
 const { getInstance } = require('../qclient');
-const { withdrawType } = require('../constants');
+const { WITHDRAW_TYPE } = require('../constants');
 const { getContractMetadata } = require('../config');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
@@ -202,21 +202,21 @@ const syncOracleResultVoted = async (currentBlockNum) => {
               case 'QTUM': {
                 topic.qtumAmount[vote.optionIdx] =
                   new BigNumber(topic.qtumAmount[vote.optionIdx]).plus(voteBn).toString(10);
-                await DBHelper.updateObjectByQuery(db.Topics, {
-                  address: topic.address,
-                }, {
-                  qtumAmount: topic.qtumAmount,
-                });
+                await DBHelper.updateObjectByQuery(
+                  db.Topics,
+                  { address: topic.address },
+                  { qtumAmount: topic.qtumAmount },
+                );
                 break;
               }
               case 'BOT': {
                 topic.botAmount[vote.optionIdx] =
                   new BigNumber(topic.botAmount[vote.optionIdx]).plus(voteBn).toString(10);
-                await DBHelper.updateObjectByQuery(db.Topics, {
-                  address: topic.address,
-                }, {
-                  botAmount: topic.botAmount,
-                });
+                await DBHelper.updateObjectByQuery(
+                  db.Topics,
+                  { address: topic.address },
+                  { botAmount: topic.botAmount },
+                );
                 break;
               }
               default: {
@@ -355,7 +355,7 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
       if (rawLog._eventName === 'WinningsWithdrawn') {
         winningsWithdrawnPromises.push(new Promise(async (resolve) => {
           try {
-            const withdraw = new Withdraw(blockNum, txid, contractAddress, rawLog, withdrawType.WINNINGS).translate();
+            const withdraw = new Withdraw(blockNum, txid, contractAddress, rawLog, WITHDRAW_TYPE.WINNINGS).translate();
             await db.Withdraws.insert(withdraw);
 
             resolve();
@@ -391,7 +391,7 @@ const syncEscrowWithdrawn = async (currentBlockNum) => {
       if (rawLog._eventName === 'EscrowWithdrawn') {
         escrowWithdrawnPromises.push(new Promise(async (resolve) => {
           try {
-            const withdraw = new Withdraw(blockNum, txid, undefined, rawLog, withdrawType.ESCROW).translate();
+            const withdraw = new Withdraw(blockNum, txid, undefined, rawLog, WITHDRAW_TYPE.ESCROW).translate();
             await db.Withdraws.insert(withdraw);
 
             resolve();
@@ -481,7 +481,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
   getLogger().debug(`Syncing block ${currentBlockNum}`);
 
   if (shouldUpdateLocalTxs) {
-    await updateLocalTx(currentBlockNum);
+    await updateTransactions(currentBlockNum);
     getLogger().debug('Updated local txs');
   }
 
@@ -504,8 +504,6 @@ const startSync = async (shouldUpdateLocalTxs) => {
   delayThenSync(0, shouldUpdateLocalTxs);
 };
 
-module.exports = {
-  startSync,
-};
+module.exports = { startSync };
 
 /* eslint-enable no-underscore-dangle */

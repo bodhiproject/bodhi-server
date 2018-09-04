@@ -21,12 +21,12 @@ const Transaction = require('./api/transaction');
 const Wallet = require('./api/wallet');
 
 const { startServer } = BodhiServer;
-const { blockchainEnv } = Constants;
+const { BLOCKCHAIN_ENV } = Constants;
 const { getDevQtumExecPath } = Utils;
 if (_.includes(process.argv, '--testnet')) {
-  startServer(blockchainEnv.TESTNET, getDevQtumExecPath());
+  startServer(BLOCKCHAIN_ENV.TESTNET, getDevQtumExecPath());
 } else if (_.includes(process.argv, '--mainnet')) {
-  startServer(blockchainEnv.MAINNET, getDevQtumExecPath());
+  startServer(BLOCKCHAIN_ENV.MAINNET, getDevQtumExecPath());
 } else {
   console.log('testnet/mainnet flag not found. startServer() will need to be called explicitly.');
 }

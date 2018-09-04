@@ -2,7 +2,7 @@ const _ = require('lodash');
 
 const Queries = require('./queries');
 const Mutations = require('./mutations');
-const { phase } = require('../constants');
+const { PHASE } = require('../constants');
 const pubsub = require('../route/pubsub');
 
 /**
@@ -11,12 +11,12 @@ const pubsub = require('../route/pubsub');
  */
 const getPhase = ({ token, status }) => {
   const [BOT, QTUM] = [token === 'BOT', token === 'QTUM'];
-  if (QTUM && ['VOTING', 'CREATED'].includes(status)) return phase.BETTING;
-  if (BOT && status === 'VOTING') return phase.VOTING;
-  if (QTUM && ['WAITRESULT', 'OPENRESULTSET'].includes(status)) return phase.RESULT_SETTING;
-  if ((BOT || QTUM) && status === 'PENDING') return phase.PENDING;
-  if (BOT && status === 'WAITRESULT') return phase.FINALIZING;
-  if ((BOT || QTUM) && status === 'WITHDRAW') return phase.WITHDRAWING;
+  if (QTUM && ['VOTING', 'CREATED'].includes(status)) return PHASE.BETTING;
+  if (BOT && status === 'VOTING') return PHASE.VOTING;
+  if (QTUM && ['WAITRESULT', 'OPENRESULTSET'].includes(status)) return PHASE.RESULT_SETTING;
+  if ((BOT || QTUM) && status === 'PENDING') return PHASE.PENDING;
+  if (BOT && status === 'WAITRESULT') return PHASE.FINALIZING;
+  if ((BOT || QTUM) && status === 'WITHDRAW') return PHASE.WITHDRAWING;
   throw Error(`Invalid Phase determined by these -> TOKEN: ${token} STATUS: ${status}`);
 };
 
@@ -37,22 +37,22 @@ module.exports = {
       const calculatedPhase = getPhase(oracle);
       let types = [];
       switch (calculatedPhase) {
-        case phase.BETTING:
+        case PHASE.BETTING:
           types = [{ type: 'BET' }, { type: 'CREATEEVENT' }, { type: 'APPROVECREATEEVENT' }];
           break;
-        case phase.VOTING:
+        case PHASE.VOTING:
           types = [{ type: 'VOTE' }, { type: 'APPROVEVOTE' }];
           break;
-        case phase.RESULT_SETTING:
+        case PHASE.RESULT_SETTING:
           types = [{ type: 'SETRESULT' }, { type: 'APPROVESETRESULT' }];
           break;
-        case phase.PENDING:
+        case PHASE.PENDING:
           // Oracles in PENDING phase don't have any transactions to query
           return [];
-        case phase.FINALIZING:
+        case PHASE.FINALIZING:
           types = [{ type: 'FINALIZERESULT' }];
           break;
-        case phase.WITHDRAWING:
+        case PHASE.WITHDRAWING:
           types = [{ type: 'WITHDRAW' }];
           break;
         default:
