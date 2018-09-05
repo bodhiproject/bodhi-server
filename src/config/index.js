@@ -12,8 +12,8 @@ const API_PORT_MAINNET = 8989;
 const API_PORT_TESTNET = 6767;
 const API_PORT_REGTEST = 5555;
 
-const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 const EXPLORER_MAINNET = 'https://explorer.qtum.org';
+const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 
 const { MAINNET, TESTNET, REGTEST } = BLOCKCHAIN_ENV;
 
