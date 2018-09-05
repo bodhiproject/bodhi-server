@@ -11,9 +11,9 @@ RUN mkdir -p /root/.dockervol/.bodhi
 # where available (npm@5+)
 COPY ./package*.json ./
 
-# If you are building your code for production
-# RUN npm install --only=production
-RUN npm install
+# If you are building your code for production: RUN npm install --only=production
+# Install all packages and specific bodhi-ui version 
+RUN npm install bodhi-ui@1.0.4-mainnet
 
 # Bundle app source
 COPY . .

@@ -1,10 +1,10 @@
 version: '3.7'
 services:
-  prod:
-    container_name: "bodhi-server-prod"
+  mainnet:
+    container_name: "bodhi-server-mainnet"
     build:
       context: ./
-      dockerfile: ./docker/prod/Dockerfile
+      dockerfile: ./docker/mainnet/Dockerfile
     ports:
       - "3000:3000"
       - "8989:8989"
@@ -20,7 +20,7 @@ services:
       - fullchain.pem
     volumes:
       - type: volume
-        source: bodhi-prod
+        source: bodhi-mainnet
         target: /root/.dockervol
     logging:
       driver: "json-file"
@@ -60,5 +60,5 @@ secrets:
   fullchain.pem:
     file: /etc/letsencrypt/live/puti.io/fullchain.pem
 volumes:
-  bodhi-prod:
+  bodhi-mainnet:
   bodhi-regtest:

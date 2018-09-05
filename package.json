@@ -5,7 +5,13 @@
   "license": "LGPL-3.0",
   "version": "1.0.0",
   "repository": "git@github.com:bodhiproject/bodhi-server.git",
-  "keywords": ["bodhi", "server", "api", "graphql", "db"],
+  "keywords": [
+    "bodhi",
+    "server",
+    "api",
+    "graphql",
+    "db"
+  ],
   "main": "src/index.js",
   "scripts": {
     "localreg": "node src/index.js --chain=regtest --dev --local --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
@@ -25,7 +31,7 @@
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
     "bignumber.js": "^7.2.1",
-    "bodhi-ui": "^1.0.3",
+    "bodhi-ui": "^1.0.4-regtest",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^6.0.0",
