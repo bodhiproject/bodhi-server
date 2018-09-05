@@ -18,7 +18,7 @@ RUN npm install bodhi-ui@1.0.4-regtest
 # Bundle app source
 COPY . .
 
-# Expose ports for UI and API
+# Expose ports for API
 EXPOSE 5555
 
 # Run server

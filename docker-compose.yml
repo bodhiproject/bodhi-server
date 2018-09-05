@@ -1,4 +1,5 @@
 version: '3.7'
+
 services:
   mainnet:
     container_name: "bodhi-server-mainnet"
@@ -27,14 +28,42 @@ services:
       options:
         max-size: "1m"
         max-file: "10"
+
+  testnet:
+    container_name: "bodhi-server-testnet"
+    build:
+      context: ./
+      dockerfile: ./docker/testnet/Dockerfile
+    ports:
+      - "4000:4000"
+      - "6767:6767"
+    environment:
+      - QTUM_PATH=./qtum/linux64/bin
+      - QTUM_DATA_DIR=/root/.dockervol/.qtum
+      - DATA_DIR=/root/.dockervol/.bodhi
+      - SSL_KEY_PATH=/run/secrets/privkey.pem
+      - SSL_CERT_PATH=/run/secrets/fullchain.pem
+      - LOG_LEVEL=debug
+    secrets:
+      - privkey.pem
+      - fullchain.pem
+    volumes:
+      - type: volume
+        source: bodhi-testnet
+        target: /root/.dockervol
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
   regtest:
     container_name: "bodhi-server-regtest"
     build:
       context: ./
       dockerfile: ./docker/regtest/Dockerfile
     ports:
-      - "4000:4000"
-      - "6767:6767"
+      - "5555:5555"
     environment:
       - QTUM_PATH=./qtum/linux64/bin
       - QTUM_DATA_DIR=/root/.dockervol/.qtum
@@ -54,11 +83,14 @@ services:
       options:
         max-size: "1m"
         max-file: "10"
+
 secrets:
   privkey.pem:
     file: /etc/letsencrypt/live/puti.io/privkey.pem
   fullchain.pem:
     file: /etc/letsencrypt/live/puti.io/fullchain.pem
+
 volumes:
   bodhi-mainnet:
+  bodhi-testnet:
   bodhi-regtest:
