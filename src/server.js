@@ -5,7 +5,7 @@ const https = require('https');
 const portscanner = require('portscanner');
 
 const { BIN_TYPE } = require('./constants');
-const { Config, setQtumEnv, getQtumEnv, getQtumPath, isMainnet, getRPCPassword, getSSLCredentials } = require('./config');
+const { Config, setQtumEnv, getEnvConfig, getQtumPath, isMainnet, getRPCPassword, getSSLCredentials } = require('./config');
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitter-helper');
@@ -80,7 +80,7 @@ function killQtumProcess(emitEvent) {
   if (qtumProcess) {
     const flags = [`-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
     if (!isMainnet()) {
-      flags.push(`-${getQtumEnv()}`);
+      flags.push(`-${getEnvConfig().network}`);
     }
     flags.push('stop');
 
@@ -183,7 +183,7 @@ function startQtumProcess(reindex) {
       `-rpcpassword=${getRPCPassword()}`,
     ];
     if (!isMainnet()) {
-      flags.push(`-${getQtumEnv()}`);
+      flags.push(`-${getEnvConfig().network}`);
     }
     if (reindex) {
       flags.push('-reindex');
