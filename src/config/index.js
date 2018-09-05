@@ -6,8 +6,16 @@ const { BLOCKCHAIN_ENV } = require('../constants');
 const mainnetMetadata = require('./mainnet/contract-metadata');
 const testnetMetadata = require('./testnet/contract-metadata');
 
+const HTTP_PORT_MAINNET = 3000;
+const HTTP_PORT_TESTNET = 4000;
+const API_PORT_MAINNET = 8989;
+const API_PORT_TESTNET = 6767;
+const API_PORT_REGTEST = 5555;
+
 const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 const EXPLORER_MAINNET = 'https://explorer.qtum.org';
+
+const { MAINNET, TESTNET, REGTEST } = BLOCKCHAIN_ENV;
 
 const Config = {
   IS_DEV: includes(process.argv, '--dev'),
@@ -49,6 +57,36 @@ function setQtumEnv(env, path) {
 
   qtumEnv = env;
   qtumPath = path;
+}
+
+function getEnvConfig() {
+  if (!qtumEnv) {
+    throw Error('qtumEnv not initialized yet.');
+  }
+
+  let httpPort;
+  let apiPort;
+  switch (qtumEnv) {
+    case MAINNET: {
+      httpPort = HTTP_PORT_MAINNET;
+      apiPort = API_PORT_MAINNET;
+      break;
+    }
+    case TESTNET: {
+      httpPort = HTTP_PORT_TESTNET;
+      apiPort = API_PORT_TESTNET;
+      break;
+    }
+    case REGTEST: {
+      apiPort = API_PORT_REGTEST;
+      break;
+    }
+    default: {
+      throw Error(`Invalid qtum environment: ${qtumEnv}`);
+    }
+  }
+
+  return { env: qtumEnv, qtumPath, httpPort, apiPort };
 }
 
 function getQtumEnv() {
