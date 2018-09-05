@@ -22,8 +22,6 @@ const Config = {
   IS_LOCAL: includes(process.argv, '--local'),
   PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
   HOSTNAME: 'localhost',
-  PORT_API: includes(process.argv, '--dev') ? 6767 : 8989,
-  PORT_HTTP: includes(process.argv, '--dev') ? 4000 : 3000,
   RPC_USER: 'bodhi',
   RPC_PORT_TESTNET: 13889,
   RPC_PORT_MAINNET: 3889,

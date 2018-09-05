@@ -24,156 +24,15 @@ let checkApiInterval;
 let shutdownInterval;
 let axiosClient;
 
-/*
-* Shuts down the already running qtumd and starts qtum-qt.
-* @param qtumqtPath {String} The full path to the qtum-qt binary.
-*/
-function startQtumWallet() {
-  // Start qtum-qt
-  const qtumqtPath = `${getEnvConfig().qtumPath}/${BIN_TYPE.QTUM_QT}`;
-  getLogger().debug(`qtum-qt dir: ${qtumqtPath}`);
-
-  // Construct flags
-  const flags = ['-logevents'];
-  if (!isMainnet()) {
-    flags.push('-testnet');
-  }
-
-  const qtProcess = spawn(qtumqtPath, flags, {
-    detached: true,
-    stdio: 'ignore',
-  });
-  qtProcess.unref();
-  getLogger().debug(`qtum-qt started on PID ${qtProcess.pid}`);
-
-  // Kill backend process after qtum-qt has started
-  setTimeout(() => process.exit(), 2000);
-}
-
 function getQtumProcess() {
   return qtumProcess;
 }
 
-// Checks to see if the qtumd port is still in use
-function checkQtumPort() {
-  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  portscanner.checkPortStatus(port, Config.HOSTNAME, (err, status) => {
-    if (err) {
-      getLogger().error(`Error: qtumd: ${err.message}`);
-    }
-    if (status === 'closed') {
-      clearInterval(shutdownInterval);
-
-      // Slight delay before sending qtumd killed signal
-      setTimeout(() => EmitterHelper.onQtumKilled(), 1500);
-    } else {
-      getLogger().debug('Waiting for qtumd to shut down.');
-    }
-  });
-}
-
-/*
-* Kills the running qtum process using the stop command.
-* @param emitEvent {Boolean} Flag to emit an event when qtum is fully shutdown.
-*/
-function killQtumProcess(emitEvent) {
-  if (qtumProcess) {
-    const flags = [`-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
-    if (!isMainnet()) {
-      flags.push(`-${getEnvConfig().network}`);
-    }
-    flags.push('stop');
-
-    const qtumcliPath = `${getEnvConfig().qtumPath}/${BIN_TYPE.QTUM_CLI}`;
-    const res = spawnSync(qtumcliPath, flags);
-    const code = res.status;
-    if (res.stdout) {
-      getLogger().debug(`qtumd stopped with code ${code}: ${res.stdout}`);
-    } else if (res.stderr) {
-      getLogger().error(`qtumd stopped with code ${code}: ${res.stderr}`);
-      if (res.error) {
-        throw Error(res.error.message);
-      }
-    }
-
-    // Repeatedly check if qtum port is in use
-    if (emitEvent) {
-      shutdownInterval = setInterval(checkQtumPort, 500);
-    }
-  }
-}
-
-async function unlockWallet(passphrase) {
-  // Unlock wallet
-  await Wallet.walletPassphrase({ passphrase, timeout: Config.UNLOCK_SECONDS });
-
-  // Ensure wallet is unlocked
-  const info = await Wallet.getWalletInfo();
-  if (info.unlocked_until > 0) {
-    getLogger().info('Wallet unlocked');
-    startServices();
-  } else {
-    const errMessage = 'Wallet unlock failed';
-    getLogger().error(errMessage);
-    throw Error(errMessage);
-  }
-}
-
-// Checks if the wallet is encrypted to prompt the wallet unlock dialog
-async function checkWalletEncryption() {
-  const res = await Wallet.getWalletInfo();
-  isEncrypted = !isUndefined(res.unlocked_until);
-
-  if (isEncrypted) {
-    // For Electron, flag passed via Electron Builder
-    if (encryptOk) {
-      EmitterHelper.onWalletEncrypted();
-      return;
-    }
-
-    let flagFound = false;
-    each(process.argv, (arg) => {
-      if (arg === '--encryptok') {
-        // For Electron, flag passed via command-line
-        EmitterHelper.onWalletEncrypted();
-        flagFound = true;
-      } else if (arg.startsWith('--passphrase=')) {
-        // For dev purposes, unlock wallet directly in server
-        const passphrase = (split(arg, '=', 2))[1];
-        unlockWallet(passphrase);
-        flagFound = true;
-      }
-    });
-    if (flagFound) {
-      return;
-    }
-
-    // No flags found to handle encryption, crash server
-    EmitterHelper.onServerStartError(walletEncryptedMessage);
-    throw Error(walletEncryptedMessage);
-  } else {
-    startServices();
-  }
-}
-
-// Ensure qtumd is running before starting sync/API
-async function checkQtumdInit() {
-  try {
-    // getInfo throws an error if trying to be called before qtumd is running
-    await getInstance().getInfo();
-
-    // no error was caught, qtumd is initialized
-    clearInterval(checkInterval);
-    checkWalletEncryption();
-  } catch (err) {
-    if (err.message === walletEncryptedMessage) {
-      throw Error(err.message);
-    } else {
-      getLogger().debug(err.message);
-    }
-  }
-}
-
+/**
+ * Starts the qtum daemon.
+ * Will restart automatically if the chainstate is corrupted.
+ * @param {boolean} reindex Should add the reindex flag when starting qtumd.
+ */
 function startQtumProcess(reindex) {
   try {
     const flags = [
@@ -231,11 +90,108 @@ function startQtumProcess(reindex) {
     // repeatedly check if qtumd is running
     checkInterval = setInterval(checkQtumdInit, 500);
   } catch (err) {
-    throw Error(`qtumd error: ${err.message}`);
+    throw Error(`startQtumProcess: ${err.message}`);
   }
 }
 
-// Ensure API is running before loading UI
+/**
+ * Ensure qtumd is running before starting sync/API.
+ */
+async function checkQtumdInit() {
+  try {
+    // getInfo throws an error if trying to be called before qtumd is running
+    await getInstance().getInfo();
+
+    // no error was caught, qtumd is initialized
+    clearInterval(checkInterval);
+    checkWalletEncryption();
+  } catch (err) {
+    if (err.message === walletEncryptedMessage) {
+      throw Error(err.message);
+    } else {
+      getLogger().debug(err.message);
+    }
+  }
+}
+
+/**
+ * Checks if the wallet is encrypted to prompt the wallet unlock dialog.
+ * Electron version only. Don't run remote version with encrypted wallet.
+ */
+async function checkWalletEncryption() {
+  const res = await Wallet.getWalletInfo();
+  isEncrypted = !isUndefined(res.unlocked_until);
+
+  if (isEncrypted) {
+    // For Electron, flag passed via Electron Builder
+    if (encryptOk) {
+      EmitterHelper.onWalletEncrypted();
+      return;
+    }
+
+    let flagFound = false;
+    each(process.argv, (arg) => {
+      if (arg === '--encryptok') {
+        // For Electron, flag passed via command-line
+        EmitterHelper.onWalletEncrypted();
+        flagFound = true;
+      } else if (arg.startsWith('--passphrase=')) {
+        // For dev purposes, unlock wallet directly in server
+        const passphrase = (split(arg, '=', 2))[1];
+        unlockWallet(passphrase);
+        flagFound = true;
+      }
+    });
+    if (flagFound) {
+      return;
+    }
+
+    // No flags found to handle encryption, crash server
+    EmitterHelper.onServerStartError(walletEncryptedMessage);
+    throw Error(walletEncryptedMessage);
+  } else {
+    startServices();
+  }
+}
+
+/**
+ * Used to unlock the wallet without having to use the Electron dialog.
+ * The --passphrase flag with the passphrase must be passed via commandline.
+ * @param {string} passphrase Passphrase to unlock wallet.
+ */
+async function unlockWallet(passphrase) {
+  // Unlock wallet
+  await Wallet.walletPassphrase({ passphrase, timeout: Config.UNLOCK_SECONDS });
+
+  // Ensure wallet is unlocked
+  const info = await Wallet.getWalletInfo();
+  if (info.unlocked_until > 0) {
+    getLogger().info('Wallet unlocked');
+    startServices();
+  } else {
+    const errMessage = 'Wallet unlock failed';
+    getLogger().error(errMessage);
+    throw Error(errMessage);
+  }
+}
+
+/**
+ * Starts the services following a successful qtumd launch.
+ */
+function startServices() {
+  startSync(true);
+  initApiServer();
+
+  // No need to check the API if not hosting the webserver
+  if (!Config.IS_LOCAL) {
+    checkApiInterval = setInterval(checkApiInit, 500);
+  }
+}
+
+/**
+ * Ensure API is running before starting UI server.
+ * Electron version only.
+ */
 async function checkApiInit() {
   try {
     if (!axiosClient) {
@@ -249,7 +205,7 @@ async function checkApiInit() {
   }
 
   try {
-    const res = await axiosClient.get(`${Config.PROTOCOL}://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
+    const res = await axiosClient.get(`${Config.PROTOCOL}://${Config.HOSTNAME}:${getEnvConfig().apiPort}/get-block-count`);
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
       initWebServer();
@@ -259,22 +215,90 @@ async function checkApiInit() {
   }
 }
 
-function startServices() {
-  startSync(true);
-  initApiServer();
+/**
+ * Shuts down the already running qtumd and starts qtum-qt.
+ * Electron version only.
+ */
+function startQtumWallet() {
+  // Start qtum-qt
+  const qtumqtPath = `${getEnvConfig().qtumPath}/${BIN_TYPE.QTUM_QT}`;
+  getLogger().debug(`qtum-qt dir: ${qtumqtPath}`);
 
-  // No need to check the API if not hosting the webserver
-  if (!Config.IS_LOCAL) {
-    checkApiInterval = setInterval(checkApiInit, 500);
+  // Construct flags
+  const flags = ['-logevents'];
+  if (!isMainnet()) {
+    flags.push('-testnet');
+  }
+
+  const qtProcess = spawn(qtumqtPath, flags, {
+    detached: true,
+    stdio: 'ignore',
+  });
+  qtProcess.unref();
+  getLogger().debug(`qtum-qt started on PID ${qtProcess.pid}`);
+
+  // Kill backend process after qtum-qt has started
+  setTimeout(() => process.exit(), 2000);
+}
+
+/**
+ * Checks to see if the qtumd port is still in use.
+ * This was necessary when switching from the dapp to the qtum wallet.
+ */
+function checkQtumPort() {
+  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
+  portscanner.checkPortStatus(port, Config.HOSTNAME, (err, status) => {
+    if (err) {
+      getLogger().error(`Error: qtumd: ${err.message}`);
+    }
+    if (status === 'closed') {
+      clearInterval(shutdownInterval);
+
+      // Slight delay before sending qtumd killed signal
+      setTimeout(() => EmitterHelper.onQtumKilled(), 1500);
+    } else {
+      getLogger().debug('Waiting for qtumd to shut down.');
+    }
+  });
+}
+
+/**
+ * Kills the running qtum process using the stop command.
+ * @param {boolean} emitEvent Should emit an event when qtum is fully shutdown.
+ */
+function killQtumProcess(emitEvent) {
+  if (qtumProcess) {
+    const flags = [`-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
+    if (!isMainnet()) {
+      flags.push(`-${getEnvConfig().network}`);
+    }
+    flags.push('stop');
+
+    const qtumcliPath = `${getEnvConfig().qtumPath}/${BIN_TYPE.QTUM_CLI}`;
+    const res = spawnSync(qtumcliPath, flags);
+    const code = res.status;
+    if (res.stdout) {
+      getLogger().debug(`qtumd stopped with code ${code}: ${res.stdout}`);
+    } else if (res.stderr) {
+      getLogger().error(`qtumd stopped with code ${code}: ${res.stderr}`);
+      if (res.error) {
+        throw Error(res.error.message);
+      }
+    }
+
+    // Repeatedly check if qtum port is in use
+    if (emitEvent) {
+      shutdownInterval = setInterval(checkQtumPort, 500);
+    }
   }
 }
 
-/*
-* Sets the env and inits all the required processes.
-* @param env {String} BLOCKCHAIN_ENV var for mainnet or testnet.
-* @param qtumPath {String} Full path to the Qtum execs folder.
-* @param encryptionAllowed {Boolean} Are encrypted Qtum wallets allowed.
-*/
+/**
+ * Sets the env and inits all the required processes.
+ * @param {string} env BLOCKCHAIN_ENV var for mainnet, testnet, or regtest.
+ * @param {string} qtumPath Full path to the Qtum bin folder.
+ * @param {boolean} encryptionAllowed Are encrypted Qtum wallets allowed.
+ */
 async function startServer(env, qtumPath, encryptionAllowed) {
   try {
     encryptOk = encryptionAllowed;
