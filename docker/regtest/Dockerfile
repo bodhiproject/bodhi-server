@@ -22,4 +22,4 @@ COPY . .
 EXPOSE 4000 5555
 
 # Run server
-CMD [ "npm", "run", "regtest:local" ]
+CMD [ "npm", "run", "regtest:stage" ]
