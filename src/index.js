@@ -25,12 +25,12 @@ const { BLOCKCHAIN_ENV } = Constants;
 const { getDevQtumExecPath } = Utils;
 
 // Find chain type (mainnet/testnet/regtest) from flags and start server
-each(process.argv, (arg) => {
+each(process.argv, async (arg) => {
   if (arg.startsWith('--chain')) {
     const { MAINNET, TESTNET, REGTEST } = BLOCKCHAIN_ENV;
     const chain = (split(arg, '=', 2))[1];
     if (includes([MAINNET, TESTNET, REGTEST], chain)) {
-      startServer(chain, getDevQtumExecPath());
+      await startServer(chain, getDevQtumExecPath());
     } else {
       throw Error(`Invalid type for --chain: ${chain}`);
     }

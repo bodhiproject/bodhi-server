@@ -29,6 +29,24 @@ function getQtumProcess() {
 }
 
 /**
+ * Sets the env and inits all the required processes.
+ * @param {string} env BLOCKCHAIN_ENV var for mainnet, testnet, or regtest.
+ * @param {string} qtumPath Full path to the Qtum bin folder.
+ * @param {boolean} encryptionAllowed Are encrypted Qtum wallets allowed.
+ */
+async function startServer(env, qtumPath, encryptionAllowed) {
+  try {
+    encryptOk = encryptionAllowed;
+    setQtumEnv(env, qtumPath);
+    initLogger();
+    await initDB();
+    startQtumProcess(false);
+  } catch (err) {
+    EmitterHelper.onServerStartError(err.message);
+  }
+}
+
+/**
  * Starts the qtum daemon.
  * Will restart automatically if the chainstate is corrupted.
  * @param {boolean} reindex Should add the reindex flag when starting qtumd.
@@ -293,24 +311,6 @@ function killQtumProcess(emitEvent) {
   }
 }
 
-/**
- * Sets the env and inits all the required processes.
- * @param {string} env BLOCKCHAIN_ENV var for mainnet, testnet, or regtest.
- * @param {string} qtumPath Full path to the Qtum bin folder.
- * @param {boolean} encryptionAllowed Are encrypted Qtum wallets allowed.
- */
-async function startServer(env, qtumPath, encryptionAllowed) {
-  try {
-    encryptOk = encryptionAllowed;
-    setQtumEnv(env, qtumPath);
-    initLogger();
-    await initDB();
-    startQtumProcess(false);
-  } catch (err) {
-    EmitterHelper.onServerStartError(err.message);
-  }
-}
-
 function exit(signal) {
   getLogger().info(`Received ${signal}, exiting...`);
 
@@ -331,9 +331,9 @@ process.on('uncaughtException', exit);
 
 module.exports = {
   getQtumProcess,
-  killQtumProcess,
-  startServices,
   startServer,
+  startServices,
+  killQtumProcess,
   startQtumWallet,
   exit,
 };
