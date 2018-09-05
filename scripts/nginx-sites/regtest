@@ -1,0 +1,10 @@
+server {
+    listen 5555;
+    server_name test.puti.io;
+
+    location / {
+        proxy_pass         https://localhost:5555;
+        proxy_set_header   X-Forwarded-For $remote_addr;
+        proxy_set_header   Host $http_host;
+    }
+}
