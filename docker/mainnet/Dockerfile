@@ -22,4 +22,4 @@ COPY . .
 EXPOSE 3000 8989
 
 # Run server
-CMD [ "npm", "run", "prodmain" ]
+CMD [ "npm", "run", "mainnet:prod" ]
