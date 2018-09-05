@@ -80,6 +80,7 @@ function getEnvConfig() {
       break;
     }
     case REGTEST: {
+      httpPort = HTTP_PORT_TESTNET;
       apiPort = API_PORT_REGTEST;
       break;
     }

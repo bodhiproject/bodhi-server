@@ -40,7 +40,7 @@
 
     // Run staging environment. Meant for usage on remote server.
     // dev data dir, no Papertrail, hosts webserver, HTTPS protocol
-    npm run regtest:stage // regtest, API 5555
+    npm run regtest:stage // regtest, API 5555, UI 4000
     npm run testnet:stage // testnet, API 6767, UI 4000
     npm run mainnet:stage // mainnet, API 8989, UI 3000
 
@@ -50,7 +50,7 @@
 
     // Running production environment. Meant for usage on remote server.
     // data dir, Papertrail enabled, hosts webserver, HTTPS protocol
-    npm run regtest:prod // regtest, API 5555
+    npm run regtest:prod // regtest, API 5555, UI 4000
     npm run testnet:prod // testnet, API 6767, UI 4000
     npm run mainnet:prod // mainnet, API 8989, UI 3000
 
