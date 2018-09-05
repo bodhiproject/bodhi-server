@@ -6,7 +6,7 @@ const winston = require('winston');
 const Papertrail = require('winston-papertrail').Papertrail;
 const _ = require('lodash');
 
-const { Config, getEnvConfig, getQtumPath } = require('../config');
+const { Config, getEnvConfig } = require('../config');
 
 let logger;
 
@@ -61,7 +61,7 @@ function initLogger() {
 
     // Log env and paths
     logger.info(`Chain network: ${getEnvConfig().network}`);
-    logger.info(`Qtum path: ${getQtumPath()}`);
+    logger.info(`Qtum path: ${getEnvConfig().qtumPath}`);
     logger.info(`Logs path: ${logDir}`);
   }
 }

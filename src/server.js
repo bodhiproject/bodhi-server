@@ -5,7 +5,7 @@ const https = require('https');
 const portscanner = require('portscanner');
 
 const { BIN_TYPE } = require('./constants');
-const { Config, setQtumEnv, getEnvConfig, getQtumPath, isMainnet, getRPCPassword, getSSLCredentials } = require('./config');
+const { Config, setQtumEnv, getEnvConfig, isMainnet, getRPCPassword, getSSLCredentials } = require('./config');
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitter-helper');
@@ -30,7 +30,7 @@ let axiosClient;
 */
 function startQtumWallet() {
   // Start qtum-qt
-  const qtumqtPath = `${getQtumPath()}/${BIN_TYPE.QTUM_QT}`;
+  const qtumqtPath = `${getEnvConfig().qtumPath}/${BIN_TYPE.QTUM_QT}`;
   getLogger().debug(`qtum-qt dir: ${qtumqtPath}`);
 
   // Construct flags
@@ -84,7 +84,7 @@ function killQtumProcess(emitEvent) {
     }
     flags.push('stop');
 
-    const qtumcliPath = `${getQtumPath()}/${BIN_TYPE.QTUM_CLI}`;
+    const qtumcliPath = `${getEnvConfig().qtumPath}/${BIN_TYPE.QTUM_CLI}`;
     const res = spawnSync(qtumcliPath, flags);
     const code = res.status;
     if (res.stdout) {
@@ -192,7 +192,7 @@ function startQtumProcess(reindex) {
       flags.push(`-datadir=${process.env.QTUM_DATA_DIR}`);
     }
 
-    const qtumdPath = `${getQtumPath()}/${BIN_TYPE.QTUMD}`;
+    const qtumdPath = `${getEnvConfig().qtumPath}/${BIN_TYPE.QTUMD}`;
     getLogger().info(`qtumd dir: ${qtumdPath}`);
 
     qtumProcess = spawn(qtumdPath, flags);

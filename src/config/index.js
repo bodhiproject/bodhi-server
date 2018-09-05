@@ -64,8 +64,8 @@ function setQtumEnv(env, path) {
  * @return {object} Environment config variables.
  */
 function getEnvConfig() {
-  if (!qtumEnv) {
-    throw Error('qtumEnv not initialized yet.');
+  if (!qtumEnv || !qtumPath) {
+    throw Error('setQtumEnv was not called yet.');
   }
 
   let httpPort;
@@ -91,15 +91,6 @@ function getEnvConfig() {
   }
 
   return { network: qtumEnv, qtumPath, httpPort, apiPort };
-}
-
-function getQtumPath() {
-  // Throw an error to ensure no code is using this check before it is initialized
-  if (!qtumPath) {
-    throw Error('qtumPath not initialized yet.');
-  }
-
-  return qtumPath;
 }
 
 function isMainnet() {
@@ -172,7 +163,6 @@ module.exports = {
   Config,
   setQtumEnv,
   getEnvConfig,
-  getQtumPath,
   isMainnet,
   getRPCPassword,
   getQtumRPCAddress,
