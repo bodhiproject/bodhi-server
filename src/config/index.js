@@ -1,20 +1,25 @@
-const _ = require('lodash');
+const fs = require('fs');
+const { includes, isEmpty, each, split, isNumber } = require('lodash');
 const crypto = require('crypto');
 
-const { blockchainEnv } = require('../constants');
-const mainnetMetadata = require('./mainnet/contract_metadata');
-const testnetMetadata = require('./testnet/contract_metadata');
+const { BLOCKCHAIN_ENV } = require('../constants');
+const mainnetMetadata = require('./mainnet/contract-metadata');
+const testnetMetadata = require('./testnet/contract-metadata');
 
 const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 const EXPLORER_MAINNET = 'https://explorer.qtum.org';
 
 const Config = {
-  HOSTNAME: '127.0.0.1',
-  PORT: 8989,
+  IS_DEV: includes(process.argv, '--dev'),
+  IS_LOCAL: includes(process.argv, '--local'),
+  PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
+  HOSTNAME: 'localhost',
+  PORT_API: includes(process.argv, '--dev') ? 6767 : 8989,
+  PORT_HTTP: includes(process.argv, '--dev') ? 4000 : 3000,
   RPC_USER: 'bodhi',
   RPC_PORT_TESTNET: 13889,
   RPC_PORT_MAINNET: 3889,
-  DEFAULT_LOGLVL: 'debug',
+  DEFAULT_LOG_LEVEL: 'debug',
   CONTRACT_VERSION_NUM: 0,
   TRANSFER_MIN_CONFIRMATIONS: 1,
   DEFAULT_GAS_LIMIT: 250000,
@@ -25,14 +30,14 @@ const Config = {
 };
 const rpcPassword = getRandomPassword(); // Generate random password for every session
 
-let qtumEnv; // Qtumd environment var: testnet/mainnet
-let qtumPath; // Path to Qtum executables
+let qtumEnv; // qtumd chain network: mainnet/testnet/regtest
+let qtumPath; // path to Qtum executables
 
 function setQtumEnv(env, path) {
-  if (_.isEmpty(env)) {
+  if (isEmpty(env)) {
     throw Error('env cannot be empty.');
   }
-  if (_.isEmpty(path)) {
+  if (isEmpty(path)) {
     throw Error('path cannot be empty.');
   }
   if (qtumEnv) {
@@ -44,32 +49,40 @@ function setQtumEnv(env, path) {
 
   qtumEnv = env;
   qtumPath = path;
-  console.log(`Environment: ${qtumEnv}`);
-  console.log(`Qtum Path: ${qtumPath}`);
 }
 
 function getQtumEnv() {
+  // Throw an error to ensure no code is using this check before it is initialized
+  if (!qtumEnv) {
+    throw Error('qtumEnv not initialized yet.');
+  }
+
   return qtumEnv;
 }
 
 function getQtumPath() {
+  // Throw an error to ensure no code is using this check before it is initialized
+  if (!qtumPath) {
+    throw Error('qtumPath not initialized yet.');
+  }
+
   return qtumPath;
 }
 
 function isMainnet() {
   // Throw an error to ensure no code is using this check before it is initialized
   if (!qtumEnv) {
-    throw Error('qtumEnv not initialized yet before checking env');
+    throw Error('qtumEnv not initialized yet.');
   }
 
-  return qtumEnv === blockchainEnv.MAINNET;
+  return qtumEnv === BLOCKCHAIN_ENV.MAINNET;
 }
 
 function getRPCPassword() {
   let password = rpcPassword;
-  _.each(process.argv, (arg) => {
-    if (_.includes(arg, '-rpcpassword')) {
-      password = (_.split(arg, '=', 2))[1];
+  each(process.argv, (arg) => {
+    if (includes(arg, '--rpcpassword')) {
+      password = (split(arg, '=', 2))[1];
     }
   });
 
@@ -78,11 +91,22 @@ function getRPCPassword() {
 
 function getQtumRPCAddress() {
   const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  return `http://${Config.RPC_USER}:${getRPCPassword()}@localhost:${port}`;
+  return `http://${Config.RPC_USER}:${getRPCPassword()}@${Config.HOSTNAME}:${port}`;
 }
 
 function getQtumExplorerUrl() {
   return isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET;
+}
+
+function getSSLCredentials() {
+  if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
+    throw Error('SSL Key and Cert paths not found.');
+  }
+
+  return {
+    key: fs.readFileSync(process.env.SSL_KEY_PATH),
+    cert: fs.readFileSync(process.env.SSL_CERT_PATH),
+  };
 }
 
 /*
@@ -92,7 +116,7 @@ function getQtumExplorerUrl() {
 * @return {Object} The contract metadata.
 */
 function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
-  if (!_.isNumber(versionNum)) {
+  if (!isNumber(versionNum)) {
     throw new Error('Must supply a version number');
   }
 
@@ -120,5 +144,6 @@ module.exports = {
   getRPCPassword,
   getQtumRPCAddress,
   getQtumExplorerUrl,
+  getSSLCredentials,
   getContractMetadata,
 };

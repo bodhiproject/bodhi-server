@@ -1,0 +1,425 @@
+const _ = require('lodash');
+const BigNumber = require('bignumber.js');
+
+const { calculateSyncPercent } = require('./subscriptions');
+const { getInstance } = require('../qclient');
+const { SATOSHI_CONVERSION } = require('../constants');
+const { getLogger } = require('../utils/logger');
+const sequentialLoop = require('../utils/sequential-loop');
+const Blockchain = require('../api/blockchain');
+const Wallet = require('../api/wallet');
+const BodhiToken = require('../api/bodhi-token');
+const Network = require('../api/network');
+
+const DEFAULT_LIMIT_NUM = 50;
+const DEFAULT_SKIP_NUM = 0;
+
+const buildCursorOptions = (cursor, orderBy, limit, skip) => {
+  if (!_.isEmpty(orderBy)) {
+    const sortDict = {};
+    _.forEach(orderBy, (order) => {
+      sortDict[order.field] = order.direction === 'ASC' ? 1 : -1;
+    });
+
+    cursor.sort(sortDict);
+  }
+
+  cursor.limit(limit || DEFAULT_LIMIT_NUM);
+  cursor.skip(skip || DEFAULT_SKIP_NUM);
+
+  return cursor;
+};
+
+const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorAddress }) => {
+  const filter = (txid || address || status || resultIdx || creatorAddress) ? {} : null;
+
+  if (txid) {
+    filter.txid = txid;
+  }
+
+  if (address) {
+    filter.address = address;
+  }
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (resultIdx) {
+    filter.resultIdx = resultIdx;
+  }
+
+  if (creatorAddress) {
+    filter.creatorAddress = creatorAddress;
+  }
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildTopicFilters(OR[i]));
+  }
+  return filters;
+};
+
+const buildOracleFilters = ({
+  OR = [],
+  txid,
+  address,
+  topicAddress,
+  resultSetterQAddress,
+  excludeResultSetterQAddress,
+  status,
+  token,
+}) => {
+  const filter = (
+    txid
+    || address
+    || topicAddress
+    || resultSetterQAddress
+    || status
+    || token
+    || excludeResultSetterQAddress
+  ) ? {} : null;
+
+  if (txid) {
+    filter.txid = txid;
+  }
+
+  if (address) {
+    filter.address = address;
+  }
+
+  if (topicAddress) {
+    filter.topicAddress = topicAddress;
+  }
+
+  if (resultSetterQAddress) {
+    filter.resultSetterQAddress = resultSetterQAddress;
+  } else if (excludeResultSetterQAddress) {
+    filter.resultSetterQAddress = { $nin: excludeResultSetterQAddress };
+  }
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (token) {
+    filter.token = token;
+  }
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildOracleFilters(OR[i]));
+  }
+
+  return filters;
+};
+
+const buildSearchOracleFilter = (searchPhrase) => {
+  const filterFields = ['name', '_id', 'topicAddress', 'resultSetterAddress', 'resultSetterQAddress'];
+  if (!searchPhrase) {
+    return [];
+  }
+
+  const filters = [];
+  const searchRegex = new RegExp(`.*${searchPhrase}.*`);
+  for (let i = 0; i < filterFields.length; i++) {
+    const filter = {};
+    filter[filterFields[i]] = { $regex: searchRegex };
+    filters.push(filter);
+  }
+
+  return filters;
+};
+
+const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, voterQAddress, optionIdx }) => {
+  const filter = (topicAddress || oracleAddress || voterAddress || voterQAddress || optionIdx) ? {} : null;
+
+  if (topicAddress) {
+    filter.topicAddress = topicAddress;
+  }
+
+  if (oracleAddress) {
+    filter.oracleAddress = oracleAddress;
+  }
+
+  if (voterAddress) {
+    filter.voterAddress = voterAddress;
+  }
+
+  if (voterQAddress) {
+    filter.voterQAddress = voterQAddress;
+  }
+
+  if (optionIdx) {
+    filter.optionIdx = optionIdx;
+  }
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildVoteFilters(OR[i]));
+  }
+  return filters;
+};
+
+const buildResultSetFilters = ({ OR = [], txid, fromAddress, topicAddress, oracleAddress, resultIdx }) => {
+  const filter = (txid || fromAddress || topicAddress || oracleAddress || resultIdx) ? {} : null;
+
+  if (txid) {
+    filter.txid = txid;
+  }
+
+  if (fromAddress) {
+    filter.fromAddress = fromAddress;
+  }
+
+  if (topicAddress) {
+    filter.topicAddress = topicAddress;
+  }
+
+  if (oracleAddress) {
+    filter.oracleAddress = oracleAddress;
+  }
+
+  if (resultIdx) {
+    filter.resultIdx = resultIdx;
+  }
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildResultSetFilters(OR[i]));
+  }
+  return filters;
+};
+
+const buildWithdrawFilters = ({ OR = [], txid, topicAddress, withdrawerAddress, type }) => {
+  const filter = (txid || topicAddress || withdrawerAddress || type) ? {} : null;
+
+  if (txid) {
+    filter.txid = txid;
+  }
+
+  if (topicAddress) {
+    filter.topicAddress = topicAddress;
+  }
+
+  if (withdrawerAddress) {
+    filter.withdrawerAddress = withdrawerAddress;
+  }
+
+  if (type) {
+    filter.type = type;
+  }
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildWithdrawFilters(OR[i]));
+  }
+  return filters;
+};
+
+const buildTransactionFilters = ({
+  OR = [],
+  type,
+  status,
+  topicAddress,
+  oracleAddress,
+  senderAddress,
+  senderQAddress,
+}) => {
+  const filter = (type || status || topicAddress || oracleAddress || senderAddress || senderQAddress) ? {} : null;
+
+  if (type) {
+    filter.type = type;
+  }
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (topicAddress) {
+    filter.topicAddress = topicAddress;
+  }
+
+  if (oracleAddress) {
+    filter.oracleAddress = oracleAddress;
+  }
+
+  if (senderAddress) {
+    filter.senderAddress = senderAddress;
+  }
+
+  if (senderQAddress) {
+    filter.senderQAddress = senderQAddress;
+  }
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildTransactionFilters(OR[i]));
+  }
+  return filters;
+};
+
+// Gets the QTUM and BOT balances for all ever used addresses
+const getAddressBalances = async () => {
+  const addressObjs = [];
+  const addressList = [];
+
+  // Get full list of ever used addresses
+  try {
+    const res = await getInstance().listAddressGroupings();
+    // grouping: [["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.01], ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.02]], [...]
+    _.each(res, (grouping) => {
+      // addressArrItem: ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.08164600]
+      _.each(grouping, (addressArrItem) => {
+        addressObjs.push({
+          address: addressArrItem[0],
+          qtum: new BigNumber(addressArrItem[1]).multipliedBy(SATOSHI_CONVERSION).toString(10),
+        });
+        addressList.push(addressArrItem[0]);
+      });
+    });
+  } catch (err) {
+    getLogger().error(`getAddressBalances listAddressGroupings: ${err.message}`);
+  }
+
+  // Add default address with zero balances if no address was used before and return
+  if (_.isEmpty(addressObjs)) {
+    const address = await Wallet.getAccountAddress({ accountName: '' });
+    addressObjs.push({
+      address,
+      qtum: '0',
+      bot: '0',
+    });
+    return addressObjs;
+  }
+
+  // Get BOT balances of every address
+  const batches = _.chunk(addressList, 10);
+  await new Promise(async (resolve) => {
+    sequentialLoop(batches.length, async (loop) => {
+      const promises = [];
+
+      _.map(batches[loop.iteration()], async (address) => {
+        promises.push(new Promise(async (getBotBalanceResolve) => {
+          let botBalance = new BigNumber(0);
+
+          // Get BOT balance
+          try {
+            const res = await BodhiToken.balanceOf({
+              owner: address,
+              senderAddress: address,
+            });
+            botBalance = res.balance;
+          } catch (err) {
+            getLogger().error(`getAddressBalances BodhiToken.balanceOf ${address}: ${err.message}`);
+          }
+
+          // Update BOT balance for address
+          const found = _.find(addressObjs, { address });
+          found.bot = botBalance.toString(10);
+
+          getBotBalanceResolve();
+        }));
+      });
+
+      await Promise.all(promises);
+      loop.next();
+    }, () => {
+      resolve();
+    });
+  });
+
+  return addressObjs;
+};
+
+module.exports = {
+  allTopics: async (root, { filter, orderBy, limit, skip }, { db: { Topics } }) => {
+    const query = filter ? { $or: buildTopicFilters(filter) } : {};
+    let cursor = Topics.cfind(query);
+    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+
+    return cursor.exec();
+  },
+
+  allOracles: async (root, { filter, orderBy, limit, skip }, { db: { Oracles } }) => {
+    const query = filter ? { $or: buildOracleFilters(filter) } : {};
+    let cursor = Oracles.cfind(query);
+    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+    return cursor.exec();
+  },
+
+  searchOracles: async (root, { searchPhrase, orderBy, limit, skip }, { db: { Oracles } }) => {
+    const query = searchPhrase ? { $or: buildSearchOracleFilter(searchPhrase) } : {};
+    let cursor = Oracles.cfind(query);
+    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+    return cursor.exec();
+  },
+
+  allVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
+    const query = filter ? { $or: buildVoteFilters(filter) } : {};
+    let cursor = Votes.cfind(query);
+    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+    return cursor.exec();
+  },
+
+  resultSets: async (root, { filter, orderBy, limit, skip }, { db: { ResultSets } }) => {
+    const query = filter ? { $or: buildResultSetFilters(filter) } : {};
+    let cursor = ResultSets.cfind(query);
+    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+    return cursor.exec();
+  },
+
+  withdraws: async (root, { filter, orderBy, limit, skip }, { db: { Withdraws } }) => {
+    const query = filter ? { $or: buildWithdrawFilters(filter) } : {};
+    let cursor = Withdraws.cfind(query);
+    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+    return cursor.exec();
+  },
+
+  allTransactions: async (root, { filter, orderBy, limit, skip }, { db: { Transactions } }) => {
+    const query = filter ? { $or: buildTransactionFilters(filter) } : {};
+    let cursor = Transactions.cfind(query);
+    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+    return cursor.exec();
+  },
+
+  syncInfo: async (root, { includeBalance }, { db: { Blocks } }) => {
+    let blocks;
+    try {
+      blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
+    } catch (err) {
+      getLogger().error(`Error querying latest block: ${err.message}`);
+    }
+
+    let syncBlockNum;
+    let syncBlockTime;
+    if (blocks && blocks.length > 0) {
+      // Use latest block synced
+      syncBlockNum = blocks[0].blockNum;
+      syncBlockTime = blocks[0].blockTime;
+    } else {
+      // Fetch current block from qtum
+      syncBlockNum = Math.max(0, await Blockchain.getBlockCount());
+      const blockHash = await Blockchain.getBlockHash({ blockNum: syncBlockNum });
+      syncBlockTime = (await Blockchain.getBlock({ blockHash })).time;
+    }
+    const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
+    const peerNodeCount = await Network.getPeerNodeCount();
+
+    let addressBalances = [];
+    if (includeBalance || false) {
+      addressBalances = await getAddressBalances();
+    }
+
+    return {
+      syncBlockNum,
+      syncBlockTime,
+      syncPercent,
+      peerNodeCount,
+      addressBalances,
+    };
+  },
+
+  // Gets the QTUM and BOT balances for all ever used addresses
+  addressBalances: async () => getAddressBalances(),
+};

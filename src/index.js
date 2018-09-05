@@ -1,35 +1,41 @@
-const _ = require('lodash');
+const { each, split, includes } = require('lodash');
 
 const BodhiServer = require('./server');
 const BodhiConfig = require('./config');
 const BodhiDb = require('./db');
 const Constants = require('./constants');
 const Utils = require('./utils');
-const EmitterHelper = require('./utils/emitterHelper');
+const EmitterHelper = require('./utils/emitter-helper');
 const { getLogger } = require('./utils/logger');
-const AddressManager = require('./api/address_manager');
-const BaseContract = require('./api/base_contract');
+const AddressManager = require('./api/address-manager');
+const BaseContract = require('./api/base-contract');
 const Blockchain = require('./api/blockchain');
-const BodhiToken = require('./api/bodhi_token');
-const CentralizedOracle = require('./api/centralized_oracle');
-const DecentralizedOracle = require('./api/decentralized_oracle');
-const EventFactory = require('./api/event_factory');
+const BodhiToken = require('./api/bodhi-token');
+const CentralizedOracle = require('./api/centralized-oracle');
+const DecentralizedOracle = require('./api/decentralized-oracle');
+const EventFactory = require('./api/event-factory');
 const Oracle = require('./api/oracle');
-const QtumUtils = require('./api/qtum_utils');
-const TopicEvent = require('./api/topic_event');
+const QtumUtils = require('./api/qtum-utils');
+const TopicEvent = require('./api/topic-event');
 const Transaction = require('./api/transaction');
 const Wallet = require('./api/wallet');
 
 const { startServer } = BodhiServer;
-const { blockchainEnv } = Constants;
+const { BLOCKCHAIN_ENV } = Constants;
 const { getDevQtumExecPath } = Utils;
-if (_.includes(process.argv, '--testnet')) {
-  startServer(blockchainEnv.TESTNET, getDevQtumExecPath());
-} else if (_.includes(process.argv, '--mainnet')) {
-  startServer(blockchainEnv.MAINNET, getDevQtumExecPath());
-} else {
-  console.log('testnet/mainnet flag not found. startServer() will need to be called explicitly.');
-}
+
+// Find chain type (mainnet/testnet/regtest) from flags and start server
+each(process.argv, (arg) => {
+  if (arg.startsWith('--chain')) {
+    const { MAINNET, TESTNET, REGTEST } = BLOCKCHAIN_ENV;
+    const chain = (split(arg, '=', 2))[1];
+    if (includes([MAINNET, TESTNET, REGTEST], chain)) {
+      startServer(chain, getDevQtumExecPath());
+    } else {
+      throw Error(`Invalid type for --chain: ${chain}`);
+    }
+  }
+});
 
 module.exports = {
   BodhiServer,

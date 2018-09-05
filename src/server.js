@@ -1,35 +1,28 @@
-const _ = require('lodash');
-const restify = require('restify');
-const corsMiddleware = require('restify-cors-middleware');
+const { isEmpty, isUndefined, each, split } = require('lodash');
 const { spawn, spawnSync } = require('child_process');
-const { execute, subscribe } = require('graphql');
-const { SubscriptionServer } = require('subscriptions-transport-ws');
-const fetch = require('node-fetch');
+const axios = require('axios');
+const https = require('https');
 const portscanner = require('portscanner');
 
-const { execFile } = require('./constants');
-const {
-  Config, setQtumEnv, getQtumPath, isMainnet, getRPCPassword,
-} = require('./config');
+const { BIN_TYPE } = require('./constants');
+const { Config, setQtumEnv, getQtumEnv, getQtumPath, isMainnet, getRPCPassword, getSSLCredentials } = require('./config');
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
-const EmitterHelper = require('./utils/emitterHelper');
-const schema = require('./schema');
-const syncRouter = require('./route/sync');
-const apiRouter = require('./route/api');
+const EmitterHelper = require('./utils/emitter-helper');
 const { startSync } = require('./sync');
 const { getInstance } = require('./qclient');
+const { initApiServer, initWebServer } = require('./route');
 const Wallet = require('./api/wallet');
 
 const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
 
 let qtumProcess;
-let server;
 let encryptOk = false;
 let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
 let shutdownInterval;
+let axiosClient;
 
 /*
 * Shuts down the already running qtumd and starts qtum-qt.
@@ -37,7 +30,7 @@ let shutdownInterval;
 */
 function startQtumWallet() {
   // Start qtum-qt
-  const qtumqtPath = `${getQtumPath()}/${execFile.QTUM_QT}`;
+  const qtumqtPath = `${getQtumPath()}/${BIN_TYPE.QTUM_QT}`;
   getLogger().debug(`qtum-qt dir: ${qtumqtPath}`);
 
   // Construct flags
@@ -87,11 +80,11 @@ function killQtumProcess(emitEvent) {
   if (qtumProcess) {
     const flags = [`-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
     if (!isMainnet()) {
-      flags.push('-testnet');
+      flags.push(`-${getQtumEnv()}`);
     }
     flags.push('stop');
 
-    const qtumcliPath = `${getQtumPath()}/${execFile.QTUM_CLI}`;
+    const qtumcliPath = `${getQtumPath()}/${BIN_TYPE.QTUM_CLI}`;
     const res = spawnSync(qtumcliPath, flags);
     const code = res.status;
     if (res.stdout) {
@@ -129,7 +122,7 @@ async function unlockWallet(passphrase) {
 // Checks if the wallet is encrypted to prompt the wallet unlock dialog
 async function checkWalletEncryption() {
   const res = await Wallet.getWalletInfo();
-  isEncrypted = !_.isUndefined(res.unlocked_until);
+  isEncrypted = !isUndefined(res.unlocked_until);
 
   if (isEncrypted) {
     // For Electron, flag passed via Electron Builder
@@ -139,14 +132,14 @@ async function checkWalletEncryption() {
     }
 
     let flagFound = false;
-    _.each(process.argv, (arg) => {
+    each(process.argv, (arg) => {
       if (arg === '--encryptok') {
         // For Electron, flag passed via command-line
         EmitterHelper.onWalletEncrypted();
         flagFound = true;
       } else if (arg.startsWith('--passphrase=')) {
         // For dev purposes, unlock wallet directly in server
-        const passphrase = (_.split(arg, '=', 2))[1];
+        const passphrase = (split(arg, '=', 2))[1];
         unlockWallet(passphrase);
         flagFound = true;
       }
@@ -183,15 +176,23 @@ async function checkQtumdInit() {
 
 function startQtumProcess(reindex) {
   try {
-    const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
+    const flags = [
+      '-logevents',
+      '-rpcworkqueue=32',
+      `-rpcuser=${Config.RPC_USER}`,
+      `-rpcpassword=${getRPCPassword()}`,
+    ];
     if (!isMainnet()) {
-      flags.push('-testnet');
+      flags.push(`-${getQtumEnv()}`);
     }
     if (reindex) {
       flags.push('-reindex');
     }
+    if (!isEmpty(process.env.QTUM_DATA_DIR)) {
+      flags.push(`-datadir=${process.env.QTUM_DATA_DIR}`);
+    }
 
-    const qtumdPath = `${getQtumPath()}/${execFile.QTUMD}`;
+    const qtumdPath = `${getQtumPath()}/${BIN_TYPE.QTUMD}`;
     getLogger().info(`qtumd dir: ${qtumdPath}`);
 
     qtumProcess = spawn(qtumdPath, flags);
@@ -234,46 +235,24 @@ function startQtumProcess(reindex) {
   }
 }
 
-// Create Restify server and apply routes
-async function startAPI() {
-  server = restify.createServer({ title: 'Bodhi API' });
-  const cors = corsMiddleware({ origins: ['*'] });
-  server.pre(cors.preflight);
-  server.use(cors.actual);
-  server.use(restify.plugins.bodyParser({ mapParams: true }));
-  server.use(restify.plugins.queryParser());
-  server.on('after', (req, res, route, err) => {
-    if (route) {
-      getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
-    } else {
-      getLogger().error(`${err.message}`);
-    }
-  });
-
-  syncRouter.applyRoutes(server);
-  apiRouter.applyRoutes(server);
-
-  server.listen(Config.PORT, () => {
-    SubscriptionServer.create(
-      { execute, subscribe, schema },
-      { server, path: '/subscriptions' },
-    );
-    getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT}.`);
-  });
-}
-
 // Ensure API is running before loading UI
 async function checkApiInit() {
   try {
-    const res = await fetch(`http://${Config.HOSTNAME}:${Config.PORT}/graphql`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent,peerNodeCount}}"}',
-    });
+    if (!axiosClient) {
+      const creds = getSSLCredentials();
+      const agent = new https.Agent({ ca: creds.cert, rejectUnauthorized: false });
+      axiosClient = axios.create({ httpsAgent: agent });
+    }
+  } catch (err) {
+    console.error(err);
+    exit('SIGTERM');
+  }
 
+  try {
+    const res = await axiosClient.get(`${Config.PROTOCOL}://${Config.HOSTNAME}:${Config.PORT_API}/get-block-count`);
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
-      setTimeout(() => EmitterHelper.onApiInitialized(), 1000);
+      initWebServer();
     }
   } catch (err) {
     getLogger().debug(err.message);
@@ -281,15 +260,18 @@ async function checkApiInit() {
 }
 
 function startServices() {
-  startSync();
-  startAPI();
+  startSync(true);
+  initApiServer();
 
-  checkApiInterval = setInterval(checkApiInit, 500);
+  // No need to check the API if not hosting the webserver
+  if (!Config.IS_LOCAL) {
+    checkApiInterval = setInterval(checkApiInit, 500);
+  }
 }
 
 /*
 * Sets the env and inits all the required processes.
-* @param env {String} blockchainEnv var for mainnet or testnet.
+* @param env {String} BLOCKCHAIN_ENV var for mainnet or testnet.
 * @param qtumPath {String} Full path to the Qtum execs folder.
 * @param encryptionAllowed {Boolean} Are encrypted Qtum wallets allowed.
 */
@@ -303,10 +285,6 @@ async function startServer(env, qtumPath, encryptionAllowed) {
   } catch (err) {
     EmitterHelper.onServerStartError(err.message);
   }
-}
-
-function getServer() {
-  return server;
 }
 
 function exit(signal) {
@@ -325,12 +303,13 @@ function exit(signal) {
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
+process.on('uncaughtException', exit);
 
 module.exports = {
   getQtumProcess,
   killQtumProcess,
   startServices,
   startServer,
-  getServer,
   startQtumWallet,
+  exit,
 };
