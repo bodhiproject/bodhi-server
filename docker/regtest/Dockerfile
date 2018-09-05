@@ -19,7 +19,7 @@ RUN npm install bodhi-ui@1.0.4-regtest
 COPY . .
 
 # Expose ports for API
-EXPOSE 5555
+EXPOSE 4000 5555
 
 # Run server
-CMD [ "npm", "run", "regtest:local" ]
+CMD [ "npm", "run", "regtest:stage" ]
