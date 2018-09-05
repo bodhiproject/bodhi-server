@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/bodhiproject/bodhi-server.svg?branch=master)](https://travis-ci.org/bodhiproject/bodhi-server)
 
 # Prerequisites
-1. Node 9 installed
+1. Node 10 installed
 2. You will need the Qtum client for the OS you are testing on (or building against). Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the correct OS and put the `bin/` folder in the corresponding dir:
 
         bodhi-server/qtum/mac/bin         qtum-0.14.16-osx64.tar.gz 
@@ -21,8 +21,7 @@
 
     --dev                       // Runs development environment. /dev data dir and no Papertrail logging.
     --local                     // Does not host webserver and uses http protocol. Use this if you will run Bodhi-UI separately.
-    --testnet                   // Use testnet blockchain
-    --mainnet                   // Use mainnet blockchain
+    --chain=testnet             // Set blockchain network: [mainnet, testnet, regtest]
     --rpcpassword=myPassword    // Force starting qtumd with this rpc pw
     --qtumpath=/path/to/bin     // Path to the qtumd binaries
     --passphrase=myPassphrase   // Passphrase used to unlock the your wallet
@@ -31,34 +30,31 @@
 
     // Run local environment. Meant with usage with bodhi-ui dev server.
     // dev data dir, no Papertrail, no webserver, HTTP protocol
-    npm run localtest // testnet
-    npm run localmain // mainnet
+    npm run regtest:local // regtest, API 5555
+    npm run testnet:local // testnet, API 6767
+    npm run mainnet:local // mainnet, API 8989
 
-    // UI at localhost:4000
-    // API at localhost:6767
-    // GraphQL Playground at localhost:6767/graphql
+    // GraphQL Playground at localhost:{API_PORT}/graphql
 
 ### Staging
 
     // Run staging environment. Meant for usage on remote server.
     // dev data dir, no Papertrail, hosts webserver, HTTPS protocol
-    npm run stagetest // testnet
-    npm run stagemain // mainnet
+    npm run regtest:stage // regtest, API 5555
+    npm run testnet:stage // testnet, API 6767, UI 4000
+    npm run mainnet:stage // mainnet, API 8989, UI 3000
 
-    // UI at localhost:4000
-    // API at localhost:6767
-    // GraphQL Playground at localhost:6767/graphql
+    // GraphQL Playground at localhost:{API_PORT}/graphql
 
 ### Production
 
     // Running production environment. Meant for usage on remote server.
     // data dir, Papertrail enabled, hosts webserver, HTTPS protocol
-    npm run prodtest // testnet
-    npm run prodmain // mainnet
+    npm run regtest:prod // regtest, API 5555
+    npm run testnet:prod // testnet, API 6767, UI 4000
+    npm run mainnet:prod // mainnet, API 8989, UI 3000
 
-    // UI at localhost:3000
-    // API at localhost:8989
-    // GraphQL Playground at localhost:8989/graphql
+    // GraphQL Playground at localhost:{API_PORT}/graphql
 
 ### Docker
 
@@ -85,7 +81,7 @@ You can specify certain attributes in a `.env` file at the root folder. `QTUM_PA
     SSL_CERT_PATH=/etc/letsencrypt/live/puti.io/fullchain.pem
     LOG_LEVEL=debug
 
-# First Time Setup for Remote Server
+# First Time Remote Server Setup
 This is meant to be setup on an Linux-based OS. This will remove the default config files for `nginx` and add the server block config for routing to the website. It will also add a daily cronjob script to renew the TLS certificate.
 
 ### Instructions
@@ -103,9 +99,7 @@ This is meant to be setup on an Linux-based OS. This will remove the default con
 
 # GraphQL
 To view the entire schema, go to:
-- Local/Staging Server: `localhost:6767/graphql`
-- Production Server: `localhost:8989/graphql`
-- Puti.io: `https://puti.io:8989/graphql`
+- Go to the GraphQL Playground at `puti.io:8989/graphql`
 - Click on `SCHEMA` button on the right side
 - Browse through all the queries, mutations, or subscriptions
 

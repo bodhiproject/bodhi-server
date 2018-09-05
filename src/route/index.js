@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const apiRouter = require('./api');
 const { createApolloServer, handleSubscriptions } = require('./graphql');
 const { getLogger } = require('../utils/logger');
-const { Config, getSSLCredentials } = require('../config');
+const { Config, getEnvConfig, getSSLCredentials } = require('../config');
 
 const initExpressApp = () => {
   const app = express();
@@ -54,8 +54,10 @@ const initApiServer = () => {
 
     const server = createServer(app);
     handleSubscriptions(server);
-    server.listen(Config.PORT_API, () => {
-      getLogger().info(`API served at ${Config.PROTOCOL}://${Config.HOSTNAME}:${Config.PORT_API}`);
+
+    const { apiPort } = getEnvConfig();
+    server.listen(apiPort, () => {
+      getLogger().info(`API served at ${Config.PROTOCOL}://${Config.HOSTNAME}:${apiPort}`);
     });
   } catch (err) {
     getLogger().error(`Error starting API Server: ${err.message}`);
@@ -65,14 +67,20 @@ const initApiServer = () => {
 
 const initWebServer = () => {
   try {
+    const { httpPort } = getEnvConfig();
+    if (!httpPort) {
+      getLogger().info('No HTTP port found. Not serving UI.');
+      return;
+    }
+
     const app = initExpressApp();
 
     const uiDir = path.join(__dirname, '../../node_modules/bodhi-ui/build');
     app.use(express.static(uiDir));
 
     const server = createServer(app);
-    server.listen(Config.PORT_HTTP, () => {
-      getLogger().info(`UI served at ${Config.PROTOCOL}://${Config.HOSTNAME}:${Config.PORT_HTTP}`);
+    server.listen(httpPort, () => {
+      getLogger().info(`UI served at ${Config.PROTOCOL}://${Config.HOSTNAME}:${httpPort}`);
     });
   } catch (err) {
     getLogger().error(`Error starting Web Server: ${err.message}`);

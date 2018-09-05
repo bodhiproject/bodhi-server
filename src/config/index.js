@@ -6,16 +6,22 @@ const { BLOCKCHAIN_ENV } = require('../constants');
 const mainnetMetadata = require('./mainnet/contract-metadata');
 const testnetMetadata = require('./testnet/contract-metadata');
 
-const EXPLORER_TESTNET = 'https://testnet.qtum.org';
+const HTTP_PORT_MAINNET = 3000;
+const HTTP_PORT_TESTNET = 4000;
+const API_PORT_MAINNET = 8989;
+const API_PORT_TESTNET = 6767;
+const API_PORT_REGTEST = 5555;
+
 const EXPLORER_MAINNET = 'https://explorer.qtum.org';
+const EXPLORER_TESTNET = 'https://testnet.qtum.org';
+
+const { MAINNET, TESTNET, REGTEST } = BLOCKCHAIN_ENV;
 
 const Config = {
   IS_DEV: includes(process.argv, '--dev'),
   IS_LOCAL: includes(process.argv, '--local'),
   PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
   HOSTNAME: 'localhost',
-  PORT_API: includes(process.argv, '--dev') ? 6767 : 8989,
-  PORT_HTTP: includes(process.argv, '--dev') ? 4000 : 3000,
   RPC_USER: 'bodhi',
   RPC_PORT_TESTNET: 13889,
   RPC_PORT_MAINNET: 3889,
@@ -51,22 +57,38 @@ function setQtumEnv(env, path) {
   qtumPath = path;
 }
 
-function getQtumEnv() {
-  // Throw an error to ensure no code is using this check before it is initialized
-  if (!qtumEnv) {
-    throw Error('qtumEnv not initialized yet.');
+/**
+ * Returns the environment configuration variables.
+ * @return {object} Environment config variables.
+ */
+function getEnvConfig() {
+  if (!qtumEnv || !qtumPath) {
+    throw Error('setQtumEnv was not called yet.');
   }
 
-  return qtumEnv;
-}
-
-function getQtumPath() {
-  // Throw an error to ensure no code is using this check before it is initialized
-  if (!qtumPath) {
-    throw Error('qtumPath not initialized yet.');
+  let httpPort;
+  let apiPort;
+  switch (qtumEnv) {
+    case MAINNET: {
+      httpPort = HTTP_PORT_MAINNET;
+      apiPort = API_PORT_MAINNET;
+      break;
+    }
+    case TESTNET: {
+      httpPort = HTTP_PORT_TESTNET;
+      apiPort = API_PORT_TESTNET;
+      break;
+    }
+    case REGTEST: {
+      apiPort = API_PORT_REGTEST;
+      break;
+    }
+    default: {
+      throw Error(`Invalid qtum environment: ${qtumEnv}`);
+    }
   }
 
-  return qtumPath;
+  return { network: qtumEnv, qtumPath, httpPort, apiPort };
 }
 
 function isMainnet() {
@@ -138,8 +160,7 @@ function getRandomPassword() {
 module.exports = {
   Config,
   setQtumEnv,
-  getQtumEnv,
-  getQtumPath,
+  getEnvConfig,
   isMainnet,
   getRPCPassword,
   getQtumRPCAddress,
