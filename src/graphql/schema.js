@@ -303,6 +303,7 @@ type Mutation {
 }
 
 type Subscription {
-  onSyncInfo : syncInfo
+  onSyncInfo: syncInfo
+  onApproveSuccess: Transaction
 }
 `;

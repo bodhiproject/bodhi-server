@@ -62,6 +62,14 @@ const publishSyncInfo = async (syncBlockNum, syncBlockTime) => {
   });
 };
 
+/**
+ * Publish the approve tx successful message.
+ * @param {Transaction} tx Successful approve tx.
+ */
+const publishOnApproveSuccess = async (transaction) => {
+  pubsub.publish('onApproveSuccess', { transaction });
+};
+
 module.exports = {
   publishSyncInfo,
   calculateSyncPercent,

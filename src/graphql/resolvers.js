@@ -77,8 +77,7 @@ module.exports = {
   },
 
   Subscription: {
-    onSyncInfo: {
-      subscribe: () => pubsub.asyncIterator('onSyncInfo'),
-    },
+    onSyncInfo: { subscribe: () => pubsub.asyncIterator('onSyncInfo') },
+    onApproveSuccess: { subscribe: () => pubsub.asyncIterator('onApproveSuccess') },
   },
 };
