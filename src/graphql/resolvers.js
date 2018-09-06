@@ -2,8 +2,21 @@ const _ = require('lodash');
 
 const Queries = require('./queries');
 const Mutations = require('./mutations');
-const { PHASE } = require('../constants');
+const { PHASE, TX_TYPE } = require('../constants');
 const pubsub = require('../route/pubsub');
+
+const {
+  APPROVECREATEEVENT,
+  CREATEEVENT,
+  BET,
+  APPROVESETRESULT,
+  SETRESULT,
+  APPROVEVOTE,
+  VOTE,
+  FINALIZERESULT,
+  WITHDRAW,
+  WITHDRAWESCROW,
+} = TX_TYPE;
 
 /**
  * Takes an oracle object and returns which phase it is in.
@@ -27,7 +40,7 @@ module.exports = {
   Topic: {
     oracles: ({ address }, data, { db: { Oracles } }) => Oracles.find({ topicAddress: address }),
     transactions: async ({ address }, data, { db: { Transactions } }) => {
-      const types = [{ type: 'WITHDRAWESCROW' }, { type: 'WITHDRAW' }];
+      const types = [{ type: WITHDRAWESCROW }, { type: WITHDRAW }];
       return Transactions.find({ topicAddress: address, $or: types });
     },
   },
@@ -37,23 +50,23 @@ module.exports = {
       const calculatedPhase = getPhase(oracle);
       let types = [];
       switch (calculatedPhase) {
-        case PHASE.BETTING:
-          types = [{ type: 'BET' }, { type: 'CREATEEVENT' }, { type: 'APPROVECREATEEVENT' }];
-          break;
-        case PHASE.VOTING:
-          types = [{ type: 'VOTE' }, { type: 'APPROVEVOTE' }];
-          break;
-        case PHASE.RESULT_SETTING:
-          types = [{ type: 'SETRESULT' }, { type: 'APPROVESETRESULT' }];
-          break;
         case PHASE.PENDING:
           // Oracles in PENDING phase don't have any transactions to query
           return [];
+        case PHASE.BETTING:
+          types = [{ type: BET }, { type: CREATEEVENT }, { type: APPROVECREATEEVENT }];
+          break;
+        case PHASE.RESULT_SETTING:
+          types = [{ type: SETRESULT }, { type: APPROVESETRESULT }];
+          break;
+        case PHASE.VOTING:
+          types = [{ type: VOTE }, { type: APPROVEVOTE }];
+          break;
         case PHASE.FINALIZING:
-          types = [{ type: 'FINALIZERESULT' }];
+          types = [{ type: FINALIZERESULT }];
           break;
         case PHASE.WITHDRAWING:
-          types = [{ type: 'WITHDRAW' }];
+          types = [{ type: WITHDRAW }];
           break;
         default:
           throw Error(`Invalid phase: ${calculatedPhase}`);
