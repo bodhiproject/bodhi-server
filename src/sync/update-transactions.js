@@ -30,7 +30,7 @@ async function updatePendingTxs(currentBlockCount) {
 
   each(pendingTxs, async (tx) => {
     await updateTx(tx, currentBlockCount);
-    await updateDB(tx);
+    await updateDB(tx, currentBlockCount);
   });
 }
 
@@ -100,8 +100,9 @@ async function updateEvmTx(tx) {
 /**
  * Update the DB with new transaction info.
  * @param {Transaction} tx Updated transaction.
+ * @param {number} currentBlockCount Current block number.
  */
-async function updateDB(tx) {
+async function updateDB(tx, currentBlockCount) {
   if (tx.status !== TX_STATE.PENDING) {
     try {
       const updateRes = await db.Transactions.update(
@@ -121,7 +122,7 @@ async function updateDB(tx) {
       if (updatedTx) {
         switch (updatedTx.status) {
           case TX_STATE.SUCCESS: {
-            await onSuccessfulTx(updatedTx);
+            await onSuccessfulTx(updatedTx, currentBlockCount);
             break;
           }
           case TX_STATE.FAIL: {
@@ -142,19 +143,20 @@ async function updateDB(tx) {
 /**
  * Execute follow-up transaction for successful txs.
  * @param {Transaction} tx Successful transaction.
+ * @param {number} currentBlockCount Current block number.
  */
-async function onSuccessfulTx(tx) {
+async function onSuccessfulTx(tx, currentBlockCount) {
   switch (tx.type) {
     case TX_TYPE.APPROVECREATEEVENT: {
-      await executeCreateEvent(tx);
+      await executeCreateEvent(tx, currentBlockCount);
       break;
     }
     case TX_TYPE.APPROVESETRESULT: {
-      await executeSetResult(tx);
+      await executeSetResult(tx, currentBlockCount);
       break;
     }
     case TX_TYPE.APPROVEVOTE: {
-      await executeVote(tx);
+      await executeVote(tx, currentBlockCount);
       break;
     }
     default: {
@@ -166,8 +168,9 @@ async function onSuccessfulTx(tx) {
 /**
  * The approve for a create event was accepted. Execute the create event tx.
  * @param {Transaction} tx Accepted APPROVECREATEEVENT tx.
+ * @param {number} currentBlockCount Current block number.
  */
-async function executeCreateEvent(tx) {
+async function executeCreateEvent(tx, currentBlockCount) {
   try {
     const createEventTx = await EventFactory.createTopic({
       oracleAddress: tx.resultSetterAddress,
@@ -193,6 +196,7 @@ async function executeCreateEvent(tx) {
       status: TX_STATE.PENDING,
       gasLimit: createEventTx.args.gasLimit.toString(10),
       gasPrice: createEventTx.args.gasPrice.toFixed(8),
+      createdBlock: currentBlockCount,
       createdTime: moment().unix(),
       senderAddress: tx.senderAddress,
       name: tx.name,
@@ -213,8 +217,9 @@ async function executeCreateEvent(tx) {
 /**
  * The approve for a set result was accepted. Execute the set result tx.
  * @param {Transaction} tx Accepted APPROVESETRESULT tx.
+ * @param {number} currentBlockCount Current block number.
  */
-async function executeSetResult(tx) {
+async function executeSetResult(tx, currentBlockCount) {
   try {
     const setResultTx = await CentralizedOracle.setResult({
       contractAddress: tx.oracleAddress,
@@ -229,6 +234,7 @@ async function executeSetResult(tx) {
       status: TX_STATE.PENDING,
       gasLimit: setResultTx.args.gasLimit.toString(10),
       gasPrice: setResultTx.args.gasPrice.toFixed(8),
+      createdBlock: currentBlockCount,
       createdTime: moment().unix(),
       senderAddress: tx.senderAddress,
       topicAddress: tx.topicAddress,
@@ -245,8 +251,9 @@ async function executeSetResult(tx) {
 /**
  * The approve for a vote was accepted. Execute the vote tx.
  * @param {Transaction} tx Accepted APPROVEVOTE tx.
+ * @param {number} currentBlockCount Current block number.
  */
-async function executeVote(tx) {
+async function executeVote(tx, currentBlockCount) {
   try {
     // Find if voting over threshold to set correct gas limit
     const gasLimit = await Utils.getVotingGasLimit(db.Oracles, tx.oracleAddress, tx.optionIdx, tx.amount);
@@ -266,6 +273,7 @@ async function executeVote(tx) {
       status: TX_STATE.PENDING,
       gasLimit: voteTx.args.gasLimit.toString(10),
       gasPrice: voteTx.args.gasPrice.toFixed(8),
+      createdBlock: currentBlockCount,
       createdTime: moment().unix(),
       senderAddress: tx.senderAddress,
       topicAddress: tx.topicAddress,
