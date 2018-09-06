@@ -20,6 +20,15 @@ module.exports = {
     QTUM_CLI: 'qtum-cli',
   },
 
+  STATUS: {
+    CREATED: 'CREATED',
+    VOTING: 'VOTING',
+    WAITRESULT: 'WAITRESULT',
+    OPENRESULTSET: 'OPENRESULTSET',
+    PENDING: 'PENDING',
+    WITHDRAW: 'WITHDRAW',
+  },
+
   PHASE: {
     BETTING: 'betting',
     VOTING: 'voting',
