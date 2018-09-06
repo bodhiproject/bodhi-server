@@ -293,58 +293,14 @@ async function executeVote(tx, currentBlockCount) {
  */
 async function onFailedTx(tx) {
   switch (tx.type) {
-    // Approve failed. Reset allowance and delete created Topic/COracle.
-    case TX_TYPE.APPROVECREATEEVENT: {
-      await resetApproveAmount(tx, getContractMetadata().AddressManager.address);
-      await removeCreatedTopicAndOracle(tx);
-      break;
-    }
-    // CreateTopic failed. Delete created Topic/COracle.
+    case TX_TYPE.APPROVECREATEEVENT:
     case TX_TYPE.CREATEEVENT: {
       await removeCreatedTopicAndOracle(tx);
-      break;
-    }
-    // Approve failed. Reset allowance.
-    case TX_TYPE.APPROVESETRESULT:
-    case TX_TYPE.APPROVEVOTE: {
-      await resetApproveAmount(tx, tx.topicAddress);
       break;
     }
     default: {
       break;
     }
-  }
-}
-
-/**
- * Resets the approve amount to 0.
- * This is a necessary step when trying to approve for an amount greater than the current approved balance.
- * @param {Transaction} tx Failed transaction.
- * @param {string} spender Address to approve.
- */
-async function resetApproveAmount(tx, spender) {
-  try {
-    const approveTx = await BodhiToken.approve({
-      spender,
-      value: 0,
-      senderAddress: tx.senderAddress,
-    });
-
-    await DBHelper.insertTransaction(db.Transactions, {
-      type: TX_TYPE.RESETAPPROVE,
-      txid: approveTx.txid,
-      status: TX_STATE.PENDING,
-      gasLimit: approveTx.args.gasLimit.toString(10),
-      gasPrice: approveTx.args.gasPrice.toFixed(8),
-      createdTime: moment().unix(),
-      version: tx.version,
-      senderAddress: tx.senderAddress,
-      topicAddress: tx.topicAddress,
-      oracleAddress: tx.oracleAddress,
-      name: tx.name,
-    });
-  } catch (err) {
-    getLogger().error(`resetApproveAmount: ${err.message}`);
   }
 }
 
