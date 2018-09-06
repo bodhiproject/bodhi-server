@@ -3,7 +3,6 @@ const moment = require('moment');
 
 const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
-const BodhiToken = require('../api/bodhi-token');
 const EventFactory = require('../api/event-factory');
 const CentralizedOracle = require('../api/centralized-oracle');
 const DecentralizedOracle = require('../api/decentralized-oracle');
@@ -11,7 +10,7 @@ const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
-const { Config, getContractMetadata } = require('../config');
+const { Config } = require('../config');
 const { TX_STATE, TX_TYPE, TOKEN } = require('../constants');
 const Transaction = require('../models/transaction');
 
