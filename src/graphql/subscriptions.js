@@ -67,7 +67,7 @@ const publishSyncInfo = async (syncBlockNum, syncBlockTime) => {
  * @param {Transaction} tx Successful approve tx.
  */
 const publishOnApproveSuccess = (transaction) => {
-  pubsub.publish('onApproveSuccess', { transaction });
+  pubsub.publish('onApproveSuccess', { onApproveSuccess: { ...transaction } });
 };
 
 module.exports = {

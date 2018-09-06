@@ -168,7 +168,7 @@ async function onSuccessfulTx(tx, currentBlockCount) {
     }
   }
 
-  // Send the subscription message
+  // Send subscription message
   publishOnApproveSuccess(tx);
 }
 
