@@ -25,6 +25,7 @@ async function updatePendingTxs(currentBlockCount) {
     pendingTxs = map(pendingTxs, tx => new Transaction(tx));
   } catch (err) {
     getLogger().error(`Get pending txs: ${err.message}`);
+    throw Error(`Get pending txs: ${err.message}`);
   }
 
   each(pendingTxs, async (tx) => {
@@ -68,6 +69,7 @@ async function updateQtumTransferTx(tx, currentBlockCount) {
     }
   } catch (err) {
     getLogger().error(`updateQtumTransferTx: ${err.message}`);
+    throw Error(`updateQtumTransferTx: ${err.message}`);
   }
 }
 
@@ -93,6 +95,7 @@ async function updateEvmTx(tx) {
     tx.onConfirmed(status, blockNum, blockTime, gasUsed);
   } catch (err) {
     getLogger().error(`updateEvmTx: ${err.message}`);
+    throw Error(`updateEvmTx: ${err.message}`);
   }
 }
 
@@ -134,7 +137,8 @@ async function updateDB(tx, currentBlockCount) {
         }
       }
     } catch (err) {
-      getLogger().error(`Update Transaction ${tx.type} txid:${tx.txid} ${err.message}`);
+      getLogger().error(`updateDB: ${tx.type} txid:${tx.txid} ${err.message}`);
+      throw Error(`updateDB: ${tx.type} txid:${tx.txid} ${err.message}`);
     }
   }
 }
@@ -210,6 +214,7 @@ async function executeCreateEvent(tx, currentBlockCount) {
     });
   } catch (err) {
     getLogger().error(`executeCreateEvent: ${err.message}`);
+    throw Error(`executeCreateEvent: ${err.message}`);
   }
 }
 
@@ -244,6 +249,7 @@ async function executeSetResult(tx, currentBlockCount) {
     });
   } catch (err) {
     getLogger().error(`executeSetResult: ${err.message}`);
+    throw Error(`executeSetResult: ${err.message}`);
   }
 }
 
@@ -283,6 +289,7 @@ async function executeVote(tx, currentBlockCount) {
     });
   } catch (err) {
     getLogger().error(`executeVote: ${err.message}`);
+    throw Error(`executeVote: ${err.message}`);
   }
 }
 
@@ -313,6 +320,7 @@ async function removeCreatedTopicAndOracle(tx) {
     await DBHelper.removeOraclesByQuery(db.Oracles, { txid: tx.txid });
   } catch (err) {
     getLogger().error(`removeCreatedTopicAndOracle: ${err.message}`);
+    throw Error(`removeCreatedTopicAndOracle: ${err.message}`);
   }
 }
 
