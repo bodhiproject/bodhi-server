@@ -12,14 +12,13 @@ RUN mkdir -p /root/.dockervol/.bodhi
 COPY ./package*.json ./
 
 # If you are building your code for production: RUN npm install --only=production
-# Install all packages and specific bodhi-ui version 
-RUN npm install bodhi-ui@1.0.4-testnet
+RUN npm install
 
 # Bundle app source
 COPY . .
 
 # Expose ports for UI and API
-EXPOSE 4000 6767
+EXPOSE 6767
 
 # Run server
 CMD [ "npm", "run", "testnet:prod" ]
