@@ -6,8 +6,6 @@ const { BLOCKCHAIN_ENV } = require('../constants');
 const mainnetMetadata = require('./mainnet/contract-metadata');
 const testnetMetadata = require('./testnet/contract-metadata');
 
-const HTTP_PORT_MAINNET = 3000;
-const HTTP_PORT_TESTNET = 4000;
 const API_PORT_MAINNET = 8989;
 const API_PORT_TESTNET = 6767;
 const API_PORT_REGTEST = 5555;
@@ -19,7 +17,6 @@ const { MAINNET, TESTNET, REGTEST } = BLOCKCHAIN_ENV;
 
 const Config = {
   IS_DEV: includes(process.argv, '--dev'),
-  IS_LOCAL: includes(process.argv, '--local'),
   PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
   HOSTNAME: 'localhost',
   RPC_USER: 'bodhi',
@@ -66,21 +63,17 @@ function getEnvConfig() {
     throw Error('setQtumEnv was not called yet.');
   }
 
-  let httpPort;
   let apiPort;
   switch (qtumEnv) {
     case MAINNET: {
-      httpPort = HTTP_PORT_MAINNET;
       apiPort = API_PORT_MAINNET;
       break;
     }
     case TESTNET: {
-      httpPort = HTTP_PORT_TESTNET;
       apiPort = API_PORT_TESTNET;
       break;
     }
     case REGTEST: {
-      httpPort = HTTP_PORT_TESTNET;
       apiPort = API_PORT_REGTEST;
       break;
     }
@@ -89,7 +82,7 @@ function getEnvConfig() {
     }
   }
 
-  return { network: qtumEnv, qtumPath, httpPort, apiPort };
+  return { network: qtumEnv, qtumPath, apiPort };
 }
 
 function isMainnet() {
