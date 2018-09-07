@@ -31,7 +31,6 @@
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
     "bignumber.js": "^7.2.1",
-    "bodhi-ui": "^1.0.4-regtest",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^6.0.0",

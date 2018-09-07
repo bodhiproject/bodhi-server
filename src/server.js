@@ -1,17 +1,15 @@
 const { isEmpty, isUndefined, each, split } = require('lodash');
 const { spawn, spawnSync } = require('child_process');
-const axios = require('axios');
-const https = require('https');
 const portscanner = require('portscanner');
 
 const { BIN_TYPE } = require('./constants');
-const { Config, setQtumEnv, getEnvConfig, isMainnet, getRPCPassword, getSSLCredentials } = require('./config');
+const { Config, setQtumEnv, getEnvConfig, isMainnet, getRPCPassword } = require('./config');
 const { initDB } = require('./db');
 const { initLogger, getLogger } = require('./utils/logger');
 const EmitterHelper = require('./utils/emitter-helper');
 const { startSync } = require('./sync');
 const { getInstance } = require('./qclient');
-const { initApiServer, initWebServer } = require('./route');
+const { initApiServer } = require('./route');
 const Wallet = require('./api/wallet');
 
 const walletEncryptedMessage = 'Your wallet is encrypted. Please use a non-encrypted wallet for the server.';
@@ -20,9 +18,7 @@ let qtumProcess;
 let encryptOk = false;
 let isEncrypted = false;
 let checkInterval;
-let checkApiInterval;
 let shutdownInterval;
-let axiosClient;
 
 function getQtumProcess() {
   return qtumProcess;
@@ -199,38 +195,6 @@ async function unlockWallet(passphrase) {
 function startServices() {
   startSync(true);
   initApiServer();
-
-  // No need to check the API if not hosting the webserver
-  if (!Config.IS_LOCAL) {
-    checkApiInterval = setInterval(checkApiInit, 500);
-  }
-}
-
-/**
- * Ensure API is running before starting UI server.
- * Electron version only.
- */
-async function checkApiInit() {
-  try {
-    if (!axiosClient) {
-      const creds = getSSLCredentials();
-      const agent = new https.Agent({ ca: creds.cert, rejectUnauthorized: false });
-      axiosClient = axios.create({ httpsAgent: agent });
-    }
-  } catch (err) {
-    console.error(err);
-    exit('SIGTERM');
-  }
-
-  try {
-    const res = await axiosClient.get(`${Config.PROTOCOL}://${Config.HOSTNAME}:${getEnvConfig().apiPort}/get-block-count`);
-    if (res.status >= 200 && res.status < 300) {
-      clearInterval(checkApiInterval);
-      initWebServer();
-    }
-  } catch (err) {
-    getLogger().debug(err.message);
-  }
 }
 
 /**

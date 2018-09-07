@@ -7,7 +7,6 @@ services:
       context: ./
       dockerfile: ./docker/mainnet/Dockerfile
     ports:
-      - "3000:3000"
       - "8989:8989"
     environment:
       - QTUM_PATH=./qtum/linux64/bin
@@ -35,7 +34,6 @@ services:
       context: ./
       dockerfile: ./docker/testnet/Dockerfile
     ports:
-      - "4000:4000"
       - "6767:6767"
     environment:
       - QTUM_PATH=./qtum/linux64/bin
@@ -63,7 +61,6 @@ services:
   #     context: ./
   #     dockerfile: ./docker/regtest/Dockerfile
   #   ports:
-  #     - "4000:4000"
   #     - "5555:5555"
   #   environment:
   #     - QTUM_PATH=./qtum/linux64/bin

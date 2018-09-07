@@ -1,7 +1,6 @@
 const express = require('express');
 const http = require('http');
 const https = require('https');
-const path = require('path');
 const expressWinston = require('express-winston');
 const helmet = require('helmet');
 
@@ -65,30 +64,4 @@ const initApiServer = () => {
   }
 };
 
-const initWebServer = () => {
-  try {
-    const { httpPort } = getEnvConfig();
-    if (!httpPort) {
-      getLogger().info('No HTTP port found. Not serving UI.');
-      return;
-    }
-
-    const app = initExpressApp();
-
-    const uiDir = path.join(__dirname, '../../node_modules/bodhi-ui/build');
-    app.use(express.static(uiDir));
-
-    const server = createServer(app);
-    server.listen(httpPort, () => {
-      getLogger().info(`UI served at ${Config.PROTOCOL}://${Config.HOSTNAME}:${httpPort}`);
-    });
-  } catch (err) {
-    getLogger().error(`Error starting Web Server: ${err.message}`);
-    require('../server').exit('SIGTERM'); // eslint-disable-line
-  }
-};
-
-module.exports = {
-  initApiServer,
-  initWebServer,
-};
+module.exports = { initApiServer };
