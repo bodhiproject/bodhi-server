@@ -20,7 +20,7 @@
 ### Acceptable Flags
 
     --dev                       // Runs development environment. /dev data dir and no Papertrail logging.
-    --local                     // Does not host webserver and uses http protocol. Use this if you will run Bodhi-UI separately.
+    --local                     // Disables SSL for HTTP and WS connections
     --chain=testnet             // Set blockchain network: [mainnet, testnet, regtest]
     --rpcpassword=myPassword    // Force starting qtumd with this rpc pw
     --qtumpath=/path/to/bin     // Path to the qtumd binaries
@@ -40,9 +40,9 @@
 
     // Run staging environment. Meant for usage on remote server.
     // dev data dir, no Papertrail, hosts webserver, HTTPS protocol
-    npm run regtest:stage // regtest, API 5555, UI 4000
-    npm run testnet:stage // testnet, API 6767, UI 4000
-    npm run mainnet:stage // mainnet, API 8989, UI 3000
+    npm run regtest:stage // regtest, API 5555
+    npm run testnet:stage // testnet, API 6767
+    npm run mainnet:stage // mainnet, API 8989
 
     // GraphQL Playground at localhost:{API_PORT}/graphql
 
@@ -50,9 +50,9 @@
 
     // Running production environment. Meant for usage on remote server.
     // data dir, Papertrail enabled, hosts webserver, HTTPS protocol
-    npm run regtest:prod // regtest, API 5555, UI 4000
-    npm run testnet:prod // testnet, API 6767, UI 4000
-    npm run mainnet:prod // mainnet, API 8989, UI 3000
+    npm run regtest:prod // regtest, API 5555
+    npm run testnet:prod // testnet, API 6767
+    npm run mainnet:prod // mainnet, API 8989
 
     // GraphQL Playground at localhost:{API_PORT}/graphql
 
