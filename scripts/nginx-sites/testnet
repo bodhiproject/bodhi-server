@@ -5,6 +5,6 @@ server {
     index index.html index.htm;
 
     location / {
-        try_files $uri /var/www/bodhi/testnet/index.html;
+        try_files $uri /index.html;
     }
 }
