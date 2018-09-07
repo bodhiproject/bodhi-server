@@ -123,6 +123,7 @@ type Transaction {
   type: _TransactionType!
   status: _TransactionStatus!
   txid: String
+  createdBlock: Int!
   createdTime: String!
   blockNum: Int
   blockTime: String
@@ -303,6 +304,7 @@ type Mutation {
 }
 
 type Subscription {
-  onSyncInfo : syncInfo
+  onSyncInfo: syncInfo
+  onApproveSuccess: Transaction
 }
 `;

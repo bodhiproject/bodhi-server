@@ -46,7 +46,11 @@ const calculateSyncPercent = async (blockNum, blockTime) => {
   return Math.floor((blockNum / peerBlockHeader) * 100);
 };
 
-// Send syncInfo subscription
+/**
+ * Send the syncInfo subscription message.
+ * @param {number} syncBlockNum Current block number synced.
+ * @param {string} syncBlockTime Current block time synced.
+ */
 const publishSyncInfo = async (syncBlockNum, syncBlockTime) => {
   const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
   const peerNodeCount = await Network.getPeerNodeCount();
@@ -62,7 +66,16 @@ const publishSyncInfo = async (syncBlockNum, syncBlockTime) => {
   });
 };
 
+/**
+ * Send the approve tx successful message.
+ * @param {Transaction} tx Successful approve tx.
+ */
+const publishOnApproveSuccess = (transaction) => {
+  pubsub.publish('onApproveSuccess', { onApproveSuccess: { ...transaction } });
+};
+
 module.exports = {
-  publishSyncInfo,
   calculateSyncPercent,
+  publishSyncInfo,
+  publishOnApproveSuccess,
 };
