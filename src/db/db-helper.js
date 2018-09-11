@@ -118,6 +118,7 @@ class DBHelper {
             resultSetStartTime: oracle.resultSetStartTime,
             resultSetEndTime: oracle.resultSetEndTime,
             consensusThreshold: oracle.consensusThreshold,
+            hashId: oracle.hashId,
           },
         },
         {},

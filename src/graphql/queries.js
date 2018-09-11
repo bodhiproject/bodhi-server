@@ -69,6 +69,7 @@ const buildOracleFilters = ({
   excludeResultSetterQAddress,
   status,
   token,
+  hashId
 }) => {
   const filter = (
     txid
@@ -78,6 +79,7 @@ const buildOracleFilters = ({
     || status
     || token
     || excludeResultSetterQAddress
+    || hashId
   ) ? {} : null;
 
   if (txid) {
@@ -104,6 +106,10 @@ const buildOracleFilters = ({
 
   if (token) {
     filter.token = token;
+  }
+
+  if(hashId) {
+    filter.hashId = hashId;
   }
 
   let filters = filter ? [filter] : [];

@@ -103,9 +103,10 @@ const syncCentralizedOracleCreated = async (currentBlockNum) => {
             const cOracle = new CentralizedOracle(blockNum, txid, rawLog).translate();
 
             // Insert existing Topic info into Oracle
-            const topic = await DBHelper.findOne(db.Topics, { address: cOracle.topicAddress }, ['name', 'options']);
+            const topic = await DBHelper.findOne(db.Topics, { address: cOracle.topicAddress }, ['name', 'options','hashId']);
             cOracle.name = topic.name;
             cOracle.options = topic.options;
+            cOracle.hashId = topic.hashId;
 
             // Update existing mutated Oracle or insert new
             if (await DBHelper.getCount(db.Oracles, { txid }) > 0) {
