@@ -114,7 +114,7 @@ const buildOracleFilters = ({
   return filters;
 };
 
-const buildSearchOracleFilter = (searchPhrase) => {
+const buildSearchFilter = (searchPhrase) => {
   const filterFields = ['name', '_id', 'topicAddress', 'resultSetterAddress', 'resultSetterQAddress'];
   if (!searchPhrase) {
     return [];
@@ -349,8 +349,15 @@ module.exports = {
   },
 
   searchOracles: async (root, { searchPhrase, orderBy, limit, skip }, { db: { Oracles } }) => {
-    const query = searchPhrase ? { $or: buildSearchOracleFilter(searchPhrase) } : {};
+    const query = searchPhrase ? { $or: buildSearchFilter(searchPhrase) } : {};
     let cursor = Oracles.cfind(query);
+    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+    return cursor.exec();
+  },
+
+  searchTopics: async (root, { searchPhrase, orderBy, limit, skip }, { db: { Topics } }) => {
+    const query = searchPhrase ? { $or: buildSearchFilter(searchPhrase) } : {};
+    let cursor = Topics.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
     return cursor.exec();
   },
