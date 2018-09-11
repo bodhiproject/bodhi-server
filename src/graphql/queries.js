@@ -121,7 +121,7 @@ const buildSearchOracleFilter = (searchPhrase) => {
   }
 
   const filters = [];
-  const searchRegex = new RegExp(`.*${searchPhrase}.*`);
+  const searchRegex = new RegExp(`.*${searchPhrase}.*`, 'i');
   for (let i = 0; i < filterFields.length; i++) {
     const filter = {};
     filter[filterFields[i]] = { $regex: searchRegex };
