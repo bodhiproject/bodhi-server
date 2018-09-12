@@ -176,6 +176,7 @@ input TopicFilter {
   status: _OracleStatusType
   resultIdx: Int
   creatorAddress: String
+  hashId: String
 }
 
 input OracleFilter {

@@ -13,14 +13,6 @@ module.exports = {
       hash160: '17e7888aa7412a735f336d2f6d784caefabb6fa3',
     },
   },
-  arbitrationEndBlock: {
-    result: {
-      0: '10a81',
-    },
-  },
-  lastResultIndex: {
-    result: {
-      0: '2',
-    },
-  },
+  arbitrationEndBlock: { result: { 0: '10a81' } },
+  lastResultIndex: { result: { 0: '2' } },
 };

@@ -6,9 +6,5 @@ module.exports = {
       hash160: '17e7888aa7412a735f336d2f6d784caefabb6fa3',
     },
   },
-  version: {
-    result: {
-      0: '0',
-    },
-  },
+  version: { result: { 0: '0' } },
 };

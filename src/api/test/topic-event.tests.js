@@ -20,15 +20,11 @@ describe('TopicEvent', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(TopicEvent.withdrawWinnings({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.withdrawWinnings({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(TopicEvent.withdrawWinnings({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.withdrawWinnings({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -40,15 +36,11 @@ describe('TopicEvent', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(TopicEvent.totalQtumValue({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.totalQtumValue({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(TopicEvent.totalQtumValue({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.totalQtumValue({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -60,15 +52,11 @@ describe('TopicEvent', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(TopicEvent.totalBotValue({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.totalBotValue({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(TopicEvent.totalBotValue({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.totalBotValue({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -82,15 +70,11 @@ describe('TopicEvent', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(TopicEvent.getFinalResult({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.getFinalResult({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(TopicEvent.getFinalResult({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.getFinalResult({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -102,15 +86,11 @@ describe('TopicEvent', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(TopicEvent.status({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.status({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(TopicEvent.status({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.status({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -155,15 +135,11 @@ describe('TopicEvent', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(TopicEvent.calculateWinnings({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.calculateWinnings({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(TopicEvent.calculateWinnings({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(TopicEvent.calculateWinnings({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 });

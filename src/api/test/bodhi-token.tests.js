@@ -76,15 +76,11 @@ describe('BodhiToken', () => {
     });
 
     it('throws if owner is undefined', () => {
-      expect(BodhiToken.balanceOf({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(BodhiToken.balanceOf({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(BodhiToken.balanceOf({
-        owner: 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy',
-      })).to.be.rejectedWith(Error);
+      expect(BodhiToken.balanceOf({ owner: 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy' })).to.be.rejectedWith(Error);
     });
   });
 });

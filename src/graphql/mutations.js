@@ -82,15 +82,15 @@ module.exports = {
       }
     }
     const version = Config.CONTRACT_VERSION_NUM;
-    const curTime = Date.now();
-    const hashId = crypto.createHash('md5').update(`${curTime}${name}`).digest("hex");
+    const createdTime = moment().unix();
+    const hashId = crypto.createHash('md5').update(`${createdTime}${name}`).digest('hex');
     // Insert Transaction
     const tx = new Transaction({
       type,
       txid: sentTx.txid,
       status: TX_STATE.PENDING,
       createdBlock: await getBlockNum(),
-      createdTime: moment().unix(),
+      createdTime,
       gasLimit: sentTx.args.gasLimit.toString(10),
       gasPrice: sentTx.args.gasPrice.toFixed(8),
       senderAddress,

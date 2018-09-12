@@ -56,8 +56,7 @@ const EventFactory = {
   },
 
   async version(args) {
-    const {
-      senderAddress, // address
+    const { senderAddress, // address
     } = args;
 
     if (_.isUndefined(senderAddress)) {

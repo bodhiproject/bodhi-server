@@ -4,8 +4,7 @@ const { getInstance } = require('../qclient');
 
 const Wallet = {
   async getAccountAddress(args) {
-    const {
-      accountName, // string
+    const { accountName, // string
     } = args;
 
     if (_.isUndefined(accountName)) {
@@ -16,8 +15,7 @@ const Wallet = {
   },
 
   async getTransaction(args) {
-    const {
-      txid, // string
+    const { txid, // string
     } = args;
 
     if (_.isUndefined(txid)) {
@@ -93,8 +91,7 @@ const Wallet = {
   },
 
   async encryptWallet(args) {
-    const {
-      passphrase, // string
+    const { passphrase, // string
     } = args;
 
     if (_.isUndefined(passphrase)) {
@@ -121,8 +118,7 @@ const Wallet = {
   },
 
   async backupWallet(args) {
-    const {
-      destination, // string
+    const { destination, // string
     } = args;
 
     if (_.isUndefined(destination)) {
@@ -133,8 +129,7 @@ const Wallet = {
   },
 
   async importWallet(args) {
-    const {
-      filename, // string
+    const { filename, // string
     } = args;
 
     if (_.isUndefined(filename)) {

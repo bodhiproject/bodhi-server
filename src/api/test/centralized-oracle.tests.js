@@ -90,15 +90,11 @@ describe('CentralizedOracle', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(CentralizedOracle.oracle({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(CentralizedOracle.oracle({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(CentralizedOracle.oracle({
-        contractAddress: address,
-      })).to.be.rejectedWith(Error);
+      expect(CentralizedOracle.oracle({ contractAddress: address })).to.be.rejectedWith(Error);
     });
   });
 
@@ -110,15 +106,11 @@ describe('CentralizedOracle', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(CentralizedOracle.bettingStartBlock({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(CentralizedOracle.bettingStartBlock({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(CentralizedOracle.bettingStartBlock({
-        contractAddress: address,
-      })).to.be.rejectedWith(Error);
+      expect(CentralizedOracle.bettingStartBlock({ contractAddress: address })).to.be.rejectedWith(Error);
     });
   });
 
@@ -130,15 +122,11 @@ describe('CentralizedOracle', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(CentralizedOracle.bettingEndBlock({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(CentralizedOracle.bettingEndBlock({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(CentralizedOracle.bettingEndBlock({
-        contractAddress: address,
-      })).to.be.rejectedWith(Error);
+      expect(CentralizedOracle.bettingEndBlock({ contractAddress: address })).to.be.rejectedWith(Error);
     });
   });
 
@@ -150,15 +138,11 @@ describe('CentralizedOracle', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(CentralizedOracle.resultSettingStartBlock({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(CentralizedOracle.resultSettingStartBlock({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(CentralizedOracle.resultSettingStartBlock({
-        contractAddress: address,
-      })).to.be.rejectedWith(Error);
+      expect(CentralizedOracle.resultSettingStartBlock({ contractAddress: address })).to.be.rejectedWith(Error);
     });
   });
 
@@ -170,15 +154,11 @@ describe('CentralizedOracle', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(CentralizedOracle.resultSettingEndBlock({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(CentralizedOracle.resultSettingEndBlock({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(CentralizedOracle.resultSettingEndBlock({
-        contractAddress: address,
-      })).to.be.rejectedWith(Error);
+      expect(CentralizedOracle.resultSettingEndBlock({ contractAddress: address })).to.be.rejectedWith(Error);
     });
   });
 });
