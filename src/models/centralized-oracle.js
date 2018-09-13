@@ -57,6 +57,7 @@ class CentralizedOracle {
       resultIdx: null,
       status: 'VOTING',
       token: 'QTUM',
+      hashId: null,
     };
   }
 }
