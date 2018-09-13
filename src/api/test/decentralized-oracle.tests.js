@@ -58,15 +58,11 @@ describe('DecentralizedOracle', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(DecentralizedOracle.finalizeResult({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(DecentralizedOracle.finalizeResult({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(DecentralizedOracle.finalizeResult({
-        contractAddress: 'e5b0676c6445e6d82b39e8c2a6f7e338bd0a577e',
-      })).to.be.rejectedWith(Error);
+      expect(DecentralizedOracle.finalizeResult({ contractAddress: 'e5b0676c6445e6d82b39e8c2a6f7e338bd0a577e' })).to.be.rejectedWith(Error);
     });
   });
 
@@ -78,15 +74,11 @@ describe('DecentralizedOracle', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(DecentralizedOracle.arbitrationEndBlock({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(DecentralizedOracle.arbitrationEndBlock({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(DecentralizedOracle.arbitrationEndBlock({
-        contractAddress: '814e63497adb7eae5cc217c71d564ee437fb1973',
-      })).to.be.rejectedWith(Error);
+      expect(DecentralizedOracle.arbitrationEndBlock({ contractAddress: '814e63497adb7eae5cc217c71d564ee437fb1973' })).to.be.rejectedWith(Error);
     });
   });
 
@@ -98,15 +90,11 @@ describe('DecentralizedOracle', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(DecentralizedOracle.lastResultIndex({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(DecentralizedOracle.lastResultIndex({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(DecentralizedOracle.lastResultIndex({
-        contractAddress: '814e63497adb7eae5cc217c71d564ee437fb1973',
-      })).to.be.rejectedWith(Error);
+      expect(DecentralizedOracle.lastResultIndex({ contractAddress: '814e63497adb7eae5cc217c71d564ee437fb1973' })).to.be.rejectedWith(Error);
     });
   });
 });

@@ -11,8 +11,7 @@ function getContract() {
 
 const AddressManager = {
   async eventEscrowAmount(args) {
-    const {
-      senderAddress, // address
+    const { senderAddress, // address
     } = args;
 
     if (_.isUndefined(senderAddress)) {
@@ -28,8 +27,7 @@ const AddressManager = {
   },
 
   async getLastEventFactoryIndex(args) {
-    const {
-      senderAddress, // address
+    const { senderAddress, // address
     } = args;
 
     if (_.isUndefined(senderAddress)) {
@@ -45,8 +43,7 @@ const AddressManager = {
   },
 
   async getLastOracleFactoryIndex(args) {
-    const {
-      senderAddress, // address
+    const { senderAddress, // address
     } = args;
 
     if (_.isUndefined(senderAddress)) {

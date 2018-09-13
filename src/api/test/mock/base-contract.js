@@ -1,14 +1,6 @@
 module.exports = {
-  version: {
-    result: {
-      0: '0',
-    },
-  },
-  resultIndex: {
-    result: {
-      0: '255',
-    },
-  },
+  version: { result: { 0: '0' } },
+  resultIndex: { result: { 0: '255' } },
   getBetBalances: {
     result: {
       0: [

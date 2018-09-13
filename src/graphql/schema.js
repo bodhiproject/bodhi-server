@@ -60,6 +60,7 @@ type Topic {
   oracles: [Oracle]
   transactions: [Transaction]
   creatorAddress: String!
+  hashId: String
 }
 
 type Oracle {
@@ -83,6 +84,7 @@ type Oracle {
   resultSetEndTime: String
   consensusThreshold: String
   transactions: [Transaction]
+  hashId: String
 }
 
 type Vote {
@@ -174,6 +176,7 @@ input TopicFilter {
   status: _OracleStatusType
   resultIdx: Int
   creatorAddress: String
+  hashId: String
 }
 
 input OracleFilter {
@@ -185,6 +188,7 @@ input OracleFilter {
   status: _OracleStatusType
   token: _TokenType
   excludeResultSetterQAddress: [String]
+  hashId: String
 }
 
 input VoteFilter {

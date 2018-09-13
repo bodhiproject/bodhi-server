@@ -30,8 +30,8 @@ const buildCursorOptions = (cursor, orderBy, limit, skip) => {
   return cursor;
 };
 
-const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorAddress }) => {
-  const filter = (txid || address || status || resultIdx || creatorAddress) ? {} : null;
+const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorAddress, hashId }) => {
+  const filter = (txid || address || status || resultIdx || creatorAddress || hashId) ? {} : null;
 
   if (txid) {
     filter.txid = txid;
@@ -53,6 +53,10 @@ const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorA
     filter.creatorAddress = creatorAddress;
   }
 
+  if (hashId) {
+    filter.hashId = hashId;
+  }
+
   let filters = filter ? [filter] : [];
   for (let i = 0; i < OR.length; i++) {
     filters = filters.concat(buildTopicFilters(OR[i]));
@@ -69,6 +73,7 @@ const buildOracleFilters = ({
   excludeResultSetterQAddress,
   status,
   token,
+  hashId,
 }) => {
   const filter = (
     txid
@@ -78,6 +83,7 @@ const buildOracleFilters = ({
     || status
     || token
     || excludeResultSetterQAddress
+    || hashId
   ) ? {} : null;
 
   if (txid) {
@@ -104,6 +110,10 @@ const buildOracleFilters = ({
 
   if (token) {
     filter.token = token;
+  }
+
+  if (hashId) {
+    filter.hashId = hashId;
   }
 
   let filters = filter ? [filter] : [];

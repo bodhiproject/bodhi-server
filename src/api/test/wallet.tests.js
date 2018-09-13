@@ -14,9 +14,7 @@ const expect = Chai.expect;
 describe('Wallet', () => {
   describe('getAccountAddress()', () => {
     it('returns a qtum address', async () => {
-      const res = await Wallet.getAccountAddress({
-        accountName: '',
-      });
+      const res = await Wallet.getAccountAddress({ accountName: '' });
       assert.isDefined(res);
       assert.isString(res);
     });

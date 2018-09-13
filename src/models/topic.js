@@ -49,6 +49,7 @@ class Topic {
       qtumAmount: _.fill(Array(this.resultNames.length), '0'),
       botAmount: _.fill(Array(this.resultNames.length), '0'),
       status: 'VOTING',
+      hashId: null,
     };
   }
 }

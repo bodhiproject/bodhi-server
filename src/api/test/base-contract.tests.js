@@ -21,15 +21,11 @@ describe('BaseContract', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(BaseContract.version({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.version({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(BaseContract.version({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.version({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -41,15 +37,11 @@ describe('BaseContract', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(BaseContract.resultIndex({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.resultIndex({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(BaseContract.resultIndex({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.resultIndex({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -61,15 +53,11 @@ describe('BaseContract', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(BaseContract.getBetBalances({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.getBetBalances({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(BaseContract.getBetBalances({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.getBetBalances({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -81,15 +69,11 @@ describe('BaseContract', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(BaseContract.getVoteBalances({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.getVoteBalances({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(BaseContract.getVoteBalances({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.getVoteBalances({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -101,15 +85,11 @@ describe('BaseContract', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(BaseContract.getTotalBets({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.getTotalBets({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(BaseContract.getTotalBets({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.getTotalBets({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -121,15 +101,11 @@ describe('BaseContract', () => {
     });
 
     it('throws if contractAddress is undefined', () => {
-      expect(BaseContract.getTotalVotes({
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.getTotalVotes({ senderAddress: TestConfig.SENDER_ADDRESS })).to.be.rejectedWith(Error);
     });
 
     it('throws if senderAddress is undefined', () => {
-      expect(BaseContract.getTotalVotes({
-        contractAddress,
-      })).to.be.rejectedWith(Error);
+      expect(BaseContract.getTotalVotes({ contractAddress })).to.be.rejectedWith(Error);
     });
   });
 });

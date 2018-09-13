@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const moment = require('moment');
+const crypto = require('crypto');
 
 const { TX_STATE, TX_TYPE, TOKEN } = require('../constants');
 const { Config, getContractMetadata } = require('../config');
@@ -80,16 +81,16 @@ module.exports = {
         throw err;
       }
     }
-
     const version = Config.CONTRACT_VERSION_NUM;
-
+    const createdTime = moment().unix();
+    const hashId = crypto.createHash('md5').update(`${createdTime}${name}`).digest('hex');
     // Insert Transaction
     const tx = new Transaction({
       type,
       txid: sentTx.txid,
       status: TX_STATE.PENDING,
       createdBlock: await getBlockNum(),
-      createdTime: moment().unix(),
+      createdTime,
       gasLimit: sentTx.args.gasLimit.toString(10),
       gasPrice: sentTx.args.gasPrice.toFixed(8),
       senderAddress,
@@ -117,6 +118,7 @@ module.exports = {
       qtumAmount: _.fill(Array(options), '0'),
       botAmount: _.fill(Array(options), '0'),
       creatorAddress: senderAddress,
+      hashId,
     };
     getLogger().debug(`Mutation Insert: Topic txid:${topic.txid}`);
     await DBHelper.insertTopic(Topics, topic);
@@ -136,6 +138,7 @@ module.exports = {
       endTime: bettingEndTime,
       resultSetStartTime: resultSettingStartTime,
       resultSetEndTime: resultSettingEndTime,
+      hashId,
     };
     getLogger().debug(`Mutation Insert: Oracle txid:${oracle.txid}`);
     await DBHelper.insertOracle(Oracles, oracle);
