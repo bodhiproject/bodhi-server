@@ -3,7 +3,7 @@ const BigNumber = require('bignumber.js');
 
 const { calculateSyncPercent } = require('./subscriptions');
 const { getInstance } = require('../qclient');
-const { SATOSHI_CONVERSION } = require('../constants');
+const { SATOSHI_CONVERSION, STATUS } = require('../constants');
 const { getLogger } = require('../utils/logger');
 const sequentialLoop = require('../utils/sequential-loop');
 const Blockchain = require('../api/blockchain');
@@ -124,7 +124,7 @@ const buildOracleFilters = ({
   return filters;
 };
 
-const buildSearchFilter = (searchPhrase) => {
+const buildSearchPhrase = (searchPhrase) => {
   const filterFields = ['name', '_id', 'topicAddress', 'resultSetterAddress', 'resultSetterQAddress'];
   if (!searchPhrase) {
     return [];
@@ -358,15 +358,20 @@ module.exports = {
     return cursor.exec();
   },
 
-  searchOracles: async (root, { searchPhrase, orderBy, limit, skip }, { db: { Oracles } }) => {
-    const query = searchPhrase ? { $or: buildSearchFilter(searchPhrase) } : {};
+  searchOracles: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Oracles } }) => {
+    const filters = [{ $not: { status: STATUS.WITHDRAW } },
+      filter ? { $or: buildOracleFilters(filter) } : {},
+      searchPhrase ? { $or: buildSearchPhrase(searchPhrase) } : {}];
+    const query = { $and: filters };
     let cursor = Oracles.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
     return cursor.exec();
   },
 
-  searchTopics: async (root, { searchPhrase, orderBy, limit, skip }, { db: { Topics } }) => {
-    const query = searchPhrase ? { $or: buildSearchFilter(searchPhrase) } : {};
+  searchTopics: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Topics } }) => {
+    const filters = [filter ? { $or: buildTopicFilters(filter) } : {},
+      searchPhrase ? { $or: buildSearchPhrase(searchPhrase) } : {}];
+    const query = { $and: filters };
     let cursor = Topics.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
     return cursor.exec();
