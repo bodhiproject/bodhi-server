@@ -359,9 +359,10 @@ module.exports = {
   },
 
   searchOracles: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Oracles } }) => {
-    const filters = [{ $not: { status: STATUS.WITHDRAW } },
-      filter ? { $or: buildOracleFilters(filter) } : {},
-      searchPhrase ? { $or: buildSearchPhrase(searchPhrase) } : {}];
+    const filters = [];
+    filters.push({ $not: { status: STATUS.WITHDRAW } });
+    if (filter) filters.push({ $or: buildOracleFilters(filter) });
+    if (searchPhrase) filters.push({ $or: buildSearchPhrase(searchPhrase) });
     const query = { $and: filters };
     let cursor = Oracles.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
@@ -369,8 +370,9 @@ module.exports = {
   },
 
   searchTopics: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Topics } }) => {
-    const filters = [filter ? { $or: buildTopicFilters(filter) } : {},
-      searchPhrase ? { $or: buildSearchPhrase(searchPhrase) } : {}];
+    const filters = [];
+    if (filter) filters.push({ $or: buildTopicFilters(filter) });
+    if (searchPhrase) filters.push({ $or: buildSearchPhrase(searchPhrase) });
     const query = { $and: filters };
     let cursor = Topics.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
