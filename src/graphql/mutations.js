@@ -25,6 +25,16 @@ const getBlockNum = async () => {
   }
 };
 
+const insertPendingTx = async (db, data) => {
+  const tx = new Transaction(Object.assign(data, {
+    status: TX_STATE.PENDING,
+    createdBlock: await getBlockNum(),
+    createdTime: moment().unix(),
+  }));
+  await DBHelper.insertTransaction(db, tx);
+  return tx;
+};
+
 module.exports = {
   createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
     const {
@@ -147,49 +157,25 @@ module.exports = {
   },
 
   createBet: async (root, data, { db: { Transactions } }) => {
-    const {
-      version,
-      topicAddress,
-      oracleAddress,
-      optionIdx,
-      amount,
-      senderAddress,
-    } = data;
+    let tx = Object.assign({}, data, { type: TX_TYPE.BET, token: TOKEN.QTUM });
 
-    // Send bet tx
-    let sentTx;
-    try {
-      sentTx = await CentralizedOracle.bet({
-        contractAddress: oracleAddress,
-        index: optionIdx,
-        amount,
-        senderAddress,
-      });
-    } catch (err) {
-      getLogger().error(`Error calling CentralizedOracle.bet: ${err.message}`);
-      throw err;
+    // Send bet tx if not already sent
+    if (!tx.txid && !tx.gasLimit && !tx.gasPrice) {
+      try {
+        const res = await CentralizedOracle.bet({
+          contractAddress: tx.oracleAddress,
+          index: tx.optionIdx,
+          amount: tx.amount,
+          senderAddress: tx.senderAddress,
+        });
+        tx = Object.assign(tx, { txid: res.txid, gasLimit: res.args.gasLimit, gasPrice: res.args.gasPrice });
+      } catch (err) {
+        getLogger().error(`Error calling CentralizedOracle.bet: ${err.message}`);
+        throw err;
+      }
     }
 
-    // Insert Transaction
-    const tx = new Transaction({
-      type: TX_TYPE.BET,
-      txid: sentTx.txid,
-      status: TX_STATE.PENDING,
-      createdBlock: await getBlockNum(),
-      createdTime: moment().unix(),
-      gasLimit: sentTx.args.gasLimit.toString(10),
-      gasPrice: sentTx.args.gasPrice.toFixed(8),
-      senderAddress,
-      version,
-      topicAddress,
-      oracleAddress,
-      optionIdx,
-      token: TOKEN.QTUM,
-      amount,
-    });
-    await DBHelper.insertTransaction(Transactions, tx);
-
-    return tx;
+    return insertPendingTx(Transactions, tx);
   },
 
   setResult: async (root, data, { db: { Transactions } }) => {

@@ -266,6 +266,9 @@ type Mutation {
     oracleAddress: String!
     optionIdx: Int!
     amount: String!
+    txid: String
+    gasLimit: String
+    gasPrice: String
   ): Transaction
 
   setResult(
