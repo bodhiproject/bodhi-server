@@ -359,8 +359,7 @@ module.exports = {
   },
 
   searchOracles: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Oracles } }) => {
-    const filters = [];
-    filters.push({ $not: { status: STATUS.WITHDRAW } });
+    const filters = [{ $not: { status: STATUS.WITHDRAW } }];
     if (filter) filters.push({ $or: buildOracleFilters(filter) });
     if (searchPhrase) filters.push({ $or: buildSearchPhrase(searchPhrase) });
     const query = { $and: filters };
