@@ -247,23 +247,6 @@ type Query {
 }
 
 type Mutation {
-  approve(
-    type: _TransactionType!
-    senderAddress: String!
-    topicAddress: String
-    oracleAddress: String
-    name: String
-    options: [String!]
-    resultSetterAddress: String
-    bettingStartTime: String
-    bettingEndTime: String
-    resultSettingStartTime: String
-    resultSettingEndTime: String
-    optionIdx: Int
-    amount: String!
-    version: Int
-  ): Transaction
-
   createTopic(
     senderAddress: String!
     name: String!
@@ -286,6 +269,19 @@ type Mutation {
     txid: String
     gasLimit: String
     gasPrice: String
+  ): Transaction
+
+  approveSetResult(
+    type: _TransactionType!
+    txid: String!
+    gasLimit: String!
+    gasPrice: String!
+    senderAddress: String!
+    topicAddress: String!
+    oracleAddress: String!
+    optionIdx: Int!
+    amount: String!
+    token: String!
   ): Transaction
 
   setResult(

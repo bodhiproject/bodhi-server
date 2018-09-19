@@ -38,16 +38,6 @@ const insertPendingTx = async (db, data) => {
 };
 
 module.exports = {
-  // Specfically used for external wallets since approves are done separately.
-  approve: async (root, data, { db: { Transactions } }) => {
-    const tx = Object.assign({}, data, { token: TOKEN.BOT });
-    if (!includes([TX_TYPE.APPROVECREATEEVENT, TX_TYPE.APPROVESETRESULT, TX_TYPE.APPROVEVOTE], tx.type)) {
-      throw Error(`Invalid approve type: ${tx.type}`);
-    }
-
-    return insertPendingTx(Transactions, tx);
-  },
-
   createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
     const {
       name,
@@ -186,6 +176,15 @@ module.exports = {
         getLogger().error(`Error calling CentralizedOracle.bet: ${err.message}`);
         throw err;
       }
+    }
+
+    return insertPendingTx(Transactions, tx);
+  },
+
+  approveSetResult: async (root, data, { db: { Transactions } }) => {
+    const tx = Object.assign({}, data, { token: TOKEN.BOT });
+    if (tx.type !== TX_TYPE.APPROVESETRESULT) {
+      throw Error(`Invalid approve type: ${tx.type}`);
     }
 
     return insertPendingTx(Transactions, tx);
