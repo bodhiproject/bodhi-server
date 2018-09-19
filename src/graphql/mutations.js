@@ -238,7 +238,7 @@ module.exports = {
         try {
           // Find if voting over threshold to set correct gas limit
           const voteGasLimit = await Utils.getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
-  
+
           const { txid, args: { gasLimit, gasPrice } } = await DecentralizedOracle.vote({
             contractAddress: oracleAddress,
             resultIndex: optionIdx,
@@ -271,59 +271,39 @@ module.exports = {
   },
 
   finalizeResult: async (root, data, { db: { Oracles, Transactions } }) => {
-    const {
-      version,
-      topicAddress,
-      oracleAddress,
-      senderAddress,
-    } = data;
+    let tx = Object.assign({}, data, { type: TX_TYPE.FINALIZERESULT });
+    const { oracleAddress, senderAddress } = tx;
 
     // Fetch oracle to get the finalized result
     const oracle = await Oracles.findOne({ address: oracleAddress }, { options: 1, optionIdxs: 1 });
-    let winningIndex;
     if (!oracle) {
       getLogger().error(`Could not find Oracle ${oracleAddress} in DB.`);
-      throw new Error(`Could not find Oracle ${oracleAddress} in DB.`);
+      throw Error(`Could not find Oracle ${oracleAddress} in DB.`);
     } else {
       // Compare optionIdxs to options since optionIdxs will be missing the index of the last round's result
       for (let i = 0; i < oracle.options.length; i++) {
         if (!_.includes(oracle.optionIdxs, i)) {
-          winningIndex = i;
+          tx.optionIdx = i;
           break;
         }
       }
     }
 
-    // Send finalizeResult tx
-    let sentTx;
-    try {
-      sentTx = await DecentralizedOracle.finalizeResult({
-        contractAddress: oracleAddress,
-        senderAddress,
-      });
-    } catch (err) {
-      getLogger().error(`Error calling DecentralizedOracle.finalizeResult: ${err.message}`);
-      throw err;
+    if (needsToExecuteTx(tx)) {
+      // Send finalizeResult
+      try {
+        const { txid, args: { gasLimit, gasPrice } } = await DecentralizedOracle.finalizeResult({
+          contractAddress: oracleAddress,
+          senderAddress,
+        });
+        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+      } catch (err) {
+        getLogger().error(`Error calling DecentralizedOracle.finalizeResult: ${err.message}`);
+        throw err;
+      }
     }
 
-    // Insert Transaction
-    const tx = new Transaction({
-      type: TX_TYPE.FINALIZERESULT,
-      txid: sentTx.txid,
-      status: TX_STATE.PENDING,
-      createdBlock: await getBlockNum(),
-      createdTime: moment().unix(),
-      gasLimit: sentTx.args.gasLimit.toString(10),
-      gasPrice: sentTx.args.gasPrice.toFixed(8),
-      senderAddress,
-      version,
-      topicAddress,
-      oracleAddress,
-      optionIdx: winningIndex,
-    });
-    await DBHelper.insertTransaction(Transactions, tx);
-
-    return tx;
+    return insertPendingTx(Transactions, tx);
   },
 
   withdraw: async (root, data, { db: { Transactions } }) => {
