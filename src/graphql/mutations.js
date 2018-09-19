@@ -191,7 +191,6 @@ module.exports = {
     }
 
     if (needsToExecuteTx(tx)) {
-      // Check the allowance first
       if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
         // Send setResult since the allowance is enough
         try {
@@ -225,71 +224,50 @@ module.exports = {
   },
 
   createVote: async (root, data, { db: { Oracles, Transactions } }) => {
-    const {
-      version,
-      topicAddress,
-      oracleAddress,
-      optionIdx,
-      amount,
-      senderAddress,
-    } = data;
-
-    // Check allowance
-    let type;
-    let sentTx;
+    let tx = Object.assign({}, data, { token: TOKEN.BOT });
+    const { senderAddress, topicAddress, oracleAddress, optionIdx, amount } = tx;
     if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
-      // Send vote since allowance is enough
-      type = TX_TYPE.VOTE;
-      try {
-        // Find if voting over threshold to set correct gas limit
-        const gasLimit = await Utils.getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
-
-        sentTx = await DecentralizedOracle.vote({
-          contractAddress: oracleAddress,
-          resultIndex: optionIdx,
-          botAmount: amount,
-          senderAddress,
-          gasLimit,
-        });
-      } catch (err) {
-        getLogger().error(`Error calling DecentralizedOracle.vote: ${err.message}`);
-        throw err;
-      }
+      tx.type = TX_TYPE.VOTE;
     } else {
-      // Send approve first because allowance is not enough
-      type = TX_TYPE.APPROVEVOTE;
-      try {
-        sentTx = await BodhiToken.approve({
-          spender: topicAddress,
-          value: amount,
-          senderAddress,
-        });
-      } catch (err) {
-        getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
+      tx.type = TX_TYPE.APPROVEVOTE;
+    }
+
+    if (needsToExecuteTx(tx)) {
+      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
+        // Send vote since allowance is enough
+        try {
+          // Find if voting over threshold to set correct gas limit
+          const voteGasLimit = await Utils.getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
+  
+          const { txid, args: { gasLimit, gasPrice } } = await DecentralizedOracle.vote({
+            contractAddress: oracleAddress,
+            resultIndex: optionIdx,
+            botAmount: amount,
+            senderAddress,
+            gasLimit: voteGasLimit,
+          });
+          tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+        } catch (err) {
+          getLogger().error(`Error calling DecentralizedOracle.vote: ${err.message}`);
+          throw err;
+        }
+      } else {
+        // Send approve first because allowance is not enough
+        try {
+          const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
+            spender: topicAddress,
+            value: amount,
+            senderAddress,
+          });
+          tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+        } catch (err) {
+          getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
+          throw err;
+        }
       }
     }
 
-    // Insert Transaction
-    const tx = new Transaction({
-      type,
-      txid: sentTx.txid,
-      status: TX_STATE.PENDING,
-      createdBlock: await getBlockNum(),
-      createdTime: moment().unix(),
-      gasLimit: sentTx.args.gasLimit.toString(10),
-      gasPrice: sentTx.args.gasPrice.toFixed(8),
-      senderAddress,
-      version,
-      topicAddress,
-      oracleAddress,
-      optionIdx,
-      token: TOKEN.BOT,
-      amount,
-    });
-    await DBHelper.insertTransaction(Transactions, tx);
-
-    return tx;
+    return insertPendingTx(Transactions, tx);
   },
 
   finalizeResult: async (root, data, { db: { Oracles, Transactions } }) => {
