@@ -247,6 +247,11 @@ type Query {
 }
 
 type Mutation {
+  approve(
+    type: _TransactionType!
+
+  ): Transaction
+
   createTopic(
     senderAddress: String!
     name: String!

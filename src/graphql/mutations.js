@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const { TX_STATE, TX_TYPE, TOKEN } = require('../constants');
 const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
-const Utils = require('../utils');
+const { validateObjKeyValues, isAllowanceEnough, getVotingGasLimit } = require('../utils');
 const { getLogger } = require('../utils/logger');
 const Blockchain = require('../api/blockchain');
 const BodhiToken = require('../api/bodhi-token');
@@ -38,6 +38,42 @@ const insertPendingTx = async (db, data) => {
 };
 
 module.exports = {
+  approve: async (root, data, { db: { Transactions } }) => {
+    validateObjKeyValues(data, ['type', 'amount', 'senderAddress']);
+    let tx = Object.assign({}, data, { token: TOKEN.BOT });
+
+    // Set the address for approval
+    let spender;
+    switch (tx.type) {
+      case TX_TYPE.APPROVECREATEEVENT: {
+        spender = getContractMetadata().AddressManager.address;
+        break;
+      }
+      case TX_TYPE.APPROVESETRESULT:
+      case TX_TYPE.APPROVEVOTE: {
+        spender = tx.topicAddress;
+        break;
+      }
+      default: {
+        throw Error(`Invalid approve type: ${tx.type}`);
+      }
+    }
+
+    try {
+      const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
+        spender,
+        value: tx.amount,
+        senderAddress: tx.senderAddress,
+      });
+      tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+    } catch (err) {
+      getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
+      throw err;
+    }
+
+    return insertPendingTx(Transactions, tx);
+  },
+
   createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
     const {
       name,
@@ -61,7 +97,7 @@ module.exports = {
     // Check the allowance first
     let type;
     let sentTx;
-    if (await Utils.isAllowanceEnough(senderAddress, addressManagerAddr, amount)) {
+    if (await isAllowanceEnough(senderAddress, addressManagerAddr, amount)) {
       // Send createTopic tx
       type = TX_TYPE.CREATEEVENT;
       try {
@@ -184,14 +220,14 @@ module.exports = {
   setResult: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { token: TOKEN.BOT });
     const { senderAddress, topicAddress, amount } = tx;
-    if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
+    if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
       tx.type = TX_TYPE.SETRESULT;
     } else {
       tx.type = TX_TYPE.APPROVESETRESULT;
     }
 
     if (needsToExecuteTx(tx)) {
-      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
+      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
         // Send setResult since the allowance is enough
         try {
           const { txid, args: { gasLimit, gasPrice } } = await CentralizedOracle.setResult({
@@ -226,18 +262,18 @@ module.exports = {
   createVote: async (root, data, { db: { Oracles, Transactions } }) => {
     let tx = Object.assign({}, data, { token: TOKEN.BOT });
     const { senderAddress, topicAddress, oracleAddress, optionIdx, amount } = tx;
-    if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
+    if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
       tx.type = TX_TYPE.VOTE;
     } else {
       tx.type = TX_TYPE.APPROVEVOTE;
     }
 
     if (needsToExecuteTx(tx)) {
-      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
+      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
         // Send vote since allowance is enough
         try {
           // Find if voting over threshold to set correct gas limit
-          const voteGasLimit = await Utils.getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
+          const voteGasLimit = await getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
 
           const { txid, args: { gasLimit, gasPrice } } = await DecentralizedOracle.vote({
             contractAddress: oracleAddress,

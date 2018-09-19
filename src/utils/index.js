@@ -103,6 +103,19 @@ function getDevQtumExecPath() {
   return qtumPath;
 }
 
+/**
+ * Checks if the object contains the keys to check for. Throws error if one is not found.
+ * @param {object} obj Object to verify keys for.
+ * @param {array} keysToCheck Array of strings to check key/values for.
+ */
+const validateObjKeyValues = (obj, keysToCheck) => {
+  keysToCheck.forEach((key) => {
+    if (!(key in obj)) {
+      throw Error(`${key} should not be undefined.`);
+    }
+  });
+};
+
 /*
 * Converts a hex number to decimal string.
 * @param input {String|Hex|BN} The hex number to convert.
@@ -169,6 +182,7 @@ module.exports = {
   getDataDir,
   getLogDir,
   getDevQtumExecPath,
+  validateObjKeyValues,
   hexToDecimalString,
   hexArrayToDecimalArray,
   isAllowanceEnough,
