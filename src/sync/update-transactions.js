@@ -1,12 +1,7 @@
 const { map, each, isEmpty } = require('lodash');
-const moment = require('moment');
 
 const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
-const EventFactory = require('../api/event-factory');
-const CentralizedOracle = require('../api/centralized-oracle');
-const DecentralizedOracle = require('../api/decentralized-oracle');
-const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
@@ -31,7 +26,7 @@ async function updatePendingTxs(currentBlockCount) {
 
   each(pendingTxs, async (tx) => {
     await updateTx(tx, currentBlockCount);
-    await updateDB(tx, currentBlockCount);
+    await updateDB(tx);
   });
 }
 
@@ -91,9 +86,8 @@ async function updateEvmTx(tx) {
     // Receipt found, update existing pending tx
     const { log, gasUsed, blockNumber, blockHash } = resp[0];
     const status = isEmpty(log) ? TX_STATE.FAIL : TX_STATE.SUCCESS;
-    const blockNum = blockNumber;
     const blockTime = (await Blockchain.getBlock({ blockHash })).time;
-    tx.onConfirmed(status, blockNum, blockTime, gasUsed);
+    tx.onConfirmed(status, blockNumber, blockTime, gasUsed);
   } catch (err) {
     getLogger().error(`updateEvmTx: ${err.message}`);
     throw Error(`updateEvmTx: ${err.message}`);
@@ -103,9 +97,8 @@ async function updateEvmTx(tx) {
 /**
  * Update the DB with new transaction info.
  * @param {Transaction} tx Updated transaction.
- * @param {number} currentBlockCount Current block number.
  */
-async function updateDB(tx, currentBlockCount) {
+async function updateDB(tx) {
   if (tx.status !== TX_STATE.PENDING) {
     try {
       const updateRes = await db.Transactions.update(
@@ -125,7 +118,7 @@ async function updateDB(tx, currentBlockCount) {
       if (updatedTx) {
         switch (updatedTx.status) {
           case TX_STATE.SUCCESS: {
-            await onSuccessfulTx(updatedTx, currentBlockCount);
+            publishOnApproveSuccess(updatedTx);
             break;
           }
           case TX_STATE.FAIL: {
@@ -141,159 +134,6 @@ async function updateDB(tx, currentBlockCount) {
       getLogger().error(`updateDB: ${tx.type} txid:${tx.txid} ${err.message}`);
       throw Error(`updateDB: ${tx.type} txid:${tx.txid} ${err.message}`);
     }
-  }
-}
-
-/**
- * Execute follow-up transaction for successful txs.
- * @param {Transaction} tx Successful transaction.
- * @param {number} currentBlockCount Current block number.
- */
-async function onSuccessfulTx(tx, currentBlockCount) {
-  switch (tx.type) {
-    case TX_TYPE.APPROVECREATEEVENT: {
-      await executeCreateEvent(tx, currentBlockCount);
-      break;
-    }
-    case TX_TYPE.APPROVESETRESULT: {
-      await executeSetResult(tx, currentBlockCount);
-      break;
-    }
-    case TX_TYPE.APPROVEVOTE: {
-      await executeVote(tx, currentBlockCount);
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-
-  // Send subscription message
-  publishOnApproveSuccess(tx);
-}
-
-/**
- * The approve for a create event was accepted. Execute the create event tx.
- * @param {Transaction} tx Accepted APPROVECREATEEVENT tx.
- * @param {number} currentBlockCount Current block number.
- */
-async function executeCreateEvent(tx, currentBlockCount) {
-  try {
-    const createEventTx = await EventFactory.createTopic({
-      oracleAddress: tx.resultSetterAddress,
-      eventName: tx.name,
-      resultNames: tx.options,
-      bettingStartTime: tx.bettingStartTime,
-      bettingEndTime: tx.bettingEndTime,
-      resultSettingStartTime: tx.resultSettingStartTime,
-      resultSettingEndTime: tx.resultSettingEndTime,
-      senderAddress: tx.senderAddress,
-    });
-
-    // Update Topic's approve txid with the createTopic txid
-    await DBHelper.updateObjectByQuery(db.Topics, { txid: tx.txid }, { txid: createEventTx.txid });
-
-    // Update Oracle's approve txid with the createTopic txid
-    await DBHelper.updateObjectByQuery(db.Oracles, { txid: tx.txid }, { txid: createEventTx.txid });
-
-    await DBHelper.insertTransaction(db.Transactions, {
-      type: TX_TYPE.CREATEEVENT,
-      txid: createEventTx.txid,
-      version: tx.version,
-      status: TX_STATE.PENDING,
-      gasLimit: createEventTx.args.gasLimit.toString(10),
-      gasPrice: createEventTx.args.gasPrice.toFixed(8),
-      createdBlock: currentBlockCount,
-      createdTime: moment().unix(),
-      senderAddress: tx.senderAddress,
-      name: tx.name,
-      options: tx.options,
-      resultSetterAddress: tx.resultSetterAddress,
-      bettingStartTime: tx.bettingStartTime,
-      bettingEndTime: tx.bettingEndTime,
-      resultSettingStartTime: tx.resultSettingStartTime,
-      resultSettingEndTime: tx.resultSettingEndTime,
-      amount: tx.amount,
-      token: tx.token,
-    });
-  } catch (err) {
-    getLogger().error(`executeCreateEvent: ${err.message}`);
-    throw Error(`executeCreateEvent: ${err.message}`);
-  }
-}
-
-/**
- * The approve for a set result was accepted. Execute the set result tx.
- * @param {Transaction} tx Accepted APPROVESETRESULT tx.
- * @param {number} currentBlockCount Current block number.
- */
-async function executeSetResult(tx, currentBlockCount) {
-  try {
-    const setResultTx = await CentralizedOracle.setResult({
-      contractAddress: tx.oracleAddress,
-      resultIndex: tx.optionIdx,
-      senderAddress: tx.senderAddress,
-    });
-
-    await DBHelper.insertTransaction(db.Transactions, {
-      type: TX_TYPE.SETRESULT,
-      txid: setResultTx.txid,
-      version: tx.version,
-      status: TX_STATE.PENDING,
-      gasLimit: setResultTx.args.gasLimit.toString(10),
-      gasPrice: setResultTx.args.gasPrice.toFixed(8),
-      createdBlock: currentBlockCount,
-      createdTime: moment().unix(),
-      senderAddress: tx.senderAddress,
-      topicAddress: tx.topicAddress,
-      oracleAddress: tx.oracleAddress,
-      optionIdx: tx.optionIdx,
-      token: TOKEN.BOT,
-      amount: tx.amount,
-    });
-  } catch (err) {
-    getLogger().error(`executeSetResult: ${err.message}`);
-    throw Error(`executeSetResult: ${err.message}`);
-  }
-}
-
-/**
- * The approve for a vote was accepted. Execute the vote tx.
- * @param {Transaction} tx Accepted APPROVEVOTE tx.
- * @param {number} currentBlockCount Current block number.
- */
-async function executeVote(tx, currentBlockCount) {
-  try {
-    // Find if voting over threshold to set correct gas limit
-    const gasLimit = await Utils.getVotingGasLimit(db.Oracles, tx.oracleAddress, tx.optionIdx, tx.amount);
-
-    const voteTx = await DecentralizedOracle.vote({
-      contractAddress: tx.oracleAddress,
-      resultIndex: tx.optionIdx,
-      botAmount: tx.amount,
-      senderAddress: tx.senderAddress,
-      gasLimit,
-    });
-
-    await DBHelper.insertTransaction(db.Transactions, {
-      type: TX_TYPE.VOTE,
-      txid: voteTx.txid,
-      version: tx.version,
-      status: TX_STATE.PENDING,
-      gasLimit: voteTx.args.gasLimit.toString(10),
-      gasPrice: voteTx.args.gasPrice.toFixed(8),
-      createdBlock: currentBlockCount,
-      createdTime: moment().unix(),
-      senderAddress: tx.senderAddress,
-      topicAddress: tx.topicAddress,
-      oracleAddress: tx.oracleAddress,
-      optionIdx: tx.optionIdx,
-      token: TOKEN.BOT,
-      amount: tx.amount,
-    });
-  } catch (err) {
-    getLogger().error(`executeVote: ${err.message}`);
-    throw Error(`executeVote: ${err.message}`);
   }
 }
 
