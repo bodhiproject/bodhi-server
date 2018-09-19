@@ -25,6 +25,8 @@ const getBlockNum = async () => {
   }
 };
 
+const needsToExecuteTx = ({ txid, gasLimit, gasPrice }) => !txid && !gasLimit && !gasPrice;
+
 const insertPendingTx = async (db, data) => {
   const tx = new Transaction(Object.assign(data, {
     status: TX_STATE.PENDING,
@@ -94,6 +96,7 @@ module.exports = {
     const version = Config.CONTRACT_VERSION_NUM;
     const createdTime = moment().unix();
     const hashId = crypto.createHash('md5').update(`${createdTime}${name}`).digest('hex');
+
     // Insert Transaction
     const tx = new Transaction({
       type,
@@ -160,15 +163,15 @@ module.exports = {
     let tx = Object.assign({}, data, { type: TX_TYPE.BET, token: TOKEN.QTUM });
 
     // Send bet tx if not already sent
-    if (!tx.txid && !tx.gasLimit && !tx.gasPrice) {
+    if (needsToExecuteTx(tx)) {
       try {
-        const res = await CentralizedOracle.bet({
+        const { txid, args: { gasLimit, gasPrice } } = await CentralizedOracle.bet({
           contractAddress: tx.oracleAddress,
           index: tx.optionIdx,
           amount: tx.amount,
           senderAddress: tx.senderAddress,
         });
-        tx = Object.assign(tx, { txid: res.txid, gasLimit: res.args.gasLimit, gasPrice: res.args.gasPrice });
+        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
       } catch (err) {
         getLogger().error(`Error calling CentralizedOracle.bet: ${err.message}`);
         throw err;
@@ -179,66 +182,46 @@ module.exports = {
   },
 
   setResult: async (root, data, { db: { Transactions } }) => {
-    const {
-      version,
-      topicAddress,
-      oracleAddress,
-      optionIdx,
-      amount,
-      senderAddress,
-    } = data;
-
-    // Check the allowance first
-    let type;
-    let sentTx;
+    let tx = Object.assign({}, data, { token: TOKEN.BOT });
+    const { senderAddress, topicAddress, amount } = tx;
     if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
-      // Send setResult since the allowance is enough
-      type = TX_TYPE.SETRESULT;
-      try {
-        sentTx = await CentralizedOracle.setResult({
-          contractAddress: oracleAddress,
-          resultIndex: optionIdx,
-          senderAddress,
-        });
-      } catch (err) {
-        getLogger().error(`Error calling CentralizedOracle.setResult: ${err.message}`);
-        throw err;
-      }
+      tx.type = TX_TYPE.SETRESULT;
     } else {
-      // Send approve first since allowance is not enough
-      type = TX_TYPE.APPROVESETRESULT;
-      try {
-        sentTx = await BodhiToken.approve({
-          spender: topicAddress,
-          value: amount,
-          senderAddress,
-        });
-      } catch (err) {
-        getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
+      tx.type = TX_TYPE.APPROVESETRESULT;
+    }
+
+    if (needsToExecuteTx(tx)) {
+      // Check the allowance first
+      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
+        // Send setResult since the allowance is enough
+        try {
+          const { txid, args: { gasLimit, gasPrice } } = await CentralizedOracle.setResult({
+            contractAddress: tx.oracleAddress,
+            resultIndex: tx.optionIdx,
+            senderAddress,
+          });
+          tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+        } catch (err) {
+          getLogger().error(`Error calling CentralizedOracle.setResult: ${err.message}`);
+          throw err;
+        }
+      } else {
+        // Send approve first since allowance is not enough
+        try {
+          const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
+            spender: topicAddress,
+            value: amount,
+            senderAddress,
+          });
+          tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+        } catch (err) {
+          getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
+          throw err;
+        }
       }
     }
 
-    // Insert Transaction
-    const tx = new Transaction({
-      type,
-      txid: sentTx.txid,
-      status: TX_STATE.PENDING,
-      createdBlock: await getBlockNum(),
-      createdTime: moment().unix(),
-      gasLimit: sentTx.args.gasLimit.toString(10),
-      gasPrice: sentTx.args.gasPrice.toFixed(8),
-      senderAddress,
-      version,
-      topicAddress,
-      oracleAddress,
-      optionIdx,
-      token: TOKEN.BOT,
-      amount,
-    });
-    await DBHelper.insertTransaction(Transactions, tx);
-
-    return tx;
+    return insertPendingTx(Transactions, tx);
   },
 
   createVote: async (root, data, { db: { Oracles, Transactions } }) => {
