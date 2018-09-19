@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const { includes, fill } = require('lodash');
 const moment = require('moment');
 const crypto = require('crypto');
 
@@ -38,37 +38,13 @@ const insertPendingTx = async (db, data) => {
 };
 
 module.exports = {
+  // Specfically used for external wallets since approves are done separately.
   approve: async (root, data, { db: { Transactions } }) => {
-    validateObjKeyValues(data, ['type', 'amount', 'senderAddress']);
-    let tx = Object.assign({}, data, { token: TOKEN.BOT });
+    const tx = Object.assign({}, data, { token: TOKEN.BOT });
 
-    // Set the address for approval
-    let spender;
-    switch (tx.type) {
-      case TX_TYPE.APPROVECREATEEVENT: {
-        spender = getContractMetadata().AddressManager.address;
-        break;
-      }
-      case TX_TYPE.APPROVESETRESULT:
-      case TX_TYPE.APPROVEVOTE: {
-        spender = tx.topicAddress;
-        break;
-      }
-      default: {
-        throw Error(`Invalid approve type: ${tx.type}`);
-      }
-    }
-
-    try {
-      const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
-        spender,
-        value: tx.amount,
-        senderAddress: tx.senderAddress,
-      });
-      tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-    } catch (err) {
-      getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
-      throw err;
+    validateObjKeyValues(tx, ['type', 'amount', 'senderAddress']);
+    if (!includes([TX_TYPE.APPROVECREATEEVENT, TX_TYPE.APPROVESETRESULT, TX_TYPE.APPROVEVOTE], tx.type)) {
+      throw Error(`Invalid approve type: ${tx.type}`);
     }
 
     return insertPendingTx(Transactions, tx);
@@ -164,8 +140,8 @@ module.exports = {
       escrowAmount: amount,
       name,
       options,
-      qtumAmount: _.fill(Array(options), '0'),
-      botAmount: _.fill(Array(options), '0'),
+      qtumAmount: fill(Array(options), '0'),
+      botAmount: fill(Array(options), '0'),
       creatorAddress: senderAddress,
       hashId,
     };
@@ -182,7 +158,7 @@ module.exports = {
       name,
       options,
       optionIdxs: Array.from(Array(options).keys()),
-      amounts: _.fill(Array(options), '0'),
+      amounts: fill(Array(options), '0'),
       startTime: bettingStartTime,
       endTime: bettingEndTime,
       resultSetStartTime: resultSettingStartTime,
@@ -318,7 +294,7 @@ module.exports = {
     } else {
       // Compare optionIdxs to options since optionIdxs will be missing the index of the last round's result
       for (let i = 0; i < oracle.options.length; i++) {
-        if (!_.includes(oracle.optionIdxs, i)) {
+        if (!includes(oracle.optionIdxs, i)) {
           tx.optionIdx = i;
           break;
         }
