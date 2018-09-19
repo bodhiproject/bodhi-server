@@ -307,62 +307,46 @@ module.exports = {
   },
 
   withdraw: async (root, data, { db: { Transactions } }) => {
-    const {
-      type,
-      version,
-      topicAddress,
-      senderAddress,
-    } = data;
+    let tx = Object.assign({}, data);
+    const { type, topicAddress, senderAddress } = tx;
 
-    let sentTx;
-    switch (type) {
-      case TX_TYPE.WITHDRAW: {
-        // Send withdrawWinnings tx
-        try {
-          sentTx = await TopicEvent.withdrawWinnings({
-            contractAddress: topicAddress,
-            senderAddress,
-          });
-        } catch (err) {
-          getLogger().error(`Error calling TopicEvent.withdrawWinnings: ${err.message}`);
-          throw err;
+    if (needsToExecuteTx(tx)) {
+      switch (type) {
+        case TX_TYPE.WITHDRAW: {
+          // Send withdrawWinnings tx
+          try {
+            const { txid, args: { gasLimit, gasPrice } } = await TopicEvent.withdrawWinnings({
+              contractAddress: topicAddress,
+              senderAddress,
+            });
+            tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+          } catch (err) {
+            getLogger().error(`Error calling TopicEvent.withdrawWinnings: ${err.message}`);
+            throw err;
+          }
+          break;
         }
-        break;
-      }
-      case TX_TYPE.WITHDRAWESCROW: {
-        // Send withdrawEscrow tx
-        try {
-          sentTx = await TopicEvent.withdrawEscrow({
-            contractAddress: topicAddress,
-            senderAddress,
-          });
-        } catch (err) {
-          getLogger().error(`Error calling TopicEvent.withdrawEscrow: ${err.message}`);
-          throw err;
+        case TX_TYPE.WITHDRAWESCROW: {
+          // Send withdrawEscrow tx
+          try {
+            const { txid, args: { gasLimit, gasPrice } } = await TopicEvent.withdrawEscrow({
+              contractAddress: topicAddress,
+              senderAddress,
+            });
+            tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+          } catch (err) {
+            getLogger().error(`Error calling TopicEvent.withdrawEscrow: ${err.message}`);
+            throw err;
+          }
+          break;
         }
-        break;
-      }
-      default: {
-        throw Error(`Invalid withdraw type: ${type}`);
+        default: {
+          throw Error(`Invalid withdraw type: ${type}`);
+        }
       }
     }
 
-    // Insert Transaction
-    const tx = new Transaction({
-      type,
-      txid: sentTx.txid,
-      status: TX_STATE.PENDING,
-      createdBlock: await getBlockNum(),
-      createdTime: moment().unix(),
-      gasLimit: sentTx.args.gasLimit.toString(10),
-      gasPrice: sentTx.args.gasPrice.toFixed(8),
-      senderAddress,
-      version,
-      topicAddress,
-    });
-    await DBHelper.insertTransaction(Transactions, tx);
-
-    return tx;
+    return insertPendingTx(Transactions, tx);
   },
 
   transfer: async (root, data, { db: { Transactions } }) => {
