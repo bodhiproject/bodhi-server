@@ -249,7 +249,19 @@ type Query {
 type Mutation {
   approve(
     type: _TransactionType!
-
+    senderAddress: String!
+    topicAddress: String
+    oracleAddress: String
+    name: String
+    options: [String!]
+    resultSetterAddress: String
+    bettingStartTime: String
+    bettingEndTime: String
+    resultSettingStartTime: String
+    resultSettingEndTime: String
+    optionIdx: Int
+    amount: String!
+    version: Int
   ): Transaction
 
   createTopic(

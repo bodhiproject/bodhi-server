@@ -42,7 +42,7 @@ module.exports = {
   approve: async (root, data, { db: { Transactions } }) => {
     const tx = Object.assign({}, data, { token: TOKEN.BOT });
 
-    validateObjKeyValues(tx, ['type', 'amount', 'senderAddress']);
+    validateObjKeyValues(tx, ['type', 'senderAddress', 'amount']);
     if (!includes([TX_TYPE.APPROVECREATEEVENT, TX_TYPE.APPROVESETRESULT, TX_TYPE.APPROVEVOTE], tx.type)) {
       throw Error(`Invalid approve type: ${tx.type}`);
     }
