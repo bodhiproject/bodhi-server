@@ -41,8 +41,7 @@ module.exports = {
   // Specfically used for external wallets since approves are done separately.
   approve: async (root, data, { db: { Transactions } }) => {
     const tx = Object.assign({}, data, { token: TOKEN.BOT });
-
-    validateObjKeyValues(tx, ['type', 'senderAddress', 'amount']);
+    validateObjKeyValues(tx, ['type', 'amount', 'senderAddress']);
     if (!includes([TX_TYPE.APPROVECREATEEVENT, TX_TYPE.APPROVESETRESULT, TX_TYPE.APPROVEVOTE], tx.type)) {
       throw Error(`Invalid approve type: ${tx.type}`);
     }
@@ -173,6 +172,7 @@ module.exports = {
 
   createBet: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { type: TX_TYPE.BET, token: TOKEN.QTUM });
+    validateObjKeyValues(tx, ['oracleAddress', 'optionIdx', 'amount', 'senderAddress']);
 
     // Send bet tx if not already sent
     if (needsToExecuteTx(tx)) {
@@ -195,6 +195,8 @@ module.exports = {
 
   setResult: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { token: TOKEN.BOT });
+    validateObjKeyValues(tx, ['topicAddress', 'oracleAddress', 'optionIdx', 'amount', 'senderAddress']);
+
     const { senderAddress, topicAddress, amount } = tx;
     if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
       tx.type = TX_TYPE.SETRESULT;
