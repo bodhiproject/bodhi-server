@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const { TX_STATE, TX_TYPE, TOKEN } = require('../constants');
 const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
-const { validateObjKeyValues, isAllowanceEnough, getVotingGasLimit } = require('../utils');
+const { isAllowanceEnough, getVotingGasLimit } = require('../utils');
 const { getLogger } = require('../utils/logger');
 const Blockchain = require('../api/blockchain');
 const BodhiToken = require('../api/bodhi-token');
@@ -41,7 +41,6 @@ module.exports = {
   // Specfically used for external wallets since approves are done separately.
   approve: async (root, data, { db: { Transactions } }) => {
     const tx = Object.assign({}, data, { token: TOKEN.BOT });
-    validateObjKeyValues(tx, ['type', 'amount', 'senderAddress']);
     if (!includes([TX_TYPE.APPROVECREATEEVENT, TX_TYPE.APPROVESETRESULT, TX_TYPE.APPROVEVOTE], tx.type)) {
       throw Error(`Invalid approve type: ${tx.type}`);
     }
@@ -172,7 +171,6 @@ module.exports = {
 
   createBet: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { type: TX_TYPE.BET, token: TOKEN.QTUM });
-    validateObjKeyValues(tx, ['oracleAddress', 'optionIdx', 'amount', 'senderAddress']);
 
     // Send bet tx if not already sent
     if (needsToExecuteTx(tx)) {
@@ -195,9 +193,8 @@ module.exports = {
 
   setResult: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { token: TOKEN.BOT });
-    validateObjKeyValues(tx, ['topicAddress', 'oracleAddress', 'optionIdx', 'amount', 'senderAddress']);
-
     const { senderAddress, topicAddress, amount } = tx;
+
     if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
       tx.type = TX_TYPE.SETRESULT;
     } else {
@@ -240,6 +237,7 @@ module.exports = {
   createVote: async (root, data, { db: { Oracles, Transactions } }) => {
     let tx = Object.assign({}, data, { token: TOKEN.BOT });
     const { senderAddress, topicAddress, oracleAddress, optionIdx, amount } = tx;
+
     if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
       tx.type = TX_TYPE.VOTE;
     } else {
