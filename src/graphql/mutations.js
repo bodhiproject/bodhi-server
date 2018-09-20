@@ -182,16 +182,12 @@ module.exports = {
   },
 
   approveSetResult: async (root, data, { db: { Transactions } }) => {
-    const tx = Object.assign({}, data, { token: TOKEN.BOT });
-    if (tx.type !== TX_TYPE.APPROVESETRESULT) {
-      throw Error(`Invalid approve type: ${tx.type}`);
-    }
-
+    const tx = Object.assign({}, data, { type: TX_TYPE.APPROVESETRESULT, token: TOKEN.BOT });
     return insertPendingTx(Transactions, tx);
   },
 
   setResult: async (root, data, { db: { Transactions } }) => {
-    let tx = Object.assign({}, data, { token: TOKEN.BOT });
+    let tx = Object.assign({}, data, { type: TX_TYPE.SETRESULT, token: TOKEN.BOT });
     const { senderAddress, topicAddress, amount } = tx;
 
     if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {

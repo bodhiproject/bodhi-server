@@ -220,6 +220,7 @@ input WithdrawFilter {
 
 input TransactionFilter {
   OR: [TransactionFilter!]
+  txid: String
   type: _TransactionType
   status: _TransactionStatus
   topicAddress: String
@@ -260,19 +261,19 @@ type Mutation {
   ): Transaction
 
   createBet(
-    version: Int!
+    txid: String
+    gasLimit: String
+    gasPrice: String
     senderAddress: String!
     topicAddress: String!
     oracleAddress: String!
     optionIdx: Int!
     amount: String!
-    txid: String
-    gasLimit: String
-    gasPrice: String
+    token: _TokenType!
+    version: Int!
   ): Transaction
 
   approveSetResult(
-    type: _TransactionType!
     txid: String!
     gasLimit: String!
     gasPrice: String!
@@ -281,16 +282,21 @@ type Mutation {
     oracleAddress: String!
     optionIdx: Int!
     amount: String!
-    token: String!
+    token: _TokenType!
+    version: Int!
   ): Transaction
 
   setResult(
-    version: Int!
+    txid: String!
+    gasLimit: String!
+    gasPrice: String!
     senderAddress: String!
     topicAddress: String!
     oracleAddress: String!
-    amount: String!
     optionIdx: Int!
+    amount: String!
+    token: _TokenType!
+    version: Int!
   ): Transaction
 
   createVote(

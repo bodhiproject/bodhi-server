@@ -229,6 +229,7 @@ const buildWithdrawFilters = ({ OR = [], txid, topicAddress, withdrawerAddress, 
 
 const buildTransactionFilters = ({
   OR = [],
+  txid,
   type,
   status,
   topicAddress,
@@ -236,28 +237,34 @@ const buildTransactionFilters = ({
   senderAddress,
   senderQAddress,
 }) => {
-  const filter = (type || status || topicAddress || oracleAddress || senderAddress || senderQAddress) ? {} : null;
+  const filter = (
+    txid
+    || type
+    || status
+    || topicAddress
+    || oracleAddress
+    || senderAddress
+    || senderQAddress
+  ) ? {} : null;
 
+  if (txid) {
+    filter.txid = txid;
+  }
   if (type) {
     filter.type = type;
   }
-
   if (status) {
     filter.status = status;
   }
-
   if (topicAddress) {
     filter.topicAddress = topicAddress;
   }
-
   if (oracleAddress) {
     filter.oracleAddress = oracleAddress;
   }
-
   if (senderAddress) {
     filter.senderAddress = senderAddress;
   }
-
   if (senderQAddress) {
     filter.senderQAddress = senderQAddress;
   }

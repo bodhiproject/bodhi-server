@@ -1,18 +1,9 @@
 const { Config, getContractMetadata } = require('../config');
 const Utils = require('../utils');
 const { db } = require('../db');
+const { TX_TYPE } = require('../constants');
 
 const DEFAULT_GAS_COST = formatGasCost(Config.DEFAULT_GAS_LIMIT * Config.DEFAULT_GAS_PRICE);
-
-function getApproveObj(token, amount) {
-  return {
-    type: 'approve',
-    gasLimit: Config.DEFAULT_GAS_LIMIT,
-    gasCost: DEFAULT_GAS_COST,
-    token,
-    amount,
-  };
-}
 
 function formatGasCost(gasCost) {
   return gasCost.toFixed(2);
@@ -71,16 +62,27 @@ const Transaction = {
     }
 
     const costsArr = [];
-
-    if (txType.startsWith('APPROVE')) {
-      costsArr.push(getApproveObj(token, amount));
-    }
-
     switch (txType) {
-      case 'APPROVECREATEEVENT':
+      case 'APPROVECREATEEVENT': {
+        costsArr.push({
+          type: TX_TYPE.APPROVECREATEEVENT,
+          gasLimit: Config.DEFAULT_GAS_LIMIT,
+          gasCost: DEFAULT_GAS_COST,
+          token,
+          amount,
+        });
+        costsArr.push({
+          type: TX_TYPE.CREATEEVENT,
+          gasLimit: Config.CREATE_CORACLE_GAS_LIMIT,
+          gasCost: formatGasCost(Config.CREATE_CORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
+          token,
+          amount,
+        });
+        break;
+      }
       case 'CREATEEVENT': {
         costsArr.push({
-          type: 'createEvent',
+          type: TX_TYPE.CREATEEVENT,
           gasLimit: Config.CREATE_CORACLE_GAS_LIMIT,
           gasCost: formatGasCost(Config.CREATE_CORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
           token,
@@ -90,7 +92,7 @@ const Transaction = {
       }
       case 'BET': {
         costsArr.push({
-          type: 'bet',
+          type: TX_TYPE.BET,
           gasLimit: Config.DEFAULT_GAS_LIMIT,
           gasCost: DEFAULT_GAS_COST,
           token,
@@ -98,10 +100,16 @@ const Transaction = {
         });
         break;
       }
-      case 'APPROVESETRESULT':
-      case 'SETRESULT': {
+      case 'APPROVESETRESULT': {
         costsArr.push({
-          type: 'setResult',
+          type: TX_TYPE.APPROVESETRESULT,
+          gasLimit: Config.DEFAULT_GAS_LIMIT,
+          gasCost: DEFAULT_GAS_COST,
+          token,
+          amount,
+        });
+        costsArr.push({
+          type: TX_TYPE.SETRESULT,
           gasLimit: Config.CREATE_DORACLE_GAS_LIMIT,
           gasCost: formatGasCost(Config.CREATE_DORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
           token,
@@ -109,11 +117,38 @@ const Transaction = {
         });
         break;
       }
-      case 'APPROVEVOTE':
+      case 'SETRESULT': {
+        costsArr.push({
+          type: TX_TYPE.SETRESULT,
+          gasLimit: Config.CREATE_DORACLE_GAS_LIMIT,
+          gasCost: formatGasCost(Config.CREATE_DORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
+          token,
+          amount,
+        });
+        break;
+      }
+      case 'APPROVEVOTE': {
+        costsArr.push({
+          type: TX_TYPE.APPROVEVOTE,
+          gasLimit: Config.DEFAULT_GAS_LIMIT,
+          gasCost: DEFAULT_GAS_COST,
+          token,
+          amount,
+        });
+        const gasLimit = await Utils.getVotingGasLimit(db.Oracles, oracleAddress, optionIdx, amount);
+        costsArr.push({
+          type: TX_TYPE.VOTE,
+          gasLimit,
+          gasCost: formatGasCost(gasLimit * Config.DEFAULT_GAS_PRICE),
+          token,
+          amount,
+        });
+        break;
+      }
       case 'VOTE': {
         const gasLimit = await Utils.getVotingGasLimit(db.Oracles, oracleAddress, optionIdx, amount);
         costsArr.push({
-          type: 'vote',
+          type: TX_TYPE.VOTE,
           gasLimit,
           gasCost: formatGasCost(gasLimit * Config.DEFAULT_GAS_PRICE),
           token,
@@ -123,7 +158,7 @@ const Transaction = {
       }
       case 'FINALIZERESULT': {
         costsArr.push({
-          type: 'finalizeResult',
+          type: TX_TYPE.FINALIZERESULT,
           gasLimit: Config.DEFAULT_GAS_LIMIT,
           gasCost: DEFAULT_GAS_COST,
         });
@@ -131,7 +166,7 @@ const Transaction = {
       }
       case 'WITHDRAW': {
         costsArr.push({
-          type: 'withdraw',
+          type: TX_TYPE.WITHDRAW,
           gasLimit: Config.DEFAULT_GAS_LIMIT,
           gasCost: DEFAULT_GAS_COST,
         });
@@ -139,7 +174,7 @@ const Transaction = {
       }
       case 'WITHDRAWESCROW': {
         costsArr.push({
-          type: 'withdrawEscrow',
+          type: TX_TYPE.WITHDRAWESCROW,
           gasLimit: Config.DEFAULT_GAS_LIMIT,
           gasCost: DEFAULT_GAS_COST,
         });
@@ -147,7 +182,7 @@ const Transaction = {
       }
       case 'TRANSFER': {
         costsArr.push({
-          type: 'transfer',
+          type: TX_TYPE.TRANSFER,
           gasLimit: Config.DEFAULT_GAS_LIMIT,
           gasCost: DEFAULT_GAS_COST,
           token,
