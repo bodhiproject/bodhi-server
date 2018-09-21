@@ -182,10 +182,10 @@ input OracleFilter {
   txid: String
   address: String
   topicAddress: String
-  resultSetterQAddress: String
   status: _OracleStatusType
   token: _TokenType
-  excludeResultSetterQAddress: [String]
+  resultSetterAddress: String
+  excludeResultSetterAddress: [String]
   hashId: String
 }
 

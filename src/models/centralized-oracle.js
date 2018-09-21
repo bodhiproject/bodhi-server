@@ -44,7 +44,6 @@ class CentralizedOracle {
       address: this.contractAddress,
       topicAddress: this.eventAddress,
       resultSetterAddress: this.oracle,
-      resultSetterQAddress: this.oracle,
       startTime: this.bettingStartTime,
       endTime: this.bettingEndTime,
       resultSetStartTime: this.resultSettingStartTime,

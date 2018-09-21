@@ -69,8 +69,8 @@ const buildOracleFilters = ({
   txid,
   address,
   topicAddress,
-  resultSetterQAddress,
-  excludeResultSetterQAddress,
+  resultSetterAddress,
+  excludeResultSetterAddress,
   status,
   token,
   hashId,
@@ -79,10 +79,10 @@ const buildOracleFilters = ({
     txid
     || address
     || topicAddress
-    || resultSetterQAddress
+    || resultSetterAddress
     || status
     || token
-    || excludeResultSetterQAddress
+    || excludeResultSetterAddress
     || hashId
   ) ? {} : null;
 
@@ -98,10 +98,10 @@ const buildOracleFilters = ({
     filter.topicAddress = topicAddress;
   }
 
-  if (resultSetterQAddress) {
-    filter.resultSetterQAddress = resultSetterQAddress;
-  } else if (excludeResultSetterQAddress) {
-    filter.resultSetterQAddress = { $nin: excludeResultSetterQAddress };
+  if (resultSetterAddress) {
+    filter.resultSetterAddress = resultSetterAddress;
+  } else if (excludeResultSetterAddress) {
+    filter.resultSetterAddress = { $nin: excludeResultSetterAddress };
   }
 
   if (status) {
@@ -125,7 +125,7 @@ const buildOracleFilters = ({
 };
 
 const buildSearchPhrase = (searchPhrase) => {
-  const filterFields = ['name', '_id', 'topicAddress', 'resultSetterAddress', 'resultSetterQAddress'];
+  const filterFields = ['name', '_id', 'topicAddress', 'resultSetterAddress'];
   if (!searchPhrase) {
     return [];
   }
