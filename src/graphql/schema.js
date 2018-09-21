@@ -283,9 +283,9 @@ type Mutation {
   ): Transaction
 
   setResult(
-    txid: String!
-    gasLimit: String!
-    gasPrice: String!
+    txid: String
+    gasLimit: String
+    gasPrice: String
     senderAddress: String!
     topicAddress: String!
     oracleAddress: String!
@@ -305,9 +305,9 @@ type Mutation {
   ): Transaction
 
   createVote(
-    txid: String!
-    gasLimit: String!
-    gasPrice: String!
+    txid: String
+    gasLimit: String
+    gasPrice: String
     senderAddress: String!
     topicAddress: String!
     oracleAddress: String!
@@ -316,7 +316,9 @@ type Mutation {
   ): Transaction
 
   finalizeResult(
-    version: Int!
+    txid: String
+    gasLimit: String
+    gasPrice: String
     senderAddress: String!
     topicAddress: String!
     oracleAddress: String!

@@ -283,7 +283,7 @@ module.exports = {
   },
 
   finalizeResult: async (root, data, { db: { Oracles, Transactions } }) => {
-    let tx = Object.assign({}, data, { type: TX_TYPE.FINALIZERESULT });
+    let tx = Object.assign({}, data, { type: TX_TYPE.FINALIZERESULT, version: 0 });
     const { oracleAddress, senderAddress } = tx;
 
     // Fetch oracle to get the finalized result
