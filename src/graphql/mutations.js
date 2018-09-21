@@ -1,4 +1,4 @@
-const { includes, fill, some } = require('lodash');
+const { includes, fill } = require('lodash');
 const moment = require('moment');
 const crypto = require('crypto');
 
@@ -320,7 +320,7 @@ module.exports = {
 
   withdraw: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { version: 0 });
-    if (!some([TX_TYPE.WITHDRAW, TX_TYPE.WITHDRAWESCROW], tx.type)) {
+    if (!includes([TX_TYPE.WITHDRAW, TX_TYPE.WITHDRAWESCROW], tx.type)) {
       throw Error('Invalid type. Should be one of: [WITHDRAW, WITHDRAWESCROW].');
     }
 
