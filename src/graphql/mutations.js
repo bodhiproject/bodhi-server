@@ -160,7 +160,7 @@ module.exports = {
   },
 
   createBet: async (root, data, { db: { Transactions } }) => {
-    let tx = Object.assign({}, data, { type: TX_TYPE.BET, token: TOKEN.QTUM });
+    let tx = Object.assign({}, data, { type: TX_TYPE.BET, token: TOKEN.QTUM, version: 0 });
 
     // Send bet tx if not already sent
     if (needsToExecuteTx(tx)) {
@@ -182,12 +182,12 @@ module.exports = {
   },
 
   approveSetResult: async (root, data, { db: { Transactions } }) => {
-    const tx = Object.assign({}, data, { type: TX_TYPE.APPROVESETRESULT, token: TOKEN.BOT });
+    const tx = Object.assign({}, data, { type: TX_TYPE.APPROVESETRESULT, token: TOKEN.BOT, version: 0 });
     return insertPendingTx(Transactions, tx);
   },
 
   setResult: async (root, data, { db: { Transactions } }) => {
-    let tx = Object.assign({}, data, { type: TX_TYPE.SETRESULT, token: TOKEN.BOT });
+    let tx = Object.assign({}, data, { type: TX_TYPE.SETRESULT, token: TOKEN.BOT, version: 0 });
     const { senderAddress, topicAddress, amount } = tx;
 
     if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {

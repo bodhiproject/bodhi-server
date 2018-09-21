@@ -269,8 +269,6 @@ type Mutation {
     oracleAddress: String!
     optionIdx: Int!
     amount: String!
-    token: _TokenType!
-    version: Int!
   ): Transaction
 
   approveSetResult(
@@ -282,8 +280,6 @@ type Mutation {
     oracleAddress: String!
     optionIdx: Int!
     amount: String!
-    token: _TokenType!
-    version: Int!
   ): Transaction
 
   setResult(
@@ -295,8 +291,6 @@ type Mutation {
     oracleAddress: String!
     optionIdx: Int!
     amount: String!
-    token: _TokenType!
-    version: Int!
   ): Transaction
 
   approveVote(
