@@ -223,7 +223,6 @@ input TransactionFilter {
   topicAddress: String
   oracleAddress: String
   senderAddress: String
-  senderQAddress: String
 }
 
 input Order {
