@@ -229,6 +229,11 @@ module.exports = {
     return insertPendingTx(Transactions, tx);
   },
 
+  approveVote: async (root, data, { db: { Transactions } }) => {
+    const tx = Object.assign({}, data, { type: TX_TYPE.APPROVEVOTE, token: TOKEN.BOT });
+    return insertPendingTx(Transactions, tx);
+  },
+
   createVote: async (root, data, { db: { Oracles, Transactions } }) => {
     let tx = Object.assign({}, data, { token: TOKEN.BOT });
     const { senderAddress, topicAddress, oracleAddress, optionIdx, amount } = tx;

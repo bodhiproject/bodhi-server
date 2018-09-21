@@ -299,6 +299,19 @@ type Mutation {
     version: Int!
   ): Transaction
 
+  approveVote(
+    txid: String!
+    gasLimit: String!
+    gasPrice: String!
+    senderAddress: String!
+    topicAddress: String!
+    oracleAddress: String!
+    optionIdx: Int!
+    amount: String!
+    token: _TokenType!
+    version: Int!
+  ): Transaction
+
   createVote(
     version: Int!
     senderAddress: String!
