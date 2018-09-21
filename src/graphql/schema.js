@@ -47,92 +47,89 @@ enum _TransactionStatus {
 
 type Topic {
   txid: String!
-  version: Int!
   blockNum: Int
-  status: _OracleStatusType!
   address: String
-  escrowAmount: String
-  name: String!
-  options: [String!]!
-  resultIdx: Int
-  qtumAmount: [String!]!
-  botAmount: [String!]!
-  oracles: [Oracle]
-  transactions: [Transaction]
   creatorAddress: String!
   hashId: String
+  status: _OracleStatusType!
+  name: String!
+  options: [String!]!
+  qtumAmount: [String!]!
+  botAmount: [String!]!
+  resultIdx: Int
+  escrowAmount: String
+  oracles: [Oracle]
+  transactions: [Transaction]
+  version: Int!
 }
 
 type Oracle {
   txid: String!
-  version: Int!
   blockNum: Int
-  status: _OracleStatusType!
   address: String
   topicAddress: String
-  resultSetterAddress: String
-  resultSetterQAddress: String
-  token: String!
+  hashId: String
+  status: _OracleStatusType!
   name: String!
   options: [String!]!
   optionIdxs: [Int!]!
-  amounts: [String!]!
   resultIdx: Int
+  amounts: [String!]!
+  token: String!
   startTime: String!
   endTime: String!
   resultSetStartTime: String
   resultSetEndTime: String
+  resultSetterAddress: String
   consensusThreshold: String
   transactions: [Transaction]
-  hashId: String
+  version: Int!
 }
 
 type Vote {
   txid: String!
-  version: Int!
   blockNum: Int!
-  voterAddress: String!
-  voterQAddress: String!
   topicAddress: String!
   oracleAddress: String!
+  voterAddress: String!
   optionIdx: Int!
   token: _TokenType!
   amount: String!
+  version: Int!
 }
 
 type ResultSet {
-  blockNum: Int!
   txid: String!
-  fromAddress: String!
-  version: Int!
+  blockNum: Int!
   topicAddress: String!
   oracleAddress: String
+  fromAddress: String!
   resultIdx: Int!
+  version: Int!
 }
 
 type Withdraw {
-  blockNum: Int!
   txid: String!
+  blockNum: Int!
   type: _WithdrawType!
-  version: Int
   topicAddress: String!
   withdrawerAddress: String!
   qtumAmount: String!
   botAmount: String!
+  version: Int
 }
 
 type Transaction {
-  type: _TransactionType!
-  status: _TransactionStatus!
   txid: String
-  createdBlock: Int!
-  createdTime: String!
   blockNum: Int
   blockTime: String
+  createdBlock: Int!
+  createdTime: String!
   gasLimit: String!
   gasPrice: String!
   gasUsed: Int
-  version: Int!
+  type: _TransactionType!
+  status: _TransactionStatus!
   senderAddress: String!
   receiverAddress: String
   topicAddress: String
@@ -148,6 +145,7 @@ type Transaction {
   token: _TokenType
   amount: String
   topic: Topic
+  version: Int!
 }
 
 type Block {
