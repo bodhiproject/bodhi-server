@@ -326,7 +326,9 @@ type Mutation {
 
   withdraw(
     type: _TransactionType!
-    version: Int!
+    txid: String
+    gasLimit: String
+    gasPrice: String
     senderAddress: String!
     topicAddress: String!
   ): Transaction
