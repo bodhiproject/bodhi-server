@@ -39,7 +39,6 @@ class Vote {
       version: this.version,
       oracleAddress: this.oracleAddress,
       voterAddress: this.participant,
-      voterQAddress: this.participant,
       optionIdx: this.resultIndex,
       amount: this.votedAmount,
       token: this.token,

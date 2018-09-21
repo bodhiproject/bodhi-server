@@ -141,25 +141,18 @@ const buildSearchPhrase = (searchPhrase) => {
   return filters;
 };
 
-const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, voterQAddress, optionIdx }) => {
-  const filter = (topicAddress || oracleAddress || voterAddress || voterQAddress || optionIdx) ? {} : null;
+const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, optionIdx }) => {
+  const filter = (topicAddress || oracleAddress || voterAddress || optionIdx) ? {} : null;
 
   if (topicAddress) {
     filter.topicAddress = topicAddress;
   }
-
   if (oracleAddress) {
     filter.oracleAddress = oracleAddress;
   }
-
   if (voterAddress) {
     filter.voterAddress = voterAddress;
   }
-
-  if (voterQAddress) {
-    filter.voterQAddress = voterQAddress;
-  }
-
   if (optionIdx) {
     filter.optionIdx = optionIdx;
   }

@@ -195,7 +195,6 @@ input VoteFilter {
   topicAddress: String
   oracleAddress: String
   voterAddress: String
-  voterQAddress: String
   optionIdx: Int
 }
 
