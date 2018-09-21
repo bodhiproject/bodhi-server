@@ -308,12 +308,12 @@ type Mutation {
     oracleAddress: String!
     optionIdx: Int!
     amount: String!
-    token: _TokenType!
-    version: Int!
   ): Transaction
 
   createVote(
-    version: Int!
+    txid: String!
+    gasLimit: String!
+    gasPrice: String!
     senderAddress: String!
     topicAddress: String!
     oracleAddress: String!

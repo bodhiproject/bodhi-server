@@ -230,12 +230,12 @@ module.exports = {
   },
 
   approveVote: async (root, data, { db: { Transactions } }) => {
-    const tx = Object.assign({}, data, { type: TX_TYPE.APPROVEVOTE, token: TOKEN.BOT });
+    const tx = Object.assign({}, data, { type: TX_TYPE.APPROVEVOTE, token: TOKEN.BOT, version: 0 });
     return insertPendingTx(Transactions, tx);
   },
 
   createVote: async (root, data, { db: { Oracles, Transactions } }) => {
-    let tx = Object.assign({}, data, { token: TOKEN.BOT });
+    let tx = Object.assign({}, data, { type: TX_TYPE.VOTE, token: TOKEN.BOT, version: 0 });
     const { senderAddress, topicAddress, oracleAddress, optionIdx, amount } = tx;
 
     if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
