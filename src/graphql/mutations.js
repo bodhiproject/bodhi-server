@@ -2,8 +2,8 @@ const { includes, fill } = require('lodash');
 const moment = require('moment');
 const crypto = require('crypto');
 
-const { TX_STATE, TX_TYPE, TOKEN } = require('../constants');
-const { Config, getContractMetadata } = require('../config');
+const { TX_STATE, TX_TYPE, TOKEN, STATUS } = require('../constants');
+const { Config } = require('../config');
 const DBHelper = require('../db/db-helper');
 const { isAllowanceEnough, getVotingGasLimit } = require('../utils');
 const { getLogger } = require('../utils/logger');
@@ -31,7 +31,9 @@ const insertPendingTx = async (db, data) => {
   const tx = new Transaction(Object.assign(data, {
     status: TX_STATE.PENDING,
     createdBlock: await getBlockNum(),
-    createdTime: moment().unix(),
+    createdTime: data.createdTime || moment().unix(),
+    gasLimit: data.gasLimit.toString(10),
+    gasPrice: data.gasPrice.toFixed(8),
   }));
   await DBHelper.insertTransaction(db, tx);
   return tx;
@@ -40,11 +42,25 @@ const insertPendingTx = async (db, data) => {
 module.exports = {
   approveCreateEvent: async (root, data, { db: { Transactions } }) => {
     const tx = Object.assign({}, data, { type: TX_TYPE.APPROVECREATEEVENT, token: TOKEN.BOT, version: 0 });
+
+    // Check for existing ApproveCreateEvent or CreateEvent transactions
+    if (await DBHelper.isPreviousCreateEventPending(Transactions, tx.senderAddress)) {
+      throw Error('Pending CreateEvent transaction found');
+    }
+
     return insertPendingTx(Transactions, tx);
   },
 
-  createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
+  createEvent: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
+    let tx = Object.assign({}, data, {
+      type: TX_TYPE.CREATEEVENT,
+      createdTime: moment().unix(),
+      token: TOKEN.BOT,
+      version: 0,
+    });
     const {
+      createdTime,
+      senderAddress,
       name,
       options,
       resultSetterAddress,
@@ -53,115 +69,71 @@ module.exports = {
       resultSettingStartTime,
       resultSettingEndTime,
       amount,
-      senderAddress,
-    } = data;
-    const addressManagerAddr = getContractMetadata().AddressManager.address;
+      version,
+    } = tx;
 
-    // Check for existing CreateEvent transactions
+    // Check for existing ApproveCreateEvent or CreateEvent transactions
     if (await DBHelper.isPreviousCreateEventPending(Transactions, senderAddress)) {
-      getLogger().error('Pending CreateEvent transaction found.');
       throw Error('Pending CreateEvent transaction found');
     }
 
-    // Check the allowance first
-    let type;
-    let sentTx;
-    if (await isAllowanceEnough(senderAddress, addressManagerAddr, amount)) {
-      // Send createTopic tx
-      type = TX_TYPE.CREATEEVENT;
+    if (needsToExecuteTx(tx)) {
       try {
-        sentTx = await EventFactory.createTopic({
-          oracleAddress: resultSetterAddress,
+        const { txid, args: { gasLimit, gasPrice } } = await EventFactory.createTopic({
           eventName: name,
           resultNames: options,
+          oracleAddress: resultSetterAddress,
           bettingStartTime,
           bettingEndTime,
           resultSettingStartTime,
           resultSettingEndTime,
           senderAddress,
         });
+        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
       } catch (err) {
         getLogger().error(`Error calling EventFactory.createTopic: ${err.message}`);
         throw err;
       }
-    } else {
-      // Send approve first since allowance is not enough
-      type = TX_TYPE.APPROVECREATEEVENT;
-      try {
-        sentTx = await BodhiToken.approve({
-          spender: addressManagerAddr,
-          value: amount,
-          senderAddress,
-        });
-      } catch (err) {
-        getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
     }
-    const version = Config.CONTRACT_VERSION_NUM;
-    const createdTime = moment().unix();
+
+    const { txid } = tx;
     const hashId = crypto.createHash('md5').update(`${createdTime}${name}`).digest('hex');
 
-    // Insert Transaction
-    const tx = new Transaction({
-      type,
-      txid: sentTx.txid,
-      status: TX_STATE.PENDING,
-      createdBlock: await getBlockNum(),
-      createdTime,
-      gasLimit: sentTx.args.gasLimit.toString(10),
-      gasPrice: sentTx.args.gasPrice.toFixed(8),
-      senderAddress,
-      version,
-      name,
-      options,
-      resultSetterAddress,
-      bettingStartTime,
-      bettingEndTime,
-      resultSettingStartTime,
-      resultSettingEndTime,
-      amount,
-      token: TOKEN.BOT,
-    });
-    await DBHelper.insertTransaction(Transactions, tx);
-
-    // Insert Topic
-    const topic = {
-      txid: sentTx.txid,
-      status: 'CREATED',
-      version,
-      escrowAmount: amount,
+    // Insert unconfirmed Topic
+    await DBHelper.insertTopic(Topics, {
+      txid,
+      hashId,
+      status: STATUS.CREATED,
       name,
       options,
       qtumAmount: fill(Array(options), '0'),
       botAmount: fill(Array(options), '0'),
+      escrowAmount: amount,
       creatorAddress: senderAddress,
-      hashId,
-    };
-    getLogger().debug(`Mutation Insert: Topic txid:${topic.txid}`);
-    await DBHelper.insertTopic(Topics, topic);
-
-    // Insert Oracle
-    const oracle = {
-      txid: sentTx.txid,
-      status: 'CREATED',
       version,
-      resultSetterAddress,
-      token: TOKEN.QTUM,
+    });
+    getLogger().debug(`Mutation Insert: Topic txid:${txid}`);
+
+    // Insert unconfirmed Oracle
+    await DBHelper.insertOracle(Oracles, {
+      txid,
+      hashId,
+      status: STATUS.CREATED,
       name,
       options,
       optionIdxs: Array.from(Array(options).keys()),
       amounts: fill(Array(options), '0'),
+      resultSetterAddress,
       startTime: bettingStartTime,
       endTime: bettingEndTime,
       resultSetStartTime: resultSettingStartTime,
       resultSetEndTime: resultSettingEndTime,
-      hashId,
-    };
-    getLogger().debug(`Mutation Insert: Oracle txid:${oracle.txid}`);
-    await DBHelper.insertOracle(Oracles, oracle);
+      token: TOKEN.QTUM,
+      version,
+    });
+    getLogger().debug(`Mutation Insert: Oracle txid:${txid}`);
 
-    return tx;
+    return insertPendingTx(Transactions, tx);
   },
 
   createBet: async (root, data, { db: { Transactions } }) => {

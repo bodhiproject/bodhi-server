@@ -259,7 +259,7 @@ type Mutation {
     amount: String!
   ): Transaction
 
-  createTopic(
+  createEvent(
     txid: String
     gasLimit: String
     gasPrice: String
