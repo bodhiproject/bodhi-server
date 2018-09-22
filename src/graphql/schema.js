@@ -244,7 +244,25 @@ type Query {
 }
 
 type Mutation {
+  approveCreateEvent(
+    txid: String!
+    gasLimit: String!
+    gasPrice: String!
+    senderAddress: String!
+    name: String!
+    options: [String!]!
+    resultSetterAddress: String!
+    bettingStartTime: String!
+    bettingEndTime: String!
+    resultSettingStartTime: String!
+    resultSettingEndTime: String!
+    amount: String!
+  ): Transaction
+
   createTopic(
+    txid: String
+    gasLimit: String
+    gasPrice: String
     senderAddress: String!
     name: String!
     options: [String!]!

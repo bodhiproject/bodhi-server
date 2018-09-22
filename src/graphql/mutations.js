@@ -38,6 +38,11 @@ const insertPendingTx = async (db, data) => {
 };
 
 module.exports = {
+  approveCreateEvent: async (root, data, { db: { Transactions } }) => {
+    const tx = Object.assign({}, data, { type: TX_TYPE.APPROVECREATEEVENT, token: TOKEN.BOT, version: 0 });
+    return insertPendingTx(Transactions, tx);
+  },
+
   createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
     const {
       name,
