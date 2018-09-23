@@ -28,7 +28,6 @@ const getBlockNum = async () => {
 const needsToExecuteTx = ({ txid, gasLimit, gasPrice }) => !txid && !gasLimit && !gasPrice;
 
 const insertPendingTx = async (db, data) => {
-  console.log(data);
   const tx = new Transaction(Object.assign(data, {
     status: TX_STATE.PENDING,
     createdBlock: await getBlockNum(),
