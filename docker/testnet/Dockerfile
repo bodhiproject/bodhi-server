@@ -17,6 +17,9 @@ RUN npm install
 # Bundle app source
 COPY . .
 
+# REMOVE
+RUN ls -lah /root/.dockervol/.qtum/testnet3
+
 # Expose ports for UI and API
 EXPOSE 6767
 
