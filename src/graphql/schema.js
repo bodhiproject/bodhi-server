@@ -245,9 +245,9 @@ type Query {
 
 type Mutation {
   approveCreateEvent(
-    txid: String!
-    gasLimit: String!
-    gasPrice: String!
+    txid: String
+    gasLimit: String
+    gasPrice: String
     senderAddress: String!
     name: String!
     options: [String!]!
@@ -286,9 +286,9 @@ type Mutation {
   ): Transaction
 
   approveSetResult(
-    txid: String!
-    gasLimit: String!
-    gasPrice: String!
+    txid: String
+    gasLimit: String
+    gasPrice: String
     senderAddress: String!
     topicAddress: String!
     oracleAddress: String!
@@ -308,9 +308,9 @@ type Mutation {
   ): Transaction
 
   approveVote(
-    txid: String!
-    gasLimit: String!
-    gasPrice: String!
+    txid: String
+    gasLimit: String
+    gasPrice: String
     senderAddress: String!
     topicAddress: String!
     oracleAddress: String!
