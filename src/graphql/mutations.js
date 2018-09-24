@@ -3,9 +3,9 @@ const moment = require('moment');
 const crypto = require('crypto');
 
 const { TX_STATE, TX_TYPE, TOKEN, STATUS } = require('../constants');
-const { Config } = require('../config');
+const { Config, getContractMetadata } = require('../config');
 const DBHelper = require('../db/db-helper');
-const { isAllowanceEnough, getVotingGasLimit } = require('../utils');
+const { getVotingGasLimit } = require('../utils');
 const { getLogger } = require('../utils/logger');
 const Blockchain = require('../api/blockchain');
 const BodhiToken = require('../api/bodhi-token');
@@ -41,11 +41,25 @@ const insertPendingTx = async (db, data) => {
 
 module.exports = {
   approveCreateEvent: async (root, data, { db: { Transactions } }) => {
-    const tx = Object.assign({}, data, { type: TX_TYPE.APPROVECREATEEVENT, token: TOKEN.BOT, version: 0 });
+    let tx = Object.assign({}, data, { type: TX_TYPE.APPROVECREATEEVENT, token: TOKEN.BOT, version: 0 });
 
     // Check for existing ApproveCreateEvent or CreateEvent transactions
     if (await DBHelper.isPreviousCreateEventPending(Transactions, tx.senderAddress)) {
       throw Error('Pending CreateEvent transaction found');
+    }
+
+    if (needsToExecuteTx(tx)) {
+      try {
+        const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
+          spender: getContractMetadata().AddressManager.address,
+          value: tx.amount,
+          senderAddress: tx.senderAddress,
+        });
+        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+      } catch (err) {
+        getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
+        throw err;
+      }
     }
 
     return insertPendingTx(Transactions, tx);
@@ -159,47 +173,39 @@ module.exports = {
   },
 
   approveSetResult: async (root, data, { db: { Transactions } }) => {
-    const tx = Object.assign({}, data, { type: TX_TYPE.APPROVESETRESULT, token: TOKEN.BOT, version: 0 });
+    let tx = Object.assign({}, data, { type: TX_TYPE.APPROVESETRESULT, token: TOKEN.BOT, version: 0 });
+
+    if (needsToExecuteTx(tx)) {
+      try {
+        const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
+          spender: tx.topicAddress,
+          value: tx.amount,
+          senderAddress: tx.senderAddress,
+        });
+        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+      } catch (err) {
+        getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
+        throw err;
+      }
+    }
+
     return insertPendingTx(Transactions, tx);
   },
 
   setResult: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { type: TX_TYPE.SETRESULT, token: TOKEN.BOT, version: 0 });
-    const { senderAddress, topicAddress, amount } = tx;
-
-    if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
-      tx.type = TX_TYPE.SETRESULT;
-    } else {
-      tx.type = TX_TYPE.APPROVESETRESULT;
-    }
 
     if (needsToExecuteTx(tx)) {
-      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
-        // Send setResult since the allowance is enough
-        try {
-          const { txid, args: { gasLimit, gasPrice } } = await CentralizedOracle.setResult({
-            contractAddress: tx.oracleAddress,
-            resultIndex: tx.optionIdx,
-            senderAddress,
-          });
-          tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-        } catch (err) {
-          getLogger().error(`Error calling CentralizedOracle.setResult: ${err.message}`);
-          throw err;
-        }
-      } else {
-        // Send approve first since allowance is not enough
-        try {
-          const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
-            spender: topicAddress,
-            value: amount,
-            senderAddress,
-          });
-          tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-        } catch (err) {
-          getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
-          throw err;
-        }
+      try {
+        const { txid, args: { gasLimit, gasPrice } } = await CentralizedOracle.setResult({
+          contractAddress: tx.oracleAddress,
+          resultIndex: tx.optionIdx,
+          senderAddress: tx.senderAddress,
+        });
+        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+      } catch (err) {
+        getLogger().error(`Error calling CentralizedOracle.setResult: ${err.message}`);
+        throw err;
       }
     }
 
@@ -207,52 +213,45 @@ module.exports = {
   },
 
   approveVote: async (root, data, { db: { Transactions } }) => {
-    const tx = Object.assign({}, data, { type: TX_TYPE.APPROVEVOTE, token: TOKEN.BOT, version: 0 });
+    let tx = Object.assign({}, data, { type: TX_TYPE.APPROVEVOTE, token: TOKEN.BOT, version: 0 });
+
+    if (needsToExecuteTx(tx)) {
+      try {
+        const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
+          spender: tx.topicAddress,
+          value: tx.amount,
+          senderAddress: tx.senderAddress,
+        });
+        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+      } catch (err) {
+        getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
+        throw err;
+      }
+    }
+
     return insertPendingTx(Transactions, tx);
   },
 
   createVote: async (root, data, { db: { Oracles, Transactions } }) => {
     let tx = Object.assign({}, data, { type: TX_TYPE.VOTE, token: TOKEN.BOT, version: 0 });
-    const { senderAddress, topicAddress, oracleAddress, optionIdx, amount } = tx;
-
-    if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
-      tx.type = TX_TYPE.VOTE;
-    } else {
-      tx.type = TX_TYPE.APPROVEVOTE;
-    }
+    const { oracleAddress, optionIdx, amount } = tx;
 
     if (needsToExecuteTx(tx)) {
-      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
-        // Send vote since allowance is enough
-        try {
-          // Find if voting over threshold to set correct gas limit
-          const voteGasLimit = await getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
+      try {
+        // Find if voting over threshold to set correct gas limit
+        const voteGasLimit = await getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
 
-          const { txid, args: { gasLimit, gasPrice } } = await DecentralizedOracle.vote({
-            contractAddress: oracleAddress,
-            resultIndex: optionIdx,
-            botAmount: amount,
-            senderAddress,
-            gasLimit: voteGasLimit,
-          });
-          tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-        } catch (err) {
-          getLogger().error(`Error calling DecentralizedOracle.vote: ${err.message}`);
-          throw err;
-        }
-      } else {
-        // Send approve first because allowance is not enough
-        try {
-          const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
-            spender: topicAddress,
-            value: amount,
-            senderAddress,
-          });
-          tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-        } catch (err) {
-          getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
-          throw err;
-        }
+        const { txid, args: { gasLimit, gasPrice } } = await DecentralizedOracle.vote({
+          contractAddress: oracleAddress,
+          resultIndex: optionIdx,
+          botAmount: amount,
+          senderAddress: tx.senderAddress,
+          gasLimit: voteGasLimit,
+        });
+        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+      } catch (err) {
+        getLogger().error(`Error calling DecentralizedOracle.vote: ${err.message}`);
+        throw err;
       }
     }
 
