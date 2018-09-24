@@ -18,7 +18,7 @@ RUN npm install
 COPY . .
 
 # REMOVE
-RUN ls -lah /root/.dockervol/.qtum/testnet3
+RUN ls -lah /root/.dockervol/.qtum
 
 # Expose ports for UI and API
 EXPOSE 6767
