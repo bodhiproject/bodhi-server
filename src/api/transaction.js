@@ -1,16 +1,30 @@
-const { Config, getContractMetadata } = require('../config');
+const { Config } = require('../config');
 const Utils = require('../utils');
 const { db } = require('../db');
 const { TX_TYPE } = require('../constants');
 
 const DEFAULT_GAS_COST = formatGasCost(Config.DEFAULT_GAS_LIMIT * Config.DEFAULT_GAS_PRICE);
+const {
+  APPROVECREATEEVENT,
+  CREATEEVENT,
+  BET,
+  APPROVESETRESULT,
+  SETRESULT,
+  APPROVEVOTE,
+  VOTE,
+  TRANSFER,
+} = TX_TYPE;
 
 function formatGasCost(gasCost) {
   return gasCost.toFixed(2);
 }
 
 const Transaction = {
-  // Returns the transaction cost(s) and gas usage for an action
+  /**
+   * Returns the transaction costs and gas usage for an action.
+   * @param {object} args Arguments for getting the tx costs.
+   * @return {array} Array of tx costs.
+   */
   async transactionCost(args) {
     const {
       type, // string
@@ -22,179 +36,41 @@ const Transaction = {
       senderAddress, // address
     } = args;
 
-    // args validation
     if (!type) {
-      throw new TypeError('type needs to be defined');
+      throw TypeError('type needs to be defined');
     }
     if (!senderAddress) {
-      throw new TypeError('senderAddress needs to be defined');
+      throw TypeError('senderAddress needs to be defined');
     }
-    if ((type === 'APPROVECREATEEVENT'
-      || type === 'BET'
-      || type === 'APPROVESETRESULT'
-      || type === 'APPROVEVOTE'
-      || type === 'TRANSFER')
+    if ((type === APPROVECREATEEVENT
+      || type === BET
+      || type === APPROVESETRESULT
+      || type === APPROVEVOTE
+      || type === TRANSFER)
       && (!token || !amount)) {
-      throw new TypeError('token and amount need to be defined');
+      throw TypeError('token and amount need to be defined');
     }
-    if ((type === 'APPROVESETRESULT' || type === 'APPROVEVOTE') && !topicAddress) {
-      throw new TypeError('topicAddress needs to be defined');
+    if ((type === APPROVESETRESULT || type === APPROVEVOTE) && !topicAddress) {
+      throw TypeError('topicAddress needs to be defined');
     }
-    if (type === 'APPROVEVOTE' && !oracleAddress) {
-      throw new TypeError('oracleAddress needs to be defined');
-    }
-
-    // Skip approve if enough allowance
-    let txType = type;
-    if (txType === 'APPROVECREATEEVENT') {
-      const addressManager = getContractMetadata().AddressManager.address;
-      if (await Utils.isAllowanceEnough(senderAddress, addressManager, amount)) {
-        txType = 'CREATEEVENT';
-      }
-    } else if (txType === 'APPROVESETRESULT') {
-      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
-        txType = 'SETRESULT';
-      }
-    } else if (txType === 'APPROVEVOTE') {
-      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
-        txType = 'VOTE';
-      }
+    if (type === APPROVEVOTE && !oracleAddress) {
+      throw TypeError('oracleAddress needs to be defined');
     }
 
-    const costsArr = [];
-    switch (txType) {
-      case 'APPROVECREATEEVENT': {
-        costsArr.push({
-          type: TX_TYPE.APPROVECREATEEVENT,
-          gasLimit: Config.DEFAULT_GAS_LIMIT,
-          gasCost: DEFAULT_GAS_COST,
-          token,
-          amount,
-        });
-        costsArr.push({
-          type: TX_TYPE.CREATEEVENT,
-          gasLimit: Config.CREATE_CORACLE_GAS_LIMIT,
-          gasCost: formatGasCost(Config.CREATE_CORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
-          token,
-          amount,
-        });
-        break;
-      }
-      case 'CREATEEVENT': {
-        costsArr.push({
-          type: TX_TYPE.CREATEEVENT,
-          gasLimit: Config.CREATE_CORACLE_GAS_LIMIT,
-          gasCost: formatGasCost(Config.CREATE_CORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
-          token,
-          amount,
-        });
-        break;
-      }
-      case 'BET': {
-        costsArr.push({
-          type: TX_TYPE.BET,
-          gasLimit: Config.DEFAULT_GAS_LIMIT,
-          gasCost: DEFAULT_GAS_COST,
-          token,
-          amount,
-        });
-        break;
-      }
-      case 'APPROVESETRESULT': {
-        costsArr.push({
-          type: TX_TYPE.APPROVESETRESULT,
-          gasLimit: Config.DEFAULT_GAS_LIMIT,
-          gasCost: DEFAULT_GAS_COST,
-          token,
-          amount,
-        });
-        costsArr.push({
-          type: TX_TYPE.SETRESULT,
-          gasLimit: Config.CREATE_DORACLE_GAS_LIMIT,
-          gasCost: formatGasCost(Config.CREATE_DORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
-          token,
-          amount,
-        });
-        break;
-      }
-      case 'SETRESULT': {
-        costsArr.push({
-          type: TX_TYPE.SETRESULT,
-          gasLimit: Config.CREATE_DORACLE_GAS_LIMIT,
-          gasCost: formatGasCost(Config.CREATE_DORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
-          token,
-          amount,
-        });
-        break;
-      }
-      case 'APPROVEVOTE': {
-        costsArr.push({
-          type: TX_TYPE.APPROVEVOTE,
-          gasLimit: Config.DEFAULT_GAS_LIMIT,
-          gasCost: DEFAULT_GAS_COST,
-          token,
-          amount,
-        });
-        const gasLimit = await Utils.getVotingGasLimit(db.Oracles, oracleAddress, optionIdx, amount);
-        costsArr.push({
-          type: TX_TYPE.VOTE,
-          gasLimit,
-          gasCost: formatGasCost(gasLimit * Config.DEFAULT_GAS_PRICE),
-          token,
-          amount,
-        });
-        break;
-      }
-      case 'VOTE': {
-        const gasLimit = await Utils.getVotingGasLimit(db.Oracles, oracleAddress, optionIdx, amount);
-        costsArr.push({
-          type: TX_TYPE.VOTE,
-          gasLimit,
-          gasCost: formatGasCost(gasLimit * Config.DEFAULT_GAS_PRICE),
-          token,
-          amount,
-        });
-        break;
-      }
-      case 'FINALIZERESULT': {
-        costsArr.push({
-          type: TX_TYPE.FINALIZERESULT,
-          gasLimit: Config.DEFAULT_GAS_LIMIT,
-          gasCost: DEFAULT_GAS_COST,
-        });
-        break;
-      }
-      case 'WITHDRAW': {
-        costsArr.push({
-          type: TX_TYPE.WITHDRAW,
-          gasLimit: Config.DEFAULT_GAS_LIMIT,
-          gasCost: DEFAULT_GAS_COST,
-        });
-        break;
-      }
-      case 'WITHDRAWESCROW': {
-        costsArr.push({
-          type: TX_TYPE.WITHDRAWESCROW,
-          gasLimit: Config.DEFAULT_GAS_LIMIT,
-          gasCost: DEFAULT_GAS_COST,
-        });
-        break;
-      }
-      case 'TRANSFER': {
-        costsArr.push({
-          type: TX_TYPE.TRANSFER,
-          gasLimit: Config.DEFAULT_GAS_LIMIT,
-          gasCost: DEFAULT_GAS_COST,
-          token,
-          amount,
-        });
-        break;
-      }
-      default: {
-        throw new Error(`Invalid transactionType: ${txType}`);
-      }
+    let gasLimit = Config.DEFAULT_GAS_LIMIT;
+    let gasCost = DEFAULT_GAS_COST;
+    if (type === CREATEEVENT) {
+      gasLimit = Config.CREATE_CORACLE_GAS_LIMIT;
+      gasCost = formatGasCost(Config.CREATE_CORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE);
+    } else if (type === SETRESULT) {
+      gasLimit = Config.CREATE_DORACLE_GAS_LIMIT;
+      gasCost = formatGasCost(Config.CREATE_DORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE);
+    } else if (type === VOTE) {
+      gasLimit = await Utils.getVotingGasLimit(db.Oracles, oracleAddress, optionIdx, amount);
+      gasCost = formatGasCost(gasLimit * Config.DEFAULT_GAS_PRICE);
     }
 
+    const costsArr = [{ type, gasLimit, gasCost, token, amount }];
     return costsArr;
   },
 };
