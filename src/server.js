@@ -114,7 +114,7 @@ function startQtumProcess(reindex) {
 async function checkQtumdInit() {
   try {
     // getInfo throws an error if trying to be called before qtumd is running
-    await getInstance().getInfo();
+    await getInstance().getBlockchainInfo();
 
     // no error was caught, qtumd is initialized
     clearInterval(checkInterval);
