@@ -106,7 +106,6 @@ class DBHelper {
             address: oracle.address,
             topicAddress: oracle.topicAddress,
             resultSetterAddress: oracle.resultSetterAddress,
-            resultSetterQAddress: oracle.resultSetterQAddress,
             token: oracle.token,
             name: oracle.name,
             options: oracle.options,

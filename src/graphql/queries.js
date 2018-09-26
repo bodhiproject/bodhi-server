@@ -69,8 +69,8 @@ const buildOracleFilters = ({
   txid,
   address,
   topicAddress,
-  resultSetterQAddress,
-  excludeResultSetterQAddress,
+  resultSetterAddress,
+  excludeResultSetterAddress,
   status,
   token,
   hashId,
@@ -79,10 +79,10 @@ const buildOracleFilters = ({
     txid
     || address
     || topicAddress
-    || resultSetterQAddress
+    || resultSetterAddress
     || status
     || token
-    || excludeResultSetterQAddress
+    || excludeResultSetterAddress
     || hashId
   ) ? {} : null;
 
@@ -98,10 +98,10 @@ const buildOracleFilters = ({
     filter.topicAddress = topicAddress;
   }
 
-  if (resultSetterQAddress) {
-    filter.resultSetterQAddress = resultSetterQAddress;
-  } else if (excludeResultSetterQAddress) {
-    filter.resultSetterQAddress = { $nin: excludeResultSetterQAddress };
+  if (resultSetterAddress) {
+    filter.resultSetterAddress = resultSetterAddress;
+  } else if (excludeResultSetterAddress) {
+    filter.resultSetterAddress = { $nin: excludeResultSetterAddress };
   }
 
   if (status) {
@@ -125,7 +125,7 @@ const buildOracleFilters = ({
 };
 
 const buildSearchPhrase = (searchPhrase) => {
-  const filterFields = ['name', '_id', 'topicAddress', 'resultSetterAddress', 'resultSetterQAddress'];
+  const filterFields = ['name', '_id', 'topicAddress', 'resultSetterAddress'];
   if (!searchPhrase) {
     return [];
   }
@@ -141,25 +141,18 @@ const buildSearchPhrase = (searchPhrase) => {
   return filters;
 };
 
-const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, voterQAddress, optionIdx }) => {
-  const filter = (topicAddress || oracleAddress || voterAddress || voterQAddress || optionIdx) ? {} : null;
+const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, optionIdx }) => {
+  const filter = (topicAddress || oracleAddress || voterAddress || optionIdx) ? {} : null;
 
   if (topicAddress) {
     filter.topicAddress = topicAddress;
   }
-
   if (oracleAddress) {
     filter.oracleAddress = oracleAddress;
   }
-
   if (voterAddress) {
     filter.voterAddress = voterAddress;
   }
-
-  if (voterQAddress) {
-    filter.voterQAddress = voterQAddress;
-  }
-
   if (optionIdx) {
     filter.optionIdx = optionIdx;
   }
@@ -227,39 +220,26 @@ const buildWithdrawFilters = ({ OR = [], txid, topicAddress, withdrawerAddress, 
   return filters;
 };
 
-const buildTransactionFilters = ({
-  OR = [],
-  type,
-  status,
-  topicAddress,
-  oracleAddress,
-  senderAddress,
-  senderQAddress,
-}) => {
-  const filter = (type || status || topicAddress || oracleAddress || senderAddress || senderQAddress) ? {} : null;
+const buildTransactionFilters = ({ OR = [], txid, type, status, topicAddress, oracleAddress, senderAddress }) => {
+  const filter = (txid || type || status || topicAddress || oracleAddress || senderAddress) ? {} : null;
 
+  if (txid) {
+    filter.txid = txid;
+  }
   if (type) {
     filter.type = type;
   }
-
   if (status) {
     filter.status = status;
   }
-
   if (topicAddress) {
     filter.topicAddress = topicAddress;
   }
-
   if (oracleAddress) {
     filter.oracleAddress = oracleAddress;
   }
-
   if (senderAddress) {
     filter.senderAddress = senderAddress;
-  }
-
-  if (senderQAddress) {
-    filter.senderQAddress = senderQAddress;
   }
 
   let filters = filter ? [filter] : [];
