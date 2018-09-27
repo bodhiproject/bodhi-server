@@ -174,6 +174,12 @@ type Approve {
   amount: Int!
 }
 
+input ApproveInput {
+  owner: String!
+  spender: String!
+  amount: Int!
+}
+
 input TopicFilter {
   OR: [TopicFilter!]
   txid: String
@@ -256,7 +262,7 @@ type Mutation {
     gasLimit: String
     gasPrice: String
     senderAddress: String!
-    approve: Approve!
+    approve: ApproveInput!
   ): Transaction
 
   approveCreateEvent(
