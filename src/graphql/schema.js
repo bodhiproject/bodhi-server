@@ -146,6 +146,7 @@ type Transaction {
   amount: String
   topic: Topic
   version: Int!
+  approve: Approve
 }
 
 type Block {
@@ -250,6 +251,14 @@ type Query {
 }
 
 type Mutation {
+  resetApprove(
+    txid: String
+    gasLimit: String
+    gasPrice: String
+    senderAddress: String!
+    approve: Approve!
+  ): Transaction
+
   approveCreateEvent(
     txid: String
     gasLimit: String
