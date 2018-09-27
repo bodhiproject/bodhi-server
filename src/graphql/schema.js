@@ -167,6 +167,12 @@ type AddressBalance {
   bot: String!
 }
 
+type Approve {
+  owner: String!
+  spender: String!
+  amount: Int!
+}
+
 input TopicFilter {
   OR: [TopicFilter!]
   txid: String
