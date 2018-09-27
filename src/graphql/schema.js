@@ -146,7 +146,6 @@ type Transaction {
   amount: String
   topic: Topic
   version: Int!
-  approve: Approve
 }
 
 type Block {
@@ -166,18 +165,6 @@ type AddressBalance {
   address: String!
   qtum: String!
   bot: String!
-}
-
-type Approve {
-  owner: String!
-  spender: String!
-  amount: Int!
-}
-
-input ApproveInput {
-  owner: String!
-  spender: String!
-  amount: Int!
 }
 
 input TopicFilter {
@@ -262,7 +249,7 @@ type Mutation {
     gasLimit: String
     gasPrice: String
     senderAddress: String!
-    approve: ApproveInput!
+    receiverAddress: String!
   ): Transaction
 
   approveCreateEvent(
