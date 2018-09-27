@@ -40,6 +40,26 @@ const insertPendingTx = async (db, data) => {
 };
 
 module.exports = {
+  resetApprove: async (root, data, { db: { Transactions } }) => {
+    let tx = Object.assign({}, data, { type: TX_TYPE.RESETAPPROVE, token: TOKEN.BOT, version: 0 });
+
+    if (needsToExecuteTx(tx)) {
+      try {
+        const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
+          spender: tx.approve.spender,
+          value: tx.approve.amount,
+          senderAddress: tx.senderAddress,
+        });
+        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
+      } catch (err) {
+        getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
+        throw err;
+      }
+    }
+
+    return insertPendingTx(Transactions, tx);
+  },
+
   approveCreateEvent: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { type: TX_TYPE.APPROVECREATEEVENT, token: TOKEN.BOT, version: 0 });
 
