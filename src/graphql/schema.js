@@ -244,6 +244,14 @@ type Query {
 }
 
 type Mutation {
+  resetApprove(
+    txid: String
+    gasLimit: String
+    gasPrice: String
+    senderAddress: String!
+    receiverAddress: String!
+  ): Transaction
+
   approveCreateEvent(
     txid: String
     gasLimit: String

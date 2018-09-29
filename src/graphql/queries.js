@@ -331,6 +331,16 @@ module.exports = {
     return cursor.exec();
   },
 
+  searchTopics: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Topics } }) => {
+    const filters = [];
+    if (filter) filters.push({ $or: buildTopicFilters(filter) });
+    if (searchPhrase) filters.push({ $or: buildSearchPhrase(searchPhrase) });
+    const query = { $and: filters };
+    let cursor = Topics.cfind(query);
+    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+    return cursor.exec();
+  },
+
   allOracles: async (root, { filter, orderBy, limit, skip }, { db: { Oracles } }) => {
     const query = filter ? { $or: buildOracleFilters(filter) } : {};
     let cursor = Oracles.cfind(query);
@@ -344,16 +354,6 @@ module.exports = {
     if (searchPhrase) filters.push({ $or: buildSearchPhrase(searchPhrase) });
     const query = { $and: filters };
     let cursor = Oracles.cfind(query);
-    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-    return cursor.exec();
-  },
-
-  searchTopics: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Topics } }) => {
-    const filters = [];
-    if (filter) filters.push({ $or: buildTopicFilters(filter) });
-    if (searchPhrase) filters.push({ $or: buildSearchPhrase(searchPhrase) });
-    const query = { $and: filters };
-    let cursor = Topics.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
     return cursor.exec();
   },
