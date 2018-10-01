@@ -150,10 +150,12 @@ const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime)
           try {
             const dOracle = new DecentralizedOracle(blockNum, txid, rawLog).translate();
 
-            const topic = await DBHelper.findOne(db.Topics, { address: dOracle.topicAddress }, ['name', 'options']);
+            const topic = await DBHelper.findOne(db.Topics, { address: dOracle.topicAddress }, ['name', 'options', 'language']);
             dOracle.name = topic.name;
             dOracle.options = topic.options;
             dOracle.startTime = currentBlockTime;
+            dOracle.language = topic.language;
+            console.log('TCL: syncDecentralizedOracleCreated -> dOracle', dOracle);
 
             await db.Oracles.insert(dOracle);
             resolve();
