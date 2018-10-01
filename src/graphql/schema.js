@@ -250,6 +250,8 @@ type Mutation {
     gasPrice: String
     senderAddress: String!
     receiverAddress: String!
+    topicAddress: String
+    oracleAddress: String
   ): Transaction
 
   approveCreateEvent(
