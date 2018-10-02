@@ -61,7 +61,7 @@ type Topic {
   oracles: [Oracle]
   transactions: [Transaction]
   version: Int!
-  language: String
+  language: String!
 }
 
 type Oracle {
@@ -85,7 +85,7 @@ type Oracle {
   consensusThreshold: String
   transactions: [Transaction]
   version: Int!
-  language: String
+  language: String!
 }
 
 type Vote {
@@ -272,7 +272,7 @@ type Mutation {
     resultSettingStartTime: String!
     resultSettingEndTime: String!
     amount: String!
-    language: String
+    language: String!
   ): Transaction
 
   createEvent(
@@ -288,7 +288,7 @@ type Mutation {
     resultSettingStartTime: String!
     resultSettingEndTime: String!
     amount: String!
-    language: String
+    language: String!
   ): Transaction
 
   createBet(

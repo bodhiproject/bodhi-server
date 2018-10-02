@@ -30,8 +30,8 @@ const buildCursorOptions = (cursor, orderBy, limit, skip) => {
   return cursor;
 };
 
-const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorAddress, hashId }) => {
-  const filter = (txid || address || status || resultIdx || creatorAddress || hashId) ? {} : null;
+const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorAddress, hashId, language }) => {
+  const filter = (txid || address || status || resultIdx || creatorAddress || hashId || language) ? {} : null;
 
   if (txid) {
     filter.txid = txid;
@@ -55,6 +55,10 @@ const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorA
 
   if (hashId) {
     filter.hashId = hashId;
+  }
+
+  if (language) {
+    filter.language = language;
   }
 
   let filters = filter ? [filter] : [];
