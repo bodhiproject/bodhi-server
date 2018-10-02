@@ -61,7 +61,6 @@ module.exports = {
   },
 
   approveCreateEvent: async (root, data, { db: { Transactions } }) => {
-    console.log('TCL: data', data);
     let tx = Object.assign({}, data, { type: TX_TYPE.APPROVECREATEEVENT, token: TOKEN.BOT, version: 0 });
 
     // Check for existing ApproveCreateEvent or CreateEvent transactions
@@ -87,7 +86,6 @@ module.exports = {
   },
 
   createEvent: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
-    console.log('TCL: data', data);
     let tx = Object.assign({}, data, {
       type: TX_TYPE.CREATEEVENT,
       createdTime: moment().unix(),
@@ -219,7 +217,6 @@ module.exports = {
 
   setResult: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { type: TX_TYPE.SETRESULT, token: TOKEN.BOT, version: 0 });
-    console.log('TCL: tx', tx);
 
     if (needsToExecuteTx(tx)) {
       try {

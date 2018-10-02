@@ -155,7 +155,6 @@ const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime)
             dOracle.options = topic.options;
             dOracle.startTime = currentBlockTime;
             dOracle.language = topic.language;
-            console.log('TCL: syncDecentralizedOracleCreated -> dOracle', dOracle);
 
             await db.Oracles.insert(dOracle);
             resolve();

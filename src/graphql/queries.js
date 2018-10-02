@@ -118,7 +118,7 @@ const buildOracleFilters = ({
     filter.hashId = hashId;
   }
 
-  if(language) {
+  if (language) {
     filter.language = language;
   }
 
