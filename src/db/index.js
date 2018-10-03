@@ -3,7 +3,6 @@ const fs = require('fs-extra');
 
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
-const addLanguageField = require('./migration');
 
 const db = {
   Topics: undefined,
@@ -20,25 +19,29 @@ const db = {
  * Be sure to wrap each migration script in a try/catch and throw on Error.
  * We don't want the server to run if the migration failed.
  */
-async function applyMigrations() {
+async function applyMigrations(db) {
   // Run migration scripts here
-  const blockchainDataPath = Utils.getDataDir();
-  const migrationTrackPath = `${__dirname}/migrations.dat`;
-  let lastMigrate = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
-  if (lastMigrate === 0) {
-    await addLanguageField(`${blockchainDataPath}/oracles.db`);
-    await addLanguageField(`${blockchainDataPath}/topics.db`);
-    lastMigrate++;
+  const migrationPath = require('path').join(__dirname, 'migrations');
+  const migrations = [];
+  try {
+    await fs.readdirSync(migrationPath).forEach(async (file) => {
+      const migration = await require(`./migrations/${file}`);
+      migrations.push(migration);
+    });
+  } catch (err) {
+    throw Error(`Migration scripts load Error ${err.message}`);
   }
-  await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION = ${lastMigrate}\n`);
+
+  // execute sequentially
+  migrations.reduce((promise, currentTask) => promise.then(() => currentTask(db)), Promise.resolve()).catch((err) => {
+    console.error(err);
+  });
 }
 
 /**
  * Run all the migrations and initializes all the datastores.
  */
 async function initDB() {
-  await applyMigrations();
-
   const blockchainDataPath = Utils.getDataDir();
   getLogger().info(`Blockchain data path: ${blockchainDataPath}`);
 
@@ -66,6 +69,8 @@ async function initDB() {
     await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
     await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
+
+    await applyMigrations(db);
   } catch (err) {
     throw Error(`DB load Error: ${err.message}`);
   }
