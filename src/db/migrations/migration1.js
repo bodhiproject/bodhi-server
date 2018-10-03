@@ -20,7 +20,7 @@ async function migration1(db) {
       await addLanguageField(db.Oracles);
       await addLanguageField(db.Topics);
       lastMigrate++;
-      getLogger.info(`Success migration${lastMigrate}`);
+      getLogger().info(`Success migration${lastMigrate}`);
     }
     await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${lastMigrate}\n`);
   } catch (err) {

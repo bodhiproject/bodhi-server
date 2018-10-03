@@ -59,9 +59,12 @@ const syncTopicCreated = async (currentBlockNum) => {
         topicEventPromises.push(new Promise(async (resolve) => {
           try {
             const topic = new Topic(blockNum, txid, entry).translate();
-
+            const foundTopic = await DBHelper.findOne(db.Topics, { txid }, ['language']);
+            if(foundTopic && foundTopic.language){
+              topic.language = foundTopic.language;
+            }
             // Update existing mutated Topic or insert new
-            if (await DBHelper.getCount(db.Topics, { txid }) > 0) {
+            if (foundTopic != null) {
               DBHelper.updateTopicByQuery(db.Topics, { txid }, topic);
             } else {
               DBHelper.insertTopic(db.Topics, topic);
@@ -103,10 +106,11 @@ const syncCentralizedOracleCreated = async (currentBlockNum) => {
             const cOracle = new CentralizedOracle(blockNum, txid, rawLog).translate();
 
             // Insert existing Topic info into Oracle
-            const topic = await DBHelper.findOne(db.Topics, { address: cOracle.topicAddress }, ['name', 'options', 'hashId']);
+            const topic = await DBHelper.findOne(db.Topics, { address: cOracle.topicAddress }, ['name', 'options', 'hashId', 'language']);
             cOracle.name = topic.name;
             cOracle.options = topic.options;
             cOracle.hashId = topic.hashId;
+            cOracle.language = topic.language;
 
             // Update existing mutated Oracle or insert new
             if (await DBHelper.getCount(db.Oracles, { txid }) > 0) {

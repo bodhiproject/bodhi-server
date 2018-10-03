@@ -25,8 +25,10 @@ async function applyMigrations(db) {
   const migrations = [];
   try {
     await fs.readdirSync(migrationPath).forEach(async (file) => {
-      const migration = await require(`./migrations/${file}`);
-      migrations.push(migration);
+      if(file.endsWith('.js')){
+        const migration = await require(`./migrations/${file}`);
+        migrations.push(migration);
+      }
     });
   } catch (err) {
     throw Error(`Migration scripts load Error ${err.message}`);
