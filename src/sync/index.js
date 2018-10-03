@@ -5,7 +5,7 @@ const { BigNumber } = require('bignumber.js');
 
 const updateTransactions = require('./update-transactions');
 const { getInstance } = require('../qclient');
-const { TOKEN, WITHDRAW_TYPE } = require('../constants');
+const { TOKEN, STATUS, WITHDRAW_TYPE } = require('../constants');
 const { getContractMetadata } = require('../config');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
@@ -277,7 +277,7 @@ const syncOracleResultSet = async (currentBlockNum) => {
             // Update Oracle status
             await db.Oracles.update(
               { address: resultSet.oracleAddress },
-              { $set: { resultIdx: resultSet.resultIdx, status: 'PENDING' } }, {},
+              { $set: { resultIdx: resultSet.resultIdx, status: STATUS.PENDING } }, {},
             );
             resolve();
           } catch (err) {
@@ -319,11 +319,11 @@ const syncFinalResultSet = async (currentBlockNum) => {
             // Update statuses to withdraw
             await db.Topics.update(
               { address: finalResultSet.topicAddress },
-              { $set: { resultIdx: finalResultSet.resultIdx, status: 'WITHDRAW' } },
+              { $set: { resultIdx: finalResultSet.resultIdx, status: STATUS.WITHDRAW } },
             );
             await db.Oracles.update(
               { topicAddress: finalResultSet.topicAddress },
-              { $set: { status: 'WITHDRAW' } }, { multi: true },
+              { $set: { status: STATUS.WITHDRAW } }, { multi: true },
             );
 
             resolve();
@@ -416,8 +416,8 @@ const syncEscrowWithdrawn = async (currentBlockNum) => {
 const updateOraclesDoneVoting = async (currentBlockTime) => {
   try {
     await db.Oracles.update(
-      { endTime: { $lt: currentBlockTime }, status: 'VOTING' },
-      { $set: { status: 'WAITRESULT' } },
+      { endTime: { $lt: currentBlockTime }, status: STATUS.VOTING },
+      { $set: { status: STATUS.WAITRESULT } },
       { multi: true },
     );
   } catch (err) {
@@ -429,8 +429,8 @@ const updateOraclesDoneVoting = async (currentBlockTime) => {
 const updateCOraclesDoneResultSet = async (currentBlockTime) => {
   try {
     await db.Oracles.update(
-      { resultSetEndTime: { $lt: currentBlockTime }, token: TOKEN.QTUM, status: 'WAITRESULT' },
-      { $set: { status: 'OPENRESULTSET' } },
+      { resultSetEndTime: { $lt: currentBlockTime }, token: TOKEN.QTUM, status: STATUS.WAITRESULT },
+      { $set: { status: STATUS.OPENRESULTSET } },
       { multi: true },
     );
   } catch (err) {
