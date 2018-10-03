@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
 const addLanguageField = require('./migration');
+
 const db = {
   Topics: undefined,
   Oracles: undefined,
@@ -23,8 +24,8 @@ async function applyMigrations() {
   // Run migration scripts here
   const blockchainDataPath = Utils.getDataDir();
   const migrationTrackPath = `${__dirname}/migrations.dat`;
-  let lastMigrate = Number(await fs.readFileSync(migrationTrackPath).toString().split("=")[1].trim());
-  if(lastMigrate === 0){
+  let lastMigrate = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
+  if (lastMigrate === 0) {
     await addLanguageField(`${blockchainDataPath}/oracles.db`);
     await addLanguageField(`${blockchainDataPath}/topics.db`);
     lastMigrate++;
