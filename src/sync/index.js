@@ -5,7 +5,7 @@ const { BigNumber } = require('bignumber.js');
 
 const updateTransactions = require('./update-transactions');
 const { getInstance } = require('../qclient');
-const { WITHDRAW_TYPE } = require('../constants');
+const { TOKEN, WITHDRAW_TYPE } = require('../constants');
 const { getContractMetadata } = require('../config');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
@@ -200,7 +200,7 @@ const syncOracleResultVoted = async (currentBlockNum) => {
             const voteBn = new BigNumber(vote.amount);
             const topic = await DBHelper.findOne(db.Topics, { address: oracle.topicAddress });
             switch (vote.token) {
-              case 'QTUM': {
+              case TOKEN.QTUM: {
                 topic.qtumAmount[vote.optionIdx] =
                   new BigNumber(topic.qtumAmount[vote.optionIdx]).plus(voteBn).toString(10);
                 await DBHelper.updateObjectByQuery(
@@ -210,7 +210,7 @@ const syncOracleResultVoted = async (currentBlockNum) => {
                 );
                 break;
               }
-              case 'BOT': {
+              case TOKEN.BOT: {
                 topic.botAmount[vote.optionIdx] =
                   new BigNumber(topic.botAmount[vote.optionIdx]).plus(voteBn).toString(10);
                 await DBHelper.updateObjectByQuery(
@@ -429,7 +429,7 @@ const updateOraclesDoneVoting = async (currentBlockTime) => {
 const updateCOraclesDoneResultSet = async (currentBlockTime) => {
   try {
     await db.Oracles.update(
-      { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
+      { resultSetEndTime: { $lt: currentBlockTime }, token: TOKEN.QTUM, status: 'WAITRESULT' },
       { $set: { status: 'OPENRESULTSET' } },
       { multi: true },
     );
