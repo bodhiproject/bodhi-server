@@ -226,8 +226,12 @@ const syncOracleResultVoted = async (currentBlockNum) => {
             }
 
             // Update Oracle balance
-            oracle.amounts[vote.optionIdx] = new BigNumber(oracle.amounts[vote.optionIdx]).plus(voteBn).toString(10);
-            await DBHelper.updateObjectByQuery(db.Oracles, { address: oracle.address }, { amounts: oracle.amounts });
+            // Check for token match first because we don't want to increment the COracle's amounts with the Set Result
+            // BOT. Setting the result creates an OracleResultVoted event and takes place in the COracle contract.
+            if (oracle.token === vote.token) {
+              oracle.amounts[vote.optionIdx] = new BigNumber(oracle.amounts[vote.optionIdx]).plus(voteBn).toString(10);
+              await DBHelper.updateObjectByQuery(db.Oracles, { address: oracle.address }, { amounts: oracle.amounts });
+            }
 
             resolve();
           } catch (err) {
