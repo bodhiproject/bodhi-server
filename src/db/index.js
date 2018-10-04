@@ -35,7 +35,7 @@ async function applyMigrations(db) {
   try {
     const migrationPath = require('path').join(__dirname, 'migrations');
     fs.readdirSync(migrationPath).sort().forEach((file) => {
-      if(file.endsWith('.js')) {
+      if (file.endsWith('.js')) {
         const migration = require(`./migrations/${file}`);
         migrations.push(migration);
       }
@@ -45,8 +45,8 @@ async function applyMigrations(db) {
     throw Error(`Migration scripts load Error ${err.message}`);
   }
 
-  try{
-    for(const migration of migrations){
+  try {
+    for (const migration of migrations) {
       lastMigrate = await migration(db, lastMigrate);
     }
   } catch (err) {
@@ -54,7 +54,7 @@ async function applyMigrations(db) {
     throw Error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
   }
 
-  try{
+  try {
     await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${lastMigrate}\n`);
   } catch (err) {
     getLogger().error(`Migration track file update error ${err.message}`);

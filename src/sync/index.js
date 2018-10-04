@@ -62,7 +62,7 @@ const syncTopicCreated = async (currentBlockNum) => {
             // Update existing mutated Topic or insert new
             if (await DBHelper.getCount(db.Topics, { txid }) > 0) {
               const foundTopic = await DBHelper.findOne(db.Topics, { txid }, ['language']);
-              if(foundTopic.language){
+              if (foundTopic.language) {
                 topic.language = foundTopic.language;
               }
               DBHelper.updateTopicByQuery(db.Topics, { txid }, topic);

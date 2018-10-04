@@ -21,8 +21,8 @@ async function migration1(db, lastMigrate) {
     }
     return lastMigrate;
   } catch (err) {
-    getLogger().error(`DB update Error: ${err.message}`);
-    throw Error(`DB track file Error: ${err.message}`);
+    getLogger().error(`Migration 1 error: ${err.message}`);
+    throw Error(`Migration 1 error: ${err.message}`);
   }
 }
 
