@@ -5,15 +5,16 @@ const Utils = require('../../utils');
 
 async function addLanguageField(db) {
   try {
-    await db.update({ language: { $exists: false } }, { $set: { language: 'en-US' } }, { multi: true });
+    await db.update({ language: { $exists: true } }, { $set: { language: 'Chinese' } }, { multi: true });
   } catch (err) {
     throw Error(`DB update Error: ${err.message}`);
   }
 }
 
+
 async function migration1(db, lastMigrate) {
   try {
-    if (lastMigrate < 1) {
+    if (lastMigrate < 2) {
       await addLanguageField(db.Oracles);
       await addLanguageField(db.Topics);
       lastMigrate++;
@@ -25,5 +26,6 @@ async function migration1(db, lastMigrate) {
     throw Error(`DB track file Error: ${err.message}`);
   }
 }
+
 
 module.exports = migration1;

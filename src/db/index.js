@@ -21,23 +21,45 @@ const db = {
  */
 async function applyMigrations(db) {
   // Run migration scripts here
-  const migrationPath = require('path').join(__dirname, 'migrations');
   const migrations = [];
+  let lastMigrate;
+  const migrationTrackPath = `${__dirname}/migrations.dat`;
+
   try {
-    await fs.readdirSync(migrationPath).forEach(async (file) => {
-      if(file.endsWith('.js')){
-        const migration = await require(`./migrations/${file}`);
+    lastMigrate = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
+  } catch (err) {
+    getLogger().error(`Migration track file loading Error: ${err.message}`);
+    throw Error(`Migration track file loading Error: ${err.message}`);
+  }
+
+  try {
+    const migrationPath = require('path').join(__dirname, 'migrations');
+    fs.readdirSync(migrationPath).sort().forEach((file) => {
+      if(file.endsWith('.js')) {
+        const migration = require(`./migrations/${file}`);
         migrations.push(migration);
       }
     });
   } catch (err) {
+    getLogger().error(`Migration scripts load Error: ${err.message}`);
     throw Error(`Migration scripts load Error ${err.message}`);
   }
 
-  // execute sequentially
-  migrations.reduce((promise, currentTask) => promise.then(() => currentTask(db)), Promise.resolve()).catch((err) => {
-    console.error(err);
-  });
+  try{
+    for(const migration of migrations){
+      lastMigrate = await migration(db, lastMigrate);
+    }
+  } catch (err) {
+    getLogger().error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
+    throw Error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
+  }
+
+  try{
+    await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${lastMigrate}\n`);
+  } catch (err) {
+    getLogger().error(`Migration track file update error ${err.message}`);
+    throw Error(`Migration track file update error ${err.message}`);
+  }
 }
 
 /**
