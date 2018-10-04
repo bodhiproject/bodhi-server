@@ -59,12 +59,12 @@ const syncTopicCreated = async (currentBlockNum) => {
         topicEventPromises.push(new Promise(async (resolve) => {
           try {
             const topic = new Topic(blockNum, txid, entry).translate();
-            const foundTopic = await DBHelper.findOne(db.Topics, { txid }, ['language']);
-            if(foundTopic && foundTopic.language){
-              topic.language = foundTopic.language;
-            }
             // Update existing mutated Topic or insert new
-            if (foundTopic != null) {
+            if (await DBHelper.getCount(db.Topics, { txid }) > 0) {
+              const foundTopic = await DBHelper.findOne(db.Topics, { txid }, ['language']);
+              if(foundTopic.language){
+                topic.language = foundTopic.language;
+              }
               DBHelper.updateTopicByQuery(db.Topics, { txid }, topic);
             } else {
               DBHelper.insertTopic(db.Topics, topic);
