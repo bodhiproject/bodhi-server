@@ -7,6 +7,7 @@ async function addLanguageField(db) {
   try {
     await db.update({ language: { $exists: false } }, { $set: { language: 'en-US' } }, { multi: true });
   } catch (err) {
+    getLogger().error(`DB update Error: ${err.message}`);
     throw Error(`DB update Error: ${err.message}`);
   }
 }
