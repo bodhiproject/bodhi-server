@@ -35,6 +35,7 @@ async function applyMigrations(db) {
   try {
     const migrationPath = require('path').join(__dirname, 'migrations');
     fs.readdirSync(migrationPath).sort().forEach((file) => {
+      console.log('TCL: applyMigrations -> file', file);
       if (file.endsWith('.js')) {
         const migration = require(`./migrations/${file}`);
         migrations.push(migration);

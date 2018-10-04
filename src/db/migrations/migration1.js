@@ -14,7 +14,7 @@ async function addLanguageField(db) {
 
 async function migration1(db, lastMigrate) {
   try {
-    if (lastMigrate < 1) {
+    if (lastMigrate === 0) {
       await addLanguageField(db.Oracles);
       await addLanguageField(db.Topics);
       lastMigrate++;
