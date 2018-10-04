@@ -104,6 +104,7 @@ module.exports = {
       resultSettingEndTime,
       amount,
       version,
+      language,
     } = tx;
 
     // Check for existing ApproveCreateEvent or CreateEvent transactions
@@ -145,6 +146,7 @@ module.exports = {
       escrowAmount: amount,
       creatorAddress: senderAddress,
       version,
+      language,
     });
     getLogger().debug(`Mutation Insert: Topic txid:${txid}`);
 
@@ -164,6 +166,7 @@ module.exports = {
       resultSetEndTime: resultSettingEndTime,
       token: TOKEN.QTUM,
       version,
+      language,
     });
     getLogger().debug(`Mutation Insert: Oracle txid:${txid}`);
 

@@ -61,6 +61,7 @@ type Topic {
   oracles: [Oracle]
   transactions: [Transaction]
   version: Int!
+  language: String!
 }
 
 type Oracle {
@@ -84,6 +85,7 @@ type Oracle {
   consensusThreshold: String
   transactions: [Transaction]
   version: Int!
+  language: String!
 }
 
 type Vote {
@@ -146,6 +148,7 @@ type Transaction {
   amount: String
   topic: Topic
   version: Int!
+  language: String
 }
 
 type Block {
@@ -175,6 +178,7 @@ input TopicFilter {
   resultIdx: Int
   creatorAddress: String
   hashId: String
+  language: String
 }
 
 input OracleFilter {
@@ -187,6 +191,7 @@ input OracleFilter {
   resultSetterAddress: String
   excludeResultSetterAddress: [String]
   hashId: String
+  language: String
 }
 
 input VoteFilter {
@@ -267,6 +272,7 @@ type Mutation {
     resultSettingStartTime: String!
     resultSettingEndTime: String!
     amount: String!
+    language: String!
   ): Transaction
 
   createEvent(
@@ -282,6 +288,7 @@ type Mutation {
     resultSettingStartTime: String!
     resultSettingEndTime: String!
     amount: String!
+    language: String!
   ): Transaction
 
   createBet(

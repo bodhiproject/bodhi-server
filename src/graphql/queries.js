@@ -30,8 +30,8 @@ const buildCursorOptions = (cursor, orderBy, limit, skip) => {
   return cursor;
 };
 
-const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorAddress, hashId }) => {
-  const filter = (txid || address || status || resultIdx || creatorAddress || hashId) ? {} : null;
+const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorAddress, hashId, language }) => {
+  const filter = (txid || address || status || resultIdx || creatorAddress || hashId || language) ? {} : null;
 
   if (txid) {
     filter.txid = txid;
@@ -57,6 +57,10 @@ const buildTopicFilters = ({ OR = [], txid, address, status, resultIdx, creatorA
     filter.hashId = hashId;
   }
 
+  if (language) {
+    filter.language = language;
+  }
+
   let filters = filter ? [filter] : [];
   for (let i = 0; i < OR.length; i++) {
     filters = filters.concat(buildTopicFilters(OR[i]));
@@ -74,6 +78,7 @@ const buildOracleFilters = ({
   status,
   token,
   hashId,
+  language,
 }) => {
   const filter = (
     txid
@@ -84,6 +89,7 @@ const buildOracleFilters = ({
     || token
     || excludeResultSetterAddress
     || hashId
+    || language
   ) ? {} : null;
 
   if (txid) {
@@ -114,6 +120,10 @@ const buildOracleFilters = ({
 
   if (hashId) {
     filter.hashId = hashId;
+  }
+
+  if (language) {
+    filter.language = language;
   }
 
   let filters = filter ? [filter] : [];
