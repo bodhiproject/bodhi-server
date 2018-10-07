@@ -1,11 +1,8 @@
-const _ = require('lodash');
-const fs = require('fs-extra');
 const { getLogger } = require('../../utils/logger');
-const Utils = require('../../utils');
 
 async function addLanguageField(db) {
   try {
-    await db.update({ language: { $exists: false } }, { $set: { language: 'en-US' } }, { multi: true });
+    await db.update({ language: { $exists: false } }, { $set: { language: 'zh-Hans-CN' } }, { multi: true });
   } catch (err) {
     getLogger().error(`DB update Error: ${err.message}`);
     throw Error(`DB update Error: ${err.message}`);
