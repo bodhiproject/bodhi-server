@@ -50,7 +50,7 @@ class DecentralizedOracle {
       startTime: null,
       status: 'VOTING',
       token: 'BOT',
-      language: 'en-US',
+      language: 'zh-Hans-CN',
     };
   }
 }

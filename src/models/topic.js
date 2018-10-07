@@ -50,7 +50,7 @@ class Topic {
       botAmount: _.fill(Array(this.resultNames.length), '0'),
       status: 'VOTING',
       hashId: null,
-      language: 'en-US',
+      language: 'zh-Hans-CN',
     };
   }
 }
