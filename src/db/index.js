@@ -1,5 +1,6 @@
 const datastore = require('nedb-promise');
 const fs = require('fs-extra');
+const path = require('path');
 
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
@@ -42,10 +43,10 @@ async function applyMigrations() {
   }
 
   try {
-    const migrationPath = require('path').join(__dirname, 'migrations');
+    const migrationPath = path.join(__dirname, 'migrations');
     fs.readdirSync(migrationPath).sort().forEach((file) => {
       if (file.endsWith('.js')) {
-        const migration = require(`./migrations/${file}`);
+        const migration = require(`./migrations/${file}`); // eslint-disable-line global-require, import/no-dynamic-require
         migrations.push(migration);
       }
     });
@@ -55,9 +56,11 @@ async function applyMigrations() {
   }
 
   try {
+    /* eslint-disable no-restricted-syntax, no-await-in-loop */
     for (const migration of migrations) {
       lastMigrate = await migration(db, lastMigrate);
     }
+    /* eslint-enable no-restricted-syntax, no-await-in-loop */
   } catch (err) {
     getLogger().error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
     throw Error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
