@@ -38,3 +38,7 @@ call(['sudo', 'service', 'nginx', 'restart'])
 # add cert renew script to daily cronjob
 print 'Copying cert renew script to cron.daily...'
 shutil.copy('renew-cert.sh', '/etc/cron.daily')
+
+# add bodhi backup script to daily cronjob
+print 'Copying bodhi backup script to cron.daily...'
+shutil.copy('backup.sh', '/etc/cron.daily')
