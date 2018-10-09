@@ -1,5 +1,6 @@
 const datastore = require('nedb-promise');
 const fs = require('fs-extra');
+const path = require('path');
 
 const Utils = require('../utils');
 const { getLogger } = require('../utils/logger');
@@ -19,11 +20,20 @@ const db = {
  * Be sure to wrap each migration script in a try/catch and throw on Error.
  * We don't want the server to run if the migration failed.
  */
-async function applyMigrations(db) {
-  // Run migration scripts here
+async function applyMigrations() {
+  const migrationTrackPath = `${__dirname}/migrations.dat`;
   const migrations = [];
   let lastMigrate;
-  const migrationTrackPath = `${__dirname}/migrations.dat`;
+
+  try {
+    if (!fs.existsSync(migrationTrackPath)) {
+      getLogger().info('Creating migrations.dat');
+      fs.writeFileSync(migrationTrackPath, 'LAST_MIGRATION=0');
+    }
+  } catch (err) {
+    getLogger().error(`Error creating migrations.dat file: ${err.message}`);
+    throw Error(`Error creating migrations.dat file: ${err.message}`);
+  }
 
   try {
     lastMigrate = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
@@ -33,10 +43,10 @@ async function applyMigrations(db) {
   }
 
   try {
-    const migrationPath = require('path').join(__dirname, 'migrations');
+    const migrationPath = path.join(__dirname, 'migrations');
     fs.readdirSync(migrationPath).sort().forEach((file) => {
       if (file.endsWith('.js')) {
-        const migration = require(`./migrations/${file}`);
+        const migration = require(`./migrations/${file}`); // eslint-disable-line global-require, import/no-dynamic-require
         migrations.push(migration);
       }
     });
@@ -46,9 +56,11 @@ async function applyMigrations(db) {
   }
 
   try {
+    /* eslint-disable no-restricted-syntax, no-await-in-loop */
     for (const migration of migrations) {
       lastMigrate = await migration(db, lastMigrate);
     }
+    /* eslint-enable no-restricted-syntax, no-await-in-loop */
   } catch (err) {
     getLogger().error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
     throw Error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
@@ -94,7 +106,7 @@ async function initDB() {
     await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
 
-    await applyMigrations(db);
+    await applyMigrations();
   } catch (err) {
     throw Error(`DB load Error: ${err.message}`);
   }
