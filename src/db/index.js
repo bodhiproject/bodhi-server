@@ -19,11 +19,20 @@ const db = {
  * Be sure to wrap each migration script in a try/catch and throw on Error.
  * We don't want the server to run if the migration failed.
  */
-async function applyMigrations(db) {
-  // Run migration scripts here
+async function applyMigrations() {
+  const migrationTrackPath = `${__dirname}/migrations.dat`;
   const migrations = [];
   let lastMigrate;
-  const migrationTrackPath = `${__dirname}/migrations.dat`;
+
+  try {
+    if (!fs.existsSync(migrationTrackPath)) {
+      getLogger().info('Creating migrations.dat...');
+      fs.writeFileSync(migrationTrackPath, 'LAST_MIGRATION=0');
+    }
+  } catch (err) {
+    getLogger().error(`Error creating migrations.dat file: ${err.message}`);
+    throw Error(`Error creating migrations.dat file: ${err.message}`);
+  }
 
   try {
     lastMigrate = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
@@ -94,7 +103,7 @@ async function initDB() {
     await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
 
-    await applyMigrations(db);
+    await applyMigrations();
   } catch (err) {
     throw Error(`DB load Error: ${err.message}`);
   }
