@@ -27,7 +27,7 @@ async function applyMigrations() {
 
   try {
     if (!fs.existsSync(migrationTrackPath)) {
-      getLogger().info('Creating migrations.dat...');
+      getLogger().info('Creating migrations.dat');
       fs.writeFileSync(migrationTrackPath, 'LAST_MIGRATION=0');
     }
   } catch (err) {
