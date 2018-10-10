@@ -170,6 +170,18 @@ type AddressBalance {
   bot: String!
 }
 
+type PageInfo {
+  hasNextPage: Boolean!
+  pageNumber: Int!
+  count: Int!
+}
+
+type PaginatedOracles {
+  totalCount: Int!
+  oracles: [Oracle]!
+  pageInfo: PageInfo
+}
+
 input TopicFilter {
   OR: [TopicFilter!]
   txid: String
