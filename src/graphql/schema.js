@@ -182,6 +182,12 @@ type PaginatedOracles {
   pageInfo: PageInfo
 }
 
+type PaginatedTopics {
+  totalCount: Int!
+  topics: [Topic]!
+  pageInfo: PageInfo
+}
+
 input TopicFilter {
   OR: [TopicFilter!]
   txid: String
@@ -248,8 +254,8 @@ input Order {
 }
 
 type Query {
-  allTopics(filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): [Topic]!
-  allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): [Oracle]!
+  allTopics(filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): PaginatedTopics!
+  allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): PaginatedOracles!
   searchTopics(searchPhrase: String, filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): [Topic]!
   searchOracles(searchPhrase: String, filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
   allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!

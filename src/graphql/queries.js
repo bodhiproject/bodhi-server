@@ -338,7 +338,28 @@ module.exports = {
     let cursor = Topics.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
 
-    return cursor.exec();
+
+    const totalCount = await Topics.count(query);
+    let hasNextPage;
+    let pageNumber;
+    let isPaginated = false;
+
+    if (_.isNumber(limit) && _.isNumber(skip)) {
+      isPaginated = true;
+      const end = skip + limit;
+      hasNextPage = end < totalCount;
+      pageNumber = _.toInteger(end / limit); // just in case manually enter not start with new page, ex. limit 20, skip 2
+    }
+    const topics = await cursor.exec();
+    const ret = { totalCount, topics };
+    if (isPaginated) {
+      ret.pageInfo = {
+        hasNextPage,
+        pageNumber,
+        count: topics.length,
+      };
+    }
+    return ret;
   },
 
   searchTopics: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Topics } }) => {
