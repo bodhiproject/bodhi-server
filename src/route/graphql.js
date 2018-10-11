@@ -12,7 +12,11 @@ const createApolloServer = (app) => {
     resolvers,
     context: { db },
     introspection: true, // enabled playground in prod
-    playground: true, // enabled playground in prod
+    playground:{
+      settings: {
+        'editor.cursorShape': 'block',
+      },
+    }, // enabled playground in prod
   });
   apollo.applyMiddleware({ app });
 };
