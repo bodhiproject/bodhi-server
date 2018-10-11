@@ -338,7 +338,6 @@ module.exports = {
     let cursor = Topics.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
 
-
     const totalCount = await Topics.count(query);
     let hasNextPage;
     let pageNumber;
