@@ -26,7 +26,7 @@ module.exports = {
   Mutation: Mutations,
 
   Topic: {
-    oracles: ({ address }, data, { db: { Oracles } }) => Oracles.find({ topicAddress: address }),
+    oracles: ({ address }, data, { db: { Oracles } }) => Oracles.cfind({ topicAddress: address }).sort({ blockNum: -1 }).exec(),
     transactions: async ({ address }, data, { db: { Transactions } }) => {
       const { WITHDRAW, WITHDRAWESCROW } = TX_TYPE;
       const types = [{ type: WITHDRAWESCROW }, { type: WITHDRAW }];
