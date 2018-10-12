@@ -338,7 +338,27 @@ module.exports = {
     let cursor = Topics.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
 
-    return cursor.exec();
+    const totalCount = await Topics.count(query);
+    let hasNextPage;
+    let pageNumber;
+    let isPaginated = false;
+
+    if (_.isNumber(limit) && _.isNumber(skip)) {
+      isPaginated = true;
+      const end = skip + limit;
+      hasNextPage = end < totalCount;
+      pageNumber = _.toInteger(end / limit); // just in case manually enter not start with new page, ex. limit 20, skip 2
+    }
+    const topics = await cursor.exec();
+    const ret = { totalCount, topics };
+    if (isPaginated) {
+      ret.pageInfo = {
+        hasNextPage,
+        pageNumber,
+        count: topics.length,
+      };
+    }
+    return ret;
   },
 
   searchTopics: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Topics } }) => {
@@ -354,8 +374,28 @@ module.exports = {
   allOracles: async (root, { filter, orderBy, limit, skip }, { db: { Oracles } }) => {
     const query = filter ? { $or: buildOracleFilters(filter) } : {};
     let cursor = Oracles.cfind(query);
+    const totalCount = await Oracles.count(query);
+    let hasNextPage;
+    let pageNumber;
+    let isPaginated = false;
+
+    if (_.isNumber(limit) && _.isNumber(skip)) {
+      isPaginated = true;
+      const end = skip + limit;
+      hasNextPage = end < totalCount;
+      pageNumber = _.toInteger(end / limit); // just in case manually enter not start with new page, ex. limit 20, skip 2
+    }
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-    return cursor.exec();
+    const oracles = await cursor.exec();
+    const ret = { totalCount, oracles };
+    if (isPaginated) {
+      ret.pageInfo = {
+        hasNextPage,
+        pageNumber,
+        count: oracles.length,
+      };
+    }
+    return ret;
   },
 
   searchOracles: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Oracles } }) => {
