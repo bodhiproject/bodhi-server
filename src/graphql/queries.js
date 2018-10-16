@@ -419,6 +419,9 @@ module.exports = {
   },
 
   mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
+    if (!filter.topicAddress) {
+      throw new Error('topicAddress is not passed in');
+    }
     const query = filter ? { $or: buildVoteFilters(filter) } : {};
     const cursor = Votes.cfind(query);
     const result = await cursor.exec();
@@ -436,26 +439,21 @@ module.exports = {
     votes.sort((a, b) => b.amount - a.amount);
 
     const totalCount = votes.length;
-    let hasNextPage;
-    let pageNumber;
-    let isPaginated = false;
+    const ret = { totalCount, votes };
 
     if (_.isNumber(limit) && _.isNumber(skip)) {
-      isPaginated = true;
       const end = skip + limit;
-      hasNextPage = end < totalCount;
+      const hasNextPage = end < totalCount;
       votes = votes.splice(skip, end);
-      pageNumber = _.toInteger(end / limit); // just in case manually enter not start with new page, ex. limit 20, skip 2
-    }
-
-    const ret = { totalCount, votes };
-    if (isPaginated) {
+      const pageNumber = _.toInteger(end / limit); // just in case manually enter not start with new page, ex. limit 20, skip 2
       ret.pageInfo = {
         hasNextPage,
         pageNumber,
         count: votes.length,
       };
+      ret.votes = votes;
     }
+
     return ret;
   },
 
