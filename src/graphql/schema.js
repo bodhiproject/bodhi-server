@@ -235,7 +235,7 @@ input VoteFilter {
   oracleAddress: String
   voterAddress: String
   optionIdx: Int
-  token: String
+  token: _TokenType
 }
 
 input ResultSetFilter {

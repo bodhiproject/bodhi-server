@@ -419,10 +419,13 @@ module.exports = {
   },
 
   mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
-    if (!filter.topicAddress) {
-      throw new Error('topicAddress is not passed in');
-    }
-    const query = filter ? { $or: buildVoteFilters(filter) } : {};
+    const voterFilters = buildVoteFilters(filter);
+    voterFilters.forEach((element) => {
+      if (element.topicAddress == null) {
+        throw new Error('topicAddress is not passed in');
+      }
+    });
+    const query = filter ? { $or: voterFilters } : {};
     const cursor = Votes.cfind(query);
     const result = await cursor.exec();
 
@@ -435,7 +438,7 @@ module.exports = {
       return acc;
     }, {});
 
-    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, amount: String(accumulated[key]), topicAddress: filter.topicAddress }));
+    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, amount: String(accumulated[key]), topicAddress: voterFilters[0].topicAddress }));
     votes.sort((a, b) => b.amount - a.amount);
 
     const totalCount = votes.length;
