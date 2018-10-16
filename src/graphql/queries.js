@@ -418,24 +418,22 @@ module.exports = {
     return cursor.exec();
   },
 
-  mostVotes: async (root, { filter,orderBy, limit, skip }, { db: { Votes } }) => {
+  mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
     const query = filter ? { $or: buildVoteFilters(filter) } : {};
-    let cursor = Votes.cfind(query);
+    const cursor = Votes.cfind(query);
     const result = await cursor.exec();
 
-    const accumulated = result.reduce((acc, cur) =>{
-      if(acc.hasOwnProperty(cur.voterAddress)){
+    const accumulated = result.reduce((acc, cur) => {
+      if (acc.hasOwnProperty(cur.voterAddress)) {
         acc[cur.voterAddress] += Number(cur.amount);
-      }else{
+      } else {
         acc[cur.voterAddress] = Number(cur.amount);
       }
       return acc;
-    },{});
+    }, {});
 
-    let votes = Object.keys(accumulated).map((key) => {
-      return {voterAddress: key, amount: String(accumulated[key])};
-    })
-    votes.sort((a,b) => b.amount - a.amount);
+    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, amount: String(accumulated[key]) }));
+    votes.sort((a, b) => b.amount - a.amount);
 
     const totalCount = votes.length;
     let hasNextPage;
