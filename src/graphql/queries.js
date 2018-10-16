@@ -435,7 +435,7 @@ module.exports = {
       return acc;
     }, {});
 
-    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, amount: String(accumulated[key]) }));
+    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, amount: String(accumulated[key]), topicAddress: filter.topicAddress }));
     votes.sort((a, b) => b.amount - a.amount);
 
     const totalCount = votes.length;

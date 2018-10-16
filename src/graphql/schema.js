@@ -193,11 +193,12 @@ type PaginatedTopics {
 
 
 type AccumulatedVotes {
+  topicAddress: String!
   voterAddress: String!
   amount: String!
 }
 
-type PaginatedVotes {
+type PaginatedAccumulatedVotes {
   totalCount: Int!
   votes: [AccumulatedVotes]!
   pageInfo: PageInfo
@@ -275,7 +276,7 @@ type Query {
   searchTopics(searchPhrase: String, filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): [Topic]!
   searchOracles(searchPhrase: String, filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
   allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
-  mostVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): PaginatedVotes!
+  mostVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): PaginatedAccumulatedVotes!
   resultSets(filter: ResultSetFilter, orderBy: [Order!], limit: Int, skip: Int): [ResultSet]!
   withdraws(filter: WithdrawFilter, orderBy: [Order!], limit: Int, skip: Int): [Withdraw]!
   allTransactions(filter: TransactionFilter, orderBy: [Order!], limit: Int, skip: Int): [Transaction]!
