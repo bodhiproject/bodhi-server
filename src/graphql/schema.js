@@ -191,6 +191,18 @@ type PaginatedTopics {
   pageInfo: PageInfo
 }
 
+
+type AccumulatedVotes {
+  voterAddress: String!
+  amount: String!
+}
+
+type PaginatedVotes {
+  totalCount: Int!
+  votes: [AccumulatedVotes]!
+  pageInfo: PageInfo
+}
+
 input TopicFilter {
   OR: [TopicFilter!]
   txid: String
@@ -222,6 +234,7 @@ input VoteFilter {
   oracleAddress: String
   voterAddress: String
   optionIdx: Int
+  token: String
 }
 
 input ResultSetFilter {
@@ -262,6 +275,7 @@ type Query {
   searchTopics(searchPhrase: String, filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): [Topic]!
   searchOracles(searchPhrase: String, filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
   allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
+  mostVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): PaginatedVotes!
   resultSets(filter: ResultSetFilter, orderBy: [Order!], limit: Int, skip: Int): [ResultSet]!
   withdraws(filter: WithdrawFilter, orderBy: [Order!], limit: Int, skip: Int): [Withdraw]!
   allTransactions(filter: TransactionFilter, orderBy: [Order!], limit: Int, skip: Int): [Transaction]!

@@ -151,8 +151,8 @@ const buildSearchPhrase = (searchPhrase) => {
   return filters;
 };
 
-const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, optionIdx }) => {
-  const filter = (topicAddress || oracleAddress || voterAddress || optionIdx) ? {} : null;
+const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, optionIdx, token }) => {
+  const filter = (topicAddress || oracleAddress || voterAddress || optionIdx || token) ? {} : null;
 
   if (topicAddress) {
     filter.topicAddress = topicAddress;
@@ -165,6 +165,9 @@ const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, 
   }
   if (optionIdx) {
     filter.optionIdx = optionIdx;
+  }
+  if (token) {
+    filter.token = token;
   }
 
   let filters = filter ? [filter] : [];
@@ -413,6 +416,49 @@ module.exports = {
     let cursor = Votes.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
     return cursor.exec();
+  },
+
+  mostVotes: async (root, { filter,orderBy, limit, skip }, { db: { Votes } }) => {
+    const query = filter ? { $or: buildVoteFilters(filter) } : {};
+    let cursor = Votes.cfind(query);
+    const result = await cursor.exec();
+
+    const accumulated = result.reduce((acc, cur) =>{
+      if(acc.hasOwnProperty(cur.voterAddress)){
+        acc[cur.voterAddress] += Number(cur.amount);
+      }else{
+        acc[cur.voterAddress] = Number(cur.amount);
+      }
+      return acc;
+    },{});
+
+    let votes = Object.keys(accumulated).map((key) => {
+      return {voterAddress: key, amount: String(accumulated[key])};
+    })
+    votes.sort((a,b) => b.amount - a.amount);
+
+    const totalCount = votes.length;
+    let hasNextPage;
+    let pageNumber;
+    let isPaginated = false;
+
+    if (_.isNumber(limit) && _.isNumber(skip)) {
+      isPaginated = true;
+      const end = skip + limit;
+      hasNextPage = end < totalCount;
+      votes = votes.splice(skip, end);
+      pageNumber = _.toInteger(end / limit); // just in case manually enter not start with new page, ex. limit 20, skip 2
+    }
+
+    const ret = { totalCount, votes };
+    if (isPaginated) {
+      ret.pageInfo = {
+        hasNextPage,
+        pageNumber,
+        count: votes.length,
+      };
+    }
+    return ret;
   },
 
   resultSets: async (root, { filter, orderBy, limit, skip }, { db: { ResultSets } }) => {
