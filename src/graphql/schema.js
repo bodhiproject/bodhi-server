@@ -91,6 +91,7 @@ type Oracle {
 type Vote {
   txid: String!
   blockNum: Int!
+  block: Block!
   topicAddress: String!
   oracleAddress: String!
   voterAddress: String!
@@ -103,6 +104,7 @@ type Vote {
 type ResultSet {
   txid: String!
   blockNum: Int!
+  block: Block!
   topicAddress: String!
   oracleAddress: String
   fromAddress: String!
@@ -113,6 +115,7 @@ type ResultSet {
 type Withdraw {
   txid: String!
   blockNum: Int!
+  block: Block!
   type: _WithdrawType!
   topicAddress: String!
   withdrawerAddress: String!

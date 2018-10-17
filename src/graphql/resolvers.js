@@ -64,6 +64,18 @@ module.exports = {
     },
   },
 
+  Vote: {
+    block: async ({ blockNum }, data, { db: { Blocks } }) => (await Blocks.find({ blockNum }))[0],
+  },
+
+  ResultSet: {
+    block: async ({ blockNum }, data, { db: { Blocks } }) => (await Blocks.find({ blockNum }))[0],
+  },
+
+  Withdraw: {
+    block: async ({ blockNum }, data, { db: { Blocks } }) => (await Blocks.find({ blockNum }))[0],
+  },
+
   Transaction: {
     topic: async ({ topicAddress }, data, { db: { Topics } }) => {
       if (_.isEmpty(topicAddress)) {

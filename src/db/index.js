@@ -14,6 +14,7 @@ const db = {
   Blocks: undefined,
   Transactions: undefined,
 };
+const MIGRATION_REGEX = /(migration)(\d+)/g;
 
 /**
  * Apply necessary migrations.
@@ -23,9 +24,10 @@ const db = {
 async function applyMigrations() {
   const migrationTrackPath = `${__dirname}/migrations.dat`;
   const migrations = [];
-  let lastMigrate;
+  let lastMigration;
 
   try {
+    // Create migrations.dat file if not found
     if (!fs.existsSync(migrationTrackPath)) {
       getLogger().info('Creating migrations.dat');
       fs.writeFileSync(migrationTrackPath, 'LAST_MIGRATION=0');
@@ -36,42 +38,59 @@ async function applyMigrations() {
   }
 
   try {
-    lastMigrate = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
+    // Get last migration number
+    lastMigration = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
   } catch (err) {
-    getLogger().error(`Migration track file loading Error: ${err.message}`);
-    throw Error(`Migration track file loading Error: ${err.message}`);
+    getLogger().error(`Migration track file loading error: ${err.message}`);
+    throw Error(`Migration track file loading error: ${err.message}`);
   }
 
   try {
+    // Add migration functions for each migration file
     const migrationPath = path.join(__dirname, 'migrations');
     fs.readdirSync(migrationPath).sort().forEach((file) => {
       if (file.endsWith('.js')) {
-        const migration = require(`./migrations/${file}`); // eslint-disable-line global-require, import/no-dynamic-require
-        migrations.push(migration);
+        // Get migration script number
+        const regexMatches = MIGRATION_REGEX.exec(file);
+        if (!regexMatches.length >= 2) {
+          throw Error(`Invalid migration script name: ${file}`);
+        }
+
+        // Get migration function
+        const migrate = require(`./migrations/${file}`); // eslint-disable-line global-require, import/no-dynamic-require
+
+        migrations.push({
+          number: regexMatches[2],
+          migrate,
+        });
       }
     });
   } catch (err) {
-    getLogger().error(`Migration scripts load Error: ${err.message}`);
-    throw Error(`Migration scripts load Error ${err.message}`);
+    getLogger().error(`Migration scripts load error: ${err.message}`);
+    throw Error(`Migration scripts load error: ${err.message}`);
   }
 
-  try {
-    /* eslint-disable no-restricted-syntax, no-await-in-loop */
-    for (const migration of migrations) {
-      lastMigrate = await migration(db, lastMigrate);
+  // Run each migration and store the number
+  /* eslint-disable no-restricted-syntax, no-await-in-loop */
+  for (const migration of migrations) {
+    try {
+      if (migration.number === lastMigration + 1) {
+        // Run migration
+        getLogger.info(`Running migration ${migration.number}...`);
+        await migration.migrate(db);
+
+        // Track the last migration number
+        lastMigration = migration.number;
+        await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${migration.number}\n`);
+      }
+    } catch (err) {
+      getLogger().error(`Migration ${migration.number} error: ${err.message}`);
+      throw Error(`Migration ${migration.number} error: ${err.message}`);
     }
-    /* eslint-enable no-restricted-syntax, no-await-in-loop */
-  } catch (err) {
-    getLogger().error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
-    throw Error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
   }
+  /* eslint-enable no-restricted-syntax, no-await-in-loop */
 
-  try {
-    await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${lastMigrate}\n`);
-  } catch (err) {
-    getLogger().error(`Migration track file update error ${err.message}`);
-    throw Error(`Migration track file update error ${err.message}`);
-  }
+  getLogger().info('Migrations complete.');
 }
 
 /**
