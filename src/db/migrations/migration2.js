@@ -2,10 +2,8 @@ const { getLogger } = require('../../utils/logger');
 
 async function migration2(db, lastMigratation) {
   try {
-    let migration = lastMigrate;
+    let migration = lastMigratation;
     if (migration === 0) {
-      await addLanguageField(db.Oracles);
-      await addLanguageField(db.Topics);
       migration++;
       getLogger().info(`Success migration${migration}`);
     }
