@@ -9,19 +9,13 @@ async function addLanguageField(db) {
   }
 }
 
-async function migration1(db, lastMigrate) {
+async function migration1(db) {
   try {
-    let migration = lastMigrate;
-    if (migration === 0) {
-      await addLanguageField(db.Oracles);
-      await addLanguageField(db.Topics);
-      migration++;
-      getLogger().info(`Success migration${migration}`);
-    }
-    return migration;
+    await addLanguageField(db.Oracles);
+    await addLanguageField(db.Topics);
   } catch (err) {
-    getLogger().error(`Migration 1 error: ${err.message}`);
-    throw Error(`Migration 1 error: ${err.message}`);
+    getLogger().error(err.message);
+    throw err;
   }
 }
 

@@ -57,11 +57,11 @@ async function applyMigrations() {
         }
 
         // Get migration function
-        const script = require(`./migrations/${file}`); // eslint-disable-line global-require, import/no-dynamic-require
+        const migrate = require(`./migrations/${file}`); // eslint-disable-line global-require, import/no-dynamic-require
 
         migrations.push({
           number: regexMatches[2],
-          script,
+          migrate,
         });
       }
     });
@@ -77,7 +77,7 @@ async function applyMigrations() {
       if (migration.number === lastMigration + 1) {
         // Run migration
         getLogger.info(`Running migration ${migration.number}...`);
-        await migration.script(db, lastMigration);
+        await migration.migrate(db);
 
         // Track the last migration number
         lastMigration = migration.number;
