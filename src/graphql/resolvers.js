@@ -65,7 +65,7 @@ module.exports = {
   },
 
   Vote: {
-    block: ({ blockNum }, data, { db: { Blocks } }) => Blocks.cfind({ blockNum }).exec(),
+    block: async ({ blockNum }, data, { db: { Blocks } }) => (await Blocks.find({ blockNum }))[0],
   },
 
   Transaction: {

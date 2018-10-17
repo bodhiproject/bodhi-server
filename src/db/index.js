@@ -90,7 +90,7 @@ async function applyMigrations() {
   }
   /* eslint-enable no-restricted-syntax, no-await-in-loop */
 
-  getLogger.info('Migrations complete.');
+  getLogger().info('Migrations complete.');
 }
 
 /**
