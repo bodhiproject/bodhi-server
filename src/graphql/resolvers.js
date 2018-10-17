@@ -76,7 +76,6 @@ module.exports = {
     block: async ({ blockNum }, data, { db: { Blocks } }) => (await Blocks.find({ blockNum }))[0],
   },
 
-
   Transaction: {
     topic: async ({ topicAddress }, data, { db: { Topics } }) => {
       if (_.isEmpty(topicAddress)) {
