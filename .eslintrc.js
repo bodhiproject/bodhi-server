@@ -53,7 +53,7 @@ module.exports = {
         "allowAllPropertiesOnSameLine": true
       }
     ],
-    "object-curly-newline": [2,
+    "object-curly-newline": [0,
       {
         "ImportDeclaration": "never",
       }

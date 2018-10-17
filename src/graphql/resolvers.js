@@ -64,6 +64,10 @@ module.exports = {
     },
   },
 
+  Vote: {
+    block: ({ blockNum }, data, { db: { Blocks } }) => Blocks.cfind({ blockNum }).exec(),
+  },
+
   Transaction: {
     topic: async ({ topicAddress }, data, { db: { Topics } }) => {
       if (_.isEmpty(topicAddress)) {
