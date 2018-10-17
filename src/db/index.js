@@ -23,9 +23,10 @@ const db = {
 async function applyMigrations() {
   const migrationTrackPath = `${__dirname}/migrations.dat`;
   const migrations = [];
-  let lastMigrate;
+  let lastMigration;
 
   try {
+    // Create migrations.dat file if not found
     if (!fs.existsSync(migrationTrackPath)) {
       getLogger().info('Creating migrations.dat');
       fs.writeFileSync(migrationTrackPath, 'LAST_MIGRATION=0');
@@ -36,13 +37,15 @@ async function applyMigrations() {
   }
 
   try {
-    lastMigrate = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
+    // Get last migration number
+    lastMigration = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
   } catch (err) {
-    getLogger().error(`Migration track file loading Error: ${err.message}`);
-    throw Error(`Migration track file loading Error: ${err.message}`);
+    getLogger().error(`Migration track file loading error: ${err.message}`);
+    throw Error(`Migration track file loading error: ${err.message}`);
   }
 
   try {
+    // Add migration functions for each migration file
     const migrationPath = path.join(__dirname, 'migrations');
     fs.readdirSync(migrationPath).sort().forEach((file) => {
       if (file.endsWith('.js')) {
@@ -51,26 +54,30 @@ async function applyMigrations() {
       }
     });
   } catch (err) {
-    getLogger().error(`Migration scripts load Error: ${err.message}`);
-    throw Error(`Migration scripts load Error ${err.message}`);
+    getLogger().error(`Migration scripts load error: ${err.message}`);
+    throw Error(`Migration scripts load error: ${err.message}`);
   }
 
   try {
+    // Run each migration and store the number
     /* eslint-disable no-restricted-syntax, no-await-in-loop */
     for (const migration of migrations) {
-      lastMigrate = await migration(db, lastMigrate);
+      getLogger.info(`Running migration ${migration}...`);
+      lastMigration = await migration(db, lastMigration);
     }
     /* eslint-enable no-restricted-syntax, no-await-in-loop */
   } catch (err) {
-    getLogger().error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
-    throw Error(`Migration ${lastMigrate + 1} load Error ${err.message}`);
+    getLogger().error(`Migration ${lastMigration + 1} load error: ${err.message}`);
+    throw Error(`Migration ${lastMigration + 1} load error: ${err.message}`);
   }
 
   try {
-    await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${lastMigrate}\n`);
+    // Track the last migration number
+    await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${lastMigration}\n`);
+    getLogger.info('Migrations complete.');
   } catch (err) {
-    getLogger().error(`Migration track file update error ${err.message}`);
-    throw Error(`Migration track file update error ${err.message}`);
+    getLogger().error(`Migration track file update error: ${err.message}`);
+    throw Error(`Migration track file update error: ${err.message}`);
   }
 }
 
