@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const BigNumber = require('bignumber.js');
-const axios = require('axios');
 const { calculateSyncPercent } = require('./subscriptions');
 const { getInstance } = require('../qclient');
 const { SATOSHI_CONVERSION, STATUS, TOKEN } = require('../constants');
@@ -10,6 +9,7 @@ const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
 const BodhiToken = require('../api/bodhi-token');
 const Network = require('../api/network');
+const TopicEvent = require('../api/topic-event');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -335,6 +335,21 @@ const getAddressBalances = async () => {
   return addressObjs;
 };
 
+const getWinnings = async (vote) => {
+  const data = await TopicEvent.calculateWinnings({
+    contractAddress: vote.topicAddress,
+    senderAddress: vote.voterAddress,
+  });
+  const win = {};
+  win.topicAddress = vote.topicAddress;
+  win.voterAddress = vote.voterAddress;
+  const amount = {};
+  amount.bot = data[0];
+  amount.qtum = data[1];
+  win.amount = amount;
+  return win;
+};
+
 module.exports = {
   allTopics: async (root, { filter, orderBy, limit, skip }, { db: { Topics } }) => {
     const query = filter ? { $or: buildTopicFilters(filter) } : {};
@@ -420,14 +435,14 @@ module.exports = {
 
   mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
     const voterFilters = buildVoteFilters(filter);
-    voterFilters.forEach((element) => {
-      if (element.topicAddress == null) {
-        throw new Error('topicAddress is not passed in');
-      }
-    });
+    if (voterFilters.length !== 1) {
+      throw Error('only one event is allowed');
+    }
+    if (voterFilters[0].topicAddress == null) {
+      throw Error('topicAddress is required');
+    }
     const query = filter ? { $or: voterFilters } : {};
-    const cursor = Votes.cfind(query);
-    const result = await cursor.exec();
+    const result = await Votes.find(query);
 
     const accumulated = result.reduce((acc, cur) => {
       if (acc.hasOwnProperty(cur.voterAddress)) {
@@ -463,7 +478,7 @@ module.exports = {
   winners: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
     const voterFilters = buildVoteFilters(filter);
     const query = filter ? { $or: voterFilters } : {};
-    const result = await Votes.find(query); //get all winning votes
+    const result = await Votes.find(query); // get all winning votes
     const filtered = [];
     _.each(result, (vote) => {
       if (!_.find(filtered, {
@@ -474,23 +489,10 @@ module.exports = {
       }
     });
     let winnings = [];
-
     for (const item of filtered) {
-      winnings.push( await (a(item)));
+      winnings.push(await getWinnings(item));
     }
-    winnings = _.orderBy(winnings,['amount'], ['desc'] )
-    async function a (item)  {
-      const { data } = await axios.post('http://localhost:6767/winnings', { // eslint-disable-line
-      contractAddress: item.topicAddress,
-      senderAddress: item.voterAddress,
-      });
-      const win = {};
-      win.topicAddress = item.topicAddress;
-      win.voterAddress = item.voterAddress;
-      win.amount = filter.OR[0].token === TOKEN.BOT ? data[0] : data[1];
-      win.token = filter.OR[0].token;
-      return win;
-    }
+    winnings = _.orderBy(winnings, [function (o) { return o.amount.qtum; }], ['desc']);
     return winnings;
   },
 
