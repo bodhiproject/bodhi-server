@@ -1,9 +1,9 @@
 const _ = require('lodash');
 const BigNumber = require('bignumber.js');
-
+const axios = require('axios');
 const { calculateSyncPercent } = require('./subscriptions');
 const { getInstance } = require('../qclient');
-const { SATOSHI_CONVERSION, STATUS } = require('../constants');
+const { SATOSHI_CONVERSION, STATUS, TOKEN } = require('../constants');
 const { getLogger } = require('../utils/logger');
 const sequentialLoop = require('../utils/sequential-loop');
 const Blockchain = require('../api/blockchain');
@@ -458,6 +458,40 @@ module.exports = {
     }
 
     return ret;
+  },
+
+  winners: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
+    const voterFilters = buildVoteFilters(filter);
+    const query = filter ? { $or: voterFilters } : {};
+    const result = await Votes.find(query); //get all winning votes
+    const filtered = [];
+    _.each(result, (vote) => {
+      if (!_.find(filtered, {
+        voterAddress: vote.voterAddress,
+        topicAddress: vote.topicAddress,
+      })) {
+        filtered.push(vote);
+      }
+    });
+    let winnings = [];
+
+    for (const item of filtered) {
+      winnings.push( await (a(item)));
+    }
+    winnings = _.orderBy(winnings,['amount'], ['desc'] )
+    async function a (item)  {
+      const { data } = await axios.post('http://localhost:6767/winnings', { // eslint-disable-line
+      contractAddress: item.topicAddress,
+      senderAddress: item.voterAddress,
+      });
+      const win = {};
+      win.topicAddress = item.topicAddress;
+      win.voterAddress = item.voterAddress;
+      win.amount = filter.OR[0].token === TOKEN.BOT ? data[0] : data[1];
+      win.token = filter.OR[0].token;
+      return win;
+    }
+    return winnings;
   },
 
   resultSets: async (root, { filter, orderBy, limit, skip }, { db: { ResultSets } }) => {
