@@ -223,6 +223,12 @@ const syncOracleResultVoted = async (currentBlockNum) => {
           // Add Topic address to Vote
           const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress });
           vote.topicAddress = oracle.topicAddress;
+          if (vote.token === 'QTUM') {
+            vote.type = 'BET';
+          } else if (vote.token === 'BOT') {
+            if (oracle.token === 'QTUM') vote.type = 'RESULT_SET';
+            else if (oracle.token === 'BOT') vote.type = 'VOTE';
+          }
           await db.Votes.insert(vote);
 
           // Update Topic balance
