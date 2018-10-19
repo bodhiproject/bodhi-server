@@ -196,6 +196,7 @@ type AccumulatedVote {
   topicAddress: String!
   voterAddress: String!
   amount: String!
+  token: _TokenType!
 }
 
 type PaginatedAccumulatedVotes {
