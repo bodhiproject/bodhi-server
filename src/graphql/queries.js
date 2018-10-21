@@ -340,14 +340,14 @@ const getWinnings = async (vote) => {
     contractAddress: vote.topicAddress,
     senderAddress: vote.voterAddress,
   });
-  const win = {};
-  win.topicAddress = vote.topicAddress;
-  win.voterAddress = vote.voterAddress;
-  const amount = {};
-  amount.bot = data[0];
-  amount.qtum = data[1];
-  win.amount = amount;
-  return win;
+  return {
+    topicAddress: vote.topicAddress,
+    voterAddress: vote.voterAddress,
+    amount: {
+      bot: data[0],
+      qtum: data[1],
+    },
+  };
 };
 
 module.exports = {
