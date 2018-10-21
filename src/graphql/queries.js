@@ -1,15 +1,15 @@
 const _ = require('lodash');
 const BigNumber = require('bignumber.js');
-
 const { calculateSyncPercent } = require('./subscriptions');
 const { getInstance } = require('../qclient');
-const { SATOSHI_CONVERSION, STATUS } = require('../constants');
+const { SATOSHI_CONVERSION, STATUS, TOKEN } = require('../constants');
 const { getLogger } = require('../utils/logger');
 const sequentialLoop = require('../utils/sequential-loop');
 const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
 const BodhiToken = require('../api/bodhi-token');
 const Network = require('../api/network');
+const TopicEvent = require('../api/topic-event');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -151,8 +151,8 @@ const buildSearchPhrase = (searchPhrase) => {
   return filters;
 };
 
-const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, optionIdx }) => {
-  const filter = (topicAddress || oracleAddress || voterAddress || optionIdx) ? {} : null;
+const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, optionIdx, token }) => {
+  const filter = (topicAddress || oracleAddress || voterAddress || optionIdx || token) ? {} : null;
 
   if (topicAddress) {
     filter.topicAddress = topicAddress;
@@ -165,6 +165,9 @@ const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, 
   }
   if (optionIdx) {
     filter.optionIdx = optionIdx;
+  }
+  if (token) {
+    filter.token = token;
   }
 
   let filters = filter ? [filter] : [];
@@ -332,6 +335,21 @@ const getAddressBalances = async () => {
   return addressObjs;
 };
 
+const getWinnings = async (vote) => {
+  const data = await TopicEvent.calculateWinnings({
+    contractAddress: vote.topicAddress,
+    senderAddress: vote.voterAddress,
+  });
+  return {
+    topicAddress: vote.topicAddress,
+    voterAddress: vote.voterAddress,
+    amount: {
+      bot: data[0],
+      qtum: data[1],
+    },
+  };
+};
+
 module.exports = {
   allTopics: async (root, { filter, orderBy, limit, skip }, { db: { Topics } }) => {
     const query = filter ? { $or: buildTopicFilters(filter) } : {};
@@ -413,6 +431,69 @@ module.exports = {
     let cursor = Votes.cfind(query);
     cursor = buildCursorOptions(cursor, orderBy, limit, skip);
     return cursor.exec();
+  },
+
+  mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
+    const voterFilters = buildVoteFilters(filter);
+    if (voterFilters.length !== 1) {
+      throw Error('only one event is allowed');
+    }
+    if (voterFilters[0].topicAddress == null) {
+      throw Error('topicAddress is required');
+    }
+    const query = filter ? { $or: voterFilters } : {};
+    const result = await Votes.find(query);
+
+    const accumulated = result.reduce((acc, cur) => {
+      if (acc.hasOwnProperty(cur.voterAddress)) {
+        acc[cur.voterAddress] += Number(cur.amount);
+      } else {
+        acc[cur.voterAddress] = Number(cur.amount);
+      }
+      return acc;
+    }, {});
+
+    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, token: voterFilters[0].token, amount: String(accumulated[key]), topicAddress: voterFilters[0].topicAddress }));
+    votes.sort((a, b) => b.amount - a.amount);
+
+    const totalCount = votes.length;
+    const ret = { totalCount, votes };
+
+    if (_.isNumber(limit) && _.isNumber(skip)) {
+      const end = skip + limit;
+      const hasNextPage = end < totalCount;
+      votes = votes.splice(skip, end);
+      const pageNumber = _.toInteger(end / limit); // just in case manually enter not start with new page, ex. limit 20, skip 2
+      ret.pageInfo = {
+        hasNextPage,
+        pageNumber,
+        count: votes.length,
+      };
+      ret.votes = votes;
+    }
+
+    return ret;
+  },
+
+  winners: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
+    const voterFilters = buildVoteFilters(filter);
+    const query = filter ? { $or: voterFilters } : {};
+    const result = await Votes.find(query); // get all winning votes
+    const filtered = [];
+    _.each(result, (vote) => {
+      if (!_.find(filtered, {
+        voterAddress: vote.voterAddress,
+        topicAddress: vote.topicAddress,
+      })) {
+        filtered.push(vote);
+      }
+    });
+    let winnings = [];
+    for (const item of filtered) {
+      winnings.push(await getWinnings(item));
+    }
+    winnings = _.orderBy(winnings, [function (o) { return o.amount.qtum; }], ['desc']);
+    return winnings;
   },
 
   resultSets: async (root, { filter, orderBy, limit, skip }, { db: { ResultSets } }) => {
