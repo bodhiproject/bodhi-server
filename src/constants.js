@@ -43,6 +43,12 @@ module.exports = {
     WINNINGS: 'WINNINGS',
   },
 
+  VOTE_TYPE: {
+    BET: 'BET',
+    VOTE: 'VOTE',
+    RESULT_SET: 'RESULT_SET',
+  },
+
   TOKEN: {
     QTUM: 'QTUM',
     BOT: 'BOT',

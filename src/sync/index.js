@@ -4,7 +4,7 @@ const { BigNumber } = require('bignumber.js');
 
 const updateTransactions = require('./update-transactions');
 const { getInstance } = require('../qclient');
-const { TOKEN, STATUS, WITHDRAW_TYPE } = require('../constants');
+const { TOKEN, STATUS, WITHDRAW_TYPE, VOTE_TYPE } = require('../constants');
 const { getContractMetadata } = require('../config');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
@@ -224,10 +224,10 @@ const syncOracleResultVoted = async (currentBlockNum) => {
           const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress });
           vote.topicAddress = oracle.topicAddress;
           if (vote.token === 'QTUM') {
-            vote.type = 'BET';
+            vote.type = VOTE_TYPE.BET;
           } else if (vote.token === 'BOT') {
-            if (oracle.token === 'QTUM') vote.type = 'RESULT_SET';
-            else if (oracle.token === 'BOT') vote.type = 'VOTE';
+            if (oracle.token === 'QTUM') vote.type = VOTE_TYPE.RESULT_SET;
+            else if (oracle.token === 'BOT') vote.type = VOTE_TYPE.VOTE;
           }
           await db.Votes.insert(vote);
 

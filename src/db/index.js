@@ -74,7 +74,7 @@ async function applyMigrations() {
   /* eslint-disable no-restricted-syntax, no-await-in-loop */
   for (const migration of migrations) {
     try {
-      if (migration.number == lastMigration + 1) { // eslint-disable-line
+      if (Number(migration.number) === lastMigration + 1) {
         // Run migration
         getLogger().info(`Running migration ${migration.number}...`);
         await migration.migrate(db);
