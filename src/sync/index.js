@@ -208,11 +208,14 @@ const syncOracleResultVoted = async (currentBlockNum) => {
     throw Error(`searchlog OracleResultVoted: ${err.message}`);
   }
 
-  each(result, (event) => {
+  /* eslint-disable no-await-in-loop */
+  for (let i = 0; i < result.length; i++) {
+    const event = result[i];
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
-    each(event.log, async (rawLog) => {
+    for (let j = 0; j < event.log.length; j++) {
+      const rawLog = event.log[j];
       if (rawLog._eventName === 'OracleResultVoted') {
         try {
           const vote = new Vote(blockNum, txid, rawLog).translate();
@@ -262,8 +265,9 @@ const syncOracleResultVoted = async (currentBlockNum) => {
           getLogger().error(`insert OracleResultVoted: ${err.message}`);
         }
       }
-    });
-  });
+    }
+  }
+  /* eslint-enable no-await-in-loop */
 };
 
 const syncOracleResultSet = async (currentBlockNum) => {
