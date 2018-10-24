@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-
-const _ = require('lodash');
+const { each } = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
 const updateTransactions = require('./update-transactions');
@@ -50,11 +49,11 @@ const syncTopicCreated = async (currentBlockNum) => {
   }
 
   const topicEventPromises = [];
-  _.forEach(result, (event, index) => {
+  each(result, (event, index) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
-    _.forEachRight(event.log, (entry) => {
+    each(event.log, (entry) => {
       if (entry._eventName === 'TopicCreated') {
         topicEventPromises.push(new Promise(async (resolve) => {
           try {
@@ -95,11 +94,11 @@ const syncCentralizedOracleCreated = async (currentBlockNum) => {
   }
 
   const cOraclePromises = [];
-  _.forEach(result, (event, index) => {
+  each(result, (event, index) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
-    _.forEachRight(event.log, (rawLog) => {
+    each(event.log, (rawLog) => {
       if (rawLog._eventName === 'CentralizedOracleCreated') {
         cOraclePromises.push(new Promise(async (resolve) => {
           try {
@@ -144,11 +143,11 @@ const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime)
   }
 
   const dOraclePromises = [];
-  _.forEach(result, (event, index) => {
+  each(result, (event, index) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
-    _.forEachRight(event.log, (rawLog) => {
+    each(event.log, (rawLog) => {
       if (rawLog._eventName === 'DecentralizedOracleCreated') {
         dOraclePromises.push(new Promise(async (resolve) => {
           try {
@@ -189,11 +188,11 @@ const syncOracleResultVoted = async (currentBlockNum) => {
     throw Error(`searchlog OracleResultVoted: ${err.message}`);
   }
 
-  _.each(result, (event, index) => {
+  each(result, (event, index) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
-    _.each(event.log, async (rawLog) => {
+    each(event.log, async (rawLog) => {
       if (rawLog._eventName === 'OracleResultVoted') {
         try {
           const vote = new Vote(blockNum, txid, rawLog).translate();
@@ -260,12 +259,12 @@ const syncOracleResultSet = async (currentBlockNum) => {
   }
 
   const resultSetPromises = [];
-  _.forEach(result, (event, index) => {
+  each(result, (event, index) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
     const fromAddress = event.from;
 
-    _.forEachRight(event.log, (rawLog) => {
+    each(event.log, (rawLog) => {
       if (rawLog._eventName === 'OracleResultSet') {
         resultSetPromises.push(new Promise(async (resolve) => {
           try {
@@ -306,12 +305,12 @@ const syncFinalResultSet = async (currentBlockNum) => {
   }
 
   const finalResultSetPromises = [];
-  _.forEach(result, (event, index) => {
+  each(result, (event, index) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
     const fromAddress = event.from;
 
-    _.forEachRight(event.log, (rawLog) => {
+    each(event.log, (rawLog) => {
       if (rawLog._eventName === 'FinalResultSet') {
         finalResultSetPromises.push(new Promise(async (resolve) => {
           try {
@@ -353,12 +352,12 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
   }
 
   const winningsWithdrawnPromises = [];
-  _.forEach(result, (event, index) => {
+  each(result, (event, index) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
     const contractAddress = event.contractAddress;
 
-    _.forEachRight(event.log, (rawLog) => {
+    each(event.log, (rawLog) => {
       if (rawLog._eventName === 'WinningsWithdrawn') {
         winningsWithdrawnPromises.push(new Promise(async (resolve) => {
           try {
@@ -390,11 +389,11 @@ const syncEscrowWithdrawn = async (currentBlockNum) => {
   }
 
   const escrowWithdrawnPromises = [];
-  _.forEach(result, (event, index) => {
+  each(result, (event, index) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
-    _.forEachRight(event.log, (rawLog) => {
+    each(event.log, (rawLog) => {
       if (rawLog._eventName === 'EscrowWithdrawn') {
         escrowWithdrawnPromises.push(new Promise(async (resolve) => {
           try {
@@ -512,5 +511,4 @@ const startSync = async (shouldUpdateLocalTxs) => {
 };
 
 module.exports = { startSync };
-
 /* eslint-enable no-underscore-dangle */
