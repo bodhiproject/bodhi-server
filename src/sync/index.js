@@ -178,77 +178,74 @@ const syncOracleResultVoted = async (currentBlockNum) => {
   let result;
   try {
     result = await getInstance().searchLogs(
-      currentBlockNum, currentBlockNum, [],
-      contractMetadata.CentralizedOracle.OracleResultVoted, contractMetadata, REMOVE_HEX_PREFIX,
+      currentBlockNum,
+      currentBlockNum,
+      [],
+      contractMetadata.CentralizedOracle.OracleResultVoted,
+      contractMetadata,
+      REMOVE_HEX_PREFIX,
     );
   } catch (err) {
     throw Error(`searchlog OracleResultVoted: ${err.message}`);
   }
 
-  const votedPromises = [];
-  _.forEach(result, (event, index) => {
+  _.each(result, (event, index) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
-    _.forEachRight(event.log, (rawLog) => {
+    _.each(event.log, async (rawLog) => {
       if (rawLog._eventName === 'OracleResultVoted') {
-        votedPromises.push(new Promise(async (resolve) => {
-          try {
-            const vote = new Vote(blockNum, txid, rawLog).translate();
+        try {
+          const vote = new Vote(blockNum, txid, rawLog).translate();
 
-            // Add Topic address to Vote
-            const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress });
-            vote.topicAddress = oracle.topicAddress;
-            await db.Votes.insert(vote);
+          // Add Topic address to Vote
+          const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress });
+          vote.topicAddress = oracle.topicAddress;
+          await db.Votes.insert(vote);
 
-            // Update Topic balance
-            const voteBn = new BigNumber(vote.amount);
-            const topic = await DBHelper.findOne(db.Topics, { address: oracle.topicAddress });
-            switch (vote.token) {
-              case TOKEN.QTUM: {
-                topic.qtumAmount[vote.optionIdx] =
-                  new BigNumber(topic.qtumAmount[vote.optionIdx]).plus(voteBn).toString(10);
-                await DBHelper.updateObjectByQuery(
-                  db.Topics,
-                  { address: topic.address },
-                  { qtumAmount: topic.qtumAmount },
-                );
-                break;
-              }
-              case TOKEN.BOT: {
-                topic.botAmount[vote.optionIdx] =
-                  new BigNumber(topic.botAmount[vote.optionIdx]).plus(voteBn).toString(10);
-                await DBHelper.updateObjectByQuery(
-                  db.Topics,
-                  { address: topic.address },
-                  { botAmount: topic.botAmount },
-                );
-                break;
-              }
-              default: {
-                throw Error(`Invalid token type: ${vote.token}`);
-              }
+          // Update Topic balance
+          const voteBn = new BigNumber(vote.amount);
+          const topic = await DBHelper.findOne(db.Topics, { address: oracle.topicAddress });
+          switch (vote.token) {
+            case TOKEN.QTUM: {
+              topic.qtumAmount[vote.optionIdx] =
+                new BigNumber(topic.qtumAmount[vote.optionIdx]).plus(voteBn).toString(10);
+              await DBHelper.updateObjectByQuery(
+                db.Topics,
+                { address: topic.address },
+                { qtumAmount: topic.qtumAmount },
+              );
+              break;
             }
-
-            // Update Oracle balance
-            // Check for token match first because we don't want to increment the COracle's amounts with the Set Result
-            // BOT. Setting the result creates an OracleResultVoted event and takes place in the COracle contract.
-            if (oracle.token === vote.token) {
-              oracle.amounts[vote.optionIdx] = new BigNumber(oracle.amounts[vote.optionIdx]).plus(voteBn).toString(10);
-              await DBHelper.updateObjectByQuery(db.Oracles, { address: oracle.address }, { amounts: oracle.amounts });
+            case TOKEN.BOT: {
+              topic.botAmount[vote.optionIdx] =
+                new BigNumber(topic.botAmount[vote.optionIdx]).plus(voteBn).toString(10);
+              await DBHelper.updateObjectByQuery(
+                db.Topics,
+                { address: topic.address },
+                { botAmount: topic.botAmount },
+              );
+              break;
             }
-
-            resolve();
-          } catch (err) {
-            getLogger().error(`insert OracleResultVoted: ${err.message}`);
-            resolve();
+            default: {
+              throw Error(`Invalid token type: ${vote.token}`);
+            }
           }
-        }));
+
+          // Update Oracle balance
+          // Check for token match first because we don't want to increment the COracle's amounts with the Set Result
+          // BOT. Setting the result creates an OracleResultVoted event and takes place in the COracle contract.
+          if (oracle.token === vote.token) {
+            oracle.amounts[vote.optionIdx] = new BigNumber(oracle.amounts[vote.optionIdx]).plus(voteBn).toString(10);
+            await DBHelper.updateObjectByQuery(db.Oracles, { address: oracle.address }, { amounts: oracle.amounts });
+          }
+        } catch (err) {
+          getLogger().error(`insert OracleResultVoted: ${err.message}`);
+          throw Error(`insert OracleResultVoted: ${err.message}`);
+        }
       }
     });
   });
-
-  await Promise.all(votedPromises);
 };
 
 const syncOracleResultSet = async (currentBlockNum) => {
