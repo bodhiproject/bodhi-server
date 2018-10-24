@@ -41,15 +41,19 @@ const syncTopicCreated = async (currentBlockNum) => {
   let result;
   try {
     result = await getInstance().searchLogs(
-      currentBlockNum, currentBlockNum, contractMetadata.EventFactory.address,
-      [contractMetadata.EventFactory.TopicCreated], contractMetadata, REMOVE_HEX_PREFIX,
+      currentBlockNum,
+      currentBlockNum,
+      contractMetadata.EventFactory.address,
+      [contractMetadata.EventFactory.TopicCreated],
+      contractMetadata,
+      REMOVE_HEX_PREFIX,
     );
   } catch (err) {
     throw Error(`searchlog TopicCreated: ${err.message}`);
   }
 
   const topicEventPromises = [];
-  each(result, (event, index) => {
+  each(result, (event) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
@@ -86,15 +90,19 @@ const syncCentralizedOracleCreated = async (currentBlockNum) => {
   let result;
   try {
     result = await getInstance().searchLogs(
-      currentBlockNum, currentBlockNum, contractMetadata.EventFactory.address,
-      [contractMetadata.OracleFactory.CentralizedOracleCreated], contractMetadata, REMOVE_HEX_PREFIX,
+      currentBlockNum,
+      currentBlockNum,
+      contractMetadata.EventFactory.address,
+      [contractMetadata.OracleFactory.CentralizedOracleCreated],
+      contractMetadata,
+      REMOVE_HEX_PREFIX,
     );
   } catch (err) {
     throw Error(`searchlog CentralizedOracleCreated: ${err.message}`);
   }
 
   const cOraclePromises = [];
-  each(result, (event, index) => {
+  each(result, (event) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
@@ -105,7 +113,11 @@ const syncCentralizedOracleCreated = async (currentBlockNum) => {
             const cOracle = new CentralizedOracle(blockNum, txid, rawLog).translate();
 
             // Insert existing Topic info into Oracle
-            const topic = await DBHelper.findOne(db.Topics, { address: cOracle.topicAddress }, ['name', 'options', 'hashId', 'language']);
+            const topic = await DBHelper.findOne(
+              db.Topics,
+              { address: cOracle.topicAddress },
+              ['name', 'options', 'hashId', 'language'],
+            );
             cOracle.name = topic.name;
             cOracle.options = topic.options;
             cOracle.hashId = topic.hashId;
@@ -135,15 +147,19 @@ const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime)
   let result;
   try {
     result = await getInstance().searchLogs(
-      currentBlockNum, currentBlockNum, [],
-      contractMetadata.OracleFactory.DecentralizedOracleCreated, contractMetadata, REMOVE_HEX_PREFIX,
+      currentBlockNum,
+      currentBlockNum,
+      [],
+      contractMetadata.OracleFactory.DecentralizedOracleCreated,
+      contractMetadata,
+      REMOVE_HEX_PREFIX,
     );
   } catch (err) {
     throw Error(`searchlog DecentralizedOracleCreated: ${err.message}`);
   }
 
   const dOraclePromises = [];
-  each(result, (event, index) => {
+  each(result, (event) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
@@ -153,7 +169,11 @@ const syncDecentralizedOracleCreated = async (currentBlockNum, currentBlockTime)
           try {
             const dOracle = new DecentralizedOracle(blockNum, txid, rawLog).translate();
 
-            const topic = await DBHelper.findOne(db.Topics, { address: dOracle.topicAddress }, ['name', 'options', 'language']);
+            const topic = await DBHelper.findOne(
+              db.Topics,
+              { address: dOracle.topicAddress },
+              ['name', 'options', 'language'],
+            );
             dOracle.name = topic.name;
             dOracle.options = topic.options;
             dOracle.startTime = currentBlockTime;
@@ -188,7 +208,7 @@ const syncOracleResultVoted = async (currentBlockNum) => {
     throw Error(`searchlog OracleResultVoted: ${err.message}`);
   }
 
-  each(result, (event, index) => {
+  each(result, (event) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
@@ -240,7 +260,6 @@ const syncOracleResultVoted = async (currentBlockNum) => {
           }
         } catch (err) {
           getLogger().error(`insert OracleResultVoted: ${err.message}`);
-          throw Error(`insert OracleResultVoted: ${err.message}`);
         }
       }
     });
@@ -251,15 +270,19 @@ const syncOracleResultSet = async (currentBlockNum) => {
   let result;
   try {
     result = await getInstance().searchLogs(
-      currentBlockNum, currentBlockNum, [],
-      contractMetadata.CentralizedOracle.OracleResultSet, contractMetadata, REMOVE_HEX_PREFIX,
+      currentBlockNum,
+      currentBlockNum,
+      [],
+      contractMetadata.CentralizedOracle.OracleResultSet,
+      contractMetadata,
+      REMOVE_HEX_PREFIX,
     );
   } catch (err) {
     throw Error(`searchlog OracleResultSet: ${err.message}`);
   }
 
   const resultSetPromises = [];
-  each(result, (event, index) => {
+  each(result, (event) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
     const fromAddress = event.from;
@@ -297,15 +320,19 @@ const syncFinalResultSet = async (currentBlockNum) => {
   let result;
   try {
     result = await getInstance().searchLogs(
-      currentBlockNum, currentBlockNum, [],
-      contractMetadata.TopicEvent.FinalResultSet, contractMetadata, REMOVE_HEX_PREFIX,
+      currentBlockNum,
+      currentBlockNum,
+      [],
+      contractMetadata.TopicEvent.FinalResultSet,
+      contractMetadata,
+      REMOVE_HEX_PREFIX,
     );
   } catch (err) {
     throw Error(`searchlog FinalResultSet: ${err.message}`);
   }
 
   const finalResultSetPromises = [];
-  each(result, (event, index) => {
+  each(result, (event) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
     const fromAddress = event.from;
@@ -344,15 +371,19 @@ const syncWinningsWithdrawn = async (currentBlockNum) => {
   let result;
   try {
     result = await getInstance().searchLogs(
-      currentBlockNum, currentBlockNum, [],
-      contractMetadata.TopicEvent.WinningsWithdrawn, contractMetadata, REMOVE_HEX_PREFIX,
+      currentBlockNum,
+      currentBlockNum,
+      [],
+      contractMetadata.TopicEvent.WinningsWithdrawn,
+      contractMetadata,
+      REMOVE_HEX_PREFIX,
     );
   } catch (err) {
     throw Error(`searchlog WinningsWithdrawn: ${err.message}`);
   }
 
   const winningsWithdrawnPromises = [];
-  each(result, (event, index) => {
+  each(result, (event) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
     const contractAddress = event.contractAddress;
@@ -381,15 +412,19 @@ const syncEscrowWithdrawn = async (currentBlockNum) => {
   let result;
   try {
     result = await getInstance().searchLogs(
-      currentBlockNum, currentBlockNum, [],
-      contractMetadata.AddressManager.EscrowWithdrawn, contractMetadata, REMOVE_HEX_PREFIX,
+      currentBlockNum,
+      currentBlockNum,
+      [],
+      contractMetadata.AddressManager.EscrowWithdrawn,
+      contractMetadata,
+      REMOVE_HEX_PREFIX,
     );
   } catch (err) {
     throw Error(`searchlog EscrowWithdrawn: ${err.message}`);
   }
 
   const escrowWithdrawnPromises = [];
-  each(result, (event, index) => {
+  each(result, (event) => {
     const blockNum = event.blockNumber;
     const txid = event.transactionHash;
 
@@ -435,7 +470,7 @@ const updateCOraclesDoneResultSet = async (currentBlockTime) => {
       { multi: true },
     );
   } catch (err) {
-    getLogger().error(`updateCOraclesDoneResultSet ${err.message}`);
+    getLogger().error(`updateCOraclesDoneResultSet: ${err.message}`);
   }
 };
 
@@ -448,7 +483,7 @@ const insertBlock = async (currentBlockNum, currentBlockTime) => {
     });
     getLogger().debug(`Inserted block ${currentBlockNum}`);
   } catch (err) {
-    getLogger().error(`insert Block: ${err.message}`);
+    getLogger().error(`insertBlock: ${err.message}`);
   }
 };
 
