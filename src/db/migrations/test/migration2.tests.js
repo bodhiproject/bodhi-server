@@ -97,8 +97,6 @@ async function insertVotes(db) {
 }
 
 async function initDB(db) {
-  if (fs.existsSync(path.join(__dirname, './mock/votes.test.db'))) fs.unlinkSync(path.join(__dirname, './mock/votes.test.db'));
-  if (fs.existsSync(path.join(__dirname, './mock/oracles.test.db'))) fs.unlinkSync(path.join(__dirname, './mock/oracles.test.db'));
   fsExtra.ensureFileSync(path.join(__dirname, './mock/votes.test.db'));
   fsExtra.ensureFileSync(path.join(__dirname, './mock/oracles.test.db'));
   db.Oracles = datastore({ filename: path.join(__dirname, './mock/oracles.test.db') });
@@ -126,7 +124,7 @@ describe('Type Field Migration', () => {
       Votes: undefined,
     };
 
-    it('Run migration', async () => {
+    it('completes the migration', async () => {
       await initDB(db);
       await migration2(db);
 
@@ -142,5 +140,7 @@ describe('Type Field Migration', () => {
         }
       });
     });
+    if (fs.existsSync(path.join(__dirname, './mock/votes.test.db'))) fs.unlinkSync(path.join(__dirname, './mock/votes.test.db'));
+    if (fs.existsSync(path.join(__dirname, './mock/oracles.test.db'))) fs.unlinkSync(path.join(__dirname, './mock/oracles.test.db'));
   });
 });
