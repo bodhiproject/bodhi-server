@@ -90,7 +90,6 @@ type Oracle {
 
 type Vote {
   txid: String!
-  blockNum: Int!
   block: Block!
   topicAddress: String!
   oracleAddress: String!
@@ -99,6 +98,8 @@ type Vote {
   token: _TokenType!
   amount: String!
   version: Int!
+  type: String!
+  topic: Topic
 }
 
 type ResultSet {

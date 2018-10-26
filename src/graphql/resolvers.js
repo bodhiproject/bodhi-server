@@ -66,6 +66,17 @@ module.exports = {
 
   Vote: {
     block: async ({ blockNum }, data, { db: { Blocks } }) => (await Blocks.find({ blockNum }))[0],
+    topic: async ({ topicAddress }, data, { db: { Topics } }) => {
+      if (_.isEmpty(topicAddress)) {
+        return null;
+      }
+
+      const topics = await Topics.find({ address: topicAddress });
+      if (!_.isEmpty(topics)) {
+        return topics[0];
+      }
+      return null;
+    },
   },
 
   ResultSet: {
