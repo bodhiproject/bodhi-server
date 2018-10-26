@@ -14,7 +14,7 @@ const db = {
   Blocks: undefined,
   Transactions: undefined,
 };
-const MIGRATION_REGEX = /(migration)(\d+)/g;
+const MIGRATION_REGEX = /(migration)(\d+)/;
 
 /**
  * Apply necessary migrations.
@@ -74,9 +74,9 @@ async function applyMigrations() {
   /* eslint-disable no-restricted-syntax, no-await-in-loop */
   for (const migration of migrations) {
     try {
-      if (migration.number === lastMigration + 1) {
+      if (Number(migration.number) === lastMigration + 1) {
         // Run migration
-        getLogger.info(`Running migration ${migration.number}...`);
+        getLogger().info(`Running migration ${migration.number}...`);
         await migration.migrate(db);
 
         // Track the last migration number
