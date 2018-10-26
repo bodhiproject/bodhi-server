@@ -193,7 +193,7 @@ type PaginatedTopics {
 
 
 type AccumulatedVote {
-  topicAddress: String!
+  topicAddress: String
   voterAddress: String!
   amount: String!
   token: _TokenType!
@@ -210,6 +210,14 @@ type Winner {
   voterAddress: String!
   amount: TokenAmount!
 }
+
+type LeaderboardStats {
+  eventCount: String!
+  participantsCount: String!
+  totalQTUM: String!
+  totalBOT: String!
+}
+
 type TokenAmount {
   qtum: String!
   bot: String!
@@ -288,6 +296,7 @@ type Query {
   allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
   mostVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): PaginatedAccumulatedVotes!
   winners(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Winner]!
+  leaderboardStats(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): LeaderboardStats!
   resultSets(filter: ResultSetFilter, orderBy: [Order!], limit: Int, skip: Int): [ResultSet]!
   withdraws(filter: WithdrawFilter, orderBy: [Order!], limit: Int, skip: Int): [Withdraw]!
   allTransactions(filter: TransactionFilter, orderBy: [Order!], limit: Int, skip: Int): [Transaction]!

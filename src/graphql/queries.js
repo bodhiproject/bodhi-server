@@ -438,17 +438,16 @@ module.exports = {
     if (voterFilters.length !== 1) {
       throw Error('only one event is allowed');
     }
-    if (voterFilters[0].topicAddress == null) {
-      throw Error('topicAddress is required');
-    }
+
     const query = filter ? { $or: voterFilters } : {};
     const result = await Votes.find(query);
 
     const accumulated = result.reduce((acc, cur) => {
+      const curAmount = new BigNumber(cur.amount);
       if (acc.hasOwnProperty(cur.voterAddress)) {
-        acc[cur.voterAddress] += Number(cur.amount);
+        acc[cur.voterAddress] = new BigNumber(acc[cur.voterAddress]).plus(curAmount).toString(10);
       } else {
-        acc[cur.voterAddress] = Number(cur.amount);
+        acc[cur.voterAddress] = curAmount.toString(10);
       }
       return acc;
     }, {});
@@ -494,6 +493,32 @@ module.exports = {
     }
     winnings = _.orderBy(winnings, [function (o) { return o.amount.qtum; }], ['desc']);
     return winnings;
+  },
+
+  leaderboardStats: async (root, { filter, orderBy, limit, skip }, { db: { Votes, Topics } }) => {
+      const result = await Votes.find({});
+      let participantsCount = 0;
+      let totalQTUM = new BigNumber(0);
+      let totalBOT = new BigNumber(0);
+      result.reduce((acc, cur) => {
+        const curAmount = new BigNumber(cur.amount);
+        if (!acc.hasOwnProperty(cur.voterAddress)) {
+          acc[cur.voterAddress] = '';
+          participantsCount++;
+        }
+        if (cur.token === TOKEN.BOT) {
+          totalBOT = new BigNumber(totalBOT).plus(curAmount).toString(10);
+        }else{
+          totalQTUM = new BigNumber(totalQTUM).plus(curAmount).toString(10);
+        }
+        return acc;
+      }, {});
+      return {
+        eventCount: Topics.count({}),
+        participantsCount,
+        totalQTUM,
+        totalBOT,
+      }
   },
 
   resultSets: async (root, { filter, orderBy, limit, skip }, { db: { ResultSets } }) => {
