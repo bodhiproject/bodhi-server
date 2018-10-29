@@ -445,14 +445,14 @@ module.exports = {
     const accumulated = result.reduce((acc, cur) => {
       const curAmount = new BigNumber(cur.amount);
       if (acc.hasOwnProperty(cur.voterAddress)) {
-        acc[cur.voterAddress] = new BigNumber(acc[cur.voterAddress]).plus(curAmount).toString(10);
+        acc[cur.voterAddress] = new BigNumber(acc[cur.voterAddress]).plus(curAmount);
       } else {
-        acc[cur.voterAddress] = curAmount.toString(10);
+        acc[cur.voterAddress] = curAmount;
       }
       return acc;
     }, {});
 
-    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, token: voterFilters[0].token, amount: String(accumulated[key]), topicAddress: voterFilters[0].topicAddress }));
+    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, token: voterFilters[0].token, amount: accumulated[key].toString(10), topicAddress: voterFilters[0].topicAddress }));
     votes.sort((a, b) => b.amount - a.amount);
 
     const totalCount = votes.length;
