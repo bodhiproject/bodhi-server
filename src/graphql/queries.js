@@ -496,29 +496,29 @@ module.exports = {
   },
 
   leaderboardStats: async (root, { filter, orderBy, limit, skip }, { db: { Votes, Topics } }) => {
-      const result = await Votes.find({});
-      let participantsCount = 0;
-      let totalQTUM = new BigNumber(0);
-      let totalBOT = new BigNumber(0);
-      result.reduce((acc, cur) => {
-        const curAmount = new BigNumber(cur.amount);
-        if (!acc.hasOwnProperty(cur.voterAddress)) {
-          acc[cur.voterAddress] = '';
-          participantsCount++;
-        }
-        if (cur.token === TOKEN.BOT) {
-          totalBOT = new BigNumber(totalBOT).plus(curAmount).toString(10);
-        }else{
-          totalQTUM = new BigNumber(totalQTUM).plus(curAmount).toString(10);
-        }
-        return acc;
-      }, {});
-      return {
-        eventCount: Topics.count({}),
-        participantsCount,
-        totalQTUM,
-        totalBOT,
+    const result = await Votes.find({});
+    let participantsCount = 0;
+    let totalQtum = new BigNumber(0);
+    let totalBot = new BigNumber(0);
+    result.reduce((acc, cur) => {
+      const curAmount = new BigNumber(cur.amount);
+      if (!acc.hasOwnProperty(cur.voterAddress)) {
+        acc[cur.voterAddress] = new BigNumber(0);
+        participantsCount++;
       }
+      if (cur.token === TOKEN.BOT) {
+        totalBot = new BigNumber(totalBot).plus(curAmount);
+      } else {
+        totalQtum = new BigNumber(totalQtum).plus(curAmount);
+      }
+      return acc;
+    }, {});
+    return {
+      eventCount: Topics.count({}),
+      participantsCount,
+      totalQtum: totalQtum.toString(10),
+      totalBot: totalBot.toString(10),
+    };
   },
 
   resultSets: async (root, { filter, orderBy, limit, skip }, { db: { ResultSets } }) => {

@@ -214,8 +214,8 @@ type Winner {
 type LeaderboardStats {
   eventCount: String!
   participantsCount: String!
-  totalQTUM: String!
-  totalBOT: String!
+  totalQtum: String!
+  totalBot: String!
 }
 
 type TokenAmount {
