@@ -60,7 +60,7 @@ async function applyMigrations() {
         const migrate = require(`./migrations/${file}`); // eslint-disable-line global-require, import/no-dynamic-require
 
         migrations.push({
-          number: regexMatches[2],
+          number: Number(regexMatches[2]),
           migrate,
         });
       }
