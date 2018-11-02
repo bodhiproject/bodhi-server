@@ -438,22 +438,21 @@ module.exports = {
     if (voterFilters.length !== 1) {
       throw Error('only one event is allowed');
     }
-    if (voterFilters[0].topicAddress == null) {
-      throw Error('topicAddress is required');
-    }
+
     const query = filter ? { $or: voterFilters } : {};
     const result = await Votes.find(query);
 
     const accumulated = result.reduce((acc, cur) => {
+      const curAmount = new BigNumber(cur.amount);
       if (acc.hasOwnProperty(cur.voterAddress)) {
-        acc[cur.voterAddress] += Number(cur.amount);
+        acc[cur.voterAddress] = new BigNumber(acc[cur.voterAddress]).plus(curAmount);
       } else {
-        acc[cur.voterAddress] = Number(cur.amount);
+        acc[cur.voterAddress] = curAmount;
       }
       return acc;
     }, {});
 
-    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, token: voterFilters[0].token, amount: String(accumulated[key]), topicAddress: voterFilters[0].topicAddress }));
+    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, token: voterFilters[0].token, amount: accumulated[key].toString(10), topicAddress: voterFilters[0].topicAddress }));
     votes.sort((a, b) => b.amount - a.amount);
 
     const totalCount = votes.length;
@@ -494,6 +493,32 @@ module.exports = {
     }
     winnings = _.orderBy(winnings, [function (o) { return o.amount.qtum; }], ['desc']);
     return winnings;
+  },
+
+  leaderboardStats: async (root, { filter, orderBy, limit, skip }, { db: { Votes, Topics } }) => {
+    const result = await Votes.find({});
+    let participantsCount = 0;
+    let totalQtum = new BigNumber(0);
+    let totalBot = new BigNumber(0);
+    result.reduce((acc, cur) => {
+      const curAmount = new BigNumber(cur.amount);
+      if (!acc.hasOwnProperty(cur.voterAddress)) {
+        acc[cur.voterAddress] = new BigNumber(0);
+        participantsCount++;
+      }
+      if (cur.token === TOKEN.BOT) {
+        totalBot = new BigNumber(totalBot).plus(curAmount);
+      } else {
+        totalQtum = new BigNumber(totalQtum).plus(curAmount);
+      }
+      return acc;
+    }, {});
+    return {
+      eventCount: Topics.count({}),
+      participantsCount,
+      totalQtum: totalQtum.toString(10),
+      totalBot: totalBot.toString(10),
+    };
   },
 
   resultSets: async (root, { filter, orderBy, limit, skip }, { db: { ResultSets } }) => {
