@@ -61,7 +61,6 @@ function initLogger() {
 
     // Log env and paths
     logger.info(`Chain network: ${getEnvConfig().network}`);
-    logger.info(`Qtum path: ${getEnvConfig().qtumPath}`);
     logger.info(`Logs path: ${logDir}`);
   }
 }
