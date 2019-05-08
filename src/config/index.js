@@ -14,7 +14,11 @@ const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 
 const { MAINNET, TESTNET, REGTEST } = BLOCKCHAIN_ENV;
 
-const Config = {
+const CONFIG = {
+  NETWORK: process.env.NETWORK,
+  RPC_MAINNET: 'wss://api.nakachain.org/ws',
+  RPC_TESTNET: 'wss://testnet.api.nakachain.org/ws',
+
   IS_DEV: includes(process.argv, '--dev'),
   PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
   HOSTNAME: 'localhost',
@@ -105,8 +109,8 @@ function getRPCPassword() {
 }
 
 function getQtumRPCAddress() {
-  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  return `http://${Config.RPC_USER}:${getRPCPassword()}@${Config.HOSTNAME}:${port}`;
+  const port = isMainnet() ? CONFIG.RPC_PORT_MAINNET : CONFIG.RPC_PORT_TESTNET;
+  return `http://${CONFIG.RPC_USER}:${getRPCPassword()}@${CONFIG.HOSTNAME}:${port}`;
 }
 
 function getQtumExplorerUrl() {
@@ -129,7 +133,7 @@ function getSSLCredentials() {
  * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
  * @return {Object} Contract metadata.
  */
-function getContractMetadata(version = Config.CONTRACT_VERSION_NUM) {
+function getContractMetadata(version = CONFIG.CONTRACT_VERSION_NUM) {
   if (!isNumber(version)) throw Error('Must supply a version number');
   return contractMetadata[version];
 }
@@ -144,7 +148,7 @@ function getRandomPassword() {
 }
 
 module.exports = {
-  Config,
+  CONFIG,
   setQtumEnv,
   getEnvConfig,
   isMainnet,
