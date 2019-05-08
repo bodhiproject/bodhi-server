@@ -1,9 +1,21 @@
 const fs = require('fs-extra');
-const { isEmpty, includes, each, split, map } = require('lodash');
+const { find, isEmpty, includes, each, split, map } = require('lodash');
 const Web3Utils = require('web3-utils');
 
 const { Config, getEnvConfig } = require('../config');
 const { getLogger } = require('./logger');
+
+/**
+ * Gets the object from the ABI given the name and type
+ * @param {object} abi ABI to search in
+ * @param {string} name Name of the function or event
+ * @param {string} type One of: [function, event]
+ * @return {object|undefined} Object found in ABI
+ */
+const getAbiObject = (abi, name, type) => {
+  if (!abi) return undefined;
+  return find(abi, { name, type });
+};
 
 /**
  * Returns the base data dir path, and also creates the directory if it doesn't exist. This will vary based on OS.

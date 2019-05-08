@@ -16,6 +16,7 @@ const { MAINNET, TESTNET, REGTEST } = BLOCKCHAIN_ENV;
 
 const CONFIG = {
   NETWORK: process.env.NETWORK,
+  CONTRACT_VERSION: process.env.CONTRACT_VERSION,
   RPC_MAINNET: 'wss://api.nakachain.org/ws',
   RPC_TESTNET: 'wss://testnet.api.nakachain.org/ws',
 
@@ -126,10 +127,18 @@ function getSSLCredentials() {
  * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
  * @return {Object} Contract metadata.
  */
-function getContractMetadata(version = CONFIG.CONTRACT_VERSION_NUM) {
+const getContractMetadata = (version = CONFIG.CONTRACT_VERSION) => {
   if (!isNumber(version)) throw Error('Must supply a version number');
   return contractMetadata[version];
-}
+};
+
+/**
+ * Gets the contract address for the given contract name.
+ * @param {string} contractName Name of contract to fetch.
+ * @return {string} Address of the contract.
+ */
+const getContractAddress = contractName =>
+  contractMetadata[CONFIG.CONTRACT_VERSION][contractName][CONFIG.NETWORK];
 
 /*
 * Creates a randomized RPC password.
@@ -150,4 +159,5 @@ module.exports = {
   getQtumExplorerUrl,
   getSSLCredentials,
   getContractMetadata,
+  getContractAddress,
 };

@@ -2,10 +2,11 @@
 const { isNull, each } = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
-const { getContractMetadata, isMainnet } = require('../config');
+const { getContractMetadata, getContractAddress, isMainnet } = require('../config');
 const { TOKEN, STATUS, WITHDRAW_TYPE, VOTE_TYPE } = require('../constants');
 const { web3 } = require('../web3');
 const updateTransactions = require('./update-transactions');
+const syncMultipleResultsEventCreated = require('./multiple-results-event-created');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const { getLogger } = require('../utils/logger');
@@ -44,10 +45,14 @@ const startSync = async (shouldUpdateLocalTxs) => {
   getLogger().debug(`Syncing block ${currentBlockNum}`);
 
   if (shouldUpdateLocalTxs) {
+    // TODO: need to update for naka?
     await updateTransactions(currentBlockNum);
     getLogger().debug('Updated local txs');
   }
 
+  await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
+
+  // OLD
   await syncTopicCreated(currentBlockNum);
   await syncCentralizedOracleCreated(currentBlockNum);
   await syncDecentralizedOracleCreated(currentBlockNum, currentBlockTime);
