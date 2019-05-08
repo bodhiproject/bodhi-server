@@ -3,7 +3,7 @@
   "description": "Server that parses, stores, sends, and receives Bodhi-related data from the blockchain.",
   "author": "bodhi.network",
   "license": "LGPL-3.0",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "repository": "git@github.com:bodhiproject/bodhi-server.git",
   "keywords": [
     "bodhi",
@@ -30,7 +30,6 @@
     "apollo-server-express": "^2.0.3",
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
-    "bignumber.js": "^7.2.1",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^6.0.0",
@@ -44,19 +43,15 @@
     "moment": "^2.22.2",
     "nedb-promise": "^2.0.1",
     "portscanner": "^2.1.1",
-    "qweb3": "^0.8.0",
     "subscriptions-transport-ws": "^0.9.9",
-    "web3-utils": "^1.0.0-beta.26",
+    "web3": "^1.0.0-beta.54",
     "winston": "^2.4.0",
-    "winston-daily-rotate-file": "^3.2.1",
-    "winston-papertrail": "^1.0.5"
+    "winston-daily-rotate-file": "^3.2.1"
   },
   "devDependencies": {
     "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.5.1",
     "mocha": "^5.2.0",
     "nodemon": "^1.17.5"
   },
