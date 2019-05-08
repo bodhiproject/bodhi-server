@@ -2,17 +2,19 @@ const Web3 = require('web3');
 const { CONFIG } = require('./config');
 const { BLOCKCHAIN_ENV } = require('./constants');
 
-let web3;
+let instance;
 
 const initWeb3 = () => {
-  if (!web3) {
+  if (!instance) {
     if (CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET) {
-      web3 = new Web3(CONFIG.RPC_MAINNET);
+      instance = new Web3(CONFIG.RPC_MAINNET);
     } else {
-      web3 = new Web3(CONFIG.RPC_TESTNET);
+      instance = new Web3(CONFIG.RPC_TESTNET);
     }
   }
 };
+
+const web3 = () => instance;
 
 module.exports = {
   initWeb3,

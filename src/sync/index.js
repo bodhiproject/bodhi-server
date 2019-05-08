@@ -1,9 +1,10 @@
 /* eslint-disable no-underscore-dangle */
-const { each } = require('lodash');
+const { isNull, each } = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
-const { CONFIG, getContractMetadata, isMainnet } = require('../config');
+const { getContractMetadata, isMainnet } = require('../config');
 const { TOKEN, STATUS, WITHDRAW_TYPE, VOTE_TYPE } = require('../constants');
+const { web3 } = require('../web3');
 const updateTransactions = require('./update-transactions');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
@@ -17,7 +18,7 @@ const OracleResultSet = require('../models/oracle-result-set');
 const FinalResultSet = require('../models/final-result-set');
 const Withdraw = require('../models/withdraw');
 
-const SYNC_START_DELAY = 5000;
+const SYNC_START_DELAY = 4000;
 const REMOVE_HEX_PREFIX = true;
 let contractMetadata;
 
@@ -32,20 +33,12 @@ const startSync = async (shouldUpdateLocalTxs) => {
   }
 
   const currentBlockNum = await getStartBlock();
-  let currentBlockTime;
-  try {
-    const currentBlockHash = await getInstance().getBlockHash(currentBlockNum);
-    currentBlockTime = (await getInstance().getBlock(currentBlockHash)).time;
-    if (currentBlockTime <= 0) {
-      throw Error(`Invalid blockTime: ${currentBlockTime}`);
-    }
-  } catch (err) {
-    if (err.message === 'Block height out of range') {
-      // Add delay since trying to parse a future block
-      delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs);
-      return;
-    }
-    throw Error(`getBlockHash or getBlock: ${err.message}`);
+  const currentBlockTime = await getBlockTime(currentBlockNum);
+
+  // If block time is null, then we are at latest block.
+  if (isNull(currentBlockTime)) {
+    delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs);
+    return;
   }
 
   getLogger().debug(`Syncing block ${currentBlockNum}`);
@@ -103,6 +96,21 @@ const getStartBlock = async () => {
   }
 
   return startBlock;
+};
+
+/**
+ * Gets the block time of the current syncing block.
+ * @param blockNum {number} Block number to get the block time of.
+ * @return {number|null} Block timestamp of the given block number or null.
+ */
+const getBlockTime = async (blockNum) => {
+  try {
+    const block = await web3.eth.getBlock(blockNum);
+    if (isNull(block)) return block;
+    return block.timestamp;
+  } catch (err) {
+    throw Error('Error getting block time:', err);
+  }
 };
 
 const syncTopicCreated = async (currentBlockNum) => {
