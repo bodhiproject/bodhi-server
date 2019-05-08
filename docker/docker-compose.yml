@@ -4,7 +4,7 @@ services:
   mainnet:
     container_name: "bodhi-server-mainnet"
     build:
-      context: ./
+      context: ../
       dockerfile: ./docker/mainnet/Dockerfile
     ports:
       - "8989:8989"
