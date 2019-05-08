@@ -3,9 +3,8 @@ const { each } = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
 const updateTransactions = require('./update-transactions');
-const { getInstance } = require('../qclient');
 const { TOKEN, STATUS, WITHDRAW_TYPE, VOTE_TYPE } = require('../constants');
-const { getContractMetadata } = require('../config');
+const { getContractMetadata, isMainnet } = require('../config');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const { getLogger } = require('../utils/logger');
@@ -22,13 +21,82 @@ const SYNC_START_DELAY = 5000;
 const REMOVE_HEX_PREFIX = true;
 let contractMetadata;
 
-// Returns the starting block to start syncing
-const getStartBlock = async () => {
-  let startBlock = contractMetadata.contractDeployedBlock;
-  if (!startBlock) {
-    throw Error('Missing startBlock in contract metadata.');
+/**
+ * Starts the sync logic. It will loop indefinitely until cancelled.
+ * @param shouldUpdateLocalTxs {Boolean} Should it update the local txs or not.
+ */
+const startSync = async (shouldUpdateLocalTxs) => {
+  if (!contractMetadata) {
+    contractMetadata = getContractMetadata();
+    if (!contractMetadata) throw Error('No contract metadata found');
   }
 
+  const currentBlockNum = await getStartBlock();
+  let currentBlockTime;
+  try {
+    const currentBlockHash = await getInstance().getBlockHash(currentBlockNum);
+    currentBlockTime = (await getInstance().getBlock(currentBlockHash)).time;
+    if (currentBlockTime <= 0) {
+      throw Error(`Invalid blockTime: ${currentBlockTime}`);
+    }
+  } catch (err) {
+    if (err.message === 'Block height out of range') {
+      // Add delay since trying to parse a future block
+      delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs);
+      return;
+    }
+    throw Error(`getBlockHash or getBlock: ${err.message}`);
+  }
+
+  getLogger().debug(`Syncing block ${currentBlockNum}`);
+
+  if (shouldUpdateLocalTxs) {
+    await updateTransactions(currentBlockNum);
+    getLogger().debug('Updated local txs');
+  }
+
+  await syncTopicCreated(currentBlockNum);
+  await syncCentralizedOracleCreated(currentBlockNum);
+  await syncDecentralizedOracleCreated(currentBlockNum, currentBlockTime);
+  await syncOracleResultVoted(currentBlockNum);
+  await syncOracleResultSet(currentBlockNum);
+  await syncFinalResultSet(currentBlockNum);
+  await syncWinningsWithdrawn(currentBlockNum);
+  await syncEscrowWithdrawn(currentBlockNum);
+  await updateOraclesDoneVoting(currentBlockTime);
+  await updateCOraclesDoneResultSet(currentBlockTime);
+  await insertBlock(currentBlockNum, currentBlockTime);
+
+  // Send syncInfo subscription message
+  await publishSyncInfo(currentBlockNum, currentBlockTime);
+
+  // No delay if next block is already confirmed
+  delayThenSync(0, shouldUpdateLocalTxs);
+};
+
+/**
+ * Delays for the specified time then calls startSync.
+ * @param {number} delay Number of milliseconds to delay.
+ * @param {boolean} shouldUpdateLocalTxs Should updateLocalTxs or not.
+ */
+const delayThenSync = (delay, shouldUpdateLocalTxs) => {
+  getLogger().debug('sleep');
+  setTimeout(() => {
+    startSync(shouldUpdateLocalTxs);
+  }, delay);
+};
+
+/**
+ * Determines the start block to start syncing from.
+ */
+const getStartBlock = async () => {
+  // Get deploy block of EventFactory
+  let startBlock = isMainnet
+    ? contractMetadata.EventFactory.mainnetDeployBlock
+    : contractMetadata.EventFactory.testnetDeployBlock;
+  if (!startBlock) throw Error('Missing deploy block for EventFactory');
+
+  // Check if last block synced is greater than the deploy block
   const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
   if (blocks.length > 0) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
@@ -495,64 +563,6 @@ const insertBlock = async (currentBlockNum, currentBlockTime) => {
   } catch (err) {
     getLogger().error(`insertBlock: ${err.message}`);
   }
-};
-
-// Delay then startSync
-const delayThenSync = (delay, shouldUpdateLocalTxs) => {
-  getLogger().debug('sleep');
-  setTimeout(() => {
-    startSync(shouldUpdateLocalTxs); // eslint-disable-line no-use-before-define
-  }, delay);
-};
-
-/*
-* Starts the sync logic. It will loop indefinitely until cancelled.
-* @param shouldUpdateLocalTxs {Boolean} Should it update the local txs or not.
-*/
-const startSync = async (shouldUpdateLocalTxs) => {
-  contractMetadata = getContractMetadata();
-
-  const currentBlockNum = await getStartBlock();
-  let currentBlockTime;
-  try {
-    const currentBlockHash = await getInstance().getBlockHash(currentBlockNum);
-    currentBlockTime = (await getInstance().getBlock(currentBlockHash)).time;
-    if (currentBlockTime <= 0) {
-      throw Error(`Invalid blockTime: ${currentBlockTime}`);
-    }
-  } catch (err) {
-    if (err.message === 'Block height out of range') {
-      // Add delay since trying to parse a future block
-      delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs);
-      return;
-    }
-    throw Error(`getBlockHash or getBlock: ${err.message}`);
-  }
-
-  getLogger().debug(`Syncing block ${currentBlockNum}`);
-
-  if (shouldUpdateLocalTxs) {
-    await updateTransactions(currentBlockNum);
-    getLogger().debug('Updated local txs');
-  }
-
-  await syncTopicCreated(currentBlockNum);
-  await syncCentralizedOracleCreated(currentBlockNum);
-  await syncDecentralizedOracleCreated(currentBlockNum, currentBlockTime);
-  await syncOracleResultVoted(currentBlockNum);
-  await syncOracleResultSet(currentBlockNum);
-  await syncFinalResultSet(currentBlockNum);
-  await syncWinningsWithdrawn(currentBlockNum);
-  await syncEscrowWithdrawn(currentBlockNum);
-  await updateOraclesDoneVoting(currentBlockTime);
-  await updateCOraclesDoneResultSet(currentBlockTime);
-  await insertBlock(currentBlockNum, currentBlockTime);
-
-  // Send syncInfo subscription message
-  await publishSyncInfo(currentBlockNum, currentBlockTime);
-
-  // No delay if next block is already confirmed
-  delayThenSync(0, shouldUpdateLocalTxs);
 };
 
 module.exports = { startSync };
