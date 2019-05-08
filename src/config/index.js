@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 const { BLOCKCHAIN_ENV } = require('../constants');
 const mainnetMetadata = require('./mainnet/contract-metadata');
-const testnetMetadata = require('./testnet/contract-metadata');
+const testnetMetadata = require('./contract-metadata');
 
 const API_PORT_MAINNET = 8989;
 const API_PORT_TESTNET = 6767;
@@ -125,21 +125,16 @@ function getSSLCredentials() {
   };
 }
 
-/*
-* Gets the smart contract metadata based on version and environment.
-* @param versionNum {Number} The version number of the contracts to get, ie. 0, 1, 2.
-* @param testnet {Boolean} Whether on testnet env or not.
-* @return {Object} The contract metadata.
-*/
-function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
-  if (!isNumber(versionNum)) {
-    throw new Error('Must supply a version number');
-  }
-
-  if (isMainnet()) {
-    return mainnetMetadata[versionNum];
-  }
-  return testnetMetadata[versionNum];
+/**
+ * Gets the smart contract metadata based on version and environment.
+ * @param version {Number} The version number of the contracts to get, ie. 0, 1, 2.
+ * @param testnet {Boolean} Whether on testnet env or not.
+ * @return {Object} The contract metadata.
+ */
+function getContractMetadata(version = Config.CONTRACT_VERSION_NUM) {
+  if (!isNumber(version)) throw Error('Must supply a version number');
+  if (isMainnet()) return mainnetMetadata[version];
+  return testnetMetadata[version];
 }
 
 /*
