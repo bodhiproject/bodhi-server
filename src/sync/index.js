@@ -2,9 +2,9 @@
 const { each } = require('lodash');
 const { BigNumber } = require('bignumber.js');
 
-const updateTransactions = require('./update-transactions');
+const { CONFIG, getContractMetadata, isMainnet } = require('../config');
 const { TOKEN, STATUS, WITHDRAW_TYPE, VOTE_TYPE } = require('../constants');
-const { getContractMetadata, isMainnet } = require('../config');
+const updateTransactions = require('./update-transactions');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const { getLogger } = require('../utils/logger');
@@ -91,7 +91,7 @@ const delayThenSync = (delay, shouldUpdateLocalTxs) => {
  */
 const getStartBlock = async () => {
   // Get deploy block of EventFactory
-  let startBlock = isMainnet
+  let startBlock = isMainnet()
     ? contractMetadata.EventFactory.mainnetDeployBlock
     : contractMetadata.EventFactory.testnetDeployBlock;
   if (!startBlock) throw Error('Missing deploy block for EventFactory');

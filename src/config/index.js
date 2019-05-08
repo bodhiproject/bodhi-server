@@ -88,14 +88,7 @@ function getEnvConfig() {
   return { network: qtumEnv, qtumPath, apiPort };
 }
 
-function isMainnet() {
-  // Throw an error to ensure no code is using this check before it is initialized
-  if (!qtumEnv) {
-    throw Error('qtumEnv not initialized yet.');
-  }
-
-  return qtumEnv === BLOCKCHAIN_ENV.MAINNET;
-}
+const isMainnet = () => CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET;
 
 function getRPCPassword() {
   let password = rpcPassword;
