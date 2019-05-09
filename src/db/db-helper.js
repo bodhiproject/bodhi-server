@@ -2,7 +2,8 @@ const _ = require('lodash');
 
 const { getLogger } = require('../utils/logger');
 
-class DBHelper {
+module.exports = class DBHelper {
+  /* Misc */
   static async getCount(database, query) {
     try {
       return await database.count(query);
@@ -34,6 +35,15 @@ class DBHelper {
     return found;
   }
 
+  static async updateObjectByQuery(database, query, update) {
+    try {
+      await database.update(query, { $set: update }, {});
+    } catch (err) {
+      getLogger().error(`Error update ${update} object by query:${query}: ${err.message}`);
+    }
+  }
+
+  /* Events */
   static async insertEvent(db, event) {
     try {
       await db.Events.insert(event);
@@ -55,22 +65,18 @@ class DBHelper {
     }
   }
 
-  static async insertTopic(database, topic) {
+  /* Transactions */
+  static async insertTransaction(database, tx) {
     try {
-      await database.insert(topic);
+      getLogger().debug(`Mutation Insert: Transaction ${tx.type} txid:${tx.txid}`);
+      await database.insert(tx);
     } catch (err) {
-      getLogger().error(`Error insert Topic ${topic}: ${err.message}`);
+      getLogger().error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);
+      throw err;
     }
   }
 
-  static async updateObjectByQuery(database, query, update) {
-    try {
-      await database.update(query, { $set: update }, {});
-    } catch (err) {
-      getLogger().error(`Error update ${update} object by query:${query}: ${err.message}`);
-    }
-  }
-
+  // DEPRECATED
   static async updateTopicByQuery(database, query, topic) {
     try {
       await database.update(
@@ -97,6 +103,7 @@ class DBHelper {
     }
   }
 
+  // DEPRECATED
   static async removeTopicsByQuery(topicDb, query) {
     try {
       const numRemoved = await topicDb.remove(query, { multi: true });
@@ -106,14 +113,7 @@ class DBHelper {
     }
   }
 
-  static async insertOracle(database, oracle) {
-    try {
-      await database.insert(oracle);
-    } catch (err) {
-      getLogger().error(`Error insert COracle:${oracle}: ${err.message}`);
-    }
-  }
-
+  // DEPRECATED
   static async updateOracleByQuery(database, query, oracle) {
     try {
       await database.update(
@@ -148,6 +148,7 @@ class DBHelper {
     }
   }
 
+  // DEPRECATED
   static async removeOraclesByQuery(oracleDb, query) {
     try {
       const numRemoved = await oracleDb.remove(query, { multi: true });
@@ -157,16 +158,7 @@ class DBHelper {
     }
   }
 
-  static async insertTransaction(database, tx) {
-    try {
-      getLogger().debug(`Mutation Insert: Transaction ${tx.type} txid:${tx.txid}`);
-      await database.insert(tx);
-    } catch (err) {
-      getLogger().error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);
-      throw err;
-    }
-  }
-
+  // DEPRECATED?
   static async isPreviousCreateEventPending(txDb, senderAddress) {
     try {
       return await txDb.count({
@@ -179,6 +171,4 @@ class DBHelper {
       throw err;
     }
   }
-}
-
-module.exports = DBHelper;
+};
