@@ -11,6 +11,7 @@ const syncVotePlaced = require('./vote-placed');
 const syncVoteResultSet = require('./vote-result-set');
 const syncWinningsWithdrawn = require('./winnings-withdrawn');
 const { db } = require('../db');
+const DBHelper = require('../db/db-helper');
 const { getLogger } = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
 
@@ -52,8 +53,11 @@ const startSync = async (shouldUpdateLocalTxs) => {
   await syncVoteResultSet(contractMetadata, currentBlockNum);
   await syncWinningsWithdrawn(contractMetadata, currentBlockNum);
 
-  await updateOraclesDoneVoting(currentBlockTime);
-  await updateCOraclesDoneResultSet(currentBlockTime);
+  // Updates
+  await updateStatusBetting(currentBlockTime);
+  await updateStatusOracleResultSetting(currentBlockTime);
+  await updateStatusOpenResultSetting(currentBlockTime);
+
   await insertBlock(currentBlockNum, currentBlockTime);
 
   // Send syncInfo subscription message
@@ -109,29 +113,39 @@ const getBlockTime = async (blockNum) => {
   }
 };
 
-// Update all Centralized and Decentralized Oracles statuses that are passed the endTime
-const updateOraclesDoneVoting = async (currentBlockTime) => {
+/**
+ * Updates any events which are in the betting status.
+ * @param {number} currentBlockTime Current block timestamp.
+ */
+const updateStatusBetting = async (currentBlockTime) => {
   try {
-    await db.Oracles.update(
-      { endTime: { $lt: currentBlockTime }, status: STATUS.VOTING },
-      { $set: { status: STATUS.WAITRESULT } },
-      { multi: true },
-    );
+    await DBHelper.updateEventStatusBetting(db, currentBlockTime);
   } catch (err) {
-    getLogger().error(`updateOraclesDoneVoting: ${err.message}`);
+    throw err;
   }
 };
 
-// Update Centralized Oracles to Open Result Set that are passed the resultSetEndTime
-const updateCOraclesDoneResultSet = async (currentBlockTime) => {
+/**
+ * Updates any events which are in the oracle result setting status.
+ * @param {number} currentBlockTime Current block timestamp.
+ */
+const updateStatusOracleResultSetting = async (currentBlockTime) => {
   try {
-    await db.Oracles.update(
-      { resultSetEndTime: { $lt: currentBlockTime }, token: TOKEN.QTUM, status: STATUS.WAITRESULT },
-      { $set: { status: STATUS.OPENRESULTSET } },
-      { multi: true },
-    );
+    await DBHelper.updateEventStatusOracleResultSetting(db, currentBlockTime);
   } catch (err) {
-    getLogger().error(`updateCOraclesDoneResultSet: ${err.message}`);
+    throw err;
+  }
+};
+
+/**
+ * Updates any events which are in the open result setting status.
+ * @param {number} currentBlockTime Current block timestamp.
+ */
+const updateStatusOpenResultSetting = async (currentBlockTime) => {
+  try {
+    await DBHelper.updateEventStatusOpenResultSetting(db, currentBlockTime);
+  } catch (err) {
+    throw err;
   }
 };
 

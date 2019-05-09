@@ -1,6 +1,7 @@
 const _ = require('lodash');
 
 const { getLogger } = require('../utils/logger');
+const { EVENT_STATUS } = require('../constants');
 
 module.exports = class DBHelper {
   /* Misc */
@@ -71,6 +72,57 @@ module.exports = class DBHelper {
       );
     } catch (err) {
       getLogger().error(`UPDATE Event error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventStatusBetting(db, currBlockTime) {
+    try {
+      await db.Events.update(
+        {
+          status: EVENT_STATUS.CREATED,
+          betStartTime: { $lte: currBlockTime },
+          betEndTime: { $gt: currBlockTime },
+        },
+        { $set: { status: EVENT_STATUS.BETTING } },
+        { multi: true },
+      );
+    } catch (err) {
+      getLogger().error(`UPDATE Event Status Betting error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventStatusOracleResultSetting(db, currBlockTime) {
+    try {
+      await db.Events.update(
+        {
+          status: EVENT_STATUS.BETTING,
+          betEndTime: { $lte: currBlockTime },
+          resultSetEndTime: { $gt: currBlockTime },
+        },
+        { $set: { status: EVENT_STATUS.ORACLE_RESULT_SETTING } },
+        { multi: true },
+      );
+    } catch (err) {
+      getLogger().error(`UPDATE Event Status Oracle Result Setting error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventStatusOpenResultSetting(db, currBlockTime) {
+    try {
+      await db.Events.update(
+        {
+          status: EVENT_STATUS.ORACLE_RESULT_SETTING,
+          resultSetEndTime: { $lte: currBlockTime },
+          currentRound: 0,
+        },
+        { $set: { status: EVENT_STATUS.OPEN_RESULT_SETTING } },
+        { multi: true },
+      );
+    } catch (err) {
+      getLogger().error(`UPDATE Event Status Open Result Setting error: ${err.message}`);
       throw err;
     }
   }
