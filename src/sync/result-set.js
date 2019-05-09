@@ -2,6 +2,9 @@ const { each } = require('lodash');
 const { web3 } = require('../web3');
 const { getAbiObject } = require('../utils');
 const { getLogger } = require('../utils/logger');
+const { db } = require('../db');
+const DBHelper = require('../db/db-helper');
+const ResultSet = require('../models/result-set');
 
 module.exports = async (contractMetadata, currentBlockNum) => {
   try {
@@ -36,9 +39,27 @@ module.exports = async (contractMetadata, currentBlockNum) => {
         nextArbitrationEndTime,
       } = naka.eth.abi.decodeLog(obj.inputs, log.data, log.topics);
 
+      const resultSet = new ResultSet({
+        blockNum: log.blockNumber,
+        txid: log.transactionHash,
+        eventAddress,
+        centralizedOracle,
+        resultIndex,
+        amount,
+        eventRound,
+      });
+
       // Insert/update
       promises.push(new Promise(async (resolve, reject) => {
         try {
+          // Insert new ResultSet
+          await DBHelper.insertResultSet(db, resultSet);
+
+          // Update round info for Event
+          const event = await DBHelper.findOneEvent(db, eventAddress);
+          event.consensusThreshold = nextConsensusThreshold;
+          event.arbitrationEndTime = nextArbitrationEndTime;
+          await DBHelper.updateEvent(db, event);
 
           resolve();
         } catch (insertErr) {

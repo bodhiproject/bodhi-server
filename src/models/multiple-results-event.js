@@ -41,6 +41,8 @@ module.exports = class MultipleResultsEvent {
     this.arbitrationRewardPercentage = params.arbitrationRewardPercentage.toString(10);
     this.currentRound = 0;
     this.currentResultIndex = INVALID_RESULT_INDEX;
+    this.consensusThreshold = params.consensusThreshold.toString(10);
+    this.arbitrationEndTime = params.arbitrationEndTime.toString(10);
 
     // Backend params
     this.hashId = null;

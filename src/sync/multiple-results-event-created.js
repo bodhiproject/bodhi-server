@@ -60,6 +60,10 @@ module.exports = async (contractMetadata, currentBlockNum) => {
         thresholdPercentIncrease,
         arbitrationRewardPercentage,
       ] = await contract.methods.configMetadata().call();
+      const consensusThreshold =
+        await contract.methods.currentConsensusThreshold().call();
+      const arbitrationEndTime =
+        await contract.methods.currentArbitrationEndTime().call();
 
       const multipleResultsEvent = new MultipleResultsEvent({
         blockNum: log.blockNumber,
@@ -79,6 +83,8 @@ module.exports = async (contractMetadata, currentBlockNum) => {
         arbitrationLength,
         thresholdPercentIncrease,
         arbitrationRewardPercentage,
+        consensusThreshold,
+        arbitrationEndTime,
       });
 
       // Insert/update
@@ -97,10 +103,10 @@ module.exports = async (contractMetadata, currentBlockNum) => {
               multipleResultsEvent.language = foundEvent.language;
             }
 
-            DBHelper.updateEvent(db, multipleResultsEvent.txid, multipleResultsEvent);
+            await DBHelper.updateEvent(db, multipleResultsEvent);
           } else {
             // Insert new Event
-            DBHelper.insertEvent(db, multipleResultsEvent);
+            await DBHelper.insertEvent(db, multipleResultsEvent);
           }
           resolve();
         } catch (insertErr) {

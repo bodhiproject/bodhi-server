@@ -50,7 +50,7 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       // Insert/update
       promises.push(new Promise(async (resolve, reject) => {
         try {
-          DBHelper.insertBet(db, bet);
+          await DBHelper.insertBet(db, bet);
           resolve();
         } catch (insertErr) {
           getLogger().error(`insert Bet: ${insertErr.message}`);

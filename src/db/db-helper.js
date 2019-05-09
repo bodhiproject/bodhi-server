@@ -44,6 +44,15 @@ module.exports = class DBHelper {
   }
 
   /* Events */
+  static async findOneEvent(db, address) {
+    try {
+      return await db.Events.findOne({ address });
+    } catch (err) {
+      getLogger().error(`FIND Event error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async insertEvent(db, event) {
     try {
       await db.Events.insert(event);
@@ -53,10 +62,10 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEvent(db, txid, event) {
+  static async updateEvent(db, event) {
     try {
       await db.Events.update(
-        { txid },
+        { address: event.address },
         { $set: event },
         {},
       );
@@ -72,6 +81,16 @@ module.exports = class DBHelper {
       await db.Bets.insert(bet);
     } catch (err) {
       getLogger().error(`INSERT Bet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* ResultSets */
+  static async insertResultSet(db, resultSet) {
+    try {
+      await db.ResultSets.insert(resultSet);
+    } catch (err) {
+      getLogger().error(`INSERT ResultSet error: ${err.message}`);
       throw err;
     }
   }
