@@ -165,6 +165,20 @@ module.exports = class DBHelper {
     }
   }
 
+  /* Blocks */
+  static async insertBlock(db, blockNum, blockTime) {
+    try {
+      await db.Blocks.insert({
+        _id: blockNum,
+        blockNum,
+        blockTime,
+      });
+    } catch (err) {
+      getLogger().error(`INSERT Block error: ${err.message}`);
+      throw err;
+    }
+  }
+
   // DEPRECATED?
   static async isPreviousCreateEventPending(txDb, senderAddress) {
     try {

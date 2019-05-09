@@ -22,51 +22,55 @@ let contractMetadata;
  * @param shouldUpdateLocalTxs {Boolean} Should it update the local txs or not.
  */
 const startSync = async (shouldUpdateLocalTxs) => {
-  if (!contractMetadata) {
-    contractMetadata = getContractMetadata();
-    if (!contractMetadata) throw Error('No contract metadata found');
+  try {
+    if (!contractMetadata) {
+      contractMetadata = getContractMetadata();
+      if (!contractMetadata) throw Error('No contract metadata found');
+    }
+
+    const currentBlockNum = await getStartBlock();
+    const currentBlockTime = await getBlockTime(currentBlockNum);
+
+    // If block time is null, then we are at latest block.
+    if (isNull(currentBlockTime)) {
+      delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs);
+      return;
+    }
+
+    getLogger().debug(`Syncing block ${currentBlockNum}`);
+
+    if (shouldUpdateLocalTxs) {
+      // TODO: need to update for naka?
+      await updateTransactions(currentBlockNum);
+      getLogger().debug('Updated local txs');
+    }
+
+    // Parse blockchain logs
+    await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
+    await syncBetPlaced(contractMetadata, currentBlockNum);
+    await syncResultSet(contractMetadata, currentBlockNum);
+    await syncVotePlaced(contractMetadata, currentBlockNum);
+    await syncVoteResultSet(contractMetadata, currentBlockNum);
+    await syncWinningsWithdrawn(contractMetadata, currentBlockNum);
+
+    // Update statuses
+    await updateStatusBetting(currentBlockTime);
+    await updateStatusOracleResultSetting(currentBlockTime);
+    await updateStatusOpenResultSetting(currentBlockTime);
+    await updateStatusArbitration();
+    await updateStatusWithdrawing(currentBlockTime);
+
+    // Insert block
+    await insertBlock(currentBlockNum, currentBlockTime);
+
+    // Send syncInfo subscription message
+    await publishSyncInfo(currentBlockNum, currentBlockTime);
+
+    // No delay if next block is already confirmed
+    delayThenSync(0, shouldUpdateLocalTxs);
+  } catch (err) {
+    throw err;
   }
-
-  const currentBlockNum = await getStartBlock();
-  const currentBlockTime = await getBlockTime(currentBlockNum);
-
-  // If block time is null, then we are at latest block.
-  if (isNull(currentBlockTime)) {
-    delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs);
-    return;
-  }
-
-  getLogger().debug(`Syncing block ${currentBlockNum}`);
-
-  if (shouldUpdateLocalTxs) {
-    // TODO: need to update for naka?
-    await updateTransactions(currentBlockNum);
-    getLogger().debug('Updated local txs');
-  }
-
-  // Parse blockchain logs
-  await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
-  await syncBetPlaced(contractMetadata, currentBlockNum);
-  await syncResultSet(contractMetadata, currentBlockNum);
-  await syncVotePlaced(contractMetadata, currentBlockNum);
-  await syncVoteResultSet(contractMetadata, currentBlockNum);
-  await syncWinningsWithdrawn(contractMetadata, currentBlockNum);
-
-  // Update statuses
-  await updateStatusBetting(currentBlockTime);
-  await updateStatusOracleResultSetting(currentBlockTime);
-  await updateStatusOpenResultSetting(currentBlockTime);
-  await updateStatusArbitration();
-  await updateStatusWithdrawing(currentBlockTime);
-
-  // Insert block
-  await insertBlock(currentBlockNum, currentBlockTime);
-
-  // Send syncInfo subscription message
-  await publishSyncInfo(currentBlockNum, currentBlockTime);
-
-  // No delay if next block is already confirmed
-  delayThenSync(0, shouldUpdateLocalTxs);
 };
 
 /**
@@ -175,14 +179,10 @@ const updateStatusWithdrawing = async (currentBlockTime) => {
 
 const insertBlock = async (currentBlockNum, currentBlockTime) => {
   try {
-    await db.Blocks.insert({
-      _id: currentBlockNum,
-      blockNum: currentBlockNum,
-      blockTime: currentBlockTime,
-    });
+    await DBHelper.insertBlock(db, currentBlockNum, currentBlockTime);
     getLogger().debug(`Inserted block ${currentBlockNum}`);
   } catch (err) {
-    getLogger().error(`insertBlock: ${err.message}`);
+    throw err;
   }
 };
 
