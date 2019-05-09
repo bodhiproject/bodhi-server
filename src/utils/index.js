@@ -1,25 +1,13 @@
 const fs = require('fs-extra');
-const { find, isEmpty, includes, each, split, map } = require('lodash');
-const Web3Utils = require('web3-utils');
+const path = require('path');
+const { isEmpty, includes, each, split, map } = require('lodash');
 
-const { Config, getEnvConfig } = require('../config');
+const { CONFIG } = require('../config');
 const { getLogger } = require('./logger');
 
 /**
- * Gets the object from the ABI given the name and type
- * @param {object} abi ABI to search in
- * @param {string} name Name of the function or event
- * @param {string} type One of: [function, event]
- * @return {object|undefined} Object found in ABI
- */
-const getAbiObject = (abi, name, type) => {
-  if (!abi) return undefined;
-  return find(abi, { name, type });
-};
-
-/**
- * Returns the base data dir path, and also creates the directory if it doesn't exist. This will vary based on OS.
- * @return {string} Absolute path to the base data directory.
+ * Returns the base data dir path, and also creates it if it doesn't exist.
+ * @return {string} Path to the base data dir.
  */
 function getBaseDataDir() {
   // DATA_DIR is defined in environment variables
@@ -27,27 +15,14 @@ function getBaseDataDir() {
     return process.env.DATA_DIR;
   }
 
-  let osBasePath;
-  switch (process.platform) {
-    case 'darwin': {
-      osBasePath = `${process.env.HOME}/Library/Application Support/Bodhi`;
-      break;
-    }
-    case 'win32': {
-      osBasePath = `${process.env.APPDATA}/Bodhi`;
-      break;
-    }
-    case 'linux': {
-      osBasePath = `${process.env.HOME}/.bodhi`;
-      break;
-    }
-    default: {
-      throw Error(`Operating system not supported: ${process.platform}`);
-    }
-  }
-  const envDir = getEnvConfig().network;
-  const dataDir = Config.IS_DEV ? 'dev' : 'data';
-  return `${osBasePath}/${envDir}/${dataDir}`;
+  const rootDir = path.dirname(require.main.filename);
+  const envDir = CONFIG.NETWORK;
+  const dataDir = `${rootDir}/data/${envDir}`;
+
+  // Create data dir if needed
+  fs.ensureDirSync(dataDir);
+
+  return path.resolve(dataDir);
 }
 
 /*

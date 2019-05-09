@@ -17,6 +17,44 @@ const db = {
 const MIGRATION_REGEX = /(migration)(\d+)/;
 
 /**
+ * Run all the migrations and initializes all the datastores.
+ */
+async function initDB() {
+  const blockchainDataPath = Utils.getDataDir();
+  getLogger().info(`Blockchain data path: ${blockchainDataPath}`);
+
+  db.Events = datastore({ filename: `${blockchainDataPath}/topics.db` });
+  db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
+  db.Votes = datastore({ filename: `${blockchainDataPath}/votes.db` });
+  db.ResultSets = datastore({ filename: `${blockchainDataPath}/resultsets.db` });
+  db.Withdraws = datastore({ filename: `${blockchainDataPath}/withdraws.db` });
+  db.Blocks = datastore({ filename: `${blockchainDataPath}/blocks.db` });
+  db.Transactions = datastore({ filename: `${blockchainDataPath}/transactions.db` });
+
+  try {
+    await Promise.all([
+      db.Topics.loadDatabase(),
+      db.Oracles.loadDatabase(),
+      db.Votes.loadDatabase(),
+      db.ResultSets.loadDatabase(),
+      db.Withdraws.loadDatabase(),
+      db.Blocks.loadDatabase(),
+      db.Transactions.loadDatabase(),
+    ]);
+
+    await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
+
+    await applyMigrations();
+  } catch (err) {
+    throw Error(`DB load Error: ${err.message}`);
+  }
+}
+
+/**
  * Apply necessary migrations.
  * Be sure to wrap each migration script in a try/catch and throw on Error.
  * We don't want the server to run if the migration failed.
@@ -91,44 +129,6 @@ async function applyMigrations() {
   /* eslint-enable no-restricted-syntax, no-await-in-loop */
 
   getLogger().info('Migrations complete.');
-}
-
-/**
- * Run all the migrations and initializes all the datastores.
- */
-async function initDB() {
-  const blockchainDataPath = Utils.getDataDir();
-  getLogger().info(`Blockchain data path: ${blockchainDataPath}`);
-
-  db.Topics = datastore({ filename: `${blockchainDataPath}/topics.db` });
-  db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
-  db.Votes = datastore({ filename: `${blockchainDataPath}/votes.db` });
-  db.ResultSets = datastore({ filename: `${blockchainDataPath}/resultsets.db` });
-  db.Withdraws = datastore({ filename: `${blockchainDataPath}/withdraws.db` });
-  db.Blocks = datastore({ filename: `${blockchainDataPath}/blocks.db` });
-  db.Transactions = datastore({ filename: `${blockchainDataPath}/transactions.db` });
-
-  try {
-    await Promise.all([
-      db.Topics.loadDatabase(),
-      db.Oracles.loadDatabase(),
-      db.Votes.loadDatabase(),
-      db.ResultSets.loadDatabase(),
-      db.Withdraws.loadDatabase(),
-      db.Blocks.loadDatabase(),
-      db.Transactions.loadDatabase(),
-    ]);
-
-    await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
-
-    await applyMigrations();
-  } catch (err) {
-    throw Error(`DB load Error: ${err.message}`);
-  }
 }
 
 // Delete blockchain Bodhi data
