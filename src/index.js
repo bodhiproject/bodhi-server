@@ -3,8 +3,12 @@ const { initDB } = require('./db');
 const startSync = require('./sync');
 
 const start = async () => {
-  initLogger();
-  await initDB();
-  startSync(true);
+  try {
+    initLogger();
+    await initDB();
+    startSync(true);
+  } catch (err) {
+    throw err;
+  }
 };
 start();
