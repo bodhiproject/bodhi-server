@@ -2,7 +2,7 @@ const { isNull } = require('lodash');
 
 const { getContractMetadata, isMainnet } = require('../config');
 const { web3 } = require('../web3');
-const updateTransactions = require('./update-transactions');
+// const updateTransactions = require('./update-transactions');
 const syncMultipleResultsEventCreated = require('./multiple-results-event-created');
 const syncBetPlaced = require('./bet-placed');
 const syncResultSet = require('./result-set');
@@ -39,11 +39,11 @@ const startSync = async (shouldUpdateLocalTxs) => {
 
     getLogger().debug(`Syncing block ${currentBlockNum}`);
 
-    if (shouldUpdateLocalTxs) {
-      // TODO: need to update for naka?
-      await updateTransactions(currentBlockNum);
-      getLogger().debug('Updated local txs');
-    }
+    // if (shouldUpdateLocalTxs) {
+    //   // TODO: need to update for naka?
+    //   await updateTransactions(currentBlockNum);
+    //   getLogger().debug('Updated local txs');
+    // }
 
     // Parse blockchain logs
     await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
