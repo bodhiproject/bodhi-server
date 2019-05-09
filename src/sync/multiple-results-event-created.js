@@ -1,4 +1,4 @@
-const { each } = require('lodash');
+const { each, isNull } = require('lodash');
 const { web3 } = require('../web3');
 const { getContractAddress } = require('../config');
 const { getAbiObject } = require('../utils');
@@ -90,23 +90,15 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       // Insert/update
       promises.push(new Promise(async (resolve, reject) => {
         try {
-          if (await DBHelper.getCount(db.Events, { txid: multipleResultsEvent.txid }) > 0) {
-            // Update existing Event if found
-            const foundEvent = await DBHelper.findOne(
-              db.Events,
-              { txid: multipleResultsEvent.txid },
-              ['language'],
-            );
-
-            // Update lang with existing one
-            if (foundEvent.language) {
-              multipleResultsEvent.language = foundEvent.language;
-            }
-
-            await DBHelper.updateEvent(db, multipleResultsEvent);
-          } else {
-            // Insert new Event
+          const existingEvent =
+            await DBHelper.findOneEvent(db, multipleResultsEvent.address);
+          if (isNull(existingEvent)) {
+            // Existing event not found
             await DBHelper.insertEvent(db, multipleResultsEvent);
+          } else {
+            // Existing event found
+            multipleResultsEvent.language = existingEvent.language;
+            await DBHelper.updateEvent(db, multipleResultsEvent);
           }
           resolve();
         } catch (insertErr) {
