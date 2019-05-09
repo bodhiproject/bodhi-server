@@ -34,6 +34,27 @@ class DBHelper {
     return found;
   }
 
+  static async insertEvent(db, event) {
+    try {
+      await db.Events.insert(event);
+    } catch (err) {
+      getLogger().error(`INSERT Event error: ${err.message}`);
+    }
+  }
+
+  static async updateEvent(db, txid, event) {
+    try {
+      await db.Events.update(
+        { txid },
+        { $set: event },
+        {},
+      );
+    } catch (err) {
+      getLogger().error(`UPDATE Event error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async insertTopic(database, topic) {
     try {
       await database.insert(topic);

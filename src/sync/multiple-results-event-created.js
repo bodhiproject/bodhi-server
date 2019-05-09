@@ -3,6 +3,9 @@ const { web3 } = require('../web3');
 const { getContractAddress } = require('../config');
 const { getAbiObject } = require('../utils');
 const { getLogger } = require('../utils/logger');
+const MultipleResultsEvent = require('../models/multiple-results-event');
+const { db } = require('../db');
+const DBHelper = require('../db/db-helper');
 
 module.exports = async (contractMetadata, currentBlockNum) => {
   try {
@@ -58,19 +61,47 @@ module.exports = async (contractMetadata, currentBlockNum) => {
         arbitrationRewardPercentage,
       ] = await contract.methods.configMetadata().call();
 
+      const multipleResultsEvent = new MultipleResultsEvent({
+        blockNum: log.blockNumber,
+        txid: log.transactionHash,
+        address: eventAddr,
+        owner: ownerAddr,
+        version,
+        name: eventName,
+        results: eventResults,
+        numOfResults,
+        centralizedOracle,
+        betStartTime,
+        betEndTime,
+        resultSetStartTime,
+        resultSetEndTime,
+        escrowAmount,
+        arbitrationLength,
+        thresholdPercentIncrease,
+        arbitrationRewardPercentage,
+      });
+
       // Insert/update
       promises.push(new Promise(async (resolve, reject) => {
         try {
-          // TODO: need extra parsing before insertion/update?
-          // if (await DBHelper.getCount(db.Topics, { txid }) > 0) {
-          //   const foundTopic = await DBHelper.findOne(db.Topics, { txid }, ['language']);
-          //   if (foundTopic.language) {
-          //     topic.language = foundTopic.language;
-          //   }
-          //   DBHelper.updateTopicByQuery(db.Topics, { txid }, topic);
-          // } else {
-          //   DBHelper.insertTopic(db.Topics, topic);
-          // }
+          if (await DBHelper.getCount(db.Events, { txid: multipleResultsEvent.txid }) > 0) {
+            // Update existing Event if found
+            const foundEvent = await DBHelper.findOne(
+              db.Events,
+              { txid: multipleResultsEvent.txid },
+              ['language'],
+            );
+
+            // Update lang with existing one
+            if (foundEvent.language) {
+              multipleResultsEvent.language = foundEvent.language;
+            }
+
+            DBHelper.updateEvent(db, multipleResultsEvent.txid, multipleResultsEvent);
+          } else {
+            // Insert new Event
+            DBHelper.insertEvent(db, multipleResultsEvent);
+          }
           resolve();
         } catch (insertErr) {
           getLogger().error(`insert MultipleResultsEvent: ${insertErr.message}`);
