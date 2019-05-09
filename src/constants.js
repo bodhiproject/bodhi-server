@@ -76,4 +76,5 @@ module.exports = {
   },
 
   SATOSHI_CONVERSION: 10 ** 8,
+  INVALID_RESULT_INDEX: 255,
 };

@@ -2,7 +2,7 @@
 const _ = require('lodash');
 const { Decoder, Utils } = require('qweb3');
 
-const { isMainnet } = require('../config');
+const { isMainnet } = require('../../config');
 
 class Topic {
   constructor(blockNum, txid, rawLog) {

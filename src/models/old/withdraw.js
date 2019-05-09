@@ -3,8 +3,8 @@ const _ = require('lodash');
 const Decoder = require('qweb3').Decoder;
 const Web3Utils = require('web3-utils');
 
-const { isMainnet } = require('../config');
-const { WITHDRAW_TYPE } = require('../constants');
+const { isMainnet } = require('../../config');
+const { WITHDRAW_TYPE } = require('../../constants');
 
 class Withdraw {
   constructor(blockNum, txid, contractAddress, rawLog, type) {

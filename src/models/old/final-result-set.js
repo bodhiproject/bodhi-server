@@ -2,9 +2,9 @@
 const _ = require('lodash');
 const Decoder = require('qweb3').Decoder;
 
-const { isMainnet } = require('../config');
+const { isMainnet } = require('../../config');
 
-class OracleResultSet {
+class FinalResultSet {
   constructor(blockNum, txid, fromAddress, rawLog) {
     if (!_.isFinite(blockNum)) {
       throw Error('blockNum must be a Number');
@@ -28,8 +28,8 @@ class OracleResultSet {
 
   decode() {
     this.version = this.rawLog._version.toNumber();
-    this.oracleAddress = this.rawLog._oracleAddress;
-    this.resultIndex = this.rawLog._resultIndex.toNumber();
+    this.eventAddress = this.rawLog._eventAddress;
+    this.finalResultIndex = this.rawLog._finalResultIndex.toNumber();
   }
 
   translate() {
@@ -38,11 +38,11 @@ class OracleResultSet {
       txid: this.txid,
       fromAddress: this.fromAddress,
       version: this.version,
-      topicAddress: null,
-      oracleAddress: this.oracleAddress,
-      resultIdx: this.resultIndex,
+      topicAddress: this.eventAddress,
+      oracleAddress: null,
+      resultIdx: this.finalResultIndex,
     };
   }
 }
 
-module.exports = OracleResultSet;
+module.exports = FinalResultSet;
