@@ -4,46 +4,6 @@ const { getLogger } = require('../utils/logger');
 const { EVENT_STATUS } = require('../constants');
 
 module.exports = class DBHelper {
-  /* Misc */
-  static async getCount(database, query) {
-    try {
-      return await database.count(query);
-    } catch (err) {
-      getLogger().error(`Error getting DB count. db:${database} err:${err.message}`);
-    }
-  }
-
-  /*
-  * Returns the fields of the object in one of the tables searched by the query.
-  * @param database {Object} The DB table.
-  * @param query {Object} The query by items.
-  * @param fields {Array} The fields to return for the found item in an array.
-  */
-  static async findOne(database, query, fields) {
-    let fieldsObj;
-    if (!_.isEmpty(fields)) {
-      fieldsObj = {};
-      _.each(fields, (field) => {
-        fieldsObj[field] = 1;
-      });
-    }
-
-    const found = await database.findOne(query, fieldsObj);
-    if (!found) {
-      const { filename } = database.nedb;
-      throw Error(`findOne ${filename.substr(filename.lastIndexOf('/') + 1)} by query ${JSON.stringify(query)}`);
-    }
-    return found;
-  }
-
-  static async updateObjectByQuery(database, query, update) {
-    try {
-      await database.update(query, { $set: update }, {});
-    } catch (err) {
-      getLogger().error(`Error update ${update} object by query:${query}: ${err.message}`);
-    }
-  }
-
   /* Events */
   static async findOneEvent(db, address) {
     try {
