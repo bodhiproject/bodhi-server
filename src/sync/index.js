@@ -186,4 +186,4 @@ const insertBlock = async (currentBlockNum, currentBlockTime) => {
   }
 };
 
-module.exports = { startSync };
+module.exports = startSync;
