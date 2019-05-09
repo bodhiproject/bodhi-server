@@ -5,6 +5,7 @@ const path = require('path');
 const { getDbDir } = require('../utils');
 const { getLogger } = require('../utils/logger');
 
+const MIGRATION_REGEX = /(migration)(\d+)/;
 const db = {
   Events: undefined,
   Bets: undefined,
@@ -13,7 +14,6 @@ const db = {
   Blocks: undefined,
   Transactions: undefined,
 };
-const MIGRATION_REGEX = /(migration)(\d+)/;
 
 /**
  * Run all the migrations and initializes all the datastores.
