@@ -9,7 +9,7 @@ const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
 const BodhiToken = require('../api/bodhi-token');
 const Network = require('../api/network');
-const TopicEvent = require('../api/topic-event');
+const TopicEvent = require('../api/multiple-results-event');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;

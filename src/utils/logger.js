@@ -43,8 +43,7 @@ const initLogger = () => {
   logger.level = process.env.LOG_LEVEL || CONFIG.DEFAULT_LOG_LEVEL;
 
   // Log env and paths
-  logger.info(`Chain network: ${CONFIG.NETWORK}`);
-  logger.info(`Logs path: ${logsDir}`);
+  logger.info(`Logs dir: ${logsDir}`);
 };
 
 const getLogger = () => {
