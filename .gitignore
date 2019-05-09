@@ -176,6 +176,3 @@ $RECYCLE.BIN/
 
 # Distributables
 dist/
-
-# Migrations
-src/db/migrations.dat

@@ -20,37 +20,35 @@ const MIGRATION_REGEX = /(migration)(\d+)/;
  * Run all the migrations and initializes all the datastores.
  */
 const initDB = async () => {
-  const blockchainDataPath = getDbDir();
-  getLogger().info(`Blockchain data path: ${blockchainDataPath}`);
+  const dbDir = getDbDir();
+  getLogger().info(`Data dir: ${dbDir}`);
 
-  db.Events = datastore({ filename: `${blockchainDataPath}/topics.db` });
-  db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
-  db.Votes = datastore({ filename: `${blockchainDataPath}/votes.db` });
-  db.ResultSets = datastore({ filename: `${blockchainDataPath}/resultsets.db` });
-  db.Withdraws = datastore({ filename: `${blockchainDataPath}/withdraws.db` });
-  db.Blocks = datastore({ filename: `${blockchainDataPath}/blocks.db` });
-  db.Transactions = datastore({ filename: `${blockchainDataPath}/transactions.db` });
+  db.Events = datastore({ filename: `${dbDir}/events.db` });
+  db.Bets = datastore({ filename: `${dbDir}/oracles.db` });
+  db.ResultSets = datastore({ filename: `${dbDir}/resultsets.db` });
+  db.Withdraws = datastore({ filename: `${dbDir}/withdraws.db` });
+  db.Blocks = datastore({ filename: `${dbDir}/blocks.db` });
+  db.Transactions = datastore({ filename: `${dbDir}/transactions.db` });
 
   try {
     await Promise.all([
-      db.Topics.loadDatabase(),
-      db.Oracles.loadDatabase(),
-      db.Votes.loadDatabase(),
+      db.Events.loadDatabase(),
+      db.Bets.loadDatabase(),
       db.ResultSets.loadDatabase(),
       db.Withdraws.loadDatabase(),
       db.Blocks.loadDatabase(),
       db.Transactions.loadDatabase(),
     ]);
 
-    await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Events.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Bets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
 
     await applyMigrations();
   } catch (err) {
-    throw Error(`DB load Error: ${err.message}`);
+    getLogger().error(`DB load Error: ${err.message}`);
+    throw err;
   }
 };
 
@@ -60,7 +58,8 @@ const initDB = async () => {
  * We don't want the server to run if the migration failed.
  */
 async function applyMigrations() {
-  const migrationTrackPath = `${__dirname}/migrations.dat`;
+  const dbDir = getDbDir();
+  const migrationTrackPath = `${dbDir}/migrations.dat`;
   const migrations = [];
   let lastMigration;
 
@@ -72,15 +71,16 @@ async function applyMigrations() {
     }
   } catch (err) {
     getLogger().error(`Error creating migrations.dat file: ${err.message}`);
-    throw Error(`Error creating migrations.dat file: ${err.message}`);
+    throw err;
   }
 
   try {
     // Get last migration number
-    lastMigration = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
+    lastMigration = Number(await fs.readFileSync(migrationTrackPath)
+      .toString().split('=')[1].trim());
   } catch (err) {
     getLogger().error(`Migration track file loading error: ${err.message}`);
-    throw Error(`Migration track file loading error: ${err.message}`);
+    throw err;
   }
 
   try {
@@ -105,7 +105,7 @@ async function applyMigrations() {
     });
   } catch (err) {
     getLogger().error(`Migration scripts load error: ${err.message}`);
-    throw Error(`Migration scripts load error: ${err.message}`);
+    throw err;
   }
 
   // Run each migration and store the number
@@ -123,7 +123,7 @@ async function applyMigrations() {
       }
     } catch (err) {
       getLogger().error(`Migration ${migration.number} error: ${err.message}`);
-      throw Error(`Migration ${migration.number} error: ${err.message}`);
+      throw err;
     }
   }
   /* eslint-enable no-restricted-syntax, no-await-in-loop */

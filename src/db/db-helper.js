@@ -144,23 +144,12 @@ module.exports = class DBHelper {
     }
   }
 
-  /* ResultSets */
+  /* Withdraws */
   static async insertWithdraw(db, withdraw) {
     try {
       await db.Withdraws.insert(withdraw);
     } catch (err) {
       getLogger().error(`INSERT Withdraw error: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /* Transactions */
-  static async insertTransaction(database, tx) {
-    try {
-      getLogger().debug(`Mutation Insert: Transaction ${tx.type} txid:${tx.txid}`);
-      await database.insert(tx);
-    } catch (err) {
-      getLogger().error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);
       throw err;
     }
   }
@@ -175,6 +164,17 @@ module.exports = class DBHelper {
       });
     } catch (err) {
       getLogger().error(`INSERT Block error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* Transactions */
+  static async insertTransaction(database, tx) {
+    try {
+      getLogger().debug(`Mutation Insert: Transaction ${tx.type} txid:${tx.txid}`);
+      await database.insert(tx);
+    } catch (err) {
+      getLogger().error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);
       throw err;
     }
   }
