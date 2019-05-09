@@ -2,6 +2,9 @@ const { each } = require('lodash');
 const { web3 } = require('../web3');
 const { getAbiObject } = require('../utils');
 const { getLogger } = require('../utils/logger');
+const { db } = require('../db');
+const DBHelper = require('../db/db-helper');
+const Withdraw = require('../models/withdraw');
 
 module.exports = async (contractMetadata, currentBlockNum) => {
   try {
@@ -33,10 +36,19 @@ module.exports = async (contractMetadata, currentBlockNum) => {
         escrowAmount,
       } = naka.eth.abi.decodeLog(obj.inputs, log.data, log.topics);
 
+      const withdraw = new Withdraw({
+        blockNum: log.blockNumber,
+        txid: log.transactionHash,
+        eventAddress,
+        winnerAddress: winner,
+        winningAmount,
+        escrowAmount,
+      });
+
       // Insert/update
       promises.push(new Promise(async (resolve, reject) => {
         try {
-
+          await DBHelper.insertWithdraw(db, withdraw);
           resolve();
         } catch (insertErr) {
           getLogger().error(`insert WinningsWithdrawn: ${insertErr.message}`);

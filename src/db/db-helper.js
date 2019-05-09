@@ -95,6 +95,16 @@ module.exports = class DBHelper {
     }
   }
 
+  /* ResultSets */
+  static async insertWithdraw(db, withdraw) {
+    try {
+      await db.Withdraws.insert(withdraw);
+    } catch (err) {
+      getLogger().error(`INSERT Withdraw error: ${err.message}`);
+      throw err;
+    }
+  }
+
   /* Transactions */
   static async insertTransaction(database, tx) {
     try {
