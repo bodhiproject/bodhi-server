@@ -127,6 +127,43 @@ module.exports = class DBHelper {
     }
   }
 
+  static async updateEventStatusArbitration(db) {
+    try {
+      await db.Events.update(
+        {
+          status: {
+            $or: [
+              EVENT_STATUS.ORACLE_RESULT_SETTING,
+              EVENT_STATUS.OPEN_RESULT_SETTING,
+            ],
+          },
+          currentRound: { $gt: 0 },
+        },
+        { $set: { status: EVENT_STATUS.ARBITRATION } },
+        { multi: true },
+      );
+    } catch (err) {
+      getLogger().error(`UPDATE Event Status Arbitration error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventStatusWithdrawing(db, currBlockTime) {
+    try {
+      await db.Events.update(
+        {
+          status: EVENT_STATUS.ARBITRATION,
+          arbitrationEndTime: { $lte: currBlockTime },
+        },
+        { $set: { status: EVENT_STATUS.WITHDRAWING } },
+        { multi: true },
+      );
+    } catch (err) {
+      getLogger().error(`UPDATE Event Status Withdrawing error: ${err.message}`);
+      throw err;
+    }
+  }
+
   /* Bets */
   static async insertBet(db, bet) {
     try {

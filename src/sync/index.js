@@ -53,11 +53,14 @@ const startSync = async (shouldUpdateLocalTxs) => {
   await syncVoteResultSet(contractMetadata, currentBlockNum);
   await syncWinningsWithdrawn(contractMetadata, currentBlockNum);
 
-  // Updates
+  // Update statuses
   await updateStatusBetting(currentBlockTime);
   await updateStatusOracleResultSetting(currentBlockTime);
   await updateStatusOpenResultSetting(currentBlockTime);
+  await updateStatusArbitration();
+  await updateStatusWithdrawing(currentBlockTime);
 
+  // Insert block
   await insertBlock(currentBlockNum, currentBlockTime);
 
   // Send syncInfo subscription message
@@ -144,6 +147,28 @@ const updateStatusOracleResultSetting = async (currentBlockTime) => {
 const updateStatusOpenResultSetting = async (currentBlockTime) => {
   try {
     await DBHelper.updateEventStatusOpenResultSetting(db, currentBlockTime);
+  } catch (err) {
+    throw err;
+  }
+};
+
+/**
+ * Updates any events which are in the arbitration status.
+ */
+const updateStatusArbitration = async () => {
+  try {
+    await DBHelper.updateEventStatusArbitration(db);
+  } catch (err) {
+    throw err;
+  }
+};
+
+/**
+ * Updates any events which are in the withdrawing status.
+ */
+const updateStatusWithdrawing = async (currentBlockTime) => {
+  try {
+    await DBHelper.updateEventStatusWithdrawing(db, currentBlockTime);
   } catch (err) {
     throw err;
   }
