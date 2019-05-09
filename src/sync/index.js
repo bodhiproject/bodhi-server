@@ -128,54 +128,6 @@ const getBlockTime = async (blockNum) => {
   }
 };
 
-// const syncTopicCreated = async (currentBlockNum) => {
-//   let result;
-//   try {
-//     result = await getInstance().searchLogs(
-//       currentBlockNum,
-//       currentBlockNum,
-//       contractMetadata.EventFactory.address,
-//       [contractMetadata.EventFactory.TopicCreated],
-//       contractMetadata,
-//       REMOVE_HEX_PREFIX,
-//     );
-//   } catch (err) {
-//     throw Error(`searchlog TopicCreated: ${err.message}`);
-//   }
-
-//   const topicEventPromises = [];
-//   each(result, (event) => {
-//     const blockNum = event.blockNumber;
-//     const txid = event.transactionHash;
-
-//     each(event.log, (entry) => {
-//       if (entry._eventName === 'TopicCreated') {
-//         topicEventPromises.push(new Promise(async (resolve) => {
-//           try {
-//             const topic = new Topic(blockNum, txid, entry).translate();
-//             // Update existing mutated Topic or insert new
-//             if (await DBHelper.getCount(db.Topics, { txid }) > 0) {
-//               const foundTopic = await DBHelper.findOne(db.Topics, { txid }, ['language']);
-//               if (foundTopic.language) {
-//                 topic.language = foundTopic.language;
-//               }
-//               DBHelper.updateTopicByQuery(db.Topics, { txid }, topic);
-//             } else {
-//               DBHelper.insertTopic(db.Topics, topic);
-//             }
-
-//             resolve();
-//           } catch (err) {
-//             getLogger().error(`insert TopicEvent: ${err.message}`);
-//             resolve();
-//           }
-//         }));
-//       }
-//     });
-//   });
-
-//   await Promise.all(topicEventPromises);
-// };
 
 // const syncCentralizedOracleCreated = async (currentBlockNum) => {
 //   let result;

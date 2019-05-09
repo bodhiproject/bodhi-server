@@ -49,6 +49,7 @@ module.exports = class DBHelper {
       await db.Events.insert(event);
     } catch (err) {
       getLogger().error(`INSERT Event error: ${err.message}`);
+      throw err;
     }
   }
 
@@ -61,6 +62,16 @@ module.exports = class DBHelper {
       );
     } catch (err) {
       getLogger().error(`UPDATE Event error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* Bets */
+  static async insertBet(db, bet) {
+    try {
+      await db.Bets.insert(bet);
+    } catch (err) {
+      getLogger().error(`INSERT Bet error: ${err.message}`);
       throw err;
     }
   }

@@ -4,7 +4,7 @@ const { isFinite, isString, map, filter } = require('lodash');
 const { INVALID_RESULT_INDEX, STATUS } = require('../constants');
 const { web3 } = require('../web3');
 
-class MultipleResultsEvent {
+module.exports = class MultipleResultsEvent {
   constructor(params) {
     this.validate(params);
     this.format(params);
@@ -47,6 +47,4 @@ class MultipleResultsEvent {
     this.status = STATUS.VOTING;
     this.language = 'zh-Hans-CN';
   }
-}
-
-module.exports = MultipleResultsEvent;
+};
