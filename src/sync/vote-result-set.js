@@ -56,6 +56,8 @@ module.exports = async (contractMetadata, currentBlockNum) => {
 
           // Update round info for Event
           const event = await DBHelper.findOneEvent(db, eventAddress);
+          event.currentRound = resultSet.eventRound + 1;
+          event.currentResultIndex = resultSet.resultIndex;
           event.consensusThreshold = nextConsensusThreshold;
           event.arbitrationEndTime = nextArbitrationEndTime;
           await DBHelper.updateEvent(db, event);

@@ -20,8 +20,8 @@ module.exports = class Bet {
     // Blockchain params
     this.eventAddress = params.eventAddress;
     this.betterAddress = params.betterAddress;
-    this.resultIndex = params.resultIndex;
+    this.resultIndex = Number(params.resultIndex);
     this.amount = params.amount;
-    this.eventRound = params.eventRound;
+    this.eventRound = Number(params.eventRound);
   }
 };
