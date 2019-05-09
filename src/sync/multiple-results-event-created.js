@@ -28,13 +28,16 @@ module.exports = async (contractMetadata, currentBlockNum) => {
     // Parse each log
     const promises = [];
     each(logs, async (log) => {
-      const [sig, eventAddr, ownerAddr] = log.topics;
+      const {
+        eventAddr,
+        ownerAddr,
+      } = naka.eth.abi.decodeLog(obj.inputs, log.data, log.topics);
+
+      // Get event data
       const contract = new naka.eth.Contract(
         contractMetadata.MultipleResultsEvent.abi,
         eventAddr,
       );
-
-      // Get event data
       const [
         version,
         eventName,
