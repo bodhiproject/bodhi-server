@@ -1,15 +1,15 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { isEmpty, includes, each, split, map } = require('lodash');
+const { isEmpty, map } = require('lodash');
 
 const { CONFIG } = require('../config');
 const { getLogger } = require('./logger');
 
 /**
- * Returns the base data dir path, and also creates it if it doesn't exist.
- * @return {string} Path to the base data dir.
+ * Returns the base data dir path, and also creates it if necessary.
+ * @return {string} Path to the base data directory.
  */
-function getBaseDataDir() {
+const getBaseDataDir = () => {
   // DATA_DIR is defined in environment variables
   if (!isEmpty(process.env.DATA_DIR)) {
     return process.env.DATA_DIR;
@@ -18,76 +18,30 @@ function getBaseDataDir() {
   const rootDir = path.dirname(require.main.filename);
   const envDir = CONFIG.NETWORK;
   const dataDir = `${rootDir}/data/${envDir}`;
-
-  // Create data dir if needed
   fs.ensureDirSync(dataDir);
-
   return path.resolve(dataDir);
-}
-
-/*
-* Returns the path where the local cache data (Transaction table) directory is,
-* and also creates the directory if it doesn't exist.
-* The Local cache should exist regardless of version change, for now
-*/
-function getLocalCacheDataDir() {
-  const dataDir = `${getBaseDataDir()}/local/nedb`;
-
-  // Create data dir if needed
-  fs.ensureDirSync(dataDir);
-
-  return dataDir;
-}
+};
 
 /**
- * Returns the full path to the database directory, and creates the directory if it doesn't exist.
- * @return {string} Absolute path to database directory.
+ * Returns the database dir path, and also creates it if necesssary.
+ * @return {string} Path to the database directory.
  */
-function getDataDir() {
+const getDbDir = () => {
+  const baseDir = getBaseDataDir();
+  const dbDir = `${baseDir}/nedb`;
+  fs.ensureDirSync(dbDir);
+  return path.resolve(dbDir);
+};
+
+/**
+ * Returns the logs dir path, and also creates it if necesssary.
+ * @return {string} Path to the logs directory.
+ */
+function getLogsDir() {
   const basePath = getBaseDataDir();
-  const path = `${basePath}/nedb`;
-  fs.ensureDirSync(path); // Create dir if needed
-  return path;
-}
-
-/**
- * Returns the full path to the logs directory, and creates the directory if it doesn't exist.
- * @return {string} Absolute path to logs directory.
- */
-function getLogDir() {
-  const basePath = getBaseDataDir();
-  const path = `${basePath}/logs`;
-  fs.ensureDirSync(path); // Create dir if needed
-  return path;
-}
-
-/**
- * Gets the path for the Qtum binaries. Can either:
- * 1. Set QTUM_PATH in .env file. eg. QTUM_PATH=./qtum/mac/bin
- * 2. Pass the path in the --qtumpath flag via commandline. eg. --qtumpath=./qtum/mac/bin
- * The QTUM_PATH in .env will take priority over the qtumpath cli flag.
- * @return {string} The path to the Qtum bin folder.
- */
-function getDevQtumExecPath() {
-  // Must pass in the absolute path to the bin/ folder
-  let qtumPath;
-
-  if (process.env.QTUM_PATH) {
-    // QTUMPATH found in .env
-    qtumPath = process.env.QTUM_PATH;
-  } else {
-    // Search for --qtumpath flag in command-line args
-    each(process.argv, (arg) => {
-      if (includes(arg, '--qtumpath')) {
-        qtumPath = (split(arg, '=', 2))[1];
-      }
-    });
-  }
-
-  if (!qtumPath) {
-    throw Error('Qtum path was not found.');
-  }
-  return qtumPath;
+  const logsDir = `${basePath}/logs`;
+  fs.ensureDirSync(path);
+  return path.resolve(logsDir);
 }
 
 /**
@@ -130,23 +84,6 @@ function hexArrayToDecimalArray(array) {
   return map(array, item => hexToDecimalString(item));
 }
 
-async function isAllowanceEnough(owner, spender, amount) {
-  try {
-    const res = await require('../api/bodhi-token').allowance({ // eslint-disable-line global-require
-      owner,
-      spender,
-      senderAddress: owner,
-    });
-
-    const allowance = Web3Utils.toBN(res.remaining);
-    const amountBN = Web3Utils.toBN(amount);
-    return allowance.gte(amountBN);
-  } catch (err) {
-    getLogger().error(`Error checking allowance: ${err.message}`);
-    throw err;
-  }
-}
-
 /*
 * Get correct gas limit determined if voting over consensus threshold or not
 */
@@ -165,13 +102,10 @@ async function getVotingGasLimit(oraclesDb, oracleAddress, voteOptionIdx, voteAm
 
 module.exports = {
   getBaseDataDir,
-  getLocalCacheDataDir,
-  getDataDir,
-  getLogDir,
-  getDevQtumExecPath,
+  getDbDir,
+  getLogsDir,
   validateObjKeyValues,
   hexToDecimalString,
   hexArrayToDecimalArray,
-  isAllowanceEnough,
   getVotingGasLimit,
 };

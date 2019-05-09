@@ -2,7 +2,7 @@ const datastore = require('nedb-promise');
 const fs = require('fs-extra');
 const path = require('path');
 
-const Utils = require('../utils');
+const { getDbDir } = require('../utils');
 const { getLogger } = require('../utils/logger');
 
 const db = {
@@ -20,7 +20,7 @@ const MIGRATION_REGEX = /(migration)(\d+)/;
  * Run all the migrations and initializes all the datastores.
  */
 async function initDB() {
-  const blockchainDataPath = Utils.getDataDir();
+  const blockchainDataPath = getDbDir();
   getLogger().info(`Blockchain data path: ${blockchainDataPath}`);
 
   db.Events = datastore({ filename: `${blockchainDataPath}/topics.db` });
@@ -134,7 +134,7 @@ async function applyMigrations() {
 // Delete blockchain Bodhi data
 function deleteBodhiData() {
   const logger = getLogger();
-  const blockchainDataPath = Utils.getDataDir();
+  const blockchainDataPath = getDbDir();
 
   try {
     fs.removeSync(`${blockchainDataPath}/topics.db`);
