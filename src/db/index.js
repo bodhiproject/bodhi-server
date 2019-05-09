@@ -19,7 +19,7 @@ const MIGRATION_REGEX = /(migration)(\d+)/;
 /**
  * Run all the migrations and initializes all the datastores.
  */
-async function initDB() {
+const initDB = async () => {
   const blockchainDataPath = getDbDir();
   getLogger().info(`Blockchain data path: ${blockchainDataPath}`);
 
@@ -52,7 +52,7 @@ async function initDB() {
   } catch (err) {
     throw Error(`DB load Error: ${err.message}`);
   }
-}
+};
 
 /**
  * Apply necessary migrations.

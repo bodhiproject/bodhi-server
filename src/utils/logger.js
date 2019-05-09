@@ -8,7 +8,7 @@ const { CONFIG } = require('../config');
 
 let logger;
 
-function initLogger() {
+const initLogger = () => {
   const logsDir = getLogsDir();
   const winstonCfg = winston.config;
   const transports = [
@@ -45,12 +45,12 @@ function initLogger() {
   // Log env and paths
   logger.info(`Chain network: ${CONFIG.NETWORK}`);
   logger.info(`Logs path: ${logsDir}`);
-}
+};
 
-function getLogger() {
+const getLogger = () => {
   if (!logger) throw Error('Logger has not been initialized');
   return logger;
-}
+};
 
 module.exports = {
   initLogger,
