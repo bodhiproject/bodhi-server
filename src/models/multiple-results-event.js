@@ -1,7 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
 const { isFinite, isString, map, filter } = require('lodash');
 
-const { INVALID_RESULT_INDEX, STATUS } = require('../constants');
+const { INVALID_RESULT_INDEX, EVENT_STATUS } = require('../constants');
 const { web3 } = require('../web3');
 
 module.exports = class MultipleResultsEvent {
@@ -46,7 +46,7 @@ module.exports = class MultipleResultsEvent {
 
     // Backend params
     this.hashId = null;
-    this.status = STATUS.VOTING;
+    this.status = EVENT_STATUS.BETTING;
     this.language = 'zh-Hans-CN';
   }
 };
