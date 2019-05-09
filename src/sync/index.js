@@ -1,7 +1,6 @@
 const { isNull } = require('lodash');
 
 const { getContractMetadata, isMainnet } = require('../config');
-const { TOKEN, STATUS } = require('../constants');
 const { web3 } = require('../web3');
 const updateTransactions = require('./update-transactions');
 const syncMultipleResultsEventCreated = require('./multiple-results-event-created');
