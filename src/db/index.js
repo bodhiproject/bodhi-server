@@ -6,9 +6,8 @@ const { getDbDir } = require('../utils');
 const { getLogger } = require('../utils/logger');
 
 const db = {
-  Topics: undefined,
-  Oracles: undefined,
-  Votes: undefined,
+  Events: undefined,
+  Bets: undefined,
   ResultSets: undefined,
   Withdraws: undefined,
   Blocks: undefined,
@@ -131,52 +130,7 @@ async function applyMigrations() {
   getLogger().info('Migrations complete.');
 }
 
-// Delete blockchain Bodhi data
-function deleteBodhiData() {
-  const logger = getLogger();
-  const blockchainDataPath = getDbDir();
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/topics.db`);
-  } catch (err) {
-    logger.error(`Delete topics.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/oracles.db`);
-  } catch (err) {
-    logger.error(`Delete oracles.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/votes.db`);
-  } catch (err) {
-    logger.error(`Delete votes.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/resultsets.db`);
-  } catch (err) {
-    logger.error(`Delete resultsets.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/withdraws.db`);
-  } catch (err) {
-    logger.error(`Delete withdraws.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/blocks.db`);
-  } catch (err) {
-    logger.error(`Delete blocks.db error: ${err.message}`);
-  }
-
-  logger.info('Bodhi data deleted.');
-}
-
 module.exports = {
   db,
   initDB,
-  deleteBodhiData,
 };
