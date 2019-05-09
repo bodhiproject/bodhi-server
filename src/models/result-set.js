@@ -19,7 +19,7 @@ module.exports = class ResultSet {
 
     // Blockchain params
     this.eventAddress = params.eventAddress;
-    this.centralizedOracle = params.centralizedOracle; // Only for COracle result sets
+    this.centralizedOracleAddress = params.centralizedOracleAddress; // Only for COracle result sets
     this.resultIndex = params.resultIndex;
     this.amount = params.amount;
     this.eventRound = params.eventRound;

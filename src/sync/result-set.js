@@ -43,7 +43,7 @@ module.exports = async (contractMetadata, currentBlockNum) => {
         blockNum: log.blockNumber,
         txid: log.transactionHash,
         eventAddress,
-        centralizedOracle,
+        centralizedOracleAddress: centralizedOracle,
         resultIndex,
         amount,
         eventRound,
