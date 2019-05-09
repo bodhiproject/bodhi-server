@@ -2,6 +2,7 @@ const { each } = require('lodash');
 const { web3 } = require('../web3');
 const { getContractAddress } = require('../config');
 const { getAbiObject } = require('../utils');
+const { getLogger } = require('../utils/logger');
 
 module.exports = async (contractMetadata, currentBlockNum) => {
   try {
@@ -56,16 +57,22 @@ module.exports = async (contractMetadata, currentBlockNum) => {
 
       // Insert/update
       promises.push(new Promise(async (resolve, reject) => {
-        // TODO: need extra parsing before insertion/update?
-        // if (await DBHelper.getCount(db.Topics, { txid }) > 0) {
-        //   const foundTopic = await DBHelper.findOne(db.Topics, { txid }, ['language']);
-        //   if (foundTopic.language) {
-        //     topic.language = foundTopic.language;
-        //   }
-        //   DBHelper.updateTopicByQuery(db.Topics, { txid }, topic);
-        // } else {
-        //   DBHelper.insertTopic(db.Topics, topic);
-        // }
+        try {
+          // TODO: need extra parsing before insertion/update?
+          // if (await DBHelper.getCount(db.Topics, { txid }) > 0) {
+          //   const foundTopic = await DBHelper.findOne(db.Topics, { txid }, ['language']);
+          //   if (foundTopic.language) {
+          //     topic.language = foundTopic.language;
+          //   }
+          //   DBHelper.updateTopicByQuery(db.Topics, { txid }, topic);
+          // } else {
+          //   DBHelper.insertTopic(db.Topics, topic);
+          // }
+          resolve();
+        } catch (insertErr) {
+          getLogger().error(`insert MultipleResultsEvent: ${insertErr.message}`);
+          reject(insertErr);
+        }
       }));
     });
 
