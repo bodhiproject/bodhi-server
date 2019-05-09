@@ -2,6 +2,9 @@ const { each } = require('lodash');
 const { web3 } = require('../web3');
 const { getAbiObject } = require('../utils');
 const { getLogger } = require('../utils/logger');
+const { db } = require('../db');
+const DBHelper = require('../db/db-helper');
+const Bet = require('../models/bet');
 
 module.exports = async (contractMetadata, currentBlockNum) => {
   try {
@@ -34,10 +37,20 @@ module.exports = async (contractMetadata, currentBlockNum) => {
         eventRound,
       } = naka.eth.abi.decodeLog(obj.inputs, log.data, log.topics);
 
+      const bet = new Bet({
+        blockNum: log.blockNumber,
+        txid: log.transactionHash,
+        eventAddress,
+        betterAddress: voter,
+        resultIndex,
+        amount,
+        eventRound,
+      });
+
       // Insert/update
       promises.push(new Promise(async (resolve, reject) => {
         try {
-
+          await DBHelper.insertBet(db, bet);
           resolve();
         } catch (insertErr) {
           getLogger().error(`insert Vote: ${insertErr.message}`);
