@@ -84,6 +84,12 @@ type MultipleResultsEvent {
   transactions: [Transaction]
 }
 
+type PaginatedEvents {
+  totalCount: Int!
+  pageInfo: PageInfo
+  events: [MultipleResultsEvent]!
+}
+
 type Bet {
   txid: String
   txStatus: TransactionStatus!
@@ -96,6 +102,12 @@ type Bet {
   amount: String!
   eventRound: Int!
   txStatus: TransactionStatus!
+}
+
+type PaginatedBets {
+  totalCount: Int!
+  pageInfo: PageInfo
+  bets: [Bet]!
 }
 
 type ResultSet {
@@ -112,6 +124,12 @@ type ResultSet {
   txStatus: TransactionStatus!
 }
 
+type PaginatedResultSets {
+  totalCount: Int!
+  pageInfo: PageInfo
+  resultSets: [ResultSet]!
+}
+
 type Withdraw {
   txid: String
   txStatus: TransactionStatus!
@@ -125,7 +143,19 @@ type Withdraw {
   txStatus: TransactionStatus!
 }
 
-type syncInfo {
+type PaginatedWithdraws {
+  totalCount: Int!
+  pageInfo: PageInfo
+  withdraws: [Withdraw]!
+}
+
+type TotalBets {
+  eventAddress: String!
+  betterAddress: String!
+  amount: String!
+}
+
+type SyncInfo {
   syncBlockNum: Int
   syncBlockTime: String
   syncPercent: Int
@@ -136,47 +166,22 @@ type AddressBalance {
   nbot: String!
 }
 
-type PaginatedOracles {
+type PaginatedTotalBets {
   totalCount: Int!
-  oracles: [Oracle]!
   pageInfo: PageInfo
-}
-
-type PaginatedTopics {
-  totalCount: Int!
-  topics: [Topic]!
-  pageInfo: PageInfo
-}
-
-type AccumulatedVote {
-  topicAddress: String
-  voterAddress: String!
-  amount: String!
-  token: _TokenType!
-}
-
-type PaginatedAccumulatedVotes {
-  totalCount: Int!
-  votes: [AccumulatedVote]!
-  pageInfo: PageInfo
+  totalBets: [TotalBets]!
 }
 
 type Winner {
-  topicAddress: String!
-  voterAddress: String!
-  amount: TokenAmount!
+  eventAddress: String!
+  betterAddress: String!
+  amount: String!
 }
 
 type LeaderboardStats {
   eventCount: String!
   participantsCount: String!
-  totalQtum: String!
-  totalBot: String!
-}
-
-type TokenAmount {
-  qtum: String!
-  bot: String!
+  totalWon: String!
 }
 
 input Order {
@@ -221,19 +226,64 @@ input WithdrawFilter {
 }
 
 type Query {
-  allTopics(filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): PaginatedTopics!
-  allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): PaginatedOracles!
-  searchTopics(searchPhrase: String, filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): [Topic]!
-  searchOracles(searchPhrase: String, filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
-  allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
-  mostVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): PaginatedAccumulatedVotes!
-  winners(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Winner]!
-  leaderboardStats(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): LeaderboardStats!
-  resultSets(filter: ResultSetFilter, orderBy: [Order!], limit: Int, skip: Int): [ResultSet]!
-  withdraws(filter: WithdrawFilter, orderBy: [Order!], limit: Int, skip: Int): [Withdraw]!
-  allTransactions(filter: TransactionFilter, orderBy: [Order!], limit: Int, skip: Int): [Transaction]!
-  syncInfo(includeBalance: Boolean): syncInfo!
-  addressBalances: [AddressBalance!]
+  events(
+    filter: EventFilter,
+    orderBy: [Order!],
+    limit: Int,
+    skip: Int
+  ): PaginatedEvents!
+
+  searchEvents(
+    searchPhrase: String,
+    filter: EventFilter,
+    orderBy: [Order!],
+    limit: Int,
+    skip: Int
+  ): [MultipleResultsEvent]!
+
+  bets(
+    filter: BetFilter,
+    orderBy: [Order!],
+    limit: Int,
+    skip: Int
+  ): [PaginatedBets!
+
+  resultSets(
+    filter: ResultSetFilter,
+    orderBy: [Order!],
+    limit: Int,
+    skip: Int
+  ): [PaginatedResultSets]!
+
+  withdraws(
+    filter: WithdrawFilter,
+    orderBy: [Order!],
+    limit: Int,
+    skip: Int
+  ): [PaginatedWithdraws]!
+
+  syncInfo(): SyncInfo!
+
+  mostBets(
+    filter: BetFilter,
+    orderBy: [Order!],
+    limit: Int,
+    skip: Int
+  ): PaginatedTotalBets!
+
+  winners(
+    filter: BetFilter,
+    orderBy: [Order!],
+    limit: Int,
+    skip: Int
+  ): [Winner]!
+
+  leaderboardStats(
+    filter: BetFilter,
+    orderBy: [Order!],
+    limit: Int,
+    skip: Int
+  ): LeaderboardStats!
 }
 
 type Mutation {
@@ -313,7 +363,6 @@ type Mutation {
 }
 
 type Subscription {
-  onSyncInfo: syncInfo
-  onApproveSuccess: Transaction
+  onSyncInfo: SyncInfo
 }
 `;
