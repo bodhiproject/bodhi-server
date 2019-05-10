@@ -127,6 +127,29 @@ const buildResultSetFilters = ({
   return filters;
 };
 
+const buildWithdrawFilters = ({
+  OR = [],
+  txid,
+  eventAddress,
+  winnerAddress,
+}) => {
+  const filter = (
+    txid
+    || eventAddress
+    || winnerAddress
+  ) ? {} : null;
+
+  if (txid) filter.txid = txid;
+  if (eventAddress) filter.eventAddress = eventAddress;
+  if (winnerAddress) filter.winnerAddress = winnerAddress;
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildWithdrawFilters(OR[i]));
+  }
+  return filters;
+};
+
 const runPaginatedQuery = async ({ db, filter, orderBy, limit, skip }) => {
   let cursor = db.cfind(filter);
   cursor = buildCursorOptions(cursor, orderBy, limit, skip);
@@ -160,5 +183,6 @@ module.exports = {
   buildEventSearchPhrase,
   buildBetFilters,
   buildResultSetFilters,
+  buildWithdrawFilters,
   runPaginatedQuery,
 };

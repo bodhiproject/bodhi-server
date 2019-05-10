@@ -7,32 +7,7 @@ const events = require('./events');
 const searchEvents = require('./events');
 const bets = require('./bets');
 const resultSets = require('./result-sets');
-
-const buildWithdrawFilters = ({ OR = [], txid, topicAddress, withdrawerAddress, type }) => {
-  const filter = (txid || topicAddress || withdrawerAddress || type) ? {} : null;
-
-  if (txid) {
-    filter.txid = txid;
-  }
-
-  if (topicAddress) {
-    filter.topicAddress = topicAddress;
-  }
-
-  if (withdrawerAddress) {
-    filter.withdrawerAddress = withdrawerAddress;
-  }
-
-  if (type) {
-    filter.type = type;
-  }
-
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildWithdrawFilters(OR[i]));
-  }
-  return filters;
-};
+const withdraws = require('./withdraws');
 
 const buildTransactionFilters = ({ OR = [], txid, type, status, topicAddress, oracleAddress, senderAddress }) => {
   const filter = (txid || type || status || topicAddress || oracleAddress || senderAddress) ? {} : null;
@@ -156,6 +131,7 @@ module.exports = {
   searchEvents,
   bets,
   resultSets,
+  withdraws,
 
   mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
     const voterFilters = buildVoteFilters(filter);
@@ -243,13 +219,6 @@ module.exports = {
       totalQtum: totalQtum.toString(10),
       totalBot: totalBot.toString(10),
     };
-  },
-
-  withdraws: async (root, { filter, orderBy, limit, skip }, { db: { Withdraws } }) => {
-    const query = filter ? { $or: buildWithdrawFilters(filter) } : {};
-    let cursor = Withdraws.cfind(query);
-    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-    return cursor.exec();
   },
 
   allTransactions: async (root, { filter, orderBy, limit, skip }, { db: { Transactions } }) => {
