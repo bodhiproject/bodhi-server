@@ -1,5 +1,7 @@
 const { isEmpty, each, isNumber, toInteger } = require('lodash');
 
+const { web3 } = require('../../web3');
+
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
 
@@ -150,6 +152,11 @@ const buildWithdrawFilters = ({
   return filters;
 };
 
+const calculateSyncPercent = async (blockNum) => {
+  const chainBlock = await web3.eth.getBlock('latest');
+  Math.floor((blockNum / chainBlock) * 100);
+};
+
 const runPaginatedQuery = async ({ db, filter, orderBy, limit, skip }) => {
   let cursor = db.cfind(filter);
   cursor = buildCursorOptions(cursor, orderBy, limit, skip);
@@ -184,5 +191,6 @@ module.exports = {
   buildBetFilters,
   buildResultSetFilters,
   buildWithdrawFilters,
+  calculateSyncPercent,
   runPaginatedQuery,
 };

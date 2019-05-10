@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const { calculateSyncPercent } = require('../subscriptions');
 const { SATOSHI_CONVERSION, TOKEN } = require('../../constants');
 const { getLogger } = require('../../utils/logger');
 const sequentialLoop = require('../../utils/sequential-loop');
@@ -8,35 +7,7 @@ const searchEvents = require('./events');
 const bets = require('./bets');
 const resultSets = require('./result-sets');
 const withdraws = require('./withdraws');
-
-const buildTransactionFilters = ({ OR = [], txid, type, status, topicAddress, oracleAddress, senderAddress }) => {
-  const filter = (txid || type || status || topicAddress || oracleAddress || senderAddress) ? {} : null;
-
-  if (txid) {
-    filter.txid = txid;
-  }
-  if (type) {
-    filter.type = type;
-  }
-  if (status) {
-    filter.status = status;
-  }
-  if (topicAddress) {
-    filter.topicAddress = topicAddress;
-  }
-  if (oracleAddress) {
-    filter.oracleAddress = oracleAddress;
-  }
-  if (senderAddress) {
-    filter.senderAddress = senderAddress;
-  }
-
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildTransactionFilters(OR[i]));
-  }
-  return filters;
-};
+const syncInfo = require('./sync-info');
 
 // Gets the QTUM and BOT balances for all ever used addresses
 const getAddressBalances = async () => {
@@ -132,6 +103,7 @@ module.exports = {
   bets,
   resultSets,
   withdraws,
+  syncInfo,
 
   mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
     const voterFilters = buildVoteFilters(filter);
@@ -218,50 +190,6 @@ module.exports = {
       participantsCount,
       totalQtum: totalQtum.toString(10),
       totalBot: totalBot.toString(10),
-    };
-  },
-
-  allTransactions: async (root, { filter, orderBy, limit, skip }, { db: { Transactions } }) => {
-    const query = filter ? { $or: buildTransactionFilters(filter) } : {};
-    let cursor = Transactions.cfind(query);
-    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-    return cursor.exec();
-  },
-
-  syncInfo: async (root, { includeBalance }, { db: { Blocks } }) => {
-    let blocks;
-    try {
-      blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
-    } catch (err) {
-      getLogger().error(`Error querying latest block: ${err.message}`);
-    }
-
-    let syncBlockNum;
-    let syncBlockTime;
-    if (blocks && blocks.length > 0) {
-      // Use latest block synced
-      syncBlockNum = blocks[0].blockNum;
-      syncBlockTime = blocks[0].blockTime;
-    } else {
-      // Fetch current block from qtum
-      syncBlockNum = Math.max(0, await Blockchain.getBlockCount());
-      const blockHash = await Blockchain.getBlockHash({ blockNum: syncBlockNum });
-      syncBlockTime = (await Blockchain.getBlock({ blockHash })).time;
-    }
-    const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
-    const peerNodeCount = await Network.getPeerNodeCount();
-
-    let addressBalances = [];
-    if (includeBalance || false) {
-      addressBalances = await getAddressBalances();
-    }
-
-    return {
-      syncBlockNum,
-      syncBlockTime,
-      syncPercent,
-      peerNodeCount,
-      addressBalances,
     };
   },
 
