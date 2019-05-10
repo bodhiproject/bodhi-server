@@ -98,6 +98,35 @@ const buildBetFilters = ({
   return filters;
 };
 
+const buildResultSetFilters = ({
+  OR = [],
+  txid,
+  eventAddress,
+  centralizedOracleAddress,
+  resultIndex,
+  eventRound,
+}) => {
+  const filter = (
+    txid
+    || eventAddress
+    || centralizedOracleAddress
+    || resultIndex
+    || eventRound
+  ) ? {} : null;
+
+  if (txid) filter.txid = txid;
+  if (eventAddress) filter.eventAddress = eventAddress;
+  if (centralizedOracleAddress) filter.centralizedOracleAddress = centralizedOracleAddress;
+  if (resultIndex) filter.resultIndex = resultIndex;
+  if (eventRound) filter.eventRound = eventRound;
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildResultSetFilters(OR[i]));
+  }
+  return filters;
+};
+
 const runPaginatedQuery = async ({ db, filter, orderBy, limit, skip }) => {
   let cursor = db.cfind(filter);
   cursor = buildCursorOptions(cursor, orderBy, limit, skip);
@@ -130,5 +159,6 @@ module.exports = {
   buildEventFilters,
   buildEventSearchPhrase,
   buildBetFilters,
+  buildResultSetFilters,
   runPaginatedQuery,
 };

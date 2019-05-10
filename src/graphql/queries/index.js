@@ -6,36 +6,7 @@ const sequentialLoop = require('../../utils/sequential-loop');
 const events = require('./events');
 const searchEvents = require('./events');
 const bets = require('./bets');
-
-const buildResultSetFilters = ({ OR = [], txid, fromAddress, topicAddress, oracleAddress, resultIdx }) => {
-  const filter = (txid || fromAddress || topicAddress || oracleAddress || resultIdx) ? {} : null;
-
-  if (txid) {
-    filter.txid = txid;
-  }
-
-  if (fromAddress) {
-    filter.fromAddress = fromAddress;
-  }
-
-  if (topicAddress) {
-    filter.topicAddress = topicAddress;
-  }
-
-  if (oracleAddress) {
-    filter.oracleAddress = oracleAddress;
-  }
-
-  if (resultIdx) {
-    filter.resultIdx = resultIdx;
-  }
-
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildResultSetFilters(OR[i]));
-  }
-  return filters;
-};
+const resultSets = require('./result-sets');
 
 const buildWithdrawFilters = ({ OR = [], txid, topicAddress, withdrawerAddress, type }) => {
   const filter = (txid || topicAddress || withdrawerAddress || type) ? {} : null;
@@ -184,7 +155,7 @@ module.exports = {
   events,
   searchEvents,
   bets,
-
+  resultSets,
 
   mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
     const voterFilters = buildVoteFilters(filter);
