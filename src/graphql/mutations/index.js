@@ -1,9 +1,9 @@
-const { includes, fill } = require('lodash');
+const { includes } = require('lodash');
 const moment = require('moment');
-const crypto = require('crypto');
 
-const { TX_STATE, TX_TYPE, TOKEN, STATUS } = require('../../constants');
-const { Config, getContractMetadata } = require('../../config');
+const addPendingEvent = require('./add-pending-event');
+const { TX_STATE, TX_TYPE, TOKEN } = require('../../constants');
+const { CONFIG } = require('../../config');
 const DBHelper = require('../../db/db-helper');
 const { getVotingGasLimit } = require('../../utils');
 const { getLogger } = require('../../utils/logger');
@@ -33,7 +33,7 @@ const insertPendingTx = async (db, data) => {
 };
 
 module.exports = {
-  
+  addPendingEvent,
 
   createBet: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { type: TX_TYPE.BET, token: TOKEN.QTUM, version: 0 });
