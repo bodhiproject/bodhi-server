@@ -18,8 +18,8 @@ module.exports = async (
     eventRound,
   } = data;
 
-  const existingEvent = await DBHelper.findOneResultSet(db, { txid });
-  if (!isNull(existingEvent)) throw Error('ResultSet already exists');
+  const existing = await DBHelper.findOneResultSet(db, { txid });
+  if (!isNull(existing)) throw Error('ResultSet already exists');
 
   const resultSet = new ResultSet({
     txid,

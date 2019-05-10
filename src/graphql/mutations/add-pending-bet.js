@@ -18,8 +18,8 @@ module.exports = async (
     eventRound,
   } = data;
 
-  const existingEvent = await DBHelper.findOneBet(db, { txid });
-  if (!isNull(existingEvent)) throw Error('Bet already exists');
+  const existing = await DBHelper.findOneBet(db, { txid });
+  if (!isNull(existing)) throw Error('Bet already exists');
 
   const bet = new Bet({
     txid,

@@ -163,6 +163,15 @@ module.exports = class DBHelper {
   }
 
   /* Withdraws */
+  static async findOneWithdraw(db, query) {
+    try {
+      return await db.Withdraws.findOne(query);
+    } catch (err) {
+      getLogger().error(`FIND Withdraw error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async insertWithdraw(db, withdraw) {
     try {
       await db.Withdraws.insert(withdraw);

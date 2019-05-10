@@ -25,8 +25,8 @@ module.exports = async (
     language,
   } = data;
 
-  const existingEvent = await DBHelper.findOneEvent(db, { txid });
-  if (!isNull(existingEvent)) throw Error('Event already exists');
+  const existing = await DBHelper.findOneEvent(db, { txid });
+  if (!isNull(existing)) throw Error('Event already exists');
 
   const multipleResultsEvent = new MultipleResultsEvent({
     txid,
