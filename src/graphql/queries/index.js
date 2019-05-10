@@ -185,7 +185,7 @@ module.exports = {
   searchEvents,
   bets,
 
-  
+
   mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
     const voterFilters = buildVoteFilters(filter);
     if (voterFilters.length !== 1) {
@@ -272,13 +272,6 @@ module.exports = {
       totalQtum: totalQtum.toString(10),
       totalBot: totalBot.toString(10),
     };
-  },
-
-  resultSets: async (root, { filter, orderBy, limit, skip }, { db: { ResultSets } }) => {
-    const query = filter ? { $or: buildResultSetFilters(filter) } : {};
-    let cursor = ResultSets.cfind(query);
-    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-    return cursor.exec();
   },
 
   withdraws: async (root, { filter, orderBy, limit, skip }, { db: { Withdraws } }) => {

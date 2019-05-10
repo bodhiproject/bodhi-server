@@ -86,7 +86,7 @@ type MultipleResultsEvent {
 type PaginatedEvents {
   totalCount: Int!
   pageInfo: PageInfo
-  events: [MultipleResultsEvent]!
+  items: [MultipleResultsEvent]!
 }
 
 type Bet {
@@ -105,7 +105,7 @@ type Bet {
 type PaginatedBets {
   totalCount: Int!
   pageInfo: PageInfo
-  bets: [Bet]!
+  items: [Bet]!
 }
 
 type ResultSet {
@@ -124,7 +124,7 @@ type ResultSet {
 type PaginatedResultSets {
   totalCount: Int!
   pageInfo: PageInfo
-  resultSets: [ResultSet]!
+  items: [ResultSet]!
 }
 
 type Withdraw {
@@ -142,7 +142,7 @@ type Withdraw {
 type PaginatedWithdraws {
   totalCount: Int!
   pageInfo: PageInfo
-  withdraws: [Withdraw]!
+  items: [Withdraw]!
 }
 
 type TotalBets {
@@ -165,7 +165,7 @@ type AddressBalance {
 type PaginatedTotalBets {
   totalCount: Int!
   pageInfo: PageInfo
-  totalBets: [TotalBets]!
+  items: [TotalBets]!
 }
 
 type Winner {

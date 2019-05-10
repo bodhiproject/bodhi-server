@@ -1,4 +1,4 @@
-const { isEmpty, each } = require('lodash');
+const { isEmpty, each, isNumber, toInteger } = require('lodash');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -98,9 +98,37 @@ const buildBetFilters = ({
   return filters;
 };
 
+const runPaginatedQuery = async ({ db, filter, orderBy, limit, skip }) => {
+  let cursor = db.cfind(filter);
+  cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+
+  const totalCount = await db.count(filter);
+  let hasNextPage;
+  let pageNumber;
+  let isPaginated = false;
+
+  if (isNumber(limit) && isNumber(skip)) {
+    isPaginated = true;
+    const end = skip + limit;
+    hasNextPage = end < totalCount;
+    pageNumber = toInteger(end / limit);
+  }
+
+  const items = await cursor.exec();
+  const pageInfo = isPaginated
+    ? { hasNextPage, pageNumber, count: items.length }
+    : undefined;
+  return {
+    totalCount,
+    pageInfo,
+    items,
+  };
+};
+
 module.exports = {
   buildCursorOptions,
   buildEventFilters,
   buildEventSearchPhrase,
   buildBetFilters,
+  runPaginatedQuery,
 };
