@@ -144,6 +144,15 @@ module.exports = class DBHelper {
   }
 
   /* ResultSets */
+  static async findOneResultSet(db, query) {
+    try {
+      return await db.ResultSets.findOne(query);
+    } catch (err) {
+      getLogger().error(`FIND ResultSet error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async insertResultSet(db, resultSet) {
     try {
       await db.ResultSets.insert(resultSet);

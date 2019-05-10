@@ -3,6 +3,7 @@ const moment = require('moment');
 
 const addPendingEvent = require('./add-pending-event');
 const addPendingBet = require('./add-pending-bet');
+const addPendingResultSet = require('./add-pending-result-set');
 const { TX_STATE, TX_TYPE, TOKEN } = require('../../constants');
 const { CONFIG } = require('../../config');
 const DBHelper = require('../../db/db-helper');
@@ -23,47 +24,10 @@ const getBlockNum = async () => {
 module.exports = {
   addPendingEvent,
   addPendingBet,
+  addPendingResultSet,
+
+
   
-
-  approveSetResult: async (root, data, { db: { Transactions } }) => {
-    let tx = Object.assign({}, data, { type: TX_TYPE.APPROVESETRESULT, token: TOKEN.BOT, version: 0 });
-
-    if (needsToExecuteTx(tx)) {
-      try {
-        const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
-          spender: tx.topicAddress,
-          value: tx.amount,
-          senderAddress: tx.senderAddress,
-        });
-        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-      } catch (err) {
-        getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
-    }
-
-    return insertPendingTx(Transactions, tx);
-  },
-
-  setResult: async (root, data, { db: { Transactions } }) => {
-    let tx = Object.assign({}, data, { type: TX_TYPE.SETRESULT, token: TOKEN.BOT, version: 0 });
-
-    if (needsToExecuteTx(tx)) {
-      try {
-        const { txid, args: { gasLimit, gasPrice } } = await CentralizedOracle.setResult({
-          contractAddress: tx.oracleAddress,
-          resultIndex: tx.optionIdx,
-          senderAddress: tx.senderAddress,
-        });
-        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-      } catch (err) {
-        getLogger().error(`Error calling CentralizedOracle.setResult: ${err.message}`);
-        throw err;
-      }
-    }
-
-    return insertPendingTx(Transactions, tx);
-  },
 
   approveVote: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { type: TX_TYPE.APPROVEVOTE, token: TOKEN.BOT, version: 0 });
