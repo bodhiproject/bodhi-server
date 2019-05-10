@@ -1,86 +1,12 @@
 const _ = require('lodash');
-const { SATOSHI_CONVERSION, TOKEN } = require('../../constants');
-const { getLogger } = require('../../utils/logger');
-const sequentialLoop = require('../../utils/sequential-loop');
+const { TOKEN } = require('../../constants');
 const events = require('./events');
 const searchEvents = require('./events');
 const bets = require('./bets');
 const resultSets = require('./result-sets');
 const withdraws = require('./withdraws');
 const syncInfo = require('./sync-info');
-
-// Gets the QTUM and BOT balances for all ever used addresses
-const getAddressBalances = async () => {
-  const addressObjs = [];
-  const addressList = [];
-
-  // Get full list of ever used addresses
-  try {
-    const res = await getInstance().listAddressGroupings();
-    // grouping: [["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.01], ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.02]], [...]
-    _.each(res, (grouping) => {
-      // addressArrItem: ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.08164600]
-      _.each(grouping, (addressArrItem) => {
-        addressObjs.push({
-          address: addressArrItem[0],
-          qtum: new BigNumber(addressArrItem[1]).multipliedBy(SATOSHI_CONVERSION).toString(10),
-        });
-        addressList.push(addressArrItem[0]);
-      });
-    });
-  } catch (err) {
-    getLogger().error(`getAddressBalances listAddressGroupings: ${err.message}`);
-  }
-
-  // Add default address with zero balances if no address was used before and return
-  if (_.isEmpty(addressObjs)) {
-    const address = await Wallet.getAccountAddress({ accountName: '' });
-    addressObjs.push({
-      address,
-      qtum: '0',
-      bot: '0',
-    });
-    return addressObjs;
-  }
-
-  // Get BOT balances of every address
-  const batches = _.chunk(addressList, 10);
-  await new Promise(async (resolve) => {
-    sequentialLoop(batches.length, async (loop) => {
-      const promises = [];
-
-      _.map(batches[loop.iteration()], async (address) => {
-        promises.push(new Promise(async (getBotBalanceResolve) => {
-          let botBalance = new BigNumber(0);
-
-          // Get BOT balance
-          try {
-            const res = await BodhiToken.balanceOf({
-              owner: address,
-              senderAddress: address,
-            });
-            botBalance = res.balance;
-          } catch (err) {
-            getLogger().error(`getAddressBalances BodhiToken.balanceOf ${address}: ${err.message}`);
-          }
-
-          // Update BOT balance for address
-          const found = _.find(addressObjs, { address });
-          found.bot = botBalance.toString(10);
-
-          getBotBalanceResolve();
-        }));
-      });
-
-      await Promise.all(promises);
-      loop.next();
-    }, () => {
-      resolve();
-    });
-  });
-
-  return addressObjs;
-};
+const mostBets = require('./most-bets');
 
 const getWinnings = async (vote) => {
   const data = await TopicEvent.calculateWinnings({
@@ -104,47 +30,8 @@ module.exports = {
   resultSets,
   withdraws,
   syncInfo,
+  mostBets,
 
-  mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
-    const voterFilters = buildVoteFilters(filter);
-    if (voterFilters.length !== 1) {
-      throw Error('only one event is allowed');
-    }
-
-    const query = filter ? { $or: voterFilters } : {};
-    const result = await Votes.find(query);
-
-    const accumulated = result.reduce((acc, cur) => {
-      const curAmount = new BigNumber(cur.amount);
-      if (acc.hasOwnProperty(cur.voterAddress)) {
-        acc[cur.voterAddress] = new BigNumber(acc[cur.voterAddress]).plus(curAmount);
-      } else {
-        acc[cur.voterAddress] = curAmount;
-      }
-      return acc;
-    }, {});
-
-    let votes = Object.keys(accumulated).map(key => ({ voterAddress: key, token: voterFilters[0].token, amount: accumulated[key].toString(10), topicAddress: voterFilters[0].topicAddress }));
-    votes.sort((a, b) => b.amount - a.amount);
-
-    const totalCount = votes.length;
-    const ret = { totalCount, votes };
-
-    if (_.isNumber(limit) && _.isNumber(skip)) {
-      const end = skip + limit;
-      const hasNextPage = end < totalCount;
-      votes = votes.splice(skip, end);
-      const pageNumber = _.toInteger(end / limit); // just in case manually enter not start with new page, ex. limit 20, skip 2
-      ret.pageInfo = {
-        hasNextPage,
-        pageNumber,
-        count: votes.length,
-      };
-      ret.votes = votes;
-    }
-
-    return ret;
-  },
 
   winners: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
     const voterFilters = buildVoteFilters(filter);
@@ -192,7 +79,4 @@ module.exports = {
       totalBot: totalBot.toString(10),
     };
   },
-
-  // Gets the QTUM and BOT balances for all ever used addresses
-  addressBalances: async () => getAddressBalances(),
 };
