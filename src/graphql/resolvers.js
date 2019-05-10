@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 const Queries = require('./queries');
 const Mutations = require('./mutations');
 const { TOKEN, STATUS, PHASE, TX_TYPE } = require('../constants');
@@ -21,9 +19,13 @@ const getPhase = ({ token, status }) => {
   throw Error(`Invalid Phase determined by these -> TOKEN: ${token} STATUS: ${status}`);
 };
 
+/* eslint-disable object-curly-newline */
 module.exports = {
   Query: Queries,
   Mutation: Mutations,
+  Subscription: {
+    onSyncInfo: { subscribe: () => pubsub.asyncIterator('onSyncInfo') },
+  },
 
   Topic: {
     oracles: ({ address }, data, { db: { Oracles } }) => Oracles.cfind({ topicAddress: address }).sort({ blockNum: -1 }).exec(),
@@ -75,23 +77,5 @@ module.exports = {
   Withdraw: {
     block: async ({ blockNum }, data, { db: { Blocks } }) => (await Blocks.find({ blockNum }))[0],
   },
-
-  Transaction: {
-    topic: async ({ topicAddress }, data, { db: { Topics } }) => {
-      if (_.isEmpty(topicAddress)) {
-        return null;
-      }
-
-      const topics = await Topics.find({ address: topicAddress });
-      if (!_.isEmpty(topics)) {
-        return topics[0];
-      }
-      return null;
-    },
-  },
-
-  Subscription: {
-    onSyncInfo: { subscribe: () => pubsub.asyncIterator('onSyncInfo') },
-    onApproveSuccess: { subscribe: () => pubsub.asyncIterator('onApproveSuccess') },
-  },
 };
+/* eslint-enable object-curly-newline */
