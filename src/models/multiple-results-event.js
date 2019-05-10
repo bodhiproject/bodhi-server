@@ -17,12 +17,12 @@ module.exports = class MultipleResultsEvent {
 
   format(params) {
     // Chain params
-    this.blockNum = params.blockNum;
     this.txid = params.txid;
+    this.blockNum = params.blockNum;
 
     // Blockchain params
     this.address = params.address;
-    this.owner = params.owner;
+    this.ownerAddress = params.ownerAddress;
     this.version = params.version;
     this.name = params.name;
     this.results = filter(

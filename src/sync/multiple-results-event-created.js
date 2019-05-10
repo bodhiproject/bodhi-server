@@ -69,7 +69,7 @@ module.exports = async (contractMetadata, currentBlockNum) => {
         blockNum: log.blockNumber,
         txid: log.transactionHash,
         address: eventAddr,
-        owner: ownerAddr,
+        ownerAddress: ownerAddr,
         version,
         name: eventName,
         results: eventResults,

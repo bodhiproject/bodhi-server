@@ -8,7 +8,6 @@ const DBHelper = require('../db/db-helper');
 const { Config } = require('../config');
 const { TX_STATE, TX_TYPE, TOKEN } = require('../constants');
 const Transaction = require('../models/transaction');
-const { publishOnApproveSuccess } = require('../graphql/subscriptions');
 
 /**
  * Updates all pending transactions.

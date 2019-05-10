@@ -1,127 +1,90 @@
 module.exports = `
 
-enum _OracleStatusType {
-  CREATED
-  VOTING
-  WAITRESULT
-  OPENRESULTSET
-  PENDING
-  WITHDRAW
-}
-
-enum _WithdrawType {
-  ESCROW
-  WINNINGS
-}
-
-enum _TokenType {
-  QTUM
-  BOT
-}
-
-enum _OrderDirection {
+enum OrderDirection {
   DESC
   ASC
 }
 
-enum _TransactionType {
-  APPROVECREATEEVENT
-  CREATEEVENT
+enum EventStatus {
+  CREATED
+  BETTING
+  ORACLE_RESULT_SETTING
+  OPEN_RESULT_SETTING
+  ARBITRATION
+  WITHDRAWING
+}
+
+enum TransactionType {
+  CREATE_EVENT
   BET
-  APPROVESETRESULT
-  SETRESULT
-  APPROVEVOTE
+  SET_RESULT
   VOTE
-  RESETAPPROVE
-  FINALIZERESULT
   WITHDRAW
-  WITHDRAWESCROW
   TRANSFER
 }
 
-enum _TransactionStatus {
-   PENDING
-   FAIL
-   SUCCESS
+enum TransactionStatus {
+  PENDING
+  FAIL
+  SUCCESS
 }
 
-type Topic {
+type MultipleResultsEvent {
   txid: String!
-  blockNum: Int
+  block: Block
   address: String
-  creatorAddress: String!
-  hashId: String
-  status: _OracleStatusType!
+  ownerAddress: String!
+  version: Int!
   name: String!
-  options: [String!]!
-  qtumAmount: [String!]!
-  botAmount: [String!]!
-  resultIdx: Int
+  results: [String!]!
+  numOfResults: Int!
+  centralizedOracle: String!
+  betStartTime: String!
+  betEndTime: String!
+  resultSetStartTime: String!
+  resultSetEndTime: String!
   escrowAmount: String
-  oracles: [Oracle]
-  transactions: [Transaction]
-  version: Int!
-  language: String!
-}
-
-type Oracle {
-  txid: String!
-  blockNum: Int
-  address: String
-  topicAddress: String
-  hashId: String
-  status: _OracleStatusType!
-  name: String!
-  options: [String!]!
-  optionIdxs: [Int!]!
-  resultIdx: Int
-  amounts: [String!]!
-  token: String!
-  startTime: String!
-  endTime: String!
-  resultSetStartTime: String
-  resultSetEndTime: String
-  resultSetterAddress: String
+  arbitrationLength: String
+  thresholdPercentIncrease: String
+  arbitrationRewardPercentage: String
+  currentRound: Int!
+  currentResultIndex: Int!
   consensusThreshold: String
-  transactions: [Transaction]
-  version: Int!
+  arbitrationEndTime: String
+  totalBets: String
+  hashId: String
+  status: EventStatus!
   language: String!
+  transactions: [Transaction]
 }
 
-type Vote {
+type Bet {
   txid: String!
   block: Block!
-  topicAddress: String!
-  oracleAddress: String!
-  voterAddress: String!
-  optionIdx: Int!
-  token: _TokenType!
+  eventAddress: String!
+  betterAddress: String!
+  resultIndex: Int!
   amount: String!
-  version: Int!
-  type: String!
+  eventRound: Int!
 }
 
 type ResultSet {
   txid: String!
-  blockNum: Int!
   block: Block!
-  topicAddress: String!
-  oracleAddress: String
-  fromAddress: String!
-  resultIdx: Int!
-  version: Int!
+  eventAddress: String!
+  centralizedOracleAddress: String
+  resultIndex: Int!
+  amount: String!
+  eventRound: Int!
 }
 
 type Withdraw {
   txid: String!
-  blockNum: Int!
   block: Block!
-  type: _WithdrawType!
-  topicAddress: String!
-  withdrawerAddress: String!
-  qtumAmount: String!
-  botAmount: String!
-  version: Int
+  eventAddress: String!
+  winnerAddress: String!
+  winningAmount: String!
+  escrowAmount: String!
 }
 
 type Transaction {
@@ -155,22 +118,19 @@ type Transaction {
 }
 
 type Block {
-  blockNum: Int!
-  blockTime: String!
+  number: Int!
+  time: String!
 }
 
 type syncInfo {
   syncBlockNum: Int
   syncBlockTime: String
   syncPercent: Int
-  peerNodeCount: Int
-  addressBalances: [AddressBalance]
 }
 
 type AddressBalance {
   address: String!
-  qtum: String!
-  bot: String!
+  nbot: String!
 }
 
 type PageInfo {
@@ -222,6 +182,7 @@ type TokenAmount {
   qtum: String!
   bot: String!
 }
+
 input TopicFilter {
   OR: [TopicFilter!]
   txid: String
@@ -285,7 +246,7 @@ input TransactionFilter {
 
 input Order {
   field: String!
-  direction: _OrderDirection!
+  direction: OrderDirection!
 }
 
 type Query {
