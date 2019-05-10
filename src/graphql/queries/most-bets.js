@@ -1,14 +1,20 @@
 const { isNumber, toInteger } = require('lodash');
-const { buildBetFilters } = require('./utils');
 const { web3 } = require('../../web3');
 
+const buildFilters = ({ eventAddress }) => {
+  if (!eventAddress) throw Error('eventAddress missing in filters');
+
+  const filters = { eventAddress };
+  return filters;
+};
+
+// TODO: implement orderBy
 module.exports = async (
   root,
   { filter, orderBy, limit, skip },
   { db: { Bets } },
 ) => {
-  const betFilters = buildBetFilters(filter);
-  if (betFilters.length !== 1) throw Error('only one event is allowed');
+  const betFilters = buildFilters(filter);
 
   const query = filter ? { $or: betFilters } : {};
   const result = await Bets.find(query);
