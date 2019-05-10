@@ -179,70 +179,45 @@ type TokenAmount {
   bot: String!
 }
 
-input TopicFilter {
-  OR: [TopicFilter!]
+input Order {
+  field: String!
+  direction: OrderDirection!
+}
+
+input EventFilter {
+  OR: [EventFilter!]
   txid: String
   address: String
-  status: _OracleStatusType
-  resultIdx: Int
-  creatorAddress: String
+  ownerAddress: String
+  resultIndex: Int
   hashId: String
+  eventStatus: EventStatus
   language: String
 }
 
-input OracleFilter {
-  OR: [OracleFilter!]
+input BetFilter {
+  OR: [BetFilter!]
   txid: String
-  address: String
-  topicAddress: String
-  status: _OracleStatusType
-  token: _TokenType
-  resultSetterAddress: String
-  excludeResultSetterAddress: [String]
-  hashId: String
-  language: String
-}
-
-input VoteFilter {
-  OR: [VoteFilter!]
-  address: String
-  topicAddress: String
-  oracleAddress: String
-  voterAddress: String
-  optionIdx: Int
-  token: _TokenType
+  eventAddress: String
+  betterAddress: String
+  resultIndex: Int
+  eventRound: Int
 }
 
 input ResultSetFilter {
   OR: [ResultSetFilter!]
   txid: String
-  fromAddress: String
-  topicAddress: String
-  oracleAddress: String
-  resultIdx: Int
+  eventAddress: String
+  centralizedOracleAddress: String
+  resultIndex: Int
+  eventRound: Int
 }
 
 input WithdrawFilter {
   OR: [WithdrawFilter!]
   txid: String
-  topicAddress: String
-  withdrawerAddress: String
-  type: _WithdrawType
-}
-
-input TransactionFilter {
-  OR: [TransactionFilter!]
-  txid: String
-  type: _TransactionType
-  status: _TransactionStatus
-  topicAddress: String
-  oracleAddress: String
-  senderAddress: String
-}
-
-input Order {
-  field: String!
-  direction: OrderDirection!
+  eventAddress: String
+  winnerAddress: String
 }
 
 type Query {
