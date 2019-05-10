@@ -2,6 +2,7 @@ const { includes } = require('lodash');
 const moment = require('moment');
 
 const addPendingEvent = require('./add-pending-event');
+const addPendingBet = require('./add-pending-bet');
 const { TX_STATE, TX_TYPE, TOKEN } = require('../../constants');
 const { CONFIG } = require('../../config');
 const DBHelper = require('../../db/db-helper');
@@ -18,44 +19,11 @@ const getBlockNum = async () => {
   }
 };
 
-const needsToExecuteTx = ({ txid, gasLimit, gasPrice }) => !txid && !gasLimit && !gasPrice;
-
-const insertPendingTx = async (db, data) => {
-  const tx = new Transaction(Object.assign(data, {
-    status: TX_STATE.PENDING,
-    createdBlock: await getBlockNum(),
-    createdTime: data.createdTime || moment().unix(),
-    gasLimit: data.gasLimit,
-    gasPrice: data.gasPrice,
-  }));
-  await DBHelper.insertTransaction(db, tx);
-  return tx;
-};
 
 module.exports = {
   addPendingEvent,
-
-  createBet: async (root, data, { db: { Transactions } }) => {
-    let tx = Object.assign({}, data, { type: TX_TYPE.BET, token: TOKEN.QTUM, version: 0 });
-
-    // Send bet tx if not already sent
-    if (needsToExecuteTx(tx)) {
-      try {
-        const { txid, args: { gasLimit, gasPrice } } = await CentralizedOracle.bet({
-          contractAddress: tx.oracleAddress,
-          index: tx.optionIdx,
-          amount: tx.amount,
-          senderAddress: tx.senderAddress,
-        });
-        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-      } catch (err) {
-        getLogger().error(`Error calling CentralizedOracle.bet: ${err.message}`);
-        throw err;
-      }
-    }
-
-    return insertPendingTx(Transactions, tx);
-  },
+  addPendingBet,
+  
 
   approveSetResult: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { type: TX_TYPE.APPROVESETRESULT, token: TOKEN.BOT, version: 0 });

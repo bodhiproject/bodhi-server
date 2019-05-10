@@ -125,6 +125,15 @@ module.exports = class DBHelper {
   }
 
   /* Bets */
+  static async findOneBet(db, query) {
+    try {
+      return await db.Bets.findOne(query);
+    } catch (err) {
+      getLogger().error(`FIND Bet error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async insertBet(db, bet) {
     try {
       await db.Bets.insert(bet);
