@@ -46,7 +46,7 @@ module.exports = class MultipleResultsEvent {
 
     // Backend params
     this.hashId = null;
-    this.status = EVENT_STATUS.BETTING;
-    this.language = 'zh-Hans-CN';
+    this.status = params.status || EVENT_STATUS.BETTING;
+    this.language = params.language || 'zh-Hans-CN';
   }
 };

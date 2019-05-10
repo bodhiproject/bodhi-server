@@ -5,9 +5,9 @@ const { EVENT_STATUS } = require('../constants');
 
 module.exports = class DBHelper {
   /* Events */
-  static async findOneEvent(db, address) {
+  static async findOneEvent(db, query) {
     try {
-      return await db.Events.findOne({ address });
+      return await db.Events.findOne(query);
     } catch (err) {
       getLogger().error(`FIND Event error: ${err.message}`);
       throw err;

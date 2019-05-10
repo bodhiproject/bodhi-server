@@ -91,7 +91,7 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       promises.push(new Promise(async (resolve, reject) => {
         try {
           const existingEvent =
-            await DBHelper.findOneEvent(db, multipleResultsEvent.address);
+            await DBHelper.findOneEvent(db, { txid: multipleResultsEvent.txid });
           if (isNull(existingEvent)) {
             // Existing event not found
             await DBHelper.insertEvent(db, multipleResultsEvent);

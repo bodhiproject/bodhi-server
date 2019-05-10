@@ -287,6 +287,7 @@ type Mutation {
     txid: String!
     blockNum: Int!
     ownerAddress: String!
+    version: Int!
     name: String!
     results: [String!]!
     numOfResults: Int!

@@ -2,19 +2,12 @@ const { includes, fill } = require('lodash');
 const moment = require('moment');
 const crypto = require('crypto');
 
-const { TX_STATE, TX_TYPE, TOKEN, STATUS } = require('../constants');
-const { Config, getContractMetadata } = require('../config');
-const DBHelper = require('../db/db-helper');
-const { getVotingGasLimit } = require('../utils');
-const { getLogger } = require('../utils/logger');
-const Blockchain = require('../api/blockchain');
-const BodhiToken = require('../api/bodhi-token');
-const EventFactory = require('../api/event-factory');
-const TopicEvent = require('../api/topic-event');
-const CentralizedOracle = require('../api/centralized-oracle');
-const DecentralizedOracle = require('../api/decentralized-oracle');
-const Wallet = require('../api/wallet');
-const Transaction = require('../models/transaction');
+const { TX_STATE, TX_TYPE, TOKEN, STATUS } = require('../../constants');
+const { Config, getContractMetadata } = require('../../config');
+const DBHelper = require('../../db/db-helper');
+const { getVotingGasLimit } = require('../../utils');
+const { getLogger } = require('../../utils/logger');
+const Transaction = require('../../models/transaction');
 
 const getBlockNum = async () => {
   try {
@@ -40,138 +33,7 @@ const insertPendingTx = async (db, data) => {
 };
 
 module.exports = {
-  resetApprove: async (root, data, { db: { Transactions } }) => {
-    let tx = Object.assign({}, data, { type: TX_TYPE.RESETAPPROVE, token: TOKEN.BOT, amount: '0', version: 0 });
-
-    if (needsToExecuteTx(tx)) {
-      try {
-        const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
-          spender: tx.receiverAddress,
-          value: tx.amount,
-          senderAddress: tx.senderAddress,
-        });
-        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-      } catch (err) {
-        getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
-    }
-
-    return insertPendingTx(Transactions, tx);
-  },
-
-  approveCreateEvent: async (root, data, { db: { Transactions } }) => {
-    let tx = Object.assign({}, data, { type: TX_TYPE.APPROVECREATEEVENT, token: TOKEN.BOT, version: 0 });
-
-    // Check for existing ApproveCreateEvent or CreateEvent transactions
-    if (await DBHelper.isPreviousCreateEventPending(Transactions, tx.senderAddress)) {
-      throw Error('Pending CreateEvent transaction found');
-    }
-
-    if (needsToExecuteTx(tx)) {
-      try {
-        const { txid, args: { gasLimit, gasPrice } } = await BodhiToken.approve({
-          spender: getContractMetadata().AddressManager.address,
-          value: tx.amount,
-          senderAddress: tx.senderAddress,
-        });
-        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-      } catch (err) {
-        getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
-    }
-
-    return insertPendingTx(Transactions, tx);
-  },
-
-  createEvent: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
-    let tx = Object.assign({}, data, {
-      type: TX_TYPE.CREATEEVENT,
-      createdTime: moment().unix(),
-      token: TOKEN.BOT,
-      version: 0,
-    });
-    const {
-      createdTime,
-      senderAddress,
-      name,
-      options,
-      resultSetterAddress,
-      bettingStartTime,
-      bettingEndTime,
-      resultSettingStartTime,
-      resultSettingEndTime,
-      amount,
-      version,
-      language,
-    } = tx;
-
-    // Check for existing ApproveCreateEvent or CreateEvent transactions
-    if (await DBHelper.isPreviousCreateEventPending(Transactions, senderAddress)) {
-      throw Error('Pending CreateEvent transaction found');
-    }
-
-    if (needsToExecuteTx(tx)) {
-      try {
-        const { txid, args: { gasLimit, gasPrice } } = await EventFactory.createTopic({
-          eventName: name,
-          resultNames: options,
-          oracleAddress: resultSetterAddress,
-          bettingStartTime,
-          bettingEndTime,
-          resultSettingStartTime,
-          resultSettingEndTime,
-          senderAddress,
-        });
-        tx = Object.assign(tx, { txid, gasLimit, gasPrice });
-      } catch (err) {
-        getLogger().error(`Error calling EventFactory.createTopic: ${err.message}`);
-        throw err;
-      }
-    }
-
-    const { txid } = tx;
-    const hashId = crypto.createHash('md5').update(`${createdTime}${name}`).digest('hex');
-
-    // Insert unconfirmed Topic
-    await DBHelper.insertTopic(Topics, {
-      txid,
-      hashId,
-      status: STATUS.CREATED,
-      name,
-      options,
-      qtumAmount: fill(Array(options), '0'),
-      botAmount: fill(Array(options), '0'),
-      escrowAmount: amount,
-      creatorAddress: senderAddress,
-      version,
-      language,
-    });
-    getLogger().debug(`Mutation Insert: Topic txid:${txid}`);
-
-    // Insert unconfirmed Oracle
-    await DBHelper.insertOracle(Oracles, {
-      txid,
-      hashId,
-      status: STATUS.CREATED,
-      name,
-      options,
-      optionIdxs: Array.from(Array(options).keys()),
-      amounts: fill(Array(options), '0'),
-      resultSetterAddress,
-      startTime: bettingStartTime,
-      endTime: bettingEndTime,
-      resultSetStartTime: resultSettingStartTime,
-      resultSetEndTime: resultSettingEndTime,
-      token: TOKEN.QTUM,
-      version,
-      language,
-    });
-    getLogger().debug(`Mutation Insert: Oracle txid:${txid}`);
-
-    return insertPendingTx(Transactions, tx);
-  },
+  
 
   createBet: async (root, data, { db: { Transactions } }) => {
     let tx = Object.assign({}, data, { type: TX_TYPE.BET, token: TOKEN.QTUM, version: 0 });
