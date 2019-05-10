@@ -192,7 +192,7 @@ input EventFilter {
   ownerAddress: String
   resultIndex: Int
   hashId: String
-  eventStatus: EventStatus
+  status: EventStatus
   language: String
 }
 
