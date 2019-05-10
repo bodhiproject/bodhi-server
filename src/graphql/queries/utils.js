@@ -1,5 +1,4 @@
 const { isEmpty, each, isNumber, toInteger } = require('lodash');
-
 const { web3 } = require('../../web3');
 
 const DEFAULT_LIMIT_NUM = 50;

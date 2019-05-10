@@ -267,7 +267,7 @@ type Query {
     skip: Int
   ): PaginatedTotalBets!
 
-  winners(
+  biggestWinners(
     filter: BetFilter,
     orderBy: [Order!],
     limit: Int,

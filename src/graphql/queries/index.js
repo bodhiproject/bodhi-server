@@ -7,21 +7,7 @@ const resultSets = require('./result-sets');
 const withdraws = require('./withdraws');
 const syncInfo = require('./sync-info');
 const mostBets = require('./most-bets');
-
-const getWinnings = async (vote) => {
-  const data = await TopicEvent.calculateWinnings({
-    contractAddress: vote.topicAddress,
-    senderAddress: vote.voterAddress,
-  });
-  return {
-    topicAddress: vote.topicAddress,
-    voterAddress: vote.voterAddress,
-    amount: {
-      bot: data[0],
-      qtum: data[1],
-    },
-  };
-};
+const biggestWinners = require('./biggest-winners');
 
 module.exports = {
   events,
@@ -31,28 +17,7 @@ module.exports = {
   withdraws,
   syncInfo,
   mostBets,
-
-
-  winners: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
-    const voterFilters = buildVoteFilters(filter);
-    const query = filter ? { $or: voterFilters } : {};
-    const result = await Votes.find(query); // get all winning votes
-    const filtered = [];
-    _.each(result, (vote) => {
-      if (!_.find(filtered, {
-        voterAddress: vote.voterAddress,
-        topicAddress: vote.topicAddress,
-      })) {
-        filtered.push(vote);
-      }
-    });
-    let winnings = [];
-    for (const item of filtered) {
-      winnings.push(await getWinnings(item));
-    }
-    winnings = _.orderBy(winnings, [function (o) { return o.amount.qtum; }], ['desc']);
-    return winnings;
-  },
+  biggestWinners,
 
   leaderboardStats: async (root, { filter, orderBy, limit, skip }, { db: { Votes, Topics } }) => {
     const result = await Votes.find({});
