@@ -174,10 +174,10 @@ type Winner {
   amount: String!
 }
 
-type LeaderboardStats {
+type AllStats {
   eventCount: String!
-  participantsCount: String!
-  totalWon: String!
+  participantCount: String!
+  totalBets: String!
 }
 
 input Order {
@@ -260,6 +260,13 @@ type Query {
 
   syncInfo(): SyncInfo!
 
+  allStats(
+    filter: BetFilter,
+    orderBy: [Order!],
+    limit: Int,
+    skip: Int
+  ): AllStats!
+
   mostBets(
     filter: BetFilter,
     orderBy: [Order!],
@@ -273,13 +280,6 @@ type Query {
     limit: Int,
     skip: Int
   ): [Winner]!
-
-  leaderboardStats(
-    filter: BetFilter,
-    orderBy: [Order!],
-    limit: Int,
-    skip: Int
-  ): LeaderboardStats!
 }
 
 type Mutation {
