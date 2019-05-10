@@ -194,29 +194,4 @@ module.exports = class DBHelper {
       throw err;
     }
   }
-
-  /* Transactions */
-  static async insertTransaction(database, tx) {
-    try {
-      getLogger().debug(`Mutation Insert: Transaction ${tx.type} txid:${tx.txid}`);
-      await database.insert(tx);
-    } catch (err) {
-      getLogger().error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);
-      throw err;
-    }
-  }
-
-  // DEPRECATED?
-  static async isPreviousCreateEventPending(txDb, senderAddress) {
-    try {
-      return await txDb.count({
-        type: { $in: ['APPROVECREATEEVENT', 'CREATEEVENT'] },
-        status: 'PENDING',
-        senderAddress,
-      });
-    } catch (err) {
-      getLogger().error(`Checking CreateEvent pending: ${err.message}`);
-      throw err;
-    }
-  }
 };
