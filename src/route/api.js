@@ -1,10 +1,23 @@
 const { Router } = require('express');
+const { each } = require('lodash');
 
-const AddressManager = require('../api/address-manager');
-const BodhiToken = require('../api/bodhi-token');
-const Transaction = require('../api/transaction');
+const MultipleResultsEvent = require('../api/multiple-results-event');
 
 const router = Router();
+
+const validateQueryParams = (req, res, params) => {
+  let validated = true;
+  const queryKeys = Object.keys(req.query);
+  each(params, (p) => {
+    if (!queryKeys.includes(p)) {
+      res.status(422).json({ error: `Missing query param: ${p}` });
+      validated = false;
+      return false;
+    }
+    return true;
+  });
+  return validated;
+};
 
 const onRequestSuccess = (res, body, next) => {
   res.status(res.statusCode).send(body);
@@ -16,9 +29,11 @@ const onRequestError = (res, err, next) => {
   next();
 };
 
-/* AddressManager */
-router.post('/event-escrow-amount', (req, res, next) => {
-  AddressManager.eventEscrowAmount(req.body)
+/* MultipleResultsEvent */
+router.post('/calculate-winnings', (req, res, next) => {
+  if (!validateQueryParams(['eventAddress', 'address'])) return;
+
+  MultipleResultsEvent.calculateWinnings(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -26,55 +41,10 @@ router.post('/event-escrow-amount', (req, res, next) => {
     });
 });
 
-router.post('/last-event-factory-index', (req, res, next) => {
-  AddressManager.getLastEventFactoryIndex(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/last-oracle-factory-index', (req, res, next) => {
-  AddressManager.getLastOracleFactoryIndex(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-/* BodhiToken */
-router.post('/approve', (req, res, next) => {
-  BodhiToken.approve(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/allowance', (req, res, next) => {
-  BodhiToken.allowance(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/bot-balance', (req, res, next) => {
-  BodhiToken.balanceOf(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-/* BaseContract */
 router.post('/version', (req, res, next) => {
-  BaseContract.version(req.body)
+  if (!validateQueryParams(['eventAddress'])) return;
+
+  MultipleResultsEvent.version(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -82,8 +52,10 @@ router.post('/version', (req, res, next) => {
     });
 });
 
-router.post('/get-result', (req, res, next) => {
-  BaseContract.resultIndex(req.body)
+router.post('/round', (req, res, next) => {
+  if (!validateQueryParams(['eventAddress'])) return;
+
+  MultipleResultsEvent.currentRound(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -91,137 +63,10 @@ router.post('/get-result', (req, res, next) => {
     });
 });
 
-router.post('/bet-balances', (req, res, next) => {
-  BaseContract.getBetBalances(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
+router.post('/result-index', (req, res, next) => {
+  if (!validateQueryParams(['eventAddress'])) return;
 
-router.post('/vote-balances', (req, res, next) => {
-  BaseContract.getVoteBalances(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/total-bets', (req, res, next) => {
-  BaseContract.getTotalBets(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/total-votes', (req, res, next) => {
-  BaseContract.getTotalVotes(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-/* EventFactory */
-router.post('/create-topic', (req, res, next) => {
-  EventFactory.createTopic(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/event-factory-version', (req, res, next) => {
-  EventFactory.version(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-/* TopicEvent */
-router.post('/withdraw', (req, res, next) => {
-  TopicEvent.withdrawWinnings(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/withdraw-escrow', (req, res, next) => {
-  TopicEvent.withdrawEscrow(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/total-qtum-value', (req, res, next) => {
-  TopicEvent.totalQtumValue(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/total-bot-value', (req, res, next) => {
-  TopicEvent.totalBotValue(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/final-result', (req, res, next) => {
-  TopicEvent.getFinalResult(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/status', (req, res, next) => {
-  TopicEvent.status(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/did-withdraw', (req, res, next) => {
-  TopicEvent.didWithdraw(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/winnings', (req, res, next) => {
-  TopicEvent.calculateWinnings(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-/* Oracle */
-router.post('/event-address', (req, res, next) => {
-  Oracle.eventAddress(req.body)
+  MultipleResultsEvent.currentResultIndex(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -230,7 +75,9 @@ router.post('/event-address', (req, res, next) => {
 });
 
 router.post('/consensus-threshold', (req, res, next) => {
-  Oracle.consensusThreshold(req.body)
+  if (!validateQueryParams(['eventAddress'])) return;
+
+  MultipleResultsEvent.currentConsensusThreshold(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -238,8 +85,10 @@ router.post('/consensus-threshold', (req, res, next) => {
     });
 });
 
-router.post('/finished', (req, res, next) => {
-  Oracle.finished(req.body)
+router.post('/arbitration-end-time', (req, res, next) => {
+  if (!validateQueryParams(['eventAddress'])) return;
+
+  MultipleResultsEvent.currentArbitrationEndTime(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -247,9 +96,10 @@ router.post('/finished', (req, res, next) => {
     });
 });
 
-/* CentralizedOracle */
-router.post('/bet', (req, res, next) => {
-  CentralizedOracle.bet(req.body)
+router.post('/event-metadata', (req, res, next) => {
+  if (!validateQueryParams(['eventAddress'])) return;
+
+  MultipleResultsEvent.eventMetadata(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -257,8 +107,10 @@ router.post('/bet', (req, res, next) => {
     });
 });
 
-router.post('/set-result', (req, res, next) => {
-  CentralizedOracle.setResult(req.body)
+router.post('/centralized-metadata', (req, res, next) => {
+  if (!validateQueryParams(['eventAddress'])) return;
+
+  MultipleResultsEvent.centralizedMetadata(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -266,8 +118,10 @@ router.post('/set-result', (req, res, next) => {
     });
 });
 
-router.post('/oracle', (req, res, next) => {
-  CentralizedOracle.oracle(req.body)
+router.post('/config-metadata', (req, res, next) => {
+  if (!validateQueryParams(['eventAddress'])) return;
+
+  MultipleResultsEvent.configMetadata(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -275,8 +129,10 @@ router.post('/oracle', (req, res, next) => {
     });
 });
 
-router.post('/bet-start-block', (req, res, next) => {
-  CentralizedOracle.bettingStartBlock(req.body)
+router.post('/total-bets', (req, res, next) => {
+  if (!validateQueryParams(['eventAddress'])) return;
+
+  MultipleResultsEvent.totalBets(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -284,8 +140,10 @@ router.post('/bet-start-block', (req, res, next) => {
     });
 });
 
-router.post('/bet-end-block', (req, res, next) => {
-  CentralizedOracle.bettingEndBlock(req.body)
+router.post('/did-withdraw', (req, res, next) => {
+  if (!validateQueryParams(['eventAddress', 'address'])) return;
+
+  MultipleResultsEvent.didWithdraw(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -293,64 +151,10 @@ router.post('/bet-end-block', (req, res, next) => {
     });
 });
 
-router.post('/result-set-start-block', (req, res, next) => {
-  CentralizedOracle.resultSettingStartBlock(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
+router.post('/did-withdraw-escrow', (req, res, next) => {
+  if (!validateQueryParams(['eventAddress', 'address'])) return;
 
-router.post('/result-set-end-block', (req, res, next) => {
-  CentralizedOracle.resultSettingEndBlock(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-/* DecentralizedOracle */
-router.post('/vote', (req, res, next) => {
-  DecentralizedOracle.vote(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/finalize-result', (req, res, next) => {
-  DecentralizedOracle.finalizeResult(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/arbitration-end-block', (req, res, next) => {
-  DecentralizedOracle.arbitrationEndBlock(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.post('/last-result-index', (req, res, next) => {
-  DecentralizedOracle.lastResultIndex(req.body)
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-/* Transactions */
-router.post('/transaction-cost', (req, res, next) => {
-  Transaction.transactionCost(req.body)
+  MultipleResultsEvent.didWithdrawEscrow(req.query)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
