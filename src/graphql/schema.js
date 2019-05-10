@@ -29,8 +29,34 @@ enum TransactionStatus {
   SUCCESS
 }
 
+type Block {
+  number: Int!
+  time: String!
+}
+
+type TransactionReceipt {
+  status: Boolean!
+  blockHash: String!
+  blockNumber: String!
+  transactionHash: String!
+  from: String!
+  to: String!
+  contractAddress: String!
+  cumulativeGasUsed: Int!
+  gasUsed: Int!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  pageNumber: Int!
+  count: Int!
+}
+
 type MultipleResultsEvent {
-  txid: String!
+  txid: String
+  txStatus: TransactionStatus!
+  txReceipt: TransactionReceipt
+  blockNum: Int
   block: Block
   address: String
   ownerAddress: String!
@@ -59,67 +85,44 @@ type MultipleResultsEvent {
 }
 
 type Bet {
-  txid: String!
-  block: Block!
+  txid: String
+  txStatus: TransactionStatus!
+  txReceipt: TransactionReceipt
+  blockNum: Int
+  block: Block
   eventAddress: String!
   betterAddress: String!
   resultIndex: Int!
   amount: String!
   eventRound: Int!
+  txStatus: TransactionStatus!
 }
 
 type ResultSet {
-  txid: String!
-  block: Block!
+  txid: String
+  txStatus: TransactionStatus!
+  txReceipt: TransactionReceipt
+  blockNum: Int
+  block: Block
   eventAddress: String!
   centralizedOracleAddress: String
   resultIndex: Int!
   amount: String!
   eventRound: Int!
+  txStatus: TransactionStatus!
 }
 
 type Withdraw {
-  txid: String!
-  block: Block!
+  txid: String
+  txStatus: TransactionStatus!
+  txReceipt: TransactionReceipt
+  blockNum: Int
+  block: Block
   eventAddress: String!
   winnerAddress: String!
   winningAmount: String!
   escrowAmount: String!
-}
-
-type Transaction {
-  txid: String
-  blockNum: Int
-  blockTime: String
-  createdBlock: Int!
-  createdTime: String!
-  gasLimit: String!
-  gasPrice: String!
-  gasUsed: Int
-  type: _TransactionType!
-  status: _TransactionStatus!
-  senderAddress: String!
-  receiverAddress: String
-  topicAddress: String
-  oracleAddress: String
-  name: String
-  options: [String!]
-  resultSetterAddress: String
-  bettingStartTime: String
-  bettingEndTime: String
-  resultSettingStartTime: String
-  resultSettingEndTime: String
-  optionIdx: Int
-  token: _TokenType
-  amount: String
-  topic: Topic
-  version: Int!
-  language: String
-}
-
-type Block {
-  number: Int!
-  time: String!
+  txStatus: TransactionStatus!
 }
 
 type syncInfo {
@@ -133,12 +136,6 @@ type AddressBalance {
   nbot: String!
 }
 
-type PageInfo {
-  hasNextPage: Boolean!
-  pageNumber: Int!
-  count: Int!
-}
-
 type PaginatedOracles {
   totalCount: Int!
   oracles: [Oracle]!
@@ -150,7 +147,6 @@ type PaginatedTopics {
   topics: [Topic]!
   pageInfo: PageInfo
 }
-
 
 type AccumulatedVote {
   topicAddress: String
@@ -266,32 +262,6 @@ type Query {
 }
 
 type Mutation {
-  resetApprove(
-    txid: String
-    gasLimit: String
-    gasPrice: String
-    senderAddress: String!
-    receiverAddress: String!
-    topicAddress: String
-    oracleAddress: String
-  ): Transaction
-
-  approveCreateEvent(
-    txid: String
-    gasLimit: String
-    gasPrice: String
-    senderAddress: String!
-    name: String!
-    options: [String!]!
-    resultSetterAddress: String!
-    bettingStartTime: String!
-    bettingEndTime: String!
-    resultSettingStartTime: String!
-    resultSettingEndTime: String!
-    amount: String!
-    language: String!
-  ): Transaction
-
   createEvent(
     txid: String
     gasLimit: String
@@ -306,28 +276,6 @@ type Mutation {
     resultSettingEndTime: String!
     amount: String!
     language: String!
-  ): Transaction
-
-  createBet(
-    txid: String
-    gasLimit: String
-    gasPrice: String
-    senderAddress: String!
-    topicAddress: String!
-    oracleAddress: String!
-    optionIdx: Int!
-    amount: String!
-  ): Transaction
-
-  approveSetResult(
-    txid: String
-    gasLimit: String
-    gasPrice: String
-    senderAddress: String!
-    topicAddress: String!
-    oracleAddress: String!
-    optionIdx: Int!
-    amount: String!
   ): Transaction
 
   setResult(
