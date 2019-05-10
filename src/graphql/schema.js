@@ -78,7 +78,6 @@ type MultipleResultsEvent {
   consensusThreshold: String
   arbitrationEndTime: String
   totalBets: String
-  hashId: String
   status: EventStatus!
   language: String!
 }
@@ -191,7 +190,6 @@ input EventFilter {
   address: String
   ownerAddress: String
   resultIndex: Int
-  hashId: String
   status: EventStatus
   language: String
 }

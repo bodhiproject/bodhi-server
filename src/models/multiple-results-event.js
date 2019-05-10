@@ -45,7 +45,6 @@ module.exports = class MultipleResultsEvent {
     this.arbitrationEndTime = params.arbitrationEndTime.toString(10);
 
     // Backend params
-    this.hashId = null;
     this.status = params.status || EVENT_STATUS.BETTING;
     this.language = params.language || 'zh-Hans-CN';
   }

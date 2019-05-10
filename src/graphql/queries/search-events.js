@@ -6,7 +6,6 @@ const buildFilters = ({
   address,
   ownerAddress,
   resultIndex,
-  hashId,
   status,
   language,
 }) => {
@@ -15,7 +14,6 @@ const buildFilters = ({
     || address
     || ownerAddress
     || resultIndex
-    || hashId
     || status
     || language
   ) ? {} : null;
@@ -25,7 +23,6 @@ const buildFilters = ({
   if (ownerAddress) filter.ownerAddress = ownerAddress;
   if (status) filter.status = status;
   if (resultIndex) filter.resultIndex = resultIndex;
-  if (hashId) filter.hashId = hashId;
   if (language) filter.language = language;
 
   let filters = filter ? [filter] : [];
