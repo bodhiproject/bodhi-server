@@ -14,15 +14,6 @@ enum EventStatus {
   WITHDRAWING
 }
 
-enum TransactionType {
-  CREATE_EVENT
-  BET
-  SET_RESULT
-  VOTE
-  WITHDRAW
-  TRANSFER
-}
-
 enum TransactionStatus {
   PENDING
   FAIL
@@ -144,39 +135,34 @@ type PaginatedWithdraws {
   items: [Withdraw]!
 }
 
-type TotalBets {
-  eventAddress: String!
-  betterAddress: String!
-  amount: String!
-}
-
 type SyncInfo {
   syncBlockNum: Int
   syncBlockTime: String
   syncPercent: Int
 }
 
-type AddressBalance {
-  address: String!
-  nbot: String!
+type AllStats {
+  eventCount: String!
+  participantCount: String!
+  totalBets: String!
 }
 
-type PaginatedTotalBets {
-  totalCount: Int!
-  pageInfo: PageInfo
-  items: [TotalBets]!
-}
-
-type Winner {
+type MostBet {
   eventAddress: String!
   betterAddress: String!
   amount: String!
 }
 
-type AllStats {
-  eventCount: String!
-  participantCount: String!
-  totalBets: String!
+type PaginatedMostBets {
+  totalCount: Int!
+  pageInfo: PageInfo
+  items: [MostBet]!
+}
+
+type BiggestWinner {
+  eventAddress: String!
+  betterAddress: String!
+  amount: String!
 }
 
 input Order {
@@ -270,14 +256,14 @@ type Query {
     orderBy: [Order!],
     limit: Int,
     skip: Int
-  ): PaginatedTotalBets!
+  ): PaginatedMostBets!
 
   biggestWinners(
     filter: BetFilter,
     orderBy: [Order!],
     limit: Int,
     skip: Int
-  ): [Winner]!
+  ): [BiggestWinner]!
 }
 
 type Mutation {
