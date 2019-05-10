@@ -1,102 +1,11 @@
 const _ = require('lodash');
 const { calculateSyncPercent } = require('../subscriptions');
-const { SATOSHI_CONVERSION, STATUS, TOKEN } = require('../../constants');
+const { SATOSHI_CONVERSION, TOKEN } = require('../../constants');
 const { getLogger } = require('../../utils/logger');
 const sequentialLoop = require('../../utils/sequential-loop');
 const events = require('./events');
 const searchEvents = require('./events');
-
-const buildOracleFilters = ({
-  OR = [],
-  txid,
-  address,
-  topicAddress,
-  resultSetterAddress,
-  excludeResultSetterAddress,
-  status,
-  token,
-  hashId,
-  language,
-}) => {
-  const filter = (
-    txid
-    || address
-    || topicAddress
-    || resultSetterAddress
-    || status
-    || token
-    || excludeResultSetterAddress
-    || hashId
-    || language
-  ) ? {} : null;
-
-  if (txid) {
-    filter.txid = txid;
-  }
-
-  if (address) {
-    filter.address = address;
-  }
-
-  if (topicAddress) {
-    filter.topicAddress = topicAddress;
-  }
-
-  if (resultSetterAddress) {
-    filter.resultSetterAddress = resultSetterAddress;
-  } else if (excludeResultSetterAddress) {
-    filter.resultSetterAddress = { $nin: excludeResultSetterAddress };
-  }
-
-  if (status) {
-    filter.status = status;
-  }
-
-  if (token) {
-    filter.token = token;
-  }
-
-  if (hashId) {
-    filter.hashId = hashId;
-  }
-
-  if (language) {
-    filter.language = language;
-  }
-
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildOracleFilters(OR[i]));
-  }
-
-  return filters;
-};
-
-const buildVoteFilters = ({ OR = [], topicAddress, oracleAddress, voterAddress, optionIdx, token }) => {
-  const filter = (topicAddress || oracleAddress || voterAddress || optionIdx || token) ? {} : null;
-
-  if (topicAddress) {
-    filter.topicAddress = topicAddress;
-  }
-  if (oracleAddress) {
-    filter.oracleAddress = oracleAddress;
-  }
-  if (voterAddress) {
-    filter.voterAddress = voterAddress;
-  }
-  if (optionIdx) {
-    filter.optionIdx = optionIdx;
-  }
-  if (token) {
-    filter.token = token;
-  }
-
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildVoteFilters(OR[i]));
-  }
-  return filters;
-};
+const bets = require('./bets');
 
 const buildResultSetFilters = ({ OR = [], txid, fromAddress, topicAddress, oracleAddress, resultIdx }) => {
   const filter = (txid || fromAddress || topicAddress || oracleAddress || resultIdx) ? {} : null;
@@ -274,51 +183,9 @@ const getWinnings = async (vote) => {
 module.exports = {
   events,
   searchEvents,
+  bets,
 
-  allOracles: async (root, { filter, orderBy, limit, skip }, { db: { Oracles } }) => {
-    const query = filter ? { $or: buildOracleFilters(filter) } : {};
-    let cursor = Oracles.cfind(query);
-    const totalCount = await Oracles.count(query);
-    let hasNextPage;
-    let pageNumber;
-    let isPaginated = false;
-
-    if (_.isNumber(limit) && _.isNumber(skip)) {
-      isPaginated = true;
-      const end = skip + limit;
-      hasNextPage = end < totalCount;
-      pageNumber = _.toInteger(end / limit); // just in case manually enter not start with new page, ex. limit 20, skip 2
-    }
-    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-    const oracles = await cursor.exec();
-    const ret = { totalCount, oracles };
-    if (isPaginated) {
-      ret.pageInfo = {
-        hasNextPage,
-        pageNumber,
-        count: oracles.length,
-      };
-    }
-    return ret;
-  },
-
-  searchOracles: async (root, { searchPhrase, filter, orderBy, limit, skip }, { db: { Oracles } }) => {
-    const filters = [{ $not: { status: STATUS.WITHDRAW } }];
-    if (filter) filters.push({ $or: buildOracleFilters(filter) });
-    if (searchPhrase) filters.push({ $or: buildSearchPhrase(searchPhrase) });
-    const query = { $and: filters };
-    let cursor = Oracles.cfind(query);
-    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-    return cursor.exec();
-  },
-
-  allVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
-    const query = filter ? { $or: buildVoteFilters(filter) } : {};
-    let cursor = Votes.cfind(query);
-    cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-    return cursor.exec();
-  },
-
+  
   mostVotes: async (root, { filter, orderBy, limit, skip }, { db: { Votes } }) => {
     const voterFilters = buildVoteFilters(filter);
     if (voterFilters.length !== 1) {

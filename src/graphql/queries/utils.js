@@ -69,8 +69,38 @@ const buildEventSearchPhrase = (searchPhrase) => {
   return filters;
 };
 
+const buildBetFilters = ({
+  OR = [],
+  txid,
+  eventAddress,
+  betterAddress,
+  resultIndex,
+  eventRound,
+}) => {
+  const filter = (
+    txid
+    || eventAddress
+    || betterAddress
+    || resultIndex
+    || eventRound
+  ) ? {} : null;
+
+  if (txid) filter.txid = txid;
+  if (eventAddress) filter.eventAddress = eventAddress;
+  if (betterAddress) filter.betterAddress = betterAddress;
+  if (resultIndex) filter.resultIndex = resultIndex;
+  if (eventRound) filter.eventRound = eventRound;
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildBetFilters(OR[i]));
+  }
+  return filters;
+};
+
 module.exports = {
   buildCursorOptions,
   buildEventFilters,
   buildEventSearchPhrase,
+  buildBetFilters,
 };
