@@ -53,14 +53,14 @@ type PageInfo {
 }
 
 type MultipleResultsEvent {
-  txid: String
+  txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int
+  blockNum: Int!
   block: Block
   address: String
   ownerAddress: String!
-  version: Int!
+  version: Int
   name: String!
   results: [String!]!
   numOfResults: Int!
@@ -73,15 +73,14 @@ type MultipleResultsEvent {
   arbitrationLength: String
   thresholdPercentIncrease: String
   arbitrationRewardPercentage: String
-  currentRound: Int!
-  currentResultIndex: Int!
+  currentRound: Int
+  currentResultIndex: Int
   consensusThreshold: String
   arbitrationEndTime: String
   totalBets: String
   hashId: String
   status: EventStatus!
   language: String!
-  transactions: [Transaction]
 }
 
 type PaginatedEvents {
@@ -91,17 +90,16 @@ type PaginatedEvents {
 }
 
 type Bet {
-  txid: String
+  txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int
+  blockNum: Int!
   block: Block
   eventAddress: String!
   betterAddress: String!
   resultIndex: Int!
   amount: String!
   eventRound: Int!
-  txStatus: TransactionStatus!
 }
 
 type PaginatedBets {
@@ -111,17 +109,16 @@ type PaginatedBets {
 }
 
 type ResultSet {
-  txid: String
+  txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int
+  blockNum: Int!
   block: Block
   eventAddress: String!
   centralizedOracleAddress: String
   resultIndex: Int!
   amount: String!
   eventRound: Int!
-  txStatus: TransactionStatus!
 }
 
 type PaginatedResultSets {
@@ -131,16 +128,15 @@ type PaginatedResultSets {
 }
 
 type Withdraw {
-  txid: String
+  txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int
+  blockNum: Int!
   block: Block
   eventAddress: String!
   winnerAddress: String!
   winningAmount: String!
   escrowAmount: String!
-  txStatus: TransactionStatus!
 }
 
 type PaginatedWithdraws {
@@ -287,79 +283,49 @@ type Query {
 }
 
 type Mutation {
-  createEvent(
-    txid: String
-    gasLimit: String
-    gasPrice: String
-    senderAddress: String!
+  addPendingEvent(
+    txid: String!
+    blockNum: Int!
+    ownerAddress: String!
     name: String!
-    options: [String!]!
-    resultSetterAddress: String!
-    bettingStartTime: String!
-    bettingEndTime: String!
-    resultSettingStartTime: String!
-    resultSettingEndTime: String!
-    amount: String!
+    results: [String!]!
+    numOfResults: Int!
+    centralizedOracle: String!
+    betStartTime: String!
+    betEndTime: String!
+    resultSetStartTime: String!
+    resultSetEndTime: String!
     language: String!
-  ): Transaction
+  ): MultipleResultsEvent
 
-  setResult(
-    txid: String
-    gasLimit: String
-    gasPrice: String
-    senderAddress: String!
-    topicAddress: String!
-    oracleAddress: String!
-    optionIdx: Int!
+  addPendingBet(
+    txid: String!
+    blockNum: Int!
+    eventAddress: String!
+    betterAddress: String!
+    resultIndex: Int!
     amount: String!
-  ): Transaction
+    eventRound: Int!
+  ): Bet
 
-  approveVote(
-    txid: String
-    gasLimit: String
-    gasPrice: String
-    senderAddress: String!
-    topicAddress: String!
-    oracleAddress: String!
-    optionIdx: Int!
+  addPendingResultSet(
+    txid: String!
+    blockNum: Int!
+    eventAddress: String!
+    centralizedOracleAddress: String!
+    resultIndex: Int!
     amount: String!
-  ): Transaction
+    eventRound: Int!
+  ): ResultSet
 
-  createVote(
-    txid: String
-    gasLimit: String
-    gasPrice: String
-    senderAddress: String!
-    topicAddress: String!
-    oracleAddress: String!
-    optionIdx: Int!
-    amount: String!
-  ): Transaction
-
-  finalizeResult(
-    txid: String
-    gasLimit: String
-    gasPrice: String
-    senderAddress: String!
-    topicAddress: String!
-    oracleAddress: String!
-  ): Transaction
-
-  withdraw(
-    type: _TransactionType!
-    txid: String
-    gasLimit: String
-    gasPrice: String
-    senderAddress: String!
-    topicAddress: String!
-  ): Transaction
-
-  transfer(
-    senderAddress: String!
-    receiverAddress: String!
-    token: _TokenType!
-    amount: String!
-  ): Transaction
+  addPendingWithdraw(
+    txid: String!
+    blockNum: Int!
+    eventAddress: String!
+    winnerAddress: String!
+    winningAmount: String!
+    escrowAmount: String!
+  ): Withdraw
 }
 
 type Subscription {
