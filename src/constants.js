@@ -13,21 +13,11 @@ module.exports = {
     WITHDRAWING: 'WITHDRAWING',
   },
 
-  TX_TYPE: {
-    CREATE_EVENT: 'CREATE_EVENT',
-    BET: 'BET',
-    SET_RESULT: 'SET_RESULT',
-    VOTE: 'VOTE',
-    WITHDRAW: 'WITHDRAW',
-    TRANSFER: 'TRANSFER',
-  },
-
   TX_STATUS: {
     PENDING: 'PENDING',
     SUCCESS: 'SUCCESS',
     FAIL: 'FAIL',
   },
 
-  SATOSHI_CONVERSION: 10 ** 8,
   INVALID_RESULT_INDEX: 255,
 };
