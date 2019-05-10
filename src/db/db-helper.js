@@ -134,6 +134,15 @@ module.exports = class DBHelper {
     }
   }
 
+  static async countBet(db, query) {
+    try {
+      return await db.Bets.count(query);
+    } catch (err) {
+      getLogger().error(`COUNT Bet error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async insertBet(db, bet) {
     try {
       await db.Bets.insert(bet);
@@ -153,6 +162,15 @@ module.exports = class DBHelper {
     }
   }
 
+  static async countResultSet(db, query) {
+    try {
+      return await db.ResultSets.count(query);
+    } catch (err) {
+      getLogger().error(`COUNT ResultSet error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async insertResultSet(db, resultSet) {
     try {
       await db.ResultSets.insert(resultSet);
@@ -168,6 +186,15 @@ module.exports = class DBHelper {
       return await db.Withdraws.findOne(query);
     } catch (err) {
       getLogger().error(`FIND Withdraw error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async countWithdraw(db, query) {
+    try {
+      return await db.Withdraws.count(query);
+    } catch (err) {
+      getLogger().error(`COUNT Withdraw error: ${err.message}`);
       throw err;
     }
   }

@@ -22,7 +22,7 @@ module.exports = {
     TRANSFER: 'TRANSFER',
   },
 
-  TX_STATE: {
+  TX_STATUS: {
     PENDING: 'PENDING',
     SUCCESS: 'SUCCESS',
     FAIL: 'FAIL',

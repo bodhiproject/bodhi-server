@@ -25,6 +25,13 @@ type Block {
   time: String!
 }
 
+type PendingTransactions {
+  bet: Int!
+  resultSet: Int!
+  withdraw: Int!
+  total: Int!
+}
+
 type TransactionReceipt {
   status: Boolean!
   blockHash: String!
@@ -71,6 +78,7 @@ type MultipleResultsEvent {
   totalBets: String
   status: EventStatus!
   language: String!
+  pendingTxs: PendingTransactions
 }
 
 type PaginatedEvents {
@@ -211,6 +219,7 @@ type Query {
     orderBy: [Order!],
     limit: Int,
     skip: Int
+    pendingTxsAddress: String
   ): PaginatedEvents!
 
   searchEvents(

@@ -1,7 +1,9 @@
+const { sum } = require('lodash');
 const Queries = require('./queries');
 const Mutations = require('./mutations');
-const { TOKEN, STATUS, PHASE, TX_TYPE } = require('../constants');
+const { TX_STATUS, TOKEN, STATUS, PHASE, TX_TYPE } = require('../constants');
 const pubsub = require('../route/pubsub');
+const { DBHelper } = require('../db/db-helper');
 
 /**
  * Takes an oracle object and returns which phase it is in.
@@ -27,42 +29,32 @@ module.exports = {
     onSyncInfo: { subscribe: () => pubsub.asyncIterator('onSyncInfo') },
   },
 
-  Topic: {
-    oracles: ({ address }, data, { db: { Oracles } }) => Oracles.cfind({ topicAddress: address }).sort({ blockNum: -1 }).exec(),
-    transactions: async ({ address }, data, { db: { Transactions } }) => {
-      const { WITHDRAW, WITHDRAWESCROW } = TX_TYPE;
-      const types = [{ type: WITHDRAWESCROW }, { type: WITHDRAW }];
-      return Transactions.find({ topicAddress: address, $or: types });
-    },
-  },
-
-  Oracle: {
-    transactions: (oracle, data, { db: { Transactions } }) => {
-      const calculatedPhase = getPhase(oracle);
-      let types = [];
-      switch (calculatedPhase) {
-        case PHASE.PENDING:
-          // Oracles in PENDING phase don't have any transactions to query
-          return [];
-        case PHASE.BETTING:
-          types = [{ type: TX_TYPE.BET }, { type: TX_TYPE.CREATEEVENT }, { type: TX_TYPE.APPROVECREATEEVENT }];
-          break;
-        case PHASE.RESULT_SETTING:
-          types = [{ type: TX_TYPE.SETRESULT }, { type: TX_TYPE.APPROVESETRESULT }];
-          break;
-        case PHASE.VOTING:
-          types = [{ type: TX_TYPE.VOTE }, { type: TX_TYPE.APPROVEVOTE }];
-          break;
-        case PHASE.FINALIZING:
-          types = [{ type: TX_TYPE.FINALIZERESULT }];
-          break;
-        case PHASE.WITHDRAWING:
-          types = [{ type: TX_TYPE.WITHDRAW }];
-          break;
-        default:
-          throw Error(`Invalid phase: ${calculatedPhase}`);
+  MultipleResultsEvent: {
+    pendingTxs: async ({ address }, { pendingTxsAddress }, { db }) => {
+      if (pendingTxsAddress) {
+        const bet = await DBHelper.countBet(db, {
+          eventAddress: address,
+          betterAddress: pendingTxsAddress,
+          txStatus: TX_STATUS.PENDING,
+        });
+        const resultSet = await DBHelper.countResultSet(db, {
+          eventAddress: address,
+          centralizedOracleAddress: pendingTxsAddress,
+          txStatus: TX_STATUS.PENDING,
+        });
+        const withdraw = await DBHelper.countWithdraw(db, {
+          eventAddress: address,
+          winnerAddress: pendingTxsAddress,
+          txStatus: TX_STATUS.PENDING,
+        });
+        return {
+          bet,
+          resultSet,
+          withdraw,
+          total: sum([bet, resultSet, withdraw]),
+        };
       }
-      return Transactions.find({ oracleAddress: oracle.address, $or: types });
+      return null;
     },
   },
 
