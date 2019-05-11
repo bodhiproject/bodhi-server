@@ -221,4 +221,23 @@ module.exports = class DBHelper {
       throw err;
     }
   }
+
+  /* TransactionReceipts */
+  static async findOneTransactionReceipt(db, query) {
+    try {
+      return await db.TransactionReceipts.findOne(query);
+    } catch (err) {
+      getLogger().error(`FIND TransactionReceipt error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertTransactionReceipt(db, txReceipt) {
+    try {
+      await db.TransactionReceipts.insert(txReceipt);
+    } catch (err) {
+      getLogger().error(`INSERT TransactionReceipt error: ${err.message}`);
+      throw err;
+    }
+  }
 };

@@ -12,7 +12,7 @@ const db = {
   ResultSets: undefined,
   Withdraws: undefined,
   Blocks: undefined,
-  TxReceipts: undefined,
+  TransactionReceipts: undefined,
 };
 
 /**
@@ -23,11 +23,11 @@ const initDB = async () => {
   getLogger().info(`Data dir: ${dbDir}`);
 
   db.Events = datastore({ filename: `${dbDir}/events.db` });
-  db.Bets = datastore({ filename: `${dbDir}/oracles.db` });
+  db.Bets = datastore({ filename: `${dbDir}/bets.db` });
   db.ResultSets = datastore({ filename: `${dbDir}/resultsets.db` });
   db.Withdraws = datastore({ filename: `${dbDir}/withdraws.db` });
   db.Blocks = datastore({ filename: `${dbDir}/blocks.db` });
-  db.TxReceipts = datastore({ filename: `${dbDir}/txreceipts.db` });
+  db.TransactionReceipts = datastore({ filename: `${dbDir}/transactionreceipts.db` });
 
   try {
     await Promise.all([
@@ -36,7 +36,7 @@ const initDB = async () => {
       db.ResultSets.loadDatabase(),
       db.Withdraws.loadDatabase(),
       db.Blocks.loadDatabase(),
-      db.TxReceipts.loadDatabase(),
+      db.TransactionReceipts.loadDatabase(),
     ]);
 
     await db.Events.ensureIndex({ fieldName: 'txid', unique: true });
