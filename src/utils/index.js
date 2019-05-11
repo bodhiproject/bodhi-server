@@ -1,7 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { isEmpty } = require('lodash');
-
 const { CONFIG } = require('../config');
 
 /**
