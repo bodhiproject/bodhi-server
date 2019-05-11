@@ -3,11 +3,11 @@ const http = require('http');
 const https = require('https');
 const expressWinston = require('express-winston');
 const helmet = require('helmet');
-
 const apiRouter = require('./api');
 const { createApolloServer, handleSubscriptions } = require('./graphql');
 const { getLogger } = require('../utils/logger');
-const { Config, getEnvConfig, getSSLCredentials } = require('../config');
+const { CONFIG, getSSLCredentials } = require('../config');
+const { BLOCKCHAIN_ENV } = require('../constants');
 
 const initExpressApp = () => {
   const app = express();
@@ -38,7 +38,7 @@ const initExpressApp = () => {
 };
 
 const createServer = (app) => {
-  if (Config.PROTOCOL === 'https') {
+  if (CONFIG.PROTOCOL === 'https') {
     return https.createServer(getSSLCredentials(), app);
   }
   return http.createServer(app);
@@ -54,13 +54,15 @@ const initApiServer = () => {
     const server = createServer(app);
     handleSubscriptions(server);
 
-    const { apiPort } = getEnvConfig();
-    server.listen(apiPort, () => {
-      getLogger().info(`API served at ${Config.PROTOCOL}://${Config.HOSTNAME}:${apiPort}`);
+    const port = CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET
+      ? CONFIG.API_PORT_MAINNET
+      : CONFIG.API_PORT_TESTNET;
+    server.listen(port, () => {
+      getLogger().info(`API served at ${CONFIG.PROTOCOL}://${CONFIG.HOSTNAME}:${port}`);
     });
   } catch (err) {
-    getLogger().error(`Error starting API Server: ${err.message}`);
-    require('../server').exit('SIGTERM'); // eslint-disable-line
+    getLogger().error(`Error starting API/GraphQL Server: ${err.message}`);
+    throw err;
   }
 };
 

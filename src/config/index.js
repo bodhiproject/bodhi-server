@@ -1,19 +1,19 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { isEmpty, includes, isNumber } = require('lodash');
+const { isEmpty, isNumber } = require('lodash');
 const { BLOCKCHAIN_ENV } = require('../constants');
 const contractMetadata = require('./contract-metadata');
 
 const CONFIG = {
   CONTRACT_VERSION: process.env.CONTRACT_VERSION,
   NETWORK: process.env.NETWORK,
-  API_PORT_MAINNET: 8989,
-  API_PORT_TESTNET: 6767,
   RPC_MAINNET: 'wss://api.nakachain.org/ws',
   RPC_TESTNET: 'wss://testnet.api.nakachain.org/ws',
-  DEFAULT_LOG_LEVEL: 'debug',
+  PROTOCOL: process.env.SSL === 'true' ? 'https' : 'http',
   HOSTNAME: 'localhost',
-  PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
+  API_PORT_MAINNET: 8989,
+  API_PORT_TESTNET: 6767,
+  DEFAULT_LOG_LEVEL: 'debug',
 };
 
 /**
