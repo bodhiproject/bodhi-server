@@ -14,10 +14,11 @@ module.exports = class ResultSet {
 
   format(params) {
     // Chain params
-    this.blockNum = params.blockNum;
     this.txid = params.txid;
+    this.txStatus = params.txStatus;
+    this.blockNum = params.blockNum;
 
-    // Blockchain params
+    // Result Set params
     this.eventAddress = params.eventAddress;
     this.centralizedOracleAddress = params.centralizedOracleAddress; // Only for COracle result sets
     this.resultIndex = Number(params.resultIndex);

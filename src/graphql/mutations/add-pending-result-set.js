@@ -2,6 +2,7 @@ const { isNull } = require('lodash');
 const ResultSet = require('../../models/result-set');
 const { getLogger } = require('../../utils/logger');
 const { DBHelper } = require('../../db/db-helper');
+const { TX_STATUS } = require('../../constants');
 
 module.exports = async (
   root,
@@ -23,6 +24,7 @@ module.exports = async (
 
   const resultSet = new ResultSet({
     txid,
+    txStatus: TX_STATUS.PENDING,
     blockNum,
     eventAddress,
     centralizedOracleAddress,
