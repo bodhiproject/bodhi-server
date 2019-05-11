@@ -26,7 +26,7 @@ const getBaseDataDir = () => {
     return process.env.DATA_DIR;
   }
 
-  const rootDir = path.resolve('../../');
+  const rootDir = path.resolve('./');
   const dataDir = `${rootDir}/data/${CONFIG.NETWORK}`;
   fs.ensureDirSync(dataDir);
   return path.resolve(dataDir);
