@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
 const { isFinite, isString, map, filter } = require('lodash');
 
 const { INVALID_RESULT_INDEX, EVENT_STATUS } = require('../constants');
@@ -18,9 +17,10 @@ module.exports = class MultipleResultsEvent {
   format(params) {
     // Chain params
     this.txid = params.txid;
+    this.txStatus = params.txStatus;
     this.blockNum = params.blockNum;
 
-    // Blockchain params
+    // Event params
     this.address = params.address;
     this.ownerAddress = params.ownerAddress;
     this.version = params.version;

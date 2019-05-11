@@ -16,8 +16,8 @@ enum EventStatus {
 
 enum TransactionStatus {
   PENDING
-  FAIL
   SUCCESS
+  FAIL
 }
 
 type Block {

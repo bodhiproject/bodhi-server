@@ -2,6 +2,7 @@ const { each, isNull } = require('lodash');
 const insertTxReceipt = require('./tx-receipt');
 const { web3 } = require('../web3');
 const { getContractAddress } = require('../config');
+const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
 const { getLogger } = require('../utils/logger');
 const MultipleResultsEvent = require('../models/multiple-results-event');
@@ -67,8 +68,9 @@ module.exports = async (contractMetadata, currentBlockNum) => {
         await contract.methods.currentArbitrationEndTime().call();
 
       const multipleResultsEvent = new MultipleResultsEvent({
-        blockNum: log.blockNumber,
         txid: log.transactionHash,
+        txStatus: TX_STATUS.SUCCESS,
+        blockNum: log.blockNumber,
         address: eventAddr,
         ownerAddress: ownerAddr,
         version,

@@ -1,5 +1,5 @@
 const { isNull } = require('lodash');
-const { EVENT_STATUS } = require('../../constants');
+const { TX_STATUS, EVENT_STATUS } = require('../../constants');
 const { getLogger } = require('../../utils/logger');
 const { DBHelper } = require('../../db/db-helper');
 const MultipleResultsEvent = require('../../models/multiple-results-event');
@@ -30,6 +30,7 @@ module.exports = async (
 
   const multipleResultsEvent = new MultipleResultsEvent({
     txid,
+    txStatus: TX_STATUS.PENDING,
     blockNum,
     ownerAddress,
     version,
