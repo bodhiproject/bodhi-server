@@ -2,6 +2,7 @@ const { isNull } = require('lodash');
 const Withdraw = require('../../models/withdraw');
 const { getLogger } = require('../../utils/logger');
 const { DBHelper } = require('../../db/db-helper');
+const { TX_STATUS } = require('../../constants');
 
 module.exports = async (
   root,
@@ -22,6 +23,7 @@ module.exports = async (
 
   const withdraw = new Withdraw({
     txid,
+    txStatus: TX_STATUS.PENDING,
     blockNum,
     eventAddress,
     winnerAddress,

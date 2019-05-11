@@ -1,6 +1,7 @@
 const { each } = require('lodash');
 const insertTxReceipt = require('./tx-receipt');
 const { web3 } = require('../web3');
+const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
 const { getLogger } = require('../utils/logger');
 const { db } = require('../db');
@@ -38,8 +39,9 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       } = naka.eth.abi.decodeLog(obj.inputs, log.data, log.topics);
 
       const withdraw = new Withdraw({
-        blockNum: log.blockNumber,
         txid: log.transactionHash,
+        txStatus: TX_STATUS.SUCCESS,
+        blockNum: log.blockNumber,
         eventAddress,
         winnerAddress: winner,
         winningAmount,

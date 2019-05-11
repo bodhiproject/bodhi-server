@@ -14,10 +14,11 @@ module.exports = class Withdraw {
 
   format(params) {
     // Chain params
-    this.blockNum = params.blockNum;
     this.txid = params.txid;
+    this.txStatus = params.txStatus;
+    this.blockNum = params.blockNum;
 
-    // Blockchain params
+    // Withdraw params
     this.eventAddress = params.eventAddress;
     this.winnerAddress = params.winnerAddress;
     this.winningAmount = params.winningAmount;
