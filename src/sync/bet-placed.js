@@ -1,6 +1,7 @@
 const { each } = require('lodash');
 const insertTxReceipt = require('./tx-receipt');
 const { web3 } = require('../web3');
+const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
 const { getLogger } = require('../utils/logger');
 const Bet = require('../models/bet');
@@ -39,8 +40,9 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       } = naka.eth.abi.decodeLog(obj.inputs, log.data, log.topics);
 
       const bet = new Bet({
-        blockNum: log.blockNumber,
         txid: log.transactionHash,
+        txStatus: TX_STATUS.SUCCESS,
+        blockNum: log.blockNumber,
         eventAddress,
         betterAddress: better,
         resultIndex,

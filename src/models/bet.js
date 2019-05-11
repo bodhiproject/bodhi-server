@@ -14,10 +14,11 @@ module.exports = class Bet {
 
   format(params) {
     // Chain params
-    this.blockNum = params.blockNum;
     this.txid = params.txid;
+    this.txStatus = params.txStatus;
+    this.blockNum = params.blockNum;
 
-    // Blockchain params
+    // Bet params
     this.eventAddress = params.eventAddress;
     this.betterAddress = params.betterAddress;
     this.resultIndex = Number(params.resultIndex);
