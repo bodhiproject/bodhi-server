@@ -1,4 +1,5 @@
 const { each, isNull } = require('lodash');
+const insertTxReceipt = require('./tx-receipt');
 const { web3 } = require('../web3');
 const { getContractAddress } = require('../config');
 const { getAbiObject } = require('../utils');
@@ -100,6 +101,10 @@ module.exports = async (contractMetadata, currentBlockNum) => {
             multipleResultsEvent.language = existingEvent.language;
             await DBHelper.updateEvent(db, multipleResultsEvent);
           }
+
+          // Fetch/insert tx receipt
+          await insertTxReceipt(multipleResultsEvent.txid);
+
           resolve();
         } catch (insertErr) {
           getLogger().error(`insert MultipleResultsEvent: ${insertErr.message}`);

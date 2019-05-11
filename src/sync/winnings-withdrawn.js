@@ -1,4 +1,5 @@
 const { each } = require('lodash');
+const insertTxReceipt = require('./tx-receipt');
 const { web3 } = require('../web3');
 const { getAbiObject } = require('../utils');
 const { getLogger } = require('../utils/logger');
@@ -49,6 +50,10 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       promises.push(new Promise(async (resolve, reject) => {
         try {
           await DBHelper.insertWithdraw(db, withdraw);
+
+          // Fetch/insert tx receipt
+          await insertTxReceipt(withdraw.txid);
+
           resolve();
         } catch (insertErr) {
           getLogger().error(`insert WinningsWithdrawn: ${insertErr.message}`);

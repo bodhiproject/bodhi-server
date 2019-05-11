@@ -1,4 +1,5 @@
 const { each } = require('lodash');
+const insertTxReceipt = require('./tx-receipt');
 const { web3 } = require('../web3');
 const { getAbiObject } = require('../utils');
 const { getLogger } = require('../utils/logger');
@@ -62,6 +63,9 @@ module.exports = async (contractMetadata, currentBlockNum) => {
           event.consensusThreshold = nextConsensusThreshold;
           event.arbitrationEndTime = nextArbitrationEndTime;
           await DBHelper.updateEvent(db, event);
+
+          // Fetch/insert tx receipt
+          await insertTxReceipt(resultSet.txid);
 
           resolve();
         } catch (insertErr) {
