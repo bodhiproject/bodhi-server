@@ -5,6 +5,15 @@ const { EVENT_STATUS } = require('../constants');
 
 module.exports = class DBHelper {
   /* Blocks */
+  static async findOneBlock(db, query) {
+    try {
+      return await db.Blocks.findOne(query);
+    } catch (err) {
+      getLogger().error(`FIND Block error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async insertBlock(db, blockNum, blockTime) {
     try {
       await db.Blocks.insert({

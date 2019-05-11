@@ -16,8 +16,8 @@ module.exports = {
   MultipleResultsEvent: {
     txReceipt: async ({ txid }, data, { db }) =>
       DBHelper.findOneTransactionReceipt(db, { txid }),
-    block: async ({ blockNum }, data, { db: { Blocks } }) =>
-      (await Blocks.find({ blockNum }))[0],
+    block: async ({ blockNum }, data, { db }) =>
+      DBHelper.findOneBlock(db, { blockNum }),
     pendingTxs: async ({ address }, { pendingTxsAddress }, { db }) => {
       if (pendingTxsAddress) {
         const bet = await DBHelper.countBet(db, {
@@ -49,22 +49,22 @@ module.exports = {
   Bet: {
     txReceipt: async ({ txid }, data, { db }) =>
       DBHelper.findOneTransactionReceipt(db, { txid }),
-    block: async ({ blockNum }, data, { db: { Blocks } }) =>
-      (await Blocks.find({ blockNum }))[0],
+    block: async ({ blockNum }, data, { db }) =>
+      DBHelper.findOneBlock(db, { blockNum }),
   },
 
   ResultSet: {
     txReceipt: async ({ txid }, data, { db }) =>
       DBHelper.findOneTransactionReceipt(db, { txid }),
-    block: async ({ blockNum }, data, { db: { Blocks } }) =>
-      (await Blocks.find({ blockNum }))[0],
+    block: async ({ blockNum }, data, { db }) =>
+      DBHelper.findOneBlock(db, { blockNum }),
   },
 
   Withdraw: {
     txReceipt: async ({ txid }, data, { db }) =>
       DBHelper.findOneTransactionReceipt(db, { txid }),
-    block: async ({ blockNum }, data, { db: { Blocks } }) =>
-      (await Blocks.find({ blockNum }))[0],
+    block: async ({ blockNum }, data, { db }) =>
+      DBHelper.findOneBlock(db, { blockNum }),
   },
 };
 /* eslint-enable object-curly-newline */
