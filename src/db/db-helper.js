@@ -4,6 +4,39 @@ const { getLogger } = require('../utils/logger');
 const { EVENT_STATUS } = require('../constants');
 
 module.exports = class DBHelper {
+  /* Blocks */
+  static async insertBlock(db, blockNum, blockTime) {
+    try {
+      await db.Blocks.insert({
+        _id: blockNum,
+        blockNum,
+        blockTime,
+      });
+    } catch (err) {
+      getLogger().error(`INSERT Block error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* TransactionReceipts */
+  static async findOneTransactionReceipt(db, query) {
+    try {
+      return await db.TransactionReceipts.findOne(query);
+    } catch (err) {
+      getLogger().error(`FIND TransactionReceipt error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertTransactionReceipt(db, txReceipt) {
+    try {
+      await db.TransactionReceipts.insert(txReceipt);
+    } catch (err) {
+      getLogger().error(`INSERT TransactionReceipt error: ${err.message}`);
+      throw err;
+    }
+  }
+
   /* Events */
   static async findOneEvent(db, query) {
     try {
@@ -204,39 +237,6 @@ module.exports = class DBHelper {
       await db.Withdraws.insert(withdraw);
     } catch (err) {
       getLogger().error(`INSERT Withdraw error: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /* Blocks */
-  static async insertBlock(db, blockNum, blockTime) {
-    try {
-      await db.Blocks.insert({
-        _id: blockNum,
-        blockNum,
-        blockTime,
-      });
-    } catch (err) {
-      getLogger().error(`INSERT Block error: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /* TransactionReceipts */
-  static async findOneTransactionReceipt(db, query) {
-    try {
-      return await db.TransactionReceipts.findOne(query);
-    } catch (err) {
-      getLogger().error(`FIND TransactionReceipt error: ${err.message}`);
-      throw err;
-    }
-  }
-
-  static async insertTransactionReceipt(db, txReceipt) {
-    try {
-      await db.TransactionReceipts.insert(txReceipt);
-    } catch (err) {
-      getLogger().error(`INSERT TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
