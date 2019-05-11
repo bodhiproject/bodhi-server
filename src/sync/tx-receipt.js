@@ -10,7 +10,7 @@ module.exports = async (txid) => {
     if (isNull(res)) throw Error(`txid ${txid} does not have tx receipt`);
 
     const txReceipt = new TransactionReceipt(res);
-    await DBHelper.insertTxReceipt(db, txReceipt);
+    await DBHelper.insertTransactionReceipt(db, txReceipt);
   } catch (err) {
     throw Error('Error getTransactionReceipt:', err);
   }
