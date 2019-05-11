@@ -11,16 +11,9 @@ const CONFIG = {
   API_PORT_TESTNET: 6767,
   RPC_MAINNET: 'wss://api.nakachain.org/ws',
   RPC_TESTNET: 'wss://testnet.api.nakachain.org/ws',
-
-  IS_DEV: includes(process.argv, '--dev'),
-  PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
-  HOSTNAME: 'localhost',
   DEFAULT_LOG_LEVEL: 'debug',
-  TRANSFER_MIN_CONFIRMATIONS: 1,
-  DEFAULT_GAS_LIMIT: 250000,
-  DEFAULT_GAS_PRICE: 0.0000004,
-  CREATE_CORACLE_GAS_LIMIT: 3500000,
-  CREATE_DORACLE_GAS_LIMIT: 1500000,
+  HOSTNAME: 'localhost',
+  PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
 };
 
 const isMainnet = () => CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET;
