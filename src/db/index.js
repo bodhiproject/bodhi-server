@@ -12,7 +12,7 @@ const db = {
   ResultSets: undefined,
   Withdraws: undefined,
   Blocks: undefined,
-  Transactions: undefined,
+  TxReceipts: undefined,
 };
 
 /**
@@ -27,7 +27,7 @@ const initDB = async () => {
   db.ResultSets = datastore({ filename: `${dbDir}/resultsets.db` });
   db.Withdraws = datastore({ filename: `${dbDir}/withdraws.db` });
   db.Blocks = datastore({ filename: `${dbDir}/blocks.db` });
-  db.Transactions = datastore({ filename: `${dbDir}/transactions.db` });
+  db.TxReceipts = datastore({ filename: `${dbDir}/txreceipts.db` });
 
   try {
     await Promise.all([
@@ -36,7 +36,7 @@ const initDB = async () => {
       db.ResultSets.loadDatabase(),
       db.Withdraws.loadDatabase(),
       db.Blocks.loadDatabase(),
-      db.Transactions.loadDatabase(),
+      db.TxReceipts.loadDatabase(),
     ]);
 
     await db.Events.ensureIndex({ fieldName: 'txid', unique: true });
