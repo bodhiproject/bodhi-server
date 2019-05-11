@@ -45,6 +45,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
     //   getLogger().debug('Updated local txs');
     // }
 
+    // TODO: fetch tx receipts for every tx parsed from logs
     // Parse blockchain logs
     await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
     await syncBetPlaced(contractMetadata, currentBlockNum);
