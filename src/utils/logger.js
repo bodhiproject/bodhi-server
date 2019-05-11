@@ -2,9 +2,7 @@ require('dotenv').config();
 require('winston-daily-rotate-file');
 const moment = require('moment');
 const winston = require('winston');
-const { getLogsDir } = require('.');
-
-const { CONFIG } = require('../config');
+const { CONFIG, getLogsDir } = require('../config');
 
 let logger;
 

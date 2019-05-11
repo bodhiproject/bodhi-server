@@ -1,8 +1,7 @@
 const datastore = require('nedb-promise');
 const fs = require('fs-extra');
 const path = require('path');
-
-const { getDbDir } = require('../utils');
+const { getDbDir } = require('../config');
 const { getLogger } = require('../utils/logger');
 
 const MIGRATION_REGEX = /(migration)(\d+)/;
