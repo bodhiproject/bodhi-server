@@ -1,36 +1,11 @@
 const { Router } = require('express');
-const { each } = require('lodash');
 
 const MultipleResultsEvent = require('../api/multiple-results-event');
 
 const router = Router();
 
-const validateQueryParams = (req, res, params) => {
-  let validated = true;
-  const queryKeys = Object.keys(req.query);
-  each(params, (p) => {
-    if (!queryKeys.includes(p)) {
-      res.status(422).json({ error: `Missing query param: ${p}` });
-      validated = false;
-      return false;
-    }
-    return true;
-  });
-  return validated;
-};
-
-const onRequestSuccess = (res, body, next) => {
-  res.status(res.statusCode).send(body);
-  next();
-};
-
-const onRequestError = (res, err, next) => {
-  res.status(500).send({ error: err.message });
-  next();
-};
-
 /* MultipleResultsEvent */
-router.post('/calculate-winnings', (req, res, next) => {
+router.get('/calculate-winnings', (req, res, next) => {
   if (!validateQueryParams(['eventAddress', 'address'])) return;
 
   MultipleResultsEvent.calculateWinnings(req.query)
@@ -41,7 +16,7 @@ router.post('/calculate-winnings', (req, res, next) => {
     });
 });
 
-router.post('/version', (req, res, next) => {
+router.get('/version', (req, res, next) => {
   if (!validateQueryParams(['eventAddress'])) return;
 
   MultipleResultsEvent.version(req.query)
@@ -52,7 +27,7 @@ router.post('/version', (req, res, next) => {
     });
 });
 
-router.post('/round', (req, res, next) => {
+router.get('/round', (req, res, next) => {
   if (!validateQueryParams(['eventAddress'])) return;
 
   MultipleResultsEvent.currentRound(req.query)
@@ -63,7 +38,7 @@ router.post('/round', (req, res, next) => {
     });
 });
 
-router.post('/result-index', (req, res, next) => {
+router.get('/result-index', (req, res, next) => {
   if (!validateQueryParams(['eventAddress'])) return;
 
   MultipleResultsEvent.currentResultIndex(req.query)
@@ -74,7 +49,7 @@ router.post('/result-index', (req, res, next) => {
     });
 });
 
-router.post('/consensus-threshold', (req, res, next) => {
+router.get('/consensus-threshold', (req, res, next) => {
   if (!validateQueryParams(['eventAddress'])) return;
 
   MultipleResultsEvent.currentConsensusThreshold(req.query)
@@ -85,7 +60,7 @@ router.post('/consensus-threshold', (req, res, next) => {
     });
 });
 
-router.post('/arbitration-end-time', (req, res, next) => {
+router.get('/arbitration-end-time', (req, res, next) => {
   if (!validateQueryParams(['eventAddress'])) return;
 
   MultipleResultsEvent.currentArbitrationEndTime(req.query)
@@ -96,7 +71,7 @@ router.post('/arbitration-end-time', (req, res, next) => {
     });
 });
 
-router.post('/event-metadata', (req, res, next) => {
+router.get('/event-metadata', (req, res, next) => {
   if (!validateQueryParams(['eventAddress'])) return;
 
   MultipleResultsEvent.eventMetadata(req.query)
@@ -107,7 +82,7 @@ router.post('/event-metadata', (req, res, next) => {
     });
 });
 
-router.post('/centralized-metadata', (req, res, next) => {
+router.get('/centralized-metadata', (req, res, next) => {
   if (!validateQueryParams(['eventAddress'])) return;
 
   MultipleResultsEvent.centralizedMetadata(req.query)
@@ -118,7 +93,7 @@ router.post('/centralized-metadata', (req, res, next) => {
     });
 });
 
-router.post('/config-metadata', (req, res, next) => {
+router.get('/config-metadata', (req, res, next) => {
   if (!validateQueryParams(['eventAddress'])) return;
 
   MultipleResultsEvent.configMetadata(req.query)
@@ -129,7 +104,7 @@ router.post('/config-metadata', (req, res, next) => {
     });
 });
 
-router.post('/total-bets', (req, res, next) => {
+router.get('/total-bets', (req, res, next) => {
   if (!validateQueryParams(['eventAddress'])) return;
 
   MultipleResultsEvent.totalBets(req.query)
@@ -140,7 +115,7 @@ router.post('/total-bets', (req, res, next) => {
     });
 });
 
-router.post('/did-withdraw', (req, res, next) => {
+router.get('/did-withdraw', (req, res, next) => {
   if (!validateQueryParams(['eventAddress', 'address'])) return;
 
   MultipleResultsEvent.didWithdraw(req.query)
@@ -151,7 +126,7 @@ router.post('/did-withdraw', (req, res, next) => {
     });
 });
 
-router.post('/did-withdraw-escrow', (req, res, next) => {
+router.get('/did-withdraw-escrow', (req, res, next) => {
   if (!validateQueryParams(['eventAddress', 'address'])) return;
 
   MultipleResultsEvent.didWithdrawEscrow(req.query)
