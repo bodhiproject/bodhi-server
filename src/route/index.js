@@ -5,7 +5,7 @@ const expressWinston = require('express-winston');
 const helmet = require('helmet');
 const apiRouter = require('./api');
 const { createApolloServer, handleSubscriptions } = require('./graphql');
-const { getLogger } = require('../utils/logger');
+const { logger } = require('../utils/logger');
 const { CONFIG, getSSLCredentials } = require('../config');
 const { BLOCKCHAIN_ENV } = require('../constants');
 
@@ -28,7 +28,7 @@ const initExpressApp = () => {
 
   // Route responses to Winston logger
   app.use(expressWinston.logger({
-    winstonInstance: getLogger(),
+    winstonInstance: logger(),
     meta: false,
     msg: '{{req.method}} {{req.path}} {{res.statusCode}} {{res.body}}',
     colorize: true,
@@ -58,10 +58,10 @@ const initApiServer = () => {
       ? CONFIG.API_PORT_MAINNET
       : CONFIG.API_PORT_TESTNET;
     server.listen(port, () => {
-      getLogger().info(`API served at ${CONFIG.PROTOCOL}://${CONFIG.HOSTNAME}:${port}`);
+      logger().info(`API served at ${CONFIG.PROTOCOL}://${CONFIG.HOSTNAME}:${port}`);
     });
   } catch (err) {
-    getLogger().error(`Error starting API/GraphQL Server: ${err.message}`);
+    logger().error(`Error starting API/GraphQL Server: ${err.message}`);
     throw err;
   }
 };

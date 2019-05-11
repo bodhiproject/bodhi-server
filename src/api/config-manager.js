@@ -3,7 +3,7 @@ const { isUndefined } = require('lodash');
 const { getContractMetadata, CONFIG } = require('../config');
 const { BLOCKCHAIN_ENV } = require('../constants');
 const { web3 } = require('../web3');
-const { getLogger } = require('../utils/logger');
+const { logger } = require('../utils/logger');
 
 function getContract() {
   const metadata = getContractMetadata().ConfigManager;
@@ -18,7 +18,7 @@ module.exports = {
     try {
       return getContract().methods.bodhiTokenAddress().call();
     } catch (err) {
-      getLogger().error(`Error ConfigManager.bodhiTokenAddress(): ${err.message}`);
+      logger().error(`Error ConfigManager.bodhiTokenAddress(): ${err.message}`);
       throw err;
     }
   },
@@ -27,7 +27,7 @@ module.exports = {
     try {
       return getContract().methods.eventFactoryAddress().call();
     } catch (err) {
-      getLogger().error(`Error ConfigManager.eventFactoryAddress(): ${err.message}`);
+      logger().error(`Error ConfigManager.eventFactoryAddress(): ${err.message}`);
       throw err;
     }
   },
@@ -37,7 +37,7 @@ module.exports = {
       const res = await getContract().methods.eventEscrowAmount().call();
       return res.toString(10);
     } catch (err) {
-      getLogger().error(`Error ConfigManager.eventEscrowAmount(): ${err.message}`);
+      logger().error(`Error ConfigManager.eventEscrowAmount(): ${err.message}`);
       throw err;
     }
   },
@@ -47,7 +47,7 @@ module.exports = {
       const res = await getContract().methods.arbitrationLength().call();
       return res.toString(10);
     } catch (err) {
-      getLogger().error(`Error ConfigManager.arbitrationLength(): ${err.message}`);
+      logger().error(`Error ConfigManager.arbitrationLength(): ${err.message}`);
       throw err;
     }
   },
@@ -57,7 +57,7 @@ module.exports = {
       const res = await getContract().methods.arbitrationRewardPercentage().call();
       return res.toString(10);
     } catch (err) {
-      getLogger().error(`Error ConfigManager.arbitrationRewardPercentage(): ${err.message}`);
+      logger().error(`Error ConfigManager.arbitrationRewardPercentage(): ${err.message}`);
       throw err;
     }
   },
@@ -67,7 +67,7 @@ module.exports = {
       const res = await getContract().methods.startingOracleThreshold().call();
       return res.toString(10);
     } catch (err) {
-      getLogger().error(`Error ConfigManager.startingOracleThreshold(): ${err.message}`);
+      logger().error(`Error ConfigManager.startingOracleThreshold(): ${err.message}`);
       throw err;
     }
   },
@@ -77,7 +77,7 @@ module.exports = {
       const res = await getContract().methods.thresholdPercentIncrease().call();
       return res.toString(10);
     } catch (err) {
-      getLogger().error(`Error ConfigManager.thresholdPercentIncrease(): ${err.message}`);
+      logger().error(`Error ConfigManager.thresholdPercentIncrease(): ${err.message}`);
       throw err;
     }
   },
@@ -89,7 +89,7 @@ module.exports = {
 
       return getContract().methods.isWhitelisted(address).call();
     } catch (err) {
-      getLogger().error(`Error ConfigManager.isWhitelisted(): ${err.message}`);
+      logger().error(`Error ConfigManager.isWhitelisted(): ${err.message}`);
       throw err;
     }
   },

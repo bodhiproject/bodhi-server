@@ -2,7 +2,7 @@ const { each } = require('lodash');
 const { web3 } = require('../web3');
 const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
-const { getLogger } = require('../utils/logger');
+const { logger } = require('../utils/logger');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const ResultSet = require('../models/result-set');
@@ -66,7 +66,7 @@ module.exports = async (contractMetadata, currentBlockNum) => {
 
           resolve();
         } catch (insertErr) {
-          getLogger().error(`insert VoteResultSet: ${insertErr.message}`);
+          logger().error(`insert VoteResultSet: ${insertErr.message}`);
           reject(insertErr);
         }
       }));

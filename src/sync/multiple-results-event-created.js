@@ -4,7 +4,7 @@ const { web3 } = require('../web3');
 const { getContractAddress } = require('../config');
 const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
-const { getLogger } = require('../utils/logger');
+const { logger } = require('../utils/logger');
 const MultipleResultsEvent = require('../models/multiple-results-event');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
@@ -109,7 +109,7 @@ module.exports = async (contractMetadata, currentBlockNum) => {
 
           resolve();
         } catch (insertErr) {
-          getLogger().error(`insert MultipleResultsEvent: ${insertErr.message}`);
+          logger().error(`insert MultipleResultsEvent: ${insertErr.message}`);
           reject(insertErr);
         }
       }));

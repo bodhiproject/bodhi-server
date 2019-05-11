@@ -1,6 +1,6 @@
 const { isNull } = require('lodash');
 const { TX_STATUS, EVENT_STATUS } = require('../../constants');
-const { getLogger } = require('../../utils/logger');
+const { logger } = require('../../utils/logger');
 const { DBHelper } = require('../../db/db-helper');
 const MultipleResultsEvent = require('../../models/multiple-results-event');
 
@@ -46,7 +46,7 @@ module.exports = async (
     language,
   });
   await DBHelper.insertEvent(db, multipleResultsEvent);
-  getLogger().debug(`Mutation addPendingEvent txid:${txid}`);
+  logger().debug(`Mutation addPendingEvent txid:${txid}`);
 
   return multipleResultsEvent;
 };

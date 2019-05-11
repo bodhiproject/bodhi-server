@@ -1,6 +1,6 @@
 const { isNull } = require('lodash');
 const ResultSet = require('../../models/result-set');
-const { getLogger } = require('../../utils/logger');
+const { logger } = require('../../utils/logger');
 const { DBHelper } = require('../../db/db-helper');
 const { TX_STATUS } = require('../../constants');
 
@@ -33,7 +33,7 @@ module.exports = async (
     eventRound,
   });
   await DBHelper.insertResultSet(db, resultSet);
-  getLogger().debug(`Mutation addPendingResultSet txid:${txid}`);
+  logger().debug(`Mutation addPendingResultSet txid:${txid}`);
 
   return resultSet;
 };

@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const { getLogger } = require('../utils/logger');
+const { logger } = require('../utils/logger');
 const { EVENT_STATUS } = require('../constants');
 
 module.exports = class DBHelper {
@@ -9,7 +9,7 @@ module.exports = class DBHelper {
     try {
       return await db.Blocks.findOne(query);
     } catch (err) {
-      getLogger().error(`FIND Block error: ${err.message}`);
+      logger().error(`FIND Block error: ${err.message}`);
       throw err;
     }
   }
@@ -22,7 +22,7 @@ module.exports = class DBHelper {
         blockTime,
       });
     } catch (err) {
-      getLogger().error(`INSERT Block error: ${err.message}`);
+      logger().error(`INSERT Block error: ${err.message}`);
       throw err;
     }
   }
@@ -32,7 +32,7 @@ module.exports = class DBHelper {
     try {
       return await db.TransactionReceipts.findOne(query);
     } catch (err) {
-      getLogger().error(`FIND TransactionReceipt error: ${err.message}`);
+      logger().error(`FIND TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
@@ -41,7 +41,7 @@ module.exports = class DBHelper {
     try {
       await db.TransactionReceipts.insert(txReceipt);
     } catch (err) {
-      getLogger().error(`INSERT TransactionReceipt error: ${err.message}`);
+      logger().error(`INSERT TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
@@ -51,7 +51,7 @@ module.exports = class DBHelper {
     try {
       return await db.Events.findOne(query);
     } catch (err) {
-      getLogger().error(`FIND Event error: ${err.message}`);
+      logger().error(`FIND Event error: ${err.message}`);
       throw err;
     }
   }
@@ -60,7 +60,7 @@ module.exports = class DBHelper {
     try {
       await db.Events.insert(event);
     } catch (err) {
-      getLogger().error(`INSERT Event error: ${err.message}`);
+      logger().error(`INSERT Event error: ${err.message}`);
       throw err;
     }
   }
@@ -73,7 +73,7 @@ module.exports = class DBHelper {
         {},
       );
     } catch (err) {
-      getLogger().error(`UPDATE Event error: ${err.message}`);
+      logger().error(`UPDATE Event error: ${err.message}`);
       throw err;
     }
   }
@@ -90,7 +90,7 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      getLogger().error(`UPDATE Event Status Betting error: ${err.message}`);
+      logger().error(`UPDATE Event Status Betting error: ${err.message}`);
       throw err;
     }
   }
@@ -107,7 +107,7 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      getLogger().error(`UPDATE Event Status Oracle Result Setting error: ${err.message}`);
+      logger().error(`UPDATE Event Status Oracle Result Setting error: ${err.message}`);
       throw err;
     }
   }
@@ -124,7 +124,7 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      getLogger().error(`UPDATE Event Status Open Result Setting error: ${err.message}`);
+      logger().error(`UPDATE Event Status Open Result Setting error: ${err.message}`);
       throw err;
     }
   }
@@ -145,7 +145,7 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      getLogger().error(`UPDATE Event Status Arbitration error: ${err.message}`);
+      logger().error(`UPDATE Event Status Arbitration error: ${err.message}`);
       throw err;
     }
   }
@@ -161,7 +161,7 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      getLogger().error(`UPDATE Event Status Withdrawing error: ${err.message}`);
+      logger().error(`UPDATE Event Status Withdrawing error: ${err.message}`);
       throw err;
     }
   }
@@ -171,7 +171,7 @@ module.exports = class DBHelper {
     try {
       return await db.Bets.findOne(query);
     } catch (err) {
-      getLogger().error(`FIND Bet error: ${err.message}`);
+      logger().error(`FIND Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -180,7 +180,7 @@ module.exports = class DBHelper {
     try {
       return await db.Bets.count(query);
     } catch (err) {
-      getLogger().error(`COUNT Bet error: ${err.message}`);
+      logger().error(`COUNT Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -189,7 +189,7 @@ module.exports = class DBHelper {
     try {
       await db.Bets.insert(bet);
     } catch (err) {
-      getLogger().error(`INSERT Bet error: ${err.message}`);
+      logger().error(`INSERT Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -199,7 +199,7 @@ module.exports = class DBHelper {
     try {
       return await db.ResultSets.findOne(query);
     } catch (err) {
-      getLogger().error(`FIND ResultSet error: ${err.message}`);
+      logger().error(`FIND ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -208,7 +208,7 @@ module.exports = class DBHelper {
     try {
       return await db.ResultSets.count(query);
     } catch (err) {
-      getLogger().error(`COUNT ResultSet error: ${err.message}`);
+      logger().error(`COUNT ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -217,7 +217,7 @@ module.exports = class DBHelper {
     try {
       await db.ResultSets.insert(resultSet);
     } catch (err) {
-      getLogger().error(`INSERT ResultSet error: ${err.message}`);
+      logger().error(`INSERT ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -227,7 +227,7 @@ module.exports = class DBHelper {
     try {
       return await db.Withdraws.findOne(query);
     } catch (err) {
-      getLogger().error(`FIND Withdraw error: ${err.message}`);
+      logger().error(`FIND Withdraw error: ${err.message}`);
       throw err;
     }
   }
@@ -236,7 +236,7 @@ module.exports = class DBHelper {
     try {
       return await db.Withdraws.count(query);
     } catch (err) {
-      getLogger().error(`COUNT Withdraw error: ${err.message}`);
+      logger().error(`COUNT Withdraw error: ${err.message}`);
       throw err;
     }
   }
@@ -245,7 +245,7 @@ module.exports = class DBHelper {
     try {
       await db.Withdraws.insert(withdraw);
     } catch (err) {
-      getLogger().error(`INSERT Withdraw error: ${err.message}`);
+      logger().error(`INSERT Withdraw error: ${err.message}`);
       throw err;
     }
   }

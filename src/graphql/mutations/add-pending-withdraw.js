@@ -1,6 +1,6 @@
 const { isNull } = require('lodash');
 const Withdraw = require('../../models/withdraw');
-const { getLogger } = require('../../utils/logger');
+const { logger } = require('../../utils/logger');
 const { DBHelper } = require('../../db/db-helper');
 const { TX_STATUS } = require('../../constants');
 
@@ -31,7 +31,7 @@ module.exports = async (
     escrowAmount,
   });
   await DBHelper.insertWithdraw(db, withdraw);
-  getLogger().debug(`Mutation addPendingWithdraw txid:${txid}`);
+  logger().debug(`Mutation addPendingWithdraw txid:${txid}`);
 
   return withdraw;
 };

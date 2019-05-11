@@ -3,7 +3,7 @@ const insertTxReceipt = require('./tx-receipt');
 const { web3 } = require('../web3');
 const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
-const { getLogger } = require('../utils/logger');
+const { logger } = require('../utils/logger');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const Withdraw = require('../models/withdraw');
@@ -58,7 +58,7 @@ module.exports = async (contractMetadata, currentBlockNum) => {
 
           resolve();
         } catch (insertErr) {
-          getLogger().error(`insert WinningsWithdrawn: ${insertErr.message}`);
+          logger().error(`insert WinningsWithdrawn: ${insertErr.message}`);
           reject(insertErr);
         }
       }));

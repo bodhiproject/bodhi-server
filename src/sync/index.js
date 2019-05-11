@@ -10,7 +10,7 @@ const syncVoteResultSet = require('./vote-result-set');
 const syncWinningsWithdrawn = require('./winnings-withdrawn');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
-const { getLogger } = require('../utils/logger');
+const { logger } = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
 
 const SYNC_START_DELAY = 4000;
@@ -36,7 +36,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
       return;
     }
 
-    getLogger().debug(`Syncing block ${currentBlockNum}`);
+    logger().debug(`Syncing block ${currentBlockNum}`);
 
     // Parse blockchain logs
     await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
@@ -72,7 +72,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
  * @param {boolean} shouldUpdateLocalTxs Should updateLocalTxs or not.
  */
 const delayThenSync = (delay, shouldUpdateLocalTxs) => {
-  getLogger().debug('sleep');
+  logger().debug('sleep');
   setTimeout(() => {
     startSync(shouldUpdateLocalTxs);
   }, delay);
@@ -173,7 +173,7 @@ const updateStatusWithdrawing = async (currentBlockTime) => {
 const insertBlock = async (currentBlockNum, currentBlockTime) => {
   try {
     await DBHelper.insertBlock(db, currentBlockNum, currentBlockTime);
-    getLogger().debug(`Inserted block ${currentBlockNum}`);
+    logger().debug(`Inserted block ${currentBlockNum}`);
   } catch (err) {
     throw err;
   }

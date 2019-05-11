@@ -2,7 +2,7 @@ const datastore = require('nedb-promise');
 const fs = require('fs-extra');
 const path = require('path');
 const { getDbDir } = require('../config');
-const { getLogger } = require('../utils/logger');
+const { logger } = require('../utils/logger');
 
 const MIGRATION_REGEX = /(migration)(\d+)/;
 const db = {
@@ -19,7 +19,7 @@ const db = {
  */
 const initDB = async () => {
   const dbDir = getDbDir();
-  getLogger().info(`Data dir: ${dbDir}`);
+  logger().info(`Data dir: ${dbDir}`);
 
   db.Events = datastore({ filename: `${dbDir}/events.db` });
   db.Bets = datastore({ filename: `${dbDir}/bets.db` });
@@ -45,7 +45,7 @@ const initDB = async () => {
 
     await applyMigrations();
   } catch (err) {
-    getLogger().error(`DB load Error: ${err.message}`);
+    logger().error(`DB load Error: ${err.message}`);
     throw err;
   }
 };
@@ -64,11 +64,11 @@ async function applyMigrations() {
   try {
     // Create migrations.dat file if not found
     if (!fs.existsSync(migrationTrackPath)) {
-      getLogger().info('Creating migrations.dat');
+      logger().info('Creating migrations.dat');
       fs.writeFileSync(migrationTrackPath, 'LAST_MIGRATION=0');
     }
   } catch (err) {
-    getLogger().error(`Error creating migrations.dat file: ${err.message}`);
+    logger().error(`Error creating migrations.dat file: ${err.message}`);
     throw err;
   }
 
@@ -77,7 +77,7 @@ async function applyMigrations() {
     lastMigration = Number(await fs.readFileSync(migrationTrackPath)
       .toString().split('=')[1].trim());
   } catch (err) {
-    getLogger().error(`Migration track file loading error: ${err.message}`);
+    logger().error(`Migration track file loading error: ${err.message}`);
     throw err;
   }
 
@@ -102,7 +102,7 @@ async function applyMigrations() {
       }
     });
   } catch (err) {
-    getLogger().error(`Migration scripts load error: ${err.message}`);
+    logger().error(`Migration scripts load error: ${err.message}`);
     throw err;
   }
 
@@ -112,7 +112,7 @@ async function applyMigrations() {
     try {
       if (Number(migration.number) === lastMigration + 1) {
         // Run migration
-        getLogger().info(`Running migration ${migration.number}...`);
+        logger().info(`Running migration ${migration.number}...`);
         await migration.migrate(db);
 
         // Track the last migration number
@@ -120,13 +120,13 @@ async function applyMigrations() {
         await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${migration.number}\n`);
       }
     } catch (err) {
-      getLogger().error(`Migration ${migration.number} error: ${err.message}`);
+      logger().error(`Migration ${migration.number} error: ${err.message}`);
       throw err;
     }
   }
   /* eslint-enable no-restricted-syntax, no-await-in-loop */
 
-  getLogger().info('Migrations complete.');
+  logger().info('Migrations complete.');
 }
 
 module.exports = {

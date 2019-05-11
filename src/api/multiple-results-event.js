@@ -2,7 +2,7 @@ const { isUndefined, map } = require('lodash');
 
 const { getContractMetadata } = require('../config');
 const { web3 } = require('../web3');
-const { getLogger } = require('../utils/logger');
+const { logger } = require('../utils/logger');
 
 function getContract(eventAddress) {
   const metadata = getContractMetadata().MultipleResultsEvent;
@@ -20,7 +20,7 @@ module.exports = {
       const res = await getContract(eventAddress).methods.calculateWinnings().call();
       return res.toString(10);
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.calculateWinnings(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.calculateWinnings(): ${err.message}`);
       throw err;
     }
   },
@@ -33,7 +33,7 @@ module.exports = {
       const res = await getContract(eventAddress).methods.version().call();
       return res.toNumber();
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.version(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.version(): ${err.message}`);
       throw err;
     }
   },
@@ -46,7 +46,7 @@ module.exports = {
       const res = await getContract(eventAddress).methods.currentRound().call();
       return res.toNumber();
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.currentRound(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.currentRound(): ${err.message}`);
       throw err;
     }
   },
@@ -59,7 +59,7 @@ module.exports = {
       const res = await getContract(eventAddress).methods.currentResultIndex().call();
       return res.toNumber();
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.currentResultIndex(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.currentResultIndex(): ${err.message}`);
       throw err;
     }
   },
@@ -72,7 +72,7 @@ module.exports = {
       const res = await getContract(eventAddress).methods.currentConsensusThreshold().call();
       return res.toString(10);
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.currentConsensusThreshold(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.currentConsensusThreshold(): ${err.message}`);
       throw err;
     }
   },
@@ -85,7 +85,7 @@ module.exports = {
       const res = await getContract(eventAddress).methods.currentArbitrationEndTime().call();
       return res.toString(10);
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.currentArbitrationEndTime(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.currentArbitrationEndTime(): ${err.message}`);
       throw err;
     }
   },
@@ -103,7 +103,7 @@ module.exports = {
         res[3].toNumber(),
       ];
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.eventMetadata(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.eventMetadata(): ${err.message}`);
       throw err;
     }
   },
@@ -122,7 +122,7 @@ module.exports = {
         res[4].toString(10),
       ];
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.centralizedMetadata(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.centralizedMetadata(): ${err.message}`);
       throw err;
     }
   },
@@ -140,7 +140,7 @@ module.exports = {
         res[3].toString(10),
       ];
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.configMetadata(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.configMetadata(): ${err.message}`);
       throw err;
     }
   },
@@ -153,7 +153,7 @@ module.exports = {
       const res = await getContract(eventAddress).methods.totalBets().call();
       return res.toString(10);
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.totalBets(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.totalBets(): ${err.message}`);
       throw err;
     }
   },
@@ -167,7 +167,7 @@ module.exports = {
       const res = await getContract(eventAddress).methods.didWithdraw(address).call();
       return res;
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.didWithdraw(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.didWithdraw(): ${err.message}`);
       throw err;
     }
   },
@@ -181,7 +181,7 @@ module.exports = {
       const res = await getContract(eventAddress).methods.didWithdrawEscrow(address).call();
       return res;
     } catch (err) {
-      getLogger().error(`Error MultipleResultsEvent.didWithdrawEscrow(): ${err.message}`);
+      logger().error(`Error MultipleResultsEvent.didWithdrawEscrow(): ${err.message}`);
       throw err;
     }
   },

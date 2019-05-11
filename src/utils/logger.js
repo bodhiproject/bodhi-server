@@ -4,7 +4,7 @@ const moment = require('moment');
 const winston = require('winston');
 const { CONFIG, getLogsDir } = require('../config');
 
-let logger;
+let instance;
 
 const initLogger = () => {
   const logsDir = getLogsDir();
@@ -37,19 +37,16 @@ const initLogger = () => {
     }),
   ];
 
-  logger = new (winston.Logger)({ transports, exitOnError: false });
-  logger.level = process.env.LOG_LEVEL || CONFIG.DEFAULT_LOG_LEVEL;
+  instance = new (winston.Logger)({ transports, exitOnError: false });
+  instance.level = process.env.LOG_LEVEL || CONFIG.DEFAULT_LOG_LEVEL;
 
   // Log env and paths
-  logger.info(`Logs dir: ${logsDir}`);
+  instance.info(`Logs dir: ${logsDir}`);
 };
 
-const getLogger = () => {
-  if (!logger) throw Error('Logger has not been initialized');
-  return logger;
-};
+const logger = () => instance;
 
 module.exports = {
   initLogger,
-  getLogger,
+  logger,
 };
