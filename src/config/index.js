@@ -27,7 +27,7 @@ const getBaseDataDir = () => {
   }
 
   const network = CONFIG.NETWORK;
-  if (!network) throw Error('NETWORK not defined in environment');
+  if (isEmpty(network)) throw Error('NETWORK not defined in environment');
 
   const rootDir = path.resolve('./');
   const dataDir = `${rootDir}/data/${network}`;
