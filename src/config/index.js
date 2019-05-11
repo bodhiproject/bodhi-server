@@ -26,8 +26,11 @@ const getBaseDataDir = () => {
     return process.env.DATA_DIR;
   }
 
+  const network = CONFIG.NETWORK;
+  if (!network) throw Error('NETWORK not defined in environment');
+
   const rootDir = path.resolve('./');
-  const dataDir = `${rootDir}/data/${CONFIG.NETWORK}`;
+  const dataDir = `${rootDir}/data/${network}`;
   fs.ensureDirSync(dataDir);
   return path.resolve(dataDir);
 };
@@ -50,7 +53,7 @@ const getDbDir = () => {
 function getLogsDir() {
   const basePath = getBaseDataDir();
   const logsDir = `${basePath}/logs`;
-  fs.ensureDirSync(path);
+  fs.ensureDirSync(logsDir);
   return path.resolve(logsDir);
 }
 
