@@ -79,7 +79,7 @@ const getContractAddress = contractName =>
 
 const getSSLCredentials = () => {
   if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
-    throw Error('SSL Key and Cert paths not found.');
+    throw Error('SSL Key and Cert paths not found');
   }
 
   return {
