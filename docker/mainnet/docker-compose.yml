@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  bodhi-server-mainnet:
+    hostname: bodhi-server-mainnet
+    container_name: bodhi-server-mainnet
+    build:
+      context: ../../
+      dockerfile: ./docker/mainnet/Dockerfile
+    ports:
+      - 8989:8989
+    environment:
+      - NETWORK=mainnet
+      - SSL=true
+      - SSL_KEY_PATH=/run/secrets/privkey.pem
+      - SSL_CERT_PATH=/run/secrets/fullchain.pem
+      - DATA_DIR=/home/ubuntu/.bodhi/server/mainnet
+      - LOG_LEVEL=debug
+    volumes:
+      - bodhi-server-mainnet:/home/ubuntu/.bodhi/server/mainnet
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+        max-file: "10"
+    secrets:
+      - privkey.pem
+      - fullchain.pem
+
+secrets:
+  privkey.pem:
+    file: /etc/letsencrypt/live/puti.io/privkey.pem
+  fullchain.pem:
+    file: /etc/letsencrypt/live/puti.io/fullchain.pem
+
+volumes:
+  bodhi-server-mainnet:

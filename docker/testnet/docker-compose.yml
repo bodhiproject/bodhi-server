@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  bodhi-server-testnet:
+    hostname: bodhi-server-testnet
+    container_name: bodhi-server-testnet
+    build:
+      context: ../../
+      dockerfile: ./docker/testnet/Dockerfile
+    ports:
+      - 6767:6767
+    environment:
+      - NETWORK=testnet
+      - SSL=true
+      - SSL_KEY_PATH=/run/secrets/privkey.pem
+      - SSL_CERT_PATH=/run/secrets/fullchain.pem
+      - DATA_DIR=/home/ubuntu/.bodhi/server/testnet
+      - LOG_LEVEL=debug
+    volumes:
+      - bodhi-server-testnet:/home/ubuntu/.bodhi/server/testnet
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+        max-file: "10"
+    secrets:
+      - privkey.pem
+      - fullchain.pem
+
+secrets:
+  privkey.pem:
+    file: /etc/letsencrypt/live/puti.io/privkey.pem
+  fullchain.pem:
+    file: /etc/letsencrypt/live/puti.io/fullchain.pem
+
+volumes:
+  bodhi-server-testnet:
