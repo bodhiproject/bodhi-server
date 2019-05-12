@@ -29,22 +29,21 @@ LOG_LEVEL=debug (optional)
 ## Start Docker
 
 ```bash
-cd docker
+cd docker/mainnet
 docker-compose up -d
 ```
 
 ## Stop Docker
 
 ```bash
-cd docker
+cd docker/mainnet
 docker-compose stop
 ```
 
 ## Start Local
 
 ```bash
-npm run start:mainnet
-npm run start:testnet
+npm start
 ```
 
 # GraphQL
