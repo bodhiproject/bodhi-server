@@ -50,7 +50,7 @@ npm start
 
 To play around in the GraphQL playground, go to:
 
-1. Go to the GraphQL Playground at `localhost:8989/graphql` (port 6767 for testnet)
+1. Go to the GraphQL Playground at `localhost:8888/graphql` (port 9999 for testnet)
 
 2. Click on `SCHEMA` button on the right side
 

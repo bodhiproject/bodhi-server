@@ -11,8 +11,8 @@ const CONFIG = {
   RPC_TESTNET: 'wss://testnet.api.nakachain.org/ws',
   PROTOCOL: process.env.SSL === 'true' ? 'https' : 'http',
   HOSTNAME: 'localhost',
-  API_PORT_MAINNET: 8989,
-  API_PORT_TESTNET: 6767,
+  API_PORT_MAINNET: 8888,
+  API_PORT_TESTNET: 9999,
   DEFAULT_LOG_LEVEL: 'debug',
 };
 

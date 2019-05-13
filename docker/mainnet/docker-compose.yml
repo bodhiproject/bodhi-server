@@ -9,7 +9,7 @@ services:
       context: ../../
       dockerfile: ./docker/mainnet/Dockerfile
     ports:
-      - 8989:8989
+      - 8888:8888
     environment:
       - CONTRACT_VERSION=0
       - NETWORK=mainnet

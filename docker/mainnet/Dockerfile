@@ -1,6 +1,6 @@
 FROM node:10
 
-EXPOSE 8989
+EXPOSE 8888
 
 COPY . .
 
