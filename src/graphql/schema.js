@@ -215,62 +215,62 @@ input WithdrawFilter {
 
 type Query {
   events(
-    filter: EventFilter,
-    orderBy: [Order!],
-    limit: Int,
+    filter: EventFilter
+    orderBy: [Order!]
+    limit: Int
     skip: Int
     pendingTxsAddress: String
   ): PaginatedEvents!
 
   searchEvents(
-    searchPhrase: String,
-    filter: EventFilter,
-    orderBy: [Order!],
-    limit: Int,
+    searchPhrase: String
+    filter: EventFilter
+    orderBy: [Order!]
+    limit: Int
     skip: Int
   ): [MultipleResultsEvent]!
 
   bets(
-    filter: BetFilter,
-    orderBy: [Order!],
-    limit: Int,
+    filter: BetFilter
+    orderBy: [Order!]
+    limit: Int
     skip: Int
-  ): [PaginatedBets!
+  ): PaginatedBets!
 
   resultSets(
-    filter: ResultSetFilter,
-    orderBy: [Order!],
-    limit: Int,
+    filter: ResultSetFilter
+    orderBy: [Order!]
+    limit: Int
     skip: Int
-  ): [PaginatedResultSets]!
+  ): PaginatedResultSets!
 
   withdraws(
-    filter: WithdrawFilter,
-    orderBy: [Order!],
-    limit: Int,
+    filter: WithdrawFilter
+    orderBy: [Order!]
+    limit: Int
     skip: Int
-  ): [PaginatedWithdraws]!
+  ): PaginatedWithdraws!
 
-  syncInfo(): SyncInfo!
+  syncInfo: SyncInfo!
 
   allStats(
-    filter: BetFilter,
-    orderBy: [Order!],
-    limit: Int,
+    filter: BetFilter
+    orderBy: [Order!]
+    limit: Int
     skip: Int
   ): AllStats!
 
   mostBets(
-    filter: BetFilter,
-    orderBy: [Order!],
-    limit: Int,
+    filter: BetFilter
+    orderBy: [Order!]
+    limit: Int
     skip: Int
   ): PaginatedMostBets!
 
   biggestWinners(
-    filter: BetFilter,
-    orderBy: [Order!],
-    limit: Int,
+    filter: BetFilter
+    orderBy: [Order!]
+    limit: Int
     skip: Int
   ): [BiggestWinner]!
 }
@@ -290,7 +290,7 @@ type Mutation {
     resultSetStartTime: String!
     resultSetEndTime: String!
     language: String!
-  ): MultipleResultsEvent
+  ): MultipleResultsEvent!
 
   addPendingBet(
     txid: String!
@@ -300,7 +300,7 @@ type Mutation {
     resultIndex: Int!
     amount: String!
     eventRound: Int!
-  ): Bet
+  ): Bet!
 
   addPendingResultSet(
     txid: String!
@@ -310,7 +310,7 @@ type Mutation {
     resultIndex: Int!
     amount: String!
     eventRound: Int!
-  ): ResultSet
+  ): ResultSet!
 
   addPendingWithdraw(
     txid: String!
@@ -319,7 +319,7 @@ type Mutation {
     winnerAddress: String!
     winningAmount: String!
     escrowAmount: String!
-  ): Withdraw
+  ): Withdraw!
 }
 
 type Subscription {
