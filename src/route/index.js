@@ -66,4 +66,4 @@ const initApiServer = () => {
   }
 };
 
-module.exports = { initApiServer };
+module.exports = initApiServer;
