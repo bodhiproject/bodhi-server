@@ -4,6 +4,7 @@ services:
   bodhi-server-testnet:
     hostname: bodhi-server-testnet
     container_name: bodhi-server-testnet
+    restart: unless-stopped
     build:
       context: ../../
       dockerfile: ./docker/testnet/Dockerfile
