@@ -164,8 +164,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
       if (isUndefined(address)) throw TypeError('address is not defined');
 
-      const res = await getContract(eventAddress).methods.didWithdraw(address).call();
-      return res;
+      return getContract(eventAddress).methods.didWithdraw(address).call();
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.didWithdraw(): ${err.message}`);
       throw err;
@@ -174,12 +173,10 @@ module.exports = {
 
   async didWithdrawEscrow(args) {
     try {
-      const { eventAddress, address } = args;
+      const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
-      if (isUndefined(address)) throw TypeError('address is not defined');
 
-      const res = await getContract(eventAddress).methods.didWithdrawEscrow(address).call();
-      return res;
+      return getContract(eventAddress).methods.didWithdrawEscrow().call();
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.didWithdrawEscrow(): ${err.message}`);
       throw err;
