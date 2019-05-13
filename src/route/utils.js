@@ -2,7 +2,7 @@ const { each } = require('lodash');
 
 module.exports = {
   onRequestSuccess: (res, body, next) => {
-    res.status(res.statusCode).send(body);
+    res.status(res.statusCode).send({ result: body });
     next();
   },
 
