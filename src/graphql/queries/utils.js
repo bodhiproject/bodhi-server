@@ -21,7 +21,7 @@ const buildCursorOptions = (cursor, orderBy, limit, skip) => {
 };
 
 const calculateSyncPercent = async (blockNum) => {
-  const chainBlock = await web3.eth.getBlock('latest');
+  const chainBlock = await web3().eth.getBlock('latest');
   Math.floor((blockNum / chainBlock) * 100);
 };
 
