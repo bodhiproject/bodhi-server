@@ -84,6 +84,13 @@ async function applyMigrations() {
   try {
     // Add migration functions for each migration file
     const migrationPath = path.join(__dirname, 'migrations');
+
+    // Create migrations dir if needed
+    if (!fs.existsSync(migrationPath)) {
+      logger().info('Creating migrations dir');
+      fs.ensureDirSync(migrationPath);
+    }
+
     fs.readdirSync(migrationPath).sort().forEach((file) => {
       if (file.endsWith('.js')) {
         // Get migration script number
