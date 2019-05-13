@@ -14,26 +14,16 @@ services:
       - CONTRACT_VERSION=0
       - NETWORK=testnet
       - SSL=true
-      - SSL_KEY_PATH=/run/secrets/nakachain.org.key
-      - SSL_CERT_PATH=/run/secrets/nakachain.org.crt
-      - DATA_DIR=/home/ubuntu/.bodhi/server/testnet
+      - SSL_KEY_PATH=/root/bodhi-server/creds/nakachain.org.key
+      - SSL_CERT_PATH=/root/bodhi-server/creds/nakachain.org.crt
       - LOG_LEVEL=debug
     volumes:
-      - bodhi-server-testnet:/home/ubuntu/.bodhi/server/testnet
+      - bodhi-server-testnet:/root/bodhi-server/data
     logging:
       driver: json-file
       options:
         max-size: "1m"
         max-file: "10"
-    secrets:
-      - privkey.pem
-      - fullchain.pem
-
-secrets:
-  nakachain.org.key:
-    file: /etc/ssl/private/nakachain.org.key
-  nakachain.org.crt:
-    file: /etc/ssl/certs/nakachain.org.crt
 
 volumes:
   bodhi-server-testnet:
