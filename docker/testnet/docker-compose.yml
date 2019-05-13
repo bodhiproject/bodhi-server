@@ -10,6 +10,7 @@ services:
     ports:
       - 6767:6767
     environment:
+      - CONTRACT_VERSION=0
       - NETWORK=testnet
       - SSL=true
       - SSL_KEY_PATH=/run/secrets/nakachain.org.key

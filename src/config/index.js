@@ -5,7 +5,7 @@ const { BLOCKCHAIN_ENV } = require('../constants');
 const contractMetadata = require('./contract-metadata');
 
 const CONFIG = {
-  CONTRACT_VERSION: process.env.CONTRACT_VERSION,
+  CONTRACT_VERSION: Number(process.env.CONTRACT_VERSION),
   NETWORK: process.env.NETWORK,
   RPC_MAINNET: 'wss://api.nakachain.org/ws',
   RPC_TESTNET: 'wss://testnet.api.nakachain.org/ws',
