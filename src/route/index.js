@@ -3,7 +3,7 @@ const http = require('http');
 const https = require('https');
 const expressWinston = require('express-winston');
 const helmet = require('helmet');
-const apiRouter = require('./api');
+const applyRoutes = require('./api');
 const { createApolloServer, handleSubscriptions } = require('./graphql');
 const { logger } = require('../utils/logger');
 const { CONFIG, getSSLCredentials } = require('../config');
@@ -48,7 +48,7 @@ const initApiServer = () => {
   try {
     const app = initExpressApp();
 
-    app.use('/', apiRouter); // Apply API routes
+    applyRoutes(app); // Apply API routes
     createApolloServer(app); // Apply GraphQL routes
 
     const server = createServer(app);
