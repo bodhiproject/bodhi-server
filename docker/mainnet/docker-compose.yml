@@ -12,8 +12,8 @@ services:
     environment:
       - NETWORK=mainnet
       - SSL=true
-      - SSL_KEY_PATH=/run/secrets/privkey.pem
-      - SSL_CERT_PATH=/run/secrets/fullchain.pem
+      - SSL_KEY_PATH=/run/secrets/nakachain.org.key
+      - SSL_CERT_PATH=/run/secrets/nakachain.org.crt
       - DATA_DIR=/home/ubuntu/.bodhi/server/mainnet
       - LOG_LEVEL=debug
     volumes:
@@ -28,10 +28,10 @@ services:
       - fullchain.pem
 
 secrets:
-  privkey.pem:
-    file: /etc/letsencrypt/live/puti.io/privkey.pem
-  fullchain.pem:
-    file: /etc/letsencrypt/live/puti.io/fullchain.pem
+  nakachain.org.key:
+    file: /etc/ssl/private/nakachain.org.key
+  nakachain.org.crt:
+    file: /etc/ssl/certs/nakachain.org.crt
 
 volumes:
   bodhi-server-mainnet:
