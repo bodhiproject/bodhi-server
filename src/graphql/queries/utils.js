@@ -22,7 +22,7 @@ const buildCursorOptions = (cursor, orderBy, limit, skip) => {
 
 const calculateSyncPercent = async (blockNum) => {
   const chainBlock = await web3().eth.getBlock('latest');
-  Math.floor((blockNum / chainBlock) * 100);
+  return Math.floor((blockNum / chainBlock.number) * 100);
 };
 
 const runPaginatedQuery = async ({ db, filter, orderBy, limit, skip }) => {

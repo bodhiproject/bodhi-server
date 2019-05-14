@@ -253,12 +253,7 @@ type Query {
 
   syncInfo: SyncInfo!
 
-  allStats(
-    filter: BetFilter
-    orderBy: [Order!]
-    limit: Int
-    skip: Int
-  ): AllStats!
+  allStats: AllStats!
 
   mostBets(
     filter: BetFilter
