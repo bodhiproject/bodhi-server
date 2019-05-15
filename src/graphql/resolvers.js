@@ -3,7 +3,7 @@ const Queries = require('./queries');
 const Mutations = require('./mutations');
 const { TX_TYPE, TX_STATUS } = require('../constants');
 const pubsub = require('../route/pubsub');
-const { DBHelper } = require('../db/db-helper');
+const DBHelper = require('../db/db-helper');
 
 /* eslint-disable object-curly-newline */
 module.exports = {
