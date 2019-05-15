@@ -25,12 +25,12 @@ const constructPageInfo = (limit, skip, totalCount) => {
 
   const end = skip + limit;
   const hasNextPage = end < totalCount;
-  const pageNum = toInteger(end / limit);
+  const pageNumber = toInteger(end / limit);
   const count = hasNextPage ? limit : (totalCount % limit);
 
   return {
     hasNextPage,
-    pageNum,
+    pageNumber,
     count,
   };
 };
