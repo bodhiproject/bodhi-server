@@ -47,9 +47,9 @@ module.exports = async (contractMetadata, currentBlockNum) => {
         blockNum: log.blockNumber,
         eventAddress,
         centralizedOracleAddress: centralizedOracle,
-        resultIndex,
-        amount,
-        eventRound,
+        resultIndex: Number(resultIndex),
+        amount: amount.toString(10),
+        eventRound: Number(eventRound),
       });
 
       // Insert/update

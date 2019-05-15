@@ -12,6 +12,10 @@ module.exports = class ResultSet {
     if (!isString(params.txid)) throw Error('txid must be a String');
     if (!isString(params.txStatus)) throw Error('txStatus must be a String');
     if (!isFinite(params.blockNum)) throw Error('blockNum must be a Number');
+    if (!isString(params.eventAddress)) throw Error('eventAddress must be a String');
+    if (!isFinite(params.resultIndex)) throw Error('resultIndex must be a Number');
+    if (!isString(params.amount)) throw Error('amount must be a String');
+    if (!isFinite(params.eventRound)) throw Error('eventRound must be a Number');
   }
 
   format(params) {
@@ -19,13 +23,13 @@ module.exports = class ResultSet {
     this.txType = TX_TYPE.RESULT_SET;
     this.txid = params.txid;
     this.txStatus = params.txStatus;
-    this.blockNum = Number(params.blockNum);
+    this.blockNum = params.blockNum;
 
     // Result Set params
     this.eventAddress = params.eventAddress;
     this.centralizedOracleAddress = params.centralizedOracleAddress;
-    this.resultIndex = Number(params.resultIndex);
-    this.amount = params.amount.toString(10);
-    this.eventRound = Number(params.eventRound);
+    this.resultIndex = params.resultIndex;
+    this.amount = params.amount;
+    this.eventRound = params.eventRound;
   }
 };
