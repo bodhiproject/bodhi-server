@@ -1,3 +1,4 @@
+const { isNull } = require('lodash');
 const { logger } = require('../utils/logger');
 const { EVENT_STATUS } = require('../constants');
 
@@ -56,7 +57,17 @@ module.exports = class DBHelper {
 
   static async insertEvent(db, event) {
     try {
-      await db.Events.insert(event);
+      const existing = await this.constructor.findOneEvent(
+        db,
+        { txid: event.txid },
+      );
+      if (isNull(existing)) {
+        await db.Events.insert(event);
+      } else {
+        // Set non-blockchain vars from existing event
+        event.language = existing.language;
+        await this.constructor.updateEvent(db, event);
+      }
     } catch (err) {
       logger().error(`INSERT Event error: ${err.message}`);
       throw err;
@@ -66,7 +77,7 @@ module.exports = class DBHelper {
   static async updateEvent(db, event) {
     try {
       await db.Events.update(
-        { address: event.address },
+        { txid: event.txid },
         { $set: event },
         {},
       );
@@ -185,9 +196,27 @@ module.exports = class DBHelper {
 
   static async insertBet(db, bet) {
     try {
-      await db.Bets.insert(bet);
+      const existing = await this.constructor.findOneBet(db, { txid: bet.txid });
+      if (isNull(existing)) {
+        await db.Bets.insert(bet);
+      } else {
+        await this.constructor.updateBet(db, bet);
+      }
     } catch (err) {
       logger().error(`INSERT Bet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateBet(db, bet) {
+    try {
+      await db.Bets.update(
+        { txid: bet.txid },
+        { $set: bet },
+        {},
+      );
+    } catch (err) {
+      logger().error(`UPDATE Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -213,9 +242,30 @@ module.exports = class DBHelper {
 
   static async insertResultSet(db, resultSet) {
     try {
-      await db.ResultSets.insert(resultSet);
+      const existing = await this.constructor.findOneResultSet(
+        db,
+        { txid: resultSet.txid },
+      );
+      if (isNull(existing)) {
+        await db.ResultSets.insert(resultSet);
+      } else {
+        await this.constructor.updateResultSet(db, resultSet);
+      }
     } catch (err) {
       logger().error(`INSERT ResultSet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateResultSet(db, resultSet) {
+    try {
+      await db.ResultSets.update(
+        { txid: resultSet.txid },
+        { $set: resultSet },
+        {},
+      );
+    } catch (err) {
+      logger().error(`UPDATE ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -241,9 +291,30 @@ module.exports = class DBHelper {
 
   static async insertWithdraw(db, withdraw) {
     try {
-      await db.Withdraws.insert(withdraw);
+      const existing = await this.constructor.findOneWithdraw(
+        db,
+        { txid: withdraw.txid },
+      );
+      if (isNull(existing)) {
+        await db.Withdraws.insert(withdraw);
+      } else {
+        await this.constructor.updateWithdraw(db, withdraw);
+      }
     } catch (err) {
       logger().error(`INSERT Withdraw error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateWithdraw(db, withdraw) {
+    try {
+      await db.Withdraws.update(
+        { txid: withdraw.txid },
+        { $set: withdraw },
+        {},
+      );
+    } catch (err) {
+      logger().error(`UPDATE Withdraw error: ${err.message}`);
       throw err;
     }
   }

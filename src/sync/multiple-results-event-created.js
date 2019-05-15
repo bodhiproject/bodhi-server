@@ -93,20 +93,8 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       // Insert/update
       promises.push(new Promise(async (resolve, reject) => {
         try {
-          const existingEvent =
-            await DBHelper.findOneEvent(db, { txid: multipleResultsEvent.txid });
-          if (isNull(existingEvent)) {
-            // Existing event not found
-            await DBHelper.insertEvent(db, multipleResultsEvent);
-          } else {
-            // Existing event found
-            multipleResultsEvent.language = existingEvent.language;
-            await DBHelper.updateEvent(db, multipleResultsEvent);
-          }
-
-          // Fetch/insert tx receipt
+          await DBHelper.insertEvent(db, multipleResultsEvent);
           await insertTxReceipt(multipleResultsEvent.txid);
-
           resolve();
         } catch (insertErr) {
           logger().error(`insert MultipleResultsEvent: ${insertErr.message}`);

@@ -54,10 +54,7 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       promises.push(new Promise(async (resolve, reject) => {
         try {
           await DBHelper.insertBet(db, bet);
-
-          // Fetch/insert tx receipt
           await insertTxReceipt(bet.txid);
-
           resolve();
         } catch (insertErr) {
           logger().error(`insert Vote: ${insertErr.message}`);
