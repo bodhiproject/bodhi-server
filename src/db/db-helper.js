@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 const { logger } = require('../utils/logger');
 const { EVENT_STATUS } = require('../constants');
 
