@@ -27,5 +27,10 @@ module.exports = {
     FAIL: 'FAIL',
   },
 
+  ORDER_DIRECTION: {
+    ASCENDING: 'ASC',
+    DESCENDING: 'DESC',
+  },
+
   INVALID_RESULT_INDEX: 255,
 };

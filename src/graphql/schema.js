@@ -246,7 +246,6 @@ input WithdrawFilter {
 
 input TransactionFilter {
   OR: [TransactionFilter!]
-  txid: String
   eventAddress: String
   transactorAddress: String
 }

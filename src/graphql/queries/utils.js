@@ -20,9 +20,19 @@ const buildCursorOptions = (cursor, orderBy, limit, skip) => {
   return cursor;
 };
 
-const calculateSyncPercent = async (blockNum) => {
-  const chainBlock = await web3().eth.getBlock('latest');
-  return Math.floor((blockNum / chainBlock.number) * 100);
+const constructPageInfo = (limit, skip, totalCount) => {
+  if (!isNumber(limit) || !isNumber(skip)) return undefined;
+
+  const end = skip + limit;
+  const hasNextPage = end < totalCount;
+  const pageNum = toInteger(end / limit);
+  const count = hasNextPage ? limit : (totalCount % limit);
+
+  return {
+    hasNextPage,
+    pageNum,
+    count,
+  };
 };
 
 const runPaginatedQuery = async ({ db, filter, orderBy, limit, skip }) => {
@@ -30,21 +40,9 @@ const runPaginatedQuery = async ({ db, filter, orderBy, limit, skip }) => {
   cursor = buildCursorOptions(cursor, orderBy, limit, skip);
 
   const totalCount = await db.count(filter);
-  let hasNextPage;
-  let pageNumber;
-  let isPaginated = false;
-
-  if (isNumber(limit) && isNumber(skip)) {
-    isPaginated = true;
-    const end = skip + limit;
-    hasNextPage = end < totalCount;
-    pageNumber = toInteger(end / limit);
-  }
-
+  const pageInfo = constructPageInfo(limit, skip, totalCount);
   const items = await cursor.exec();
-  const pageInfo = isPaginated
-    ? { hasNextPage, pageNumber, count: items.length }
-    : undefined;
+
   return {
     totalCount,
     pageInfo,
@@ -52,8 +50,14 @@ const runPaginatedQuery = async ({ db, filter, orderBy, limit, skip }) => {
   };
 };
 
+const calculateSyncPercent = async (blockNum) => {
+  const chainBlock = await web3().eth.getBlock('latest');
+  return Math.floor((blockNum / chainBlock.number) * 100);
+};
+
 module.exports = {
   buildCursorOptions,
-  calculateSyncPercent,
+  constructPageInfo,
   runPaginatedQuery,
+  calculateSyncPercent,
 };
