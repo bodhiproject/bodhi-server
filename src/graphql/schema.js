@@ -52,11 +52,11 @@ type PendingTransactions {
 type TransactionReceipt {
   status: Boolean!
   blockHash: String!
-  blockNumber: String!
+  blockNumber: Int!
   transactionHash: String!
   from: String!
-  to: String!
-  contractAddress: String!
+  to: String
+  contractAddress: String
   cumulativeGasUsed: Int!
   gasUsed: Int!
 }

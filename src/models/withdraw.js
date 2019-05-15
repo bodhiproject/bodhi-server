@@ -19,12 +19,12 @@ module.exports = class Withdraw {
     this.txType = TX_TYPE.WITHDRAW;
     this.txid = params.txid;
     this.txStatus = params.txStatus;
-    this.blockNum = params.blockNum;
+    this.blockNum = Number(params.blockNum);
 
     // Withdraw params
     this.eventAddress = params.eventAddress;
     this.winnerAddress = params.winnerAddress;
-    this.winningAmount = params.winningAmount;
-    this.escrowAmount = params.escrowAmount;
+    this.winningAmount = params.winningAmount.toString(10);
+    this.escrowAmount = params.escrowAmount.toString(10);
   }
 };

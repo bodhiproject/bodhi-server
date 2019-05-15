@@ -19,18 +19,18 @@ module.exports = class MultipleResultsEvent {
     this.txType = TX_TYPE.CREATE_EVENT;
     this.txid = params.txid;
     this.txStatus = params.txStatus;
-    this.blockNum = params.blockNum;
+    this.blockNum = Number(params.blockNum);
 
     // Event params
     this.address = params.address;
     this.ownerAddress = params.ownerAddress;
-    this.version = params.version;
+    this.version = Number(params.version);
     this.name = params.name;
     this.results = filter(
       map(params.results, item => web3().utils.toAscii(item)),
       item => !!item,
     );
-    this.numOfResults = params.numOfResults;
+    this.numOfResults = Number(params.numOfResults);
     this.centralizedOracle = params.centralizedOracle;
     this.betStartTime = params.betStartTime.toString(10);
     this.betEndTime = params.betEndTime.toString(10);

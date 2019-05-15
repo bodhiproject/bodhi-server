@@ -19,13 +19,13 @@ module.exports = class ResultSet {
     this.txType = TX_TYPE.RESULT_SET;
     this.txid = params.txid;
     this.txStatus = params.txStatus;
-    this.blockNum = params.blockNum;
+    this.blockNum = Number(params.blockNum);
 
     // Result Set params
     this.eventAddress = params.eventAddress;
     this.centralizedOracleAddress = params.centralizedOracleAddress;
     this.resultIndex = Number(params.resultIndex);
-    this.amount = params.amount;
+    this.amount = params.amount.toString(10);
     this.eventRound = Number(params.eventRound);
   }
 };

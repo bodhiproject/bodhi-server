@@ -19,13 +19,13 @@ module.exports = class Bet {
     this.txType = Number(params.eventRound) === 0 ? TX_TYPE.BET : TX_TYPE.VOTE;
     this.txid = params.txid;
     this.txStatus = params.txStatus;
-    this.blockNum = params.blockNum;
+    this.blockNum = Number(params.blockNum);
 
     // Bet params
     this.eventAddress = params.eventAddress;
     this.betterAddress = params.betterAddress;
     this.resultIndex = Number(params.resultIndex);
-    this.amount = params.amount;
+    this.amount = params.amount.toString(10);
     this.eventRound = Number(params.eventRound);
   }
 };
