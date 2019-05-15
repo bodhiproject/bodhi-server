@@ -9,8 +9,8 @@ module.exports = async (root, {}, { db: { Blocks } }) => { // eslint-disable-lin
     logger().error(`Error querying latest block: ${err.message}`);
   }
 
-  const syncBlockNum = (blocks && blocks[0].number) || 0;
-  const syncBlockTime = (blocks && blocks[0].time) || '0';
+  const syncBlockNum = (blocks && blocks[0].blockNum) || 0;
+  const syncBlockTime = (blocks && blocks[0].blockTime) || '0';
   const syncPercent = await calculateSyncPercent(syncBlockNum);
 
   return {
