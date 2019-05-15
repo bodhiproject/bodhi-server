@@ -1,5 +1,6 @@
 /* eslint no-underscore-dangle: 0 */
 const { isFinite, isString } = require('lodash');
+const { TX_TYPE } = require('../constants');
 
 module.exports = class ResultSet {
   constructor(params) {
@@ -8,19 +9,21 @@ module.exports = class ResultSet {
   }
 
   validate(params) {
-    if (!isFinite(params.blockNum)) throw Error('blockNum must be a Number');
     if (!isString(params.txid)) throw Error('txid must be a String');
+    if (!isString(params.txStatus)) throw Error('txStatus must be a String');
+    if (!isFinite(params.blockNum)) throw Error('blockNum must be a Number');
   }
 
   format(params) {
     // Chain params
+    this.txType = TX_TYPE.RESULT_SET;
     this.txid = params.txid;
     this.txStatus = params.txStatus;
     this.blockNum = params.blockNum;
 
     // Result Set params
     this.eventAddress = params.eventAddress;
-    this.centralizedOracleAddress = params.centralizedOracleAddress; // Only for COracle result sets
+    this.centralizedOracleAddress = params.centralizedOracleAddress; // Only for CentralizedOracle result sets
     this.resultIndex = Number(params.resultIndex);
     this.amount = params.amount;
     this.eventRound = Number(params.eventRound);
