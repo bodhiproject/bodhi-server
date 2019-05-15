@@ -1,20 +1,54 @@
 const datastore = require('nedb-promise');
 const fs = require('fs-extra');
 const path = require('path');
+const { getDbDir } = require('../config');
+const { logger } = require('../utils/logger');
 
-const Utils = require('../utils');
-const { getLogger } = require('../utils/logger');
-
+const MIGRATION_REGEX = /(migration)(\d+)/;
 const db = {
-  Topics: undefined,
-  Oracles: undefined,
-  Votes: undefined,
+  Events: undefined,
+  Bets: undefined,
   ResultSets: undefined,
   Withdraws: undefined,
   Blocks: undefined,
-  Transactions: undefined,
+  TransactionReceipts: undefined,
 };
-const MIGRATION_REGEX = /(migration)(\d+)/;
+
+/**
+ * Run all the migrations and initializes all the datastores.
+ */
+const initDB = async () => {
+  const dbDir = getDbDir();
+  logger().info(`Data dir: ${dbDir}`);
+
+  db.Events = datastore({ filename: `${dbDir}/events.db` });
+  db.Bets = datastore({ filename: `${dbDir}/bets.db` });
+  db.ResultSets = datastore({ filename: `${dbDir}/resultsets.db` });
+  db.Withdraws = datastore({ filename: `${dbDir}/withdraws.db` });
+  db.Blocks = datastore({ filename: `${dbDir}/blocks.db` });
+  db.TransactionReceipts = datastore({ filename: `${dbDir}/transactionreceipts.db` });
+
+  try {
+    await Promise.all([
+      db.Events.loadDatabase(),
+      db.Bets.loadDatabase(),
+      db.ResultSets.loadDatabase(),
+      db.Withdraws.loadDatabase(),
+      db.Blocks.loadDatabase(),
+      db.TransactionReceipts.loadDatabase(),
+    ]);
+
+    await db.Events.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Bets.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
+
+    await applyMigrations();
+  } catch (err) {
+    logger().error(`DB load Error: ${err.message}`);
+    throw err;
+  }
+};
 
 /**
  * Apply necessary migrations.
@@ -22,32 +56,41 @@ const MIGRATION_REGEX = /(migration)(\d+)/;
  * We don't want the server to run if the migration failed.
  */
 async function applyMigrations() {
-  const migrationTrackPath = `${__dirname}/migrations.dat`;
+  const dbDir = getDbDir();
+  const migrationTrackPath = `${dbDir}/migrations.dat`;
   const migrations = [];
   let lastMigration;
 
   try {
     // Create migrations.dat file if not found
     if (!fs.existsSync(migrationTrackPath)) {
-      getLogger().info('Creating migrations.dat');
+      logger().info('Creating migrations.dat');
       fs.writeFileSync(migrationTrackPath, 'LAST_MIGRATION=0');
     }
   } catch (err) {
-    getLogger().error(`Error creating migrations.dat file: ${err.message}`);
-    throw Error(`Error creating migrations.dat file: ${err.message}`);
+    logger().error(`Error creating migrations.dat file: ${err.message}`);
+    throw err;
   }
 
   try {
     // Get last migration number
-    lastMigration = Number(await fs.readFileSync(migrationTrackPath).toString().split('=')[1].trim());
+    lastMigration = Number(await fs.readFileSync(migrationTrackPath)
+      .toString().split('=')[1].trim());
   } catch (err) {
-    getLogger().error(`Migration track file loading error: ${err.message}`);
-    throw Error(`Migration track file loading error: ${err.message}`);
+    logger().error(`Migration track file loading error: ${err.message}`);
+    throw err;
   }
 
   try {
     // Add migration functions for each migration file
     const migrationPath = path.join(__dirname, 'migrations');
+
+    // Create migrations dir if needed
+    if (!fs.existsSync(migrationPath)) {
+      logger().info('Creating migrations dir');
+      fs.ensureDirSync(migrationPath);
+    }
+
     fs.readdirSync(migrationPath).sort().forEach((file) => {
       if (file.endsWith('.js')) {
         // Get migration script number
@@ -66,8 +109,8 @@ async function applyMigrations() {
       }
     });
   } catch (err) {
-    getLogger().error(`Migration scripts load error: ${err.message}`);
-    throw Error(`Migration scripts load error: ${err.message}`);
+    logger().error(`Migration scripts load error: ${err.message}`);
+    throw err;
   }
 
   // Run each migration and store the number
@@ -76,7 +119,7 @@ async function applyMigrations() {
     try {
       if (Number(migration.number) === lastMigration + 1) {
         // Run migration
-        getLogger().info(`Running migration ${migration.number}...`);
+        logger().info(`Running migration ${migration.number}...`);
         await migration.migrate(db);
 
         // Track the last migration number
@@ -84,99 +127,16 @@ async function applyMigrations() {
         await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${migration.number}\n`);
       }
     } catch (err) {
-      getLogger().error(`Migration ${migration.number} error: ${err.message}`);
-      throw Error(`Migration ${migration.number} error: ${err.message}`);
+      logger().error(`Migration ${migration.number} error: ${err.message}`);
+      throw err;
     }
   }
   /* eslint-enable no-restricted-syntax, no-await-in-loop */
 
-  getLogger().info('Migrations complete.');
-}
-
-/**
- * Run all the migrations and initializes all the datastores.
- */
-async function initDB() {
-  const blockchainDataPath = Utils.getDataDir();
-  getLogger().info(`Blockchain data path: ${blockchainDataPath}`);
-
-  db.Topics = datastore({ filename: `${blockchainDataPath}/topics.db` });
-  db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
-  db.Votes = datastore({ filename: `${blockchainDataPath}/votes.db` });
-  db.ResultSets = datastore({ filename: `${blockchainDataPath}/resultsets.db` });
-  db.Withdraws = datastore({ filename: `${blockchainDataPath}/withdraws.db` });
-  db.Blocks = datastore({ filename: `${blockchainDataPath}/blocks.db` });
-  db.Transactions = datastore({ filename: `${blockchainDataPath}/transactions.db` });
-
-  try {
-    await Promise.all([
-      db.Topics.loadDatabase(),
-      db.Oracles.loadDatabase(),
-      db.Votes.loadDatabase(),
-      db.ResultSets.loadDatabase(),
-      db.Withdraws.loadDatabase(),
-      db.Blocks.loadDatabase(),
-      db.Transactions.loadDatabase(),
-    ]);
-
-    await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
-
-    await applyMigrations();
-  } catch (err) {
-    throw Error(`DB load Error: ${err.message}`);
-  }
-}
-
-// Delete blockchain Bodhi data
-function deleteBodhiData() {
-  const logger = getLogger();
-  const blockchainDataPath = Utils.getDataDir();
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/topics.db`);
-  } catch (err) {
-    logger.error(`Delete topics.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/oracles.db`);
-  } catch (err) {
-    logger.error(`Delete oracles.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/votes.db`);
-  } catch (err) {
-    logger.error(`Delete votes.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/resultsets.db`);
-  } catch (err) {
-    logger.error(`Delete resultsets.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/withdraws.db`);
-  } catch (err) {
-    logger.error(`Delete withdraws.db error: ${err.message}`);
-  }
-
-  try {
-    fs.removeSync(`${blockchainDataPath}/blocks.db`);
-  } catch (err) {
-    logger.error(`Delete blocks.db error: ${err.message}`);
-  }
-
-  logger.info('Bodhi data deleted.');
+  logger().info('Migrations complete.');
 }
 
 module.exports = {
   db,
   initDB,
-  deleteBodhiData,
 };

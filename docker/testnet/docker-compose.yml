@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  bodhi-server-testnet:
+    hostname: bodhi-server-testnet
+    container_name: bodhi-server-testnet
+    restart: unless-stopped
+    build:
+      context: ../../
+      dockerfile: ./docker/testnet/Dockerfile
+    ports:
+      - 9999:9999
+    environment:
+      - CONTRACT_VERSION=0
+      - NETWORK=testnet
+      - SSL=true
+      - SSL_KEY_PATH=/root/bodhi-server/creds/nakachain.org.key
+      - SSL_CERT_PATH=/root/bodhi-server/creds/nakachain.org.crt
+      - LOG_LEVEL=debug
+    volumes:
+      - bodhi-server-testnet:/root/bodhi-server/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+        max-file: "10"
+
+volumes:
+  bodhi-server-testnet:

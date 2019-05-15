@@ -1,7 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
 const { isFinite, isString } = require('lodash');
 
-module.exports = class Withdraw {
+module.exports = class ResultSet {
   constructor(params) {
     this.validate(params);
     this.format(params);
@@ -18,10 +18,11 @@ module.exports = class Withdraw {
     this.txStatus = params.txStatus;
     this.blockNum = params.blockNum;
 
-    // Withdraw params
+    // Result Set params
     this.eventAddress = params.eventAddress;
-    this.winnerAddress = params.winnerAddress;
-    this.winningAmount = params.winningAmount;
-    this.escrowAmount = params.escrowAmount;
+    this.centralizedOracleAddress = params.centralizedOracleAddress; // Only for COracle result sets
+    this.resultIndex = Number(params.resultIndex);
+    this.amount = params.amount;
+    this.eventRound = Number(params.eventRound);
   }
 };

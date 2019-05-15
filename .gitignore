@@ -171,8 +171,11 @@ $RECYCLE.BIN/
 # NeDB
 *.db
 
+# Data dir
+/data
+
+# Credentials
+/creds
+
 # Distributables
 dist/
-
-# Migrations
-src/db/migrations.dat

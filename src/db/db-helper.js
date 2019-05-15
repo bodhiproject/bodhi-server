@@ -1,163 +1,252 @@
 const _ = require('lodash');
 
-const { getLogger } = require('../utils/logger');
+const { logger } = require('../utils/logger');
+const { EVENT_STATUS } = require('../constants');
 
-class DBHelper {
-  static async getCount(database, query) {
+module.exports = class DBHelper {
+  /* Blocks */
+  static async findOneBlock(db, query) {
     try {
-      return await database.count(query);
+      return await db.Blocks.findOne(query);
     } catch (err) {
-      getLogger().error(`Error getting DB count. db:${database} err:${err.message}`);
-    }
-  }
-
-  /*
-  * Returns the fields of the object in one of the tables searched by the query.
-  * @param database {Object} The DB table.
-  * @param query {Object} The query by items.
-  * @param fields {Array} The fields to return for the found item in an array.
-  */
-  static async findOne(database, query, fields) {
-    let fieldsObj;
-    if (!_.isEmpty(fields)) {
-      fieldsObj = {};
-      _.each(fields, (field) => {
-        fieldsObj[field] = 1;
-      });
-    }
-
-    const found = await database.findOne(query, fieldsObj);
-    if (!found) {
-      const { filename } = database.nedb;
-      throw Error(`findOne ${filename.substr(filename.lastIndexOf('/') + 1)} by query ${JSON.stringify(query)}`);
-    }
-    return found;
-  }
-
-  static async insertTopic(database, topic) {
-    try {
-      await database.insert(topic);
-    } catch (err) {
-      getLogger().error(`Error insert Topic ${topic}: ${err.message}`);
-    }
-  }
-
-  static async updateObjectByQuery(database, query, update) {
-    try {
-      await database.update(query, { $set: update }, {});
-    } catch (err) {
-      getLogger().error(`Error update ${update} object by query:${query}: ${err.message}`);
-    }
-  }
-
-  static async updateTopicByQuery(database, query, topic) {
-    try {
-      await database.update(
-        query,
-        {
-          $set: {
-            txid: topic.txid,
-            blockNum: topic.blockNum,
-            status: topic.status,
-            version: topic.version,
-            address: topic.address,
-            name: topic.name,
-            options: topic.options,
-            qtumAmount: topic.qtumAmount,
-            botAmount: topic.botAmount,
-            resultIdx: topic.resultIdx,
-            creatorAddress: topic.creatorAddress,
-          },
-        },
-        {},
-      );
-    } catch (err) {
-      getLogger().error(`Error update Topic by query:${query}: ${err.message}`);
-    }
-  }
-
-  static async removeTopicsByQuery(topicDb, query) {
-    try {
-      const numRemoved = await topicDb.remove(query, { multi: true });
-      getLogger().debug(`Remove: ${numRemoved} Topic query:${query}`);
-    } catch (err) {
-      getLogger().error(`Remove Topics by query:${query}: ${err.message}`);
-    }
-  }
-
-  static async insertOracle(database, oracle) {
-    try {
-      await database.insert(oracle);
-    } catch (err) {
-      getLogger().error(`Error insert COracle:${oracle}: ${err.message}`);
-    }
-  }
-
-  static async updateOracleByQuery(database, query, oracle) {
-    try {
-      await database.update(
-        query,
-        {
-          $set: {
-            txid: oracle.txid,
-            blockNum: oracle.blockNum,
-            status: oracle.status,
-            version: oracle.version,
-            address: oracle.address,
-            topicAddress: oracle.topicAddress,
-            resultSetterAddress: oracle.resultSetterAddress,
-            token: oracle.token,
-            name: oracle.name,
-            options: oracle.options,
-            optionIdxs: oracle.optionIdxs,
-            amounts: oracle.amounts,
-            resultIdx: oracle.resultIdx,
-            startTime: oracle.startTime,
-            endTime: oracle.endTime,
-            resultSetStartTime: oracle.resultSetStartTime,
-            resultSetEndTime: oracle.resultSetEndTime,
-            consensusThreshold: oracle.consensusThreshold,
-            hashId: oracle.hashId,
-          },
-        },
-        {},
-      );
-    } catch (err) {
-      getLogger().error(`Error update Oracle by query:${query}: ${err.message}`);
-    }
-  }
-
-  static async removeOraclesByQuery(oracleDb, query) {
-    try {
-      const numRemoved = await oracleDb.remove(query, { multi: true });
-      getLogger().debug(`Remove: ${numRemoved} Oracle by query:${query}`);
-    } catch (err) {
-      getLogger().error(`Remove Oracles by query:${query}: ${err.message}`);
-    }
-  }
-
-  static async insertTransaction(database, tx) {
-    try {
-      getLogger().debug(`Mutation Insert: Transaction ${tx.type} txid:${tx.txid}`);
-      await database.insert(tx);
-    } catch (err) {
-      getLogger().error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);
+      logger().error(`FIND Block error: ${err.message}`);
       throw err;
     }
   }
 
-  static async isPreviousCreateEventPending(txDb, senderAddress) {
+  static async insertBlock(db, blockNum, blockTime) {
     try {
-      return await txDb.count({
-        type: { $in: ['APPROVECREATEEVENT', 'CREATEEVENT'] },
-        status: 'PENDING',
-        senderAddress,
+      await db.Blocks.insert({
+        _id: blockNum,
+        blockNum,
+        blockTime,
       });
     } catch (err) {
-      getLogger().error(`Checking CreateEvent pending: ${err.message}`);
+      logger().error(`INSERT Block error: ${err.message}`);
       throw err;
     }
   }
-}
 
-module.exports = DBHelper;
+  /* TransactionReceipts */
+  static async findOneTransactionReceipt(db, query) {
+    try {
+      return await db.TransactionReceipts.findOne(query);
+    } catch (err) {
+      logger().error(`FIND TransactionReceipt error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertTransactionReceipt(db, txReceipt) {
+    try {
+      await db.TransactionReceipts.insert(txReceipt);
+    } catch (err) {
+      logger().error(`INSERT TransactionReceipt error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* Events */
+  static async findOneEvent(db, query) {
+    try {
+      return await db.Events.findOne(query);
+    } catch (err) {
+      logger().error(`FIND Event error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertEvent(db, event) {
+    try {
+      await db.Events.insert(event);
+    } catch (err) {
+      logger().error(`INSERT Event error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEvent(db, event) {
+    try {
+      await db.Events.update(
+        { address: event.address },
+        { $set: event },
+        {},
+      );
+    } catch (err) {
+      logger().error(`UPDATE Event error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventStatusBetting(db, currBlockTime) {
+    try {
+      await db.Events.update(
+        {
+          status: EVENT_STATUS.CREATED,
+          betStartTime: { $lte: currBlockTime },
+          betEndTime: { $gt: currBlockTime },
+        },
+        { $set: { status: EVENT_STATUS.BETTING } },
+        { multi: true },
+      );
+    } catch (err) {
+      logger().error(`UPDATE Event Status Betting error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventStatusOracleResultSetting(db, currBlockTime) {
+    try {
+      await db.Events.update(
+        {
+          status: EVENT_STATUS.BETTING,
+          betEndTime: { $lte: currBlockTime },
+          resultSetEndTime: { $gt: currBlockTime },
+        },
+        { $set: { status: EVENT_STATUS.ORACLE_RESULT_SETTING } },
+        { multi: true },
+      );
+    } catch (err) {
+      logger().error(`UPDATE Event Status Oracle Result Setting error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventStatusOpenResultSetting(db, currBlockTime) {
+    try {
+      await db.Events.update(
+        {
+          status: EVENT_STATUS.ORACLE_RESULT_SETTING,
+          resultSetEndTime: { $lte: currBlockTime },
+          currentRound: 0,
+        },
+        { $set: { status: EVENT_STATUS.OPEN_RESULT_SETTING } },
+        { multi: true },
+      );
+    } catch (err) {
+      logger().error(`UPDATE Event Status Open Result Setting error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventStatusArbitration(db) {
+    try {
+      await db.Events.update(
+        {
+          status: {
+            $or: [
+              EVENT_STATUS.ORACLE_RESULT_SETTING,
+              EVENT_STATUS.OPEN_RESULT_SETTING,
+            ],
+          },
+          currentRound: { $gt: 0 },
+        },
+        { $set: { status: EVENT_STATUS.ARBITRATION } },
+        { multi: true },
+      );
+    } catch (err) {
+      logger().error(`UPDATE Event Status Arbitration error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventStatusWithdrawing(db, currBlockTime) {
+    try {
+      await db.Events.update(
+        {
+          status: EVENT_STATUS.ARBITRATION,
+          arbitrationEndTime: { $lte: currBlockTime },
+        },
+        { $set: { status: EVENT_STATUS.WITHDRAWING } },
+        { multi: true },
+      );
+    } catch (err) {
+      logger().error(`UPDATE Event Status Withdrawing error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* Bets */
+  static async findOneBet(db, query) {
+    try {
+      return await db.Bets.findOne(query);
+    } catch (err) {
+      logger().error(`FIND Bet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async countBet(db, query) {
+    try {
+      return await db.Bets.count(query);
+    } catch (err) {
+      logger().error(`COUNT Bet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertBet(db, bet) {
+    try {
+      await db.Bets.insert(bet);
+    } catch (err) {
+      logger().error(`INSERT Bet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* ResultSets */
+  static async findOneResultSet(db, query) {
+    try {
+      return await db.ResultSets.findOne(query);
+    } catch (err) {
+      logger().error(`FIND ResultSet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async countResultSet(db, query) {
+    try {
+      return await db.ResultSets.count(query);
+    } catch (err) {
+      logger().error(`COUNT ResultSet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertResultSet(db, resultSet) {
+    try {
+      await db.ResultSets.insert(resultSet);
+    } catch (err) {
+      logger().error(`INSERT ResultSet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* Withdraws */
+  static async findOneWithdraw(db, query) {
+    try {
+      return await db.Withdraws.findOne(query);
+    } catch (err) {
+      logger().error(`FIND Withdraw error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async countWithdraw(db, query) {
+    try {
+      return await db.Withdraws.count(query);
+    } catch (err) {
+      logger().error(`COUNT Withdraw error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertWithdraw(db, withdraw) {
+    try {
+      await db.Withdraws.insert(withdraw);
+    } catch (err) {
+      logger().error(`INSERT Withdraw error: ${err.message}`);
+      throw err;
+    }
+  }
+};

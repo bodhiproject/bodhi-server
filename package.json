@@ -14,15 +14,8 @@
   ],
   "main": "src/index.js",
   "scripts": {
-    "regtest:local": "node src/index.js --chain=regtest --dev --local --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
-    "testnet:local": "node src/index.js --chain=testnet --dev --local --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
-    "mainnet:local": "node src/index.js --chain=mainnet --dev --local --qtumpath=./qtum/mac/bin --rpcpassword=bodhi",
-    "regtest:stage": "node src/index.js --chain=regtest --dev",
-    "testnet:stage": "node src/index.js --chain=testnet --dev",
-    "mainnet:stage": "node src/index.js --chain=mainnet --dev",
-    "testnet:prod": "node src/index.js --chain=testnet",
-    "mainnet:prod": "node src/index.js --chain=mainnet",
-    "test": "mocha --recursive src/**/*.tests.js --timeout 10000 --rpcpassword=bodhi --test",
+    "start": "node src/index.js",
+    "test": "mocha --recursive src/**/*.tests.js --timeout 10000 --test",
     "lint:fix": "eslint --fix -- src/."
   },
   "dependencies": {

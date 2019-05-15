@@ -1,164 +1,99 @@
-const fs = require('fs');
-const { includes, isEmpty, each, split, isNumber } = require('lodash');
-const crypto = require('crypto');
-
+const fs = require('fs-extra');
+const path = require('path');
+const { isEmpty, isNumber } = require('lodash');
 const { BLOCKCHAIN_ENV } = require('../constants');
-const mainnetMetadata = require('./mainnet/contract-metadata');
-const testnetMetadata = require('./testnet/contract-metadata');
+const contractMetadata = require('./contract-metadata');
 
-const API_PORT_MAINNET = 8989;
-const API_PORT_TESTNET = 6767;
-const API_PORT_REGTEST = 5555;
-
-const EXPLORER_MAINNET = 'https://explorer.qtum.org';
-const EXPLORER_TESTNET = 'https://testnet.qtum.org';
-
-const { MAINNET, TESTNET, REGTEST } = BLOCKCHAIN_ENV;
-
-const Config = {
-  IS_DEV: includes(process.argv, '--dev'),
-  PROTOCOL: includes(process.argv, '--local') ? 'http' : 'https',
+const CONFIG = {
+  CONTRACT_VERSION: Number(process.env.CONTRACT_VERSION),
+  NETWORK: process.env.NETWORK,
+  RPC_MAINNET: 'wss://api.nakachain.org/ws',
+  RPC_TESTNET: 'wss://testnet.api.nakachain.org/ws',
+  PROTOCOL: process.env.SSL === 'true' ? 'https' : 'http',
   HOSTNAME: 'localhost',
-  RPC_USER: 'bodhi',
-  RPC_PORT_TESTNET: 13889,
-  RPC_PORT_MAINNET: 3889,
+  API_PORT_MAINNET: 8888,
+  API_PORT_TESTNET: 9999,
   DEFAULT_LOG_LEVEL: 'debug',
-  CONTRACT_VERSION_NUM: 0,
-  TRANSFER_MIN_CONFIRMATIONS: 1,
-  DEFAULT_GAS_LIMIT: 250000,
-  DEFAULT_GAS_PRICE: 0.0000004,
-  CREATE_CORACLE_GAS_LIMIT: 3500000,
-  CREATE_DORACLE_GAS_LIMIT: 1500000,
-  UNLOCK_SECONDS: 604800,
 };
-const rpcPassword = getRandomPassword(); // Generate random password for every session
-
-let qtumEnv; // qtumd chain network: mainnet/testnet/regtest
-let qtumPath; // path to Qtum executables
-
-function setQtumEnv(env, path) {
-  if (isEmpty(env)) {
-    throw Error('env cannot be empty.');
-  }
-  if (isEmpty(path)) {
-    throw Error('path cannot be empty.');
-  }
-  if (qtumEnv) {
-    throw Error('qtumEnv was already set.');
-  }
-  if (qtumPath) {
-    throw Error('qtumPath was already set.');
-  }
-
-  qtumEnv = env;
-  qtumPath = path;
-}
 
 /**
- * Returns the environment configuration variables.
- * @return {object} Environment config variables.
+ * Returns the base data dir path, and also creates it if necessary.
+ * @return {string} Path to the base data directory.
  */
-function getEnvConfig() {
-  if (!qtumEnv || !qtumPath) {
-    throw Error('setQtumEnv was not called yet.');
+const getBaseDataDir = () => {
+  // DATA_DIR is defined in environment variables
+  if (!isEmpty(process.env.DATA_DIR)) {
+    return process.env.DATA_DIR;
   }
 
-  let apiPort;
-  switch (qtumEnv) {
-    case MAINNET: {
-      apiPort = API_PORT_MAINNET;
-      break;
-    }
-    case TESTNET: {
-      apiPort = API_PORT_TESTNET;
-      break;
-    }
-    case REGTEST: {
-      apiPort = API_PORT_REGTEST;
-      break;
-    }
-    default: {
-      throw Error(`Invalid qtum environment: ${qtumEnv}`);
-    }
-  }
+  const network = CONFIG.NETWORK;
+  if (isEmpty(network)) throw Error('NETWORK not defined in environment');
 
-  return { network: qtumEnv, qtumPath, apiPort };
+  const rootDir = path.resolve('./');
+  const dataDir = `${rootDir}/data/${network}`;
+  fs.ensureDirSync(dataDir);
+  return path.resolve(dataDir);
+};
+
+/**
+ * Returns the database dir path, and also creates it if necesssary.
+ * @return {string} Path to the database directory.
+ */
+const getDbDir = () => {
+  const baseDir = getBaseDataDir();
+  const dbDir = `${baseDir}/nedb`;
+  fs.ensureDirSync(dbDir);
+  return path.resolve(dbDir);
+};
+
+/**
+ * Returns the logs dir path, and also creates it if necesssary.
+ * @return {string} Path to the logs directory.
+ */
+function getLogsDir() {
+  const basePath = getBaseDataDir();
+  const logsDir = `${basePath}/logs`;
+  fs.ensureDirSync(logsDir);
+  return path.resolve(logsDir);
 }
 
-function isMainnet() {
-  // Throw an error to ensure no code is using this check before it is initialized
-  if (!qtumEnv) {
-    throw Error('qtumEnv not initialized yet.');
-  }
+const isMainnet = () => CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET;
 
-  return qtumEnv === BLOCKCHAIN_ENV.MAINNET;
-}
+/**
+ * Gets the smart contract metadata based on version.
+ * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
+ * @return {Object} Contract metadata.
+ */
+const getContractMetadata = (version = CONFIG.CONTRACT_VERSION) => {
+  if (!isNumber(version)) throw Error('Must supply a version number');
+  return contractMetadata[version];
+};
 
-function getRPCPassword() {
-  let password = rpcPassword;
-  each(process.argv, (arg) => {
-    if (includes(arg, '--rpcpassword')) {
-      password = (split(arg, '=', 2))[1];
-    }
-  });
+/**
+ * Gets the contract address for the given contract name.
+ * @param {string} contractName Name of contract to fetch.
+ * @return {string} Address of the contract.
+ */
+const getContractAddress = contractName =>
+  contractMetadata[CONFIG.CONTRACT_VERSION][contractName][CONFIG.NETWORK];
 
-  return password;
-}
-
-function getQtumRPCAddress() {
-  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
-  return `http://${Config.RPC_USER}:${getRPCPassword()}@${Config.HOSTNAME}:${port}`;
-}
-
-function getQtumExplorerUrl() {
-  return isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET;
-}
-
-function getSSLCredentials() {
+const getSSLCredentials = () => {
   if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
-    throw Error('SSL Key and Cert paths not found.');
+    throw Error('SSL Key and Cert paths not found');
   }
 
   return {
     key: fs.readFileSync(process.env.SSL_KEY_PATH),
     cert: fs.readFileSync(process.env.SSL_CERT_PATH),
   };
-}
-
-/*
-* Gets the smart contract metadata based on version and environment.
-* @param versionNum {Number} The version number of the contracts to get, ie. 0, 1, 2.
-* @param testnet {Boolean} Whether on testnet env or not.
-* @return {Object} The contract metadata.
-*/
-function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
-  if (!isNumber(versionNum)) {
-    throw new Error('Must supply a version number');
-  }
-
-  if (isMainnet()) {
-    return mainnetMetadata[versionNum];
-  }
-  return testnetMetadata[versionNum];
-}
-
-/*
-* Creates a randomized RPC password.
-* Protects against external RPC attacks when the username/password are already known: bodhi/bodhi.
-* @return {String} Randomized password.
-*/
-function getRandomPassword() {
-  return crypto.randomBytes(5).toString('hex');
-}
+};
 
 module.exports = {
-  Config,
-  setQtumEnv,
-  getEnvConfig,
+  CONFIG,
+  getDbDir,
+  getLogsDir,
   isMainnet,
-  getRPCPassword,
-  getQtumRPCAddress,
-  getQtumExplorerUrl,
-  getSSLCredentials,
   getContractMetadata,
+  getContractAddress,
+  getSSLCredentials,
 };
