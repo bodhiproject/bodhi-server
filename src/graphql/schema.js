@@ -164,6 +164,16 @@ type PaginatedWithdraws {
   items: [Withdraw]!
 }
 
+type TransactionItem {
+  tx: Transaction!
+}
+
+type PaginatedTransactions {
+  totalCount: Int!
+  pageInfo: PageInfo
+  items: [TransactionItem]!
+}
+
 type SyncInfo {
   syncBlockNum: Int
   syncBlockTime: String
@@ -234,6 +244,13 @@ input WithdrawFilter {
   winnerAddress: String
 }
 
+input TransactionFilter {
+  OR: [TransactionFilter!]
+  txid: String
+  eventAddress: String
+  transactorAddress: String
+}
+
 type Query {
   events(
     filter: EventFilter
@@ -271,6 +288,13 @@ type Query {
     limit: Int
     skip: Int
   ): PaginatedWithdraws!
+
+  transactions(
+    filter: TransactionFilter
+    orderBy: [Order!]
+    limit: Int
+    skip: Int
+  ): PaginatedTransactions!
 
   syncInfo: SyncInfo!
 
