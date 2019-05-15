@@ -76,7 +76,7 @@ type MultipleResultsEvent implements Transaction {
   block: Block
   address: String
   ownerAddress: String!
-  version: Int
+  version: Int!
   name: String!
   results: [String!]!
   numOfResults: Int!
