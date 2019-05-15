@@ -1,7 +1,7 @@
 const { isNumber, toInteger } = require('lodash');
 const { web3 } = require('../../web3');
 
-const buildFilters = ({ eventAddress }) => {
+const buildFilters = ({ eventAddress } = {}) => {
   if (!eventAddress) throw Error('eventAddress missing in filters');
 
   const filters = { eventAddress };

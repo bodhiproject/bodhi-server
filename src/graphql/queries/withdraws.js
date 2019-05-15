@@ -5,7 +5,7 @@ const buildFilters = ({
   txid,
   eventAddress,
   winnerAddress,
-}) => {
+} = {}) => {
   const filter = (
     txid
     || eventAddress

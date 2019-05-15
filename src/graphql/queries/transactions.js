@@ -6,12 +6,12 @@ const buildTxFilters = ({
   OR = [],
   eventAddress,
   transactorAddress,
-}) => {
-  const filter = (
-    eventAddress
-    || transactorAddress
-  ) ? {} : null;
+} = {}) => {
+  if (!eventAddress && !transactorAddress) {
+    throw Error('eventAddress or transactorAddress missing in filters');
+  }
 
+  const filter = {};
   if (eventAddress) filter.eventAddress = eventAddress;
   if (transactorAddress) filter.transactorAddress = transactorAddress;
 

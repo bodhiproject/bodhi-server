@@ -7,7 +7,7 @@ const buildFilters = ({
   centralizedOracleAddress,
   resultIndex,
   eventRound,
-}) => {
+} = {}) => {
   const filter = (
     txid
     || eventAddress
