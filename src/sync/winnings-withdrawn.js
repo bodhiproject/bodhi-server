@@ -41,11 +41,11 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       const withdraw = new Withdraw({
         txid: log.transactionHash,
         txStatus: TX_STATUS.SUCCESS,
-        blockNum: log.blockNumber,
+        blockNum: Number(log.blockNumber),
         eventAddress,
         winnerAddress: winner,
-        winningAmount,
-        escrowAmount,
+        winningAmount: winningAmount.toString(10),
+        escrowAmount: escrowAmount.toString(10),
       });
 
       // Insert/update

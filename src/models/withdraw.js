@@ -12,6 +12,10 @@ module.exports = class Withdraw {
     if (!isString(params.txid)) throw Error('txid must be a String');
     if (!isString(params.txStatus)) throw Error('txStatus must be a String');
     if (!isFinite(params.blockNum)) throw Error('blockNum must be a Number');
+    if (!isString(params.eventAddress)) throw Error('eventAddress must be a String');
+    if (!isString(params.winnerAddress)) throw Error('winnerAddress must be a String');
+    if (!isString(params.winningAmount)) throw Error('winningAmount must be a String');
+    if (!isString(params.escrowAmount)) throw Error('escrowAmount must be a String');
   }
 
   format(params) {
