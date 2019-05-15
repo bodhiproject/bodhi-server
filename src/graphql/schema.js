@@ -164,14 +164,10 @@ type PaginatedWithdraws {
   items: [Withdraw]!
 }
 
-type TransactionItem {
-  tx: Transaction!
-}
-
 type PaginatedTransactions {
   totalCount: Int!
   pageInfo: PageInfo
-  items: [TransactionItem]!
+  items: [Transaction]!
 }
 
 type SyncInfo {
