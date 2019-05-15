@@ -17,7 +17,7 @@ module.exports = class DBHelper {
       await db.Blocks.insert({
         _id: blockNum,
         blockNum,
-        blockTime,
+        blockTime: blockTime.toString(),
       });
     } catch (err) {
       logger().error(`INSERT Block error: ${err.message}`);

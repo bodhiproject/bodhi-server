@@ -38,8 +38,8 @@ interface Transaction {
 }
 
 type Block {
-  number: Int!
-  time: String!
+  blockNum: Int!
+  blockTime: String!
 }
 
 type PendingTransactions {
