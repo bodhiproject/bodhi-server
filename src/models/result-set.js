@@ -23,7 +23,7 @@ module.exports = class ResultSet {
 
     // Result Set params
     this.eventAddress = params.eventAddress;
-    this.centralizedOracleAddress = params.centralizedOracleAddress; // Only for CentralizedOracle result sets
+    this.centralizedOracleAddress = params.centralizedOracleAddress;
     this.resultIndex = Number(params.resultIndex);
     this.amount = params.amount;
     this.eventRound = Number(params.eventRound);
