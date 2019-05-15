@@ -1,6 +1,5 @@
 const { isFinite, isString, map, filter } = require('lodash');
-
-const { INVALID_RESULT_INDEX, EVENT_STATUS } = require('../constants');
+const { TX_TYPE, INVALID_RESULT_INDEX, EVENT_STATUS } = require('../constants');
 const { web3 } = require('../web3');
 
 module.exports = class MultipleResultsEvent {
@@ -10,12 +9,14 @@ module.exports = class MultipleResultsEvent {
   }
 
   validate(params) {
-    if (!isFinite(params.blockNum)) throw Error('blockNum must be a Number');
     if (!isString(params.txid)) throw Error('txid must be a String');
+    if (!isString(params.txStatus)) throw Error('txStatus must be a String');
+    if (!isFinite(params.blockNum)) throw Error('blockNum must be a Number');
   }
 
   format(params) {
     // Chain params
+    this.txType = TX_TYPE.CREATE_EVENT;
     this.txid = params.txid;
     this.txStatus = params.txStatus;
     this.blockNum = params.blockNum;

@@ -1,5 +1,6 @@
 /* eslint no-underscore-dangle: 0 */
 const { isFinite, isString } = require('lodash');
+const { TX_TYPE } = require('../constants');
 
 module.exports = class Bet {
   constructor(params) {
@@ -8,12 +9,14 @@ module.exports = class Bet {
   }
 
   validate(params) {
-    if (!isFinite(params.blockNum)) throw Error('blockNum must be a Number');
     if (!isString(params.txid)) throw Error('txid must be a String');
+    if (!isString(params.txStatus)) throw Error('txStatus must be a String');
+    if (!isFinite(params.blockNum)) throw Error('blockNum must be a Number');
   }
 
   format(params) {
     // Chain params
+    this.txType = Number(params.eventRound) === 0 ? TX_TYPE.BET : TX_TYPE.VOTE;
     this.txid = params.txid;
     this.txStatus = params.txStatus;
     this.blockNum = params.blockNum;
