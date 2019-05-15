@@ -42,18 +42,18 @@ module.exports = class MultipleResultsEvent {
     );
     this.numOfResults = params.numOfResults;
     this.centralizedOracle = params.centralizedOracle;
-    this.betStartTime = params.betStartTime.toString(10);
-    this.betEndTime = params.betEndTime.toString(10);
-    this.resultSetStartTime = params.resultSetStartTime.toString(10);
-    this.resultSetEndTime = params.resultSetEndTime.toString(10);
-    this.escrowAmount = params.escrowAmount.toString(10);
-    this.arbitrationLength = params.arbitrationLength.toString(10);
-    this.thresholdPercentIncrease = params.thresholdPercentIncrease.toString(10);
-    this.arbitrationRewardPercentage = params.arbitrationRewardPercentage.toString(10);
+    this.betStartTime = params.betStartTime;
+    this.betEndTime = params.betEndTime;
+    this.resultSetStartTime = params.resultSetStartTime;
+    this.resultSetEndTime = params.resultSetEndTime;
+    this.escrowAmount = params.escrowAmount;
+    this.arbitrationLength = params.arbitrationLength;
+    this.thresholdPercentIncrease = params.thresholdPercentIncrease;
+    this.arbitrationRewardPercentage = params.arbitrationRewardPercentage;
     this.currentRound = 0;
     this.currentResultIndex = INVALID_RESULT_INDEX;
-    this.consensusThreshold = params.consensusThreshold.toString(10);
-    this.arbitrationEndTime = params.arbitrationEndTime.toString(10);
+    this.consensusThreshold = params.consensusThreshold;
+    this.arbitrationEndTime = params.arbitrationEndTime;
 
     // Backend params
     this.status = params.status || EVENT_STATUS.BETTING;
