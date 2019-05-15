@@ -42,7 +42,7 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       const bet = new Bet({
         txid: log.transactionHash,
         txStatus: TX_STATUS.SUCCESS,
-        blockNum: log.blockNumber,
+        blockNum: Number(log.blockNumber),
         eventAddress,
         betterAddress: voter,
         resultIndex: Number(resultIndex),

@@ -70,7 +70,7 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       const multipleResultsEvent = new MultipleResultsEvent({
         txid: log.transactionHash,
         txStatus: TX_STATUS.SUCCESS,
-        blockNum: log.blockNumber,
+        blockNum: Number(log.blockNumber),
         address: eventAddr,
         ownerAddress: ownerAddr,
         version: Number(version),
