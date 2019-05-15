@@ -14,10 +14,27 @@ enum EventStatus {
   WITHDRAWING
 }
 
+enum TransactionType {
+  CREATE_EVENT
+  BET
+  RESULT_SET
+  VOTE
+  WITHDRAW
+}
+
 enum TransactionStatus {
   PENDING
   SUCCESS
   FAIL
+}
+
+interface Transaction {
+  txType: TransactionType!
+  txid: String!
+  txStatus: TransactionStatus!
+  txReceipt: TransactionReceipt
+  blockNum: Int!
+  block: Block
 }
 
 type Block {
@@ -50,7 +67,8 @@ type PageInfo {
   count: Int!
 }
 
-type MultipleResultsEvent {
+type MultipleResultsEvent implements Transaction {
+  txType: TransactionType!
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
@@ -87,7 +105,8 @@ type PaginatedEvents {
   items: [MultipleResultsEvent]!
 }
 
-type Bet {
+type Bet implements Transaction {
+  txType: TransactionType!
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
@@ -106,7 +125,8 @@ type PaginatedBets {
   items: [Bet]!
 }
 
-type ResultSet {
+type ResultSet implements Transaction {
+  txType: TransactionType!
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
@@ -125,7 +145,8 @@ type PaginatedResultSets {
   items: [ResultSet]!
 }
 
-type Withdraw {
+type Withdraw implements Transaction {
+  txType: TransactionType!
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt

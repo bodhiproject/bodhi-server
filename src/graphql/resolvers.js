@@ -13,6 +13,12 @@ module.exports = {
     onSyncInfo: { subscribe: () => pubsub.asyncIterator('onSyncInfo') },
   },
 
+  Transaction: {
+    __resolveType: {
+      
+    }
+  },
+
   MultipleResultsEvent: {
     txReceipt: async ({ txid }, data, { db }) =>
       DBHelper.findOneTransactionReceipt(db, { txid }),
