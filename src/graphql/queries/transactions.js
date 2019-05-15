@@ -1,5 +1,5 @@
-const { merge, orderBy: ldOrderBy, slice } = require('lodash');
-const { buildCursorOptions, runPaginatedQuery } = require('./utils');
+const { merge, orderBy: order, slice } = require('lodash');
+const { buildCursorOptions, constructPageInfo } = require('./utils');
 const { ORDER_DIRECTION } = require('../../constants');
 
 const buildTxFilters = ({
@@ -64,10 +64,11 @@ const buildWithdrawFilters = ({
 
 module.exports = async (
   root,
-  { filter, orderBy, limit = 500, skip = 0 },
+  { filter, limit = 500, skip = 0 },
   { db: { Events, Bets, ResultSets, Withdraws } },
 ) => {
   const txFilters = buildTxFilters(filter);
+  const orderBy = { blockNum: -1 };
 
   // Run Events query
   let cursor = Events.cfind(buildEventFilters(txFilters));
@@ -94,7 +95,7 @@ module.exports = async (
   const totalCount = txs.length;
 
   // Order list by blockNum
-  ldOrderBy(txs, ['blockNum'], [ORDER_DIRECTION.DESCENDING.toLowerCase()]);
+  txs = order(txs, ['blockNum'], [ORDER_DIRECTION.DESCENDING.toLowerCase()]);
 
   // Slice list
   const end = Math.min(skip + limit, txs.length);
@@ -102,6 +103,7 @@ module.exports = async (
 
   return {
     totalCount,
-    
+    pageInfo: constructPageInfo(limit, skip, totalCount),
+    items: txs,
   };
 };

@@ -290,7 +290,6 @@ type Query {
 
   transactions(
     filter: TransactionFilter
-    orderBy: [Order!]
     limit: Int
     skip: Int
   ): PaginatedTransactions!
