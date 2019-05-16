@@ -18,6 +18,38 @@ const getAbiObj = (contractMetadata) => {
   return abiObj;
 };
 
+/**
+ * Gets the block numbers needed to parse logs for.
+ * Also returns tx receipts for confirmed pending items.
+ * @param {number} currBlockNum Current block number
+ * @return {object} Block numbers and tx receipts
+ */
+const getBlocksAndReceipts = async (currBlockNum) => {
+  const blockNums = [currBlockNum];
+  const txReceipts = {};
+  const promises = [];
+
+  const pending = await DBHelper.findBet(db, { txStatus: TX_STATUS.PENDING });
+  each(pending, async (pendingBet) => {
+    promises.push(new Promise(async (resolve, reject) => {
+      try {
+        const txReceipt = await getTransactionReceipt(pendingBet.txid);
+        if (!isNull(txReceipt)) {
+          blockNums.push(txReceipt.blockNum);
+          txReceipts[pendingBet.txid] = txReceipt;
+        }
+        resolve();
+      } catch (err) {
+        logger().error(`getBlocksAndReceipts Bet: ${err.message}`);
+        reject();
+      }
+    }));
+  });
+  await Promise.all(promises);
+
+  return { blockNums, txReceipts };
+};
+
 const getLogs = async ({ naka, abiObj, blockNum }) => {
   const eventSig = naka.eth.abi.encodeEventSignature(abiObj);
   return naka.eth.getPastLogs({
@@ -48,77 +80,38 @@ const parseLog = async ({ naka, abiObj, log }) => {
   });
 };
 
-// Process pending bets using block numbers in tx receipts
-const processPending = async ({ naka, abiObj }) => {
-  const promises = [];
-
-  // Loop pending bets
-  const pending = await DBHelper.findBet(db, { txStatus: TX_STATUS.PENDING });
-  each(pending, async (pendingBet) => {
-    const txReceipt = await getTransactionReceipt(pendingBet.txid);
-
-    // Confirm bet if tx is confirmed
-    if (!isNull(txReceipt)) {
-      promises.push(new Promise(async (resolve, reject) => {
-        try {
-          // Update tx receipt
-          await DBHelper.insertTransactionReceipt(db, txReceipt);
-
-          // Get logs
-          const logs = await getLogs({
-            naka,
-            abiObj,
-            blockNum: txReceipt.blockNum,
-          });
-
-          // Parse each log and insert
-          each(logs, async (log) => {
-            const bet = await parseLog({ naka, abiObj, log });
-            await DBHelper.insertBet(db, bet);
-          });
-
-          resolve();
-        } catch (insertErr) {
-          logger().error(`process pending Bet: ${insertErr.message}`);
-          reject(insertErr);
-        }
-      }));
-    }
-  });
-
-  await Promise.all(promises);
-};
-
-// Process confirmed bets for the current block
-const processBlock = async ({ naka, abiObj, currBlockNum }) => {
-  const promises = [];
-
-  // Get logs
-  const logs = await getLogs({ naka, abiObj, blockNum: currBlockNum });
-
-  // Parse each log and insert
-  each(logs, async (log) => {
-    promises.push(new Promise(async (resolve, reject) => {
-      try {
-        const bet = await parseLog({ naka, abiObj, log });
-        await DBHelper.insertBet(db, bet);
-        resolve();
-      } catch (insertErr) {
-        logger().error(`process block Bet: ${insertErr.message}`);
-        reject(insertErr);
-      }
-    }));
-  });
-
-  await Promise.all(promises);
-};
-
 module.exports = async (contractMetadata, currBlockNum) => {
   try {
     const naka = web3();
     const abiObj = getAbiObj(contractMetadata);
-    await processPending({ naka, abiObj });
-    await processBlock({ naka, abiObj, currBlockNum });
+    const { blockNums, txReceipts } = await getBlocksAndReceipts(currBlockNum);
+
+    const promises = [];
+    each(blockNums, (blockNum) => {
+      promises.push(new Promise(async (resolve, reject) => {
+        try {
+          // Parse each bet and insert
+          const logs = await getLogs({ naka, abiObj, blockNum });
+          each(logs, async (log) => {
+            const bet = await parseLog({ naka, abiObj, log });
+            await DBHelper.insertBet(db, bet);
+
+            // Update tx receipt
+            let txReceipt = txReceipts[bet.txid];
+            if (!txReceipt) {
+              txReceipt = await getTransactionReceipt(bet.txid);
+            }
+            await DBHelper.insertTransactionReceipt(db, txReceipt);
+          });
+
+          resolve();
+        } catch (insertErr) {
+          logger().error(`insert Bet: ${insertErr.message}`);
+          reject(insertErr);
+        }
+      }));
+    });
+    await Promise.all(promises);
   } catch (err) {
     throw Error('Error syncBetPlaced:', err);
   }
