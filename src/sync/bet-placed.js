@@ -29,7 +29,10 @@ const getBlocksAndReceipts = async (currBlockNum) => {
   const txReceipts = {};
   const promises = [];
 
-  const pending = await DBHelper.findBet(db, { txStatus: TX_STATUS.PENDING });
+  const pending = await DBHelper.findBet(
+    db,
+    { txStatus: TX_STATUS.PENDING, eventRound: 0 },
+  );
   each(pending, async (pendingBet) => {
     promises.push(new Promise(async (resolve, reject) => {
       try {

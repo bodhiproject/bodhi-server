@@ -31,7 +31,7 @@ const getBlocksAndReceipts = async (currBlockNum) => {
 
   const pending = await DBHelper.findResultSet(
     db,
-    { txStatus: TX_STATUS.PENDING },
+    { txStatus: TX_STATUS.PENDING, eventRound: 0 },
   );
   each(pending, async (pendingResultSet) => {
     promises.push(new Promise(async (resolve, reject) => {
