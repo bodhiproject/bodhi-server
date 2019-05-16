@@ -28,7 +28,7 @@ module.exports = {
 
   MultipleResultsEvent: {
     txReceipt: async ({ txid }, data, { db }) =>
-      DBHelper.findOneTransactionReceipt(db, { txid }),
+      DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
     block: async ({ blockNum }, data, { db }) =>
       DBHelper.findOneBlock(db, { blockNum }),
     pendingTxs: async ({ address }, { pendingTxsAddress }, { db }) => {
@@ -61,21 +61,21 @@ module.exports = {
 
   Bet: {
     txReceipt: async ({ txid }, data, { db }) =>
-      DBHelper.findOneTransactionReceipt(db, { txid }),
+      DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
     block: async ({ blockNum }, data, { db }) =>
       DBHelper.findOneBlock(db, { blockNum }),
   },
 
   ResultSet: {
     txReceipt: async ({ txid }, data, { db }) =>
-      DBHelper.findOneTransactionReceipt(db, { txid }),
+      DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
     block: async ({ blockNum }, data, { db }) =>
       DBHelper.findOneBlock(db, { blockNum }),
   },
 
   Withdraw: {
     txReceipt: async ({ txid }, data, { db }) =>
-      DBHelper.findOneTransactionReceipt(db, { txid }),
+      DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
     block: async ({ blockNum }, data, { db }) =>
       DBHelper.findOneBlock(db, { blockNum }),
   },

@@ -38,19 +38,51 @@ module.exports = class DBHelper {
 
   static async insertTransactionReceipt(db, txReceipt) {
     try {
-      await db.TransactionReceipts.insert(txReceipt);
+      const existing = await DBHelper.findOneTransactionReceipt(
+        db,
+        { transactionHash: txReceipt.transactionHash },
+      );
+      if (isNull(existing)) {
+        await db.TransactionReceipts.insert(txReceipt);
+      } else {
+        // Set fields from existing
+        txReceipt.gasPrice = existing.gasPrice;
+        await DBHelper.updateTransactionReceipt(db, txReceipt);
+      }
     } catch (err) {
       logger().error(`INSERT TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
 
+  static async updateTransactionReceipt(db, txReceipt) {
+    try {
+      await db.TransactionReceipts.update(
+        { transactionHash: txReceipt.transactionHash },
+        { $set: txReceipt },
+        {},
+      );
+    } catch (err) {
+      logger().error(`UPDATE TransactionReceipt error: ${err.message}`);
+      throw err;
+    }
+  }
+
   /* Events */
+  static async findEvent(db, query) {
+    try {
+      return await db.Events.find(query);
+    } catch (err) {
+      logger().error(`FIND Event error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async findOneEvent(db, query) {
     try {
       return await db.Events.findOne(query);
     } catch (err) {
-      logger().error(`FIND Event error: ${err.message}`);
+      logger().error(`FINDONE Event error: ${err.message}`);
       throw err;
     }
   }

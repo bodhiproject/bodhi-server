@@ -73,7 +73,7 @@ type MultipleResultsEvent implements Transaction {
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int!
+  blockNum: Int
   block: Block
   address: String
   ownerAddress: String!
