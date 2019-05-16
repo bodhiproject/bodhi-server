@@ -57,7 +57,7 @@ module.exports = class DBHelper {
 
   static async insertEvent(db, event) {
     try {
-      const existing = await this.constructor.findOneEvent(
+      const existing = await DBHelper.findOneEvent(
         db,
         { txid: event.txid },
       );
@@ -66,7 +66,7 @@ module.exports = class DBHelper {
       } else {
         // Set non-blockchain vars from existing event
         event.language = existing.language;
-        await this.constructor.updateEvent(db, event);
+        await DBHelper.updateEvent(db, event);
       }
     } catch (err) {
       logger().error(`INSERT Event error: ${err.message}`);
@@ -196,11 +196,11 @@ module.exports = class DBHelper {
 
   static async insertBet(db, bet) {
     try {
-      const existing = await this.constructor.findOneBet(db, { txid: bet.txid });
+      const existing = await DBHelper.findOneBet(db, { txid: bet.txid });
       if (isNull(existing)) {
         await db.Bets.insert(bet);
       } else {
-        await this.constructor.updateBet(db, bet);
+        await DBHelper.updateBet(db, bet);
       }
     } catch (err) {
       logger().error(`INSERT Bet error: ${err.message}`);
@@ -242,14 +242,14 @@ module.exports = class DBHelper {
 
   static async insertResultSet(db, resultSet) {
     try {
-      const existing = await this.constructor.findOneResultSet(
+      const existing = await DBHelper.findOneResultSet(
         db,
         { txid: resultSet.txid },
       );
       if (isNull(existing)) {
         await db.ResultSets.insert(resultSet);
       } else {
-        await this.constructor.updateResultSet(db, resultSet);
+        await DBHelper.updateResultSet(db, resultSet);
       }
     } catch (err) {
       logger().error(`INSERT ResultSet error: ${err.message}`);
@@ -291,14 +291,14 @@ module.exports = class DBHelper {
 
   static async insertWithdraw(db, withdraw) {
     try {
-      const existing = await this.constructor.findOneWithdraw(
+      const existing = await DBHelper.findOneWithdraw(
         db,
         { txid: withdraw.txid },
       );
       if (isNull(existing)) {
         await db.Withdraws.insert(withdraw);
       } else {
-        await this.constructor.updateWithdraw(db, withdraw);
+        await DBHelper.updateWithdraw(db, withdraw);
       }
     } catch (err) {
       logger().error(`INSERT Withdraw error: ${err.message}`);
