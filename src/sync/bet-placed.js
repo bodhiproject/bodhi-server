@@ -54,12 +54,12 @@ module.exports = async (contractMetadata) => {
     const naka = web3();
     const promises = [];
 
-    // Loop pending bets and see if confirmed
+    // Loop pending bets
     const pending = await DBHelper.findBet(db, { txStatus: TX_STATUS.PENDING });
     each(pending, async (pendingBet) => {
       const txReceipt = await getTransactionReceipt(pendingBet.txid);
 
-      // Only confirm bet if tx is confirmed
+      // Confirm bet if tx is confirmed
       if (!isNull(txReceipt)) {
         promises.push(new Promise(async (resolve, reject) => {
           try {
@@ -73,7 +73,7 @@ module.exports = async (contractMetadata) => {
               blockNum: txReceipt.blockNum,
             });
 
-            // Parse each log
+            // Parse each log and update
             each(logs, async (log) => {
               const bet = await parseLog({
                 naka,
