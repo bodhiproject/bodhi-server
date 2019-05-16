@@ -32,7 +32,19 @@ const getTransactionReceipt = async (txid) => {
   return new TransactionReceipt(receipt);
 };
 
+/**
+ * Sums two numbers after converting both to BNs.
+ * @param {string|number} first First number to add
+ * @param {string|number} second Second number to add
+ * @return {BN} BN instance
+ */
+const sumBN = (first, second) => {
+  const { utils } = web3();
+  return utils.toBN(first).add(utils.toBN(second));
+};
+
 module.exports = {
   getTransaction,
   getTransactionReceipt,
+  sumBN,
 };

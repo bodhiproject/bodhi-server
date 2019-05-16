@@ -94,10 +94,10 @@ type MultipleResultsEvent implements Transaction {
   currentResultIndex: Int
   consensusThreshold: String
   arbitrationEndTime: String
-  totalBets: String
   status: EventStatus!
   language: String!
   pendingTxs: PendingTransactions
+  roundBets: [String]
 }
 
 type PaginatedEvents {
@@ -254,6 +254,7 @@ type Query {
     limit: Int
     skip: Int
     pendingTxsAddress: String
+    roundBets: Boolean
   ): PaginatedEvents!
 
   searchEvents(
