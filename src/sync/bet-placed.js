@@ -48,51 +48,77 @@ const parseLog = async ({ naka, abiObj, log }) => {
   });
 };
 
-module.exports = async (contractMetadata) => {
-  try {
-    const abiObj = getAbiObj(contractMetadata);
-    const naka = web3();
-    const promises = [];
+// Process pending bets using block numbers in tx receipts
+const processPending = async ({ naka, abiObj }) => {
+  const promises = [];
 
-    // Loop pending bets
-    const pending = await DBHelper.findBet(db, { txStatus: TX_STATUS.PENDING });
-    each(pending, async (pendingBet) => {
-      const txReceipt = await getTransactionReceipt(pendingBet.txid);
+  // Loop pending bets
+  const pending = await DBHelper.findBet(db, { txStatus: TX_STATUS.PENDING });
+  each(pending, async (pendingBet) => {
+    const txReceipt = await getTransactionReceipt(pendingBet.txid);
 
-      // Confirm bet if tx is confirmed
-      if (!isNull(txReceipt)) {
-        promises.push(new Promise(async (resolve, reject) => {
-          try {
-            // Update tx receipt
-            await DBHelper.insertTransactionReceipt(db, txReceipt);
+    // Confirm bet if tx is confirmed
+    if (!isNull(txReceipt)) {
+      promises.push(new Promise(async (resolve, reject) => {
+        try {
+          // Update tx receipt
+          await DBHelper.insertTransactionReceipt(db, txReceipt);
 
-            // Get logs
-            const logs = await getLogs({
-              naka,
-              abiObj,
-              blockNum: txReceipt.blockNum,
-            });
+          // Get logs
+          const logs = await getLogs({
+            naka,
+            abiObj,
+            blockNum: txReceipt.blockNum,
+          });
 
-            // Parse each log and update
-            each(logs, async (log) => {
-              const bet = await parseLog({
-                naka,
-                abiObj,
-                log,
-              });
-              await DBHelper.insertBet(db, bet);
-            });
+          // Parse each log and insert
+          each(logs, async (log) => {
+            const bet = await parseLog({ naka, abiObj, log });
+            await DBHelper.insertBet(db, bet);
+          });
 
-            resolve();
-          } catch (insertErr) {
-            logger().error(`insert Bet: ${insertErr.message}`);
-            reject(insertErr);
-          }
-        }));
+          resolve();
+        } catch (insertErr) {
+          logger().error(`process pending Bet: ${insertErr.message}`);
+          reject(insertErr);
+        }
+      }));
+    }
+  });
+
+  await Promise.all(promises);
+};
+
+// Process confirmed bets for the current block
+const processBlock = async ({ naka, abiObj, currBlockNum }) => {
+  const promises = [];
+
+  // Get logs
+  const logs = await getLogs({ naka, abiObj, blockNum: currBlockNum });
+
+  // Parse each log and insert
+  each(logs, async (log) => {
+    promises.push(new Promise(async (resolve, reject) => {
+      try {
+        const bet = await parseLog({ naka, abiObj, log });
+        await DBHelper.insertBet(db, bet);
+        resolve();
+      } catch (insertErr) {
+        logger().error(`process block Bet: ${insertErr.message}`);
+        reject(insertErr);
       }
-    });
+    }));
+  });
 
-    await Promise.all(promises);
+  await Promise.all(promises);
+};
+
+module.exports = async (contractMetadata, currBlockNum) => {
+  try {
+    const naka = web3();
+    const abiObj = getAbiObj(contractMetadata);
+    await processPending({ naka, abiObj });
+    await processBlock({ naka, abiObj, currBlockNum });
   } catch (err) {
     throw Error('Error syncBetPlaced:', err);
   }

@@ -88,6 +88,7 @@ const parseLog = async ({ naka, abiObj, contractMetadata, log }) => {
   });
 };
 
+// Process pending events using block numbers in tx receipts
 const processPending = async ({ naka, abiObj, contractMetadata }) => {
   const promises = [];
 
@@ -123,7 +124,7 @@ const processPending = async ({ naka, abiObj, contractMetadata }) => {
 
           resolve();
         } catch (insertErr) {
-          logger().error(`insert pending MultipleResultsEvent: ${insertErr.message}`);
+          logger().error(`process pending MultipleResultsEvent: ${insertErr.message}`);
           reject(insertErr);
         }
       }));
@@ -133,30 +134,22 @@ const processPending = async ({ naka, abiObj, contractMetadata }) => {
   await Promise.all(promises);
 };
 
+// Process confirmed events for the current block
 const processBlock = async ({ naka, abiObj, contractMetadata, currBlockNum }) => {
+  const promises = [];
+
   // Get logs
-  const logs = await getLogs({
-    naka,
-    abiObj,
-    blockNum: currBlockNum,
-  });
+  const logs = await getLogs({ naka, abiObj, blockNum: currBlockNum });
 
   // Parse each log and insert
-  const promises = [];
   each(logs, async (log) => {
     promises.push(new Promise(async (resolve, reject) => {
       try {
-        const event = await parseLog({
-          naka,
-          abiObj,
-          contractMetadata,
-          log,
-        });
+        const event = await parseLog({ naka, abiObj, contractMetadata, log });
         await DBHelper.insertEvent(db, event);
-
         resolve();
       } catch (insertErr) {
-        logger().error(`insert block MultipleResultsEvent: ${insertErr.message}`);
+        logger().error(`process block MultipleResultsEvent: ${insertErr.message}`);
         reject(insertErr);
       }
     }));
