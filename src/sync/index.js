@@ -40,7 +40,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
 
     // Parse blockchain logs
     await syncMultipleResultsEventCreated(contractMetadata);
-    await syncBetPlaced(contractMetadata, currentBlockNum);
+    await syncBetPlaced(contractMetadata);
     await syncResultSet(contractMetadata, currentBlockNum);
     await syncVotePlaced(contractMetadata, currentBlockNum);
     await syncVoteResultSet(contractMetadata, currentBlockNum);

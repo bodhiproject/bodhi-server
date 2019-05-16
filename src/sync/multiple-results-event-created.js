@@ -9,6 +9,16 @@ const MultipleResultsEvent = require('../models/multiple-results-event');
 const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 
+const getAbiObj = (contractMetadata) => {
+  const abiObj = getAbiObject(
+    contractMetadata.EventFactory.abi,
+    'MultipleResultsEventCreated',
+    'event',
+  );
+  if (!abiObj) throw Error('MultipleResultsEventCreated event not found in ABI');
+  return abiObj;
+};
+
 const getLogs = async ({ naka, abiObj, blockNum }) => {
   const eventSig = naka.eth.abi.encodeEventSignature(abiObj);
   return naka.eth.getPastLogs({
@@ -80,14 +90,7 @@ const parseLog = async ({ naka, abiObj, contractMetadata, log }) => {
 
 module.exports = async (contractMetadata) => {
   try {
-    // Get ABI object
-    const abiObj = getAbiObject(
-      contractMetadata.EventFactory.abi,
-      'MultipleResultsEventCreated',
-      'event',
-    );
-    if (!abiObj) throw Error('MultipleResultsEventCreated event not found in ABI');
-
+    const abiObj = getAbiObj(contractMetadata);
     const naka = web3();
     const promises = [];
 

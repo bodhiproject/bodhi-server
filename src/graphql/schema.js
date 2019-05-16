@@ -327,7 +327,6 @@ type Mutation {
 
   addPendingBet(
     txid: String!
-    blockNum: Int!
     eventAddress: String!
     betterAddress: String!
     resultIndex: Int!

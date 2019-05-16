@@ -206,11 +206,20 @@ module.exports = class DBHelper {
   }
 
   /* Bets */
+  static async findBet(db, query) {
+    try {
+      return await db.Bets.find(query);
+    } catch (err) {
+      logger().error(`FIND Bet error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async findOneBet(db, query) {
     try {
       return await db.Bets.findOne(query);
     } catch (err) {
-      logger().error(`FIND Bet error: ${err.message}`);
+      logger().error(`FINDONE Bet error: ${err.message}`);
       throw err;
     }
   }
