@@ -38,7 +38,9 @@ const getBlocksAndReceipts = async (currBlockNum) => {
       try {
         const txReceipt = await getTransactionReceipt(pendingResultSet.txid);
         if (!isNull(txReceipt)) {
-          blockNums.push(txReceipt.blockNum);
+          if (!blockNums.includes(txReceipt.blockNum)) {
+            blockNums.push(txReceipt.blockNum);
+          }
           txReceipts[pendingResultSet.txid] = txReceipt;
         }
         resolve();
@@ -136,9 +138,7 @@ module.exports = async (contractMetadata, currBlockNum) => {
 
             // Update tx receipt
             let txReceipt = txReceipts[resultSet.txid];
-            if (!txReceipt) {
-              txReceipt = await getTransactionReceipt(resultSet.txid);
-            }
+            if (!txReceipt) txReceipt = await getTransactionReceipt(resultSet.txid);
             await DBHelper.insertTransactionReceipt(db, txReceipt);
           });
 
