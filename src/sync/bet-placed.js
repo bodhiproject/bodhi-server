@@ -42,7 +42,7 @@ const getBlocksAndReceipts = async (currBlockNum) => {
         }
         resolve();
       } catch (err) {
-        logger().error(`getBlocksAndReceipts Bet: ${err.message}`);
+        logger().error(`getBlocksAndReceipts: ${err.message}`);
         reject();
       }
     }));

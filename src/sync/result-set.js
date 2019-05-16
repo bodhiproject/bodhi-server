@@ -45,7 +45,7 @@ const getBlocksAndReceipts = async (currBlockNum) => {
         }
         resolve();
       } catch (err) {
-        logger().error(`getBlocksAndReceipts ResultSet: ${err.message}`);
+        logger().error(`getBlocksAndReceipts: ${err.message}`);
         reject();
       }
     }));
