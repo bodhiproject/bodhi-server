@@ -18,6 +18,41 @@ const getAbiObj = (contractMetadata) => {
   return abiObj;
 };
 
+/**
+ * Gets the block numbers needed to parse logs for.
+ * Also returns tx receipts for confirmed pending items.
+ * @param {number} currBlockNum Current block number
+ * @return {object} Block numbers and tx receipts
+ */
+const getBlocksAndReceipts = async (currBlockNum) => {
+  const blockNums = [currBlockNum];
+  const txReceipts = {};
+  const promises = [];
+
+  const pending = await DBHelper.findResultSet(
+    db,
+    { txStatus: TX_STATUS.PENDING },
+  );
+  each(pending, async (pendingResultSet) => {
+    promises.push(new Promise(async (resolve, reject) => {
+      try {
+        const txReceipt = await getTransactionReceipt(pendingResultSet.txid);
+        if (!isNull(txReceipt)) {
+          blockNums.push(txReceipt.blockNum);
+          txReceipts[pendingResultSet.txid] = txReceipt;
+        }
+        resolve();
+      } catch (err) {
+        logger().error(`getBlocksAndReceipts ResultSet: ${err.message}`);
+        reject();
+      }
+    }));
+  });
+  await Promise.all(promises);
+
+  return { blockNums, txReceipts };
+};
+
 const getLogs = async ({ naka, abiObj, blockNum }) => {
   const eventSig = naka.eth.abi.encodeEventSignature(abiObj);
   return naka.eth.getPastLogs({
@@ -72,60 +107,48 @@ const updateEventRound = async ({
   await DBHelper.updateEvent(db, event);
 };
 
-module.exports = async (contractMetadata) => {
+module.exports = async (contractMetadata, currBlockNum) => {
   try {
-    const abiObj = getAbiObj(contractMetadata);
     const naka = web3();
+    const abiObj = getAbiObj(contractMetadata);
+    const { blockNums, txReceipts } = await getBlocksAndReceipts(currBlockNum);
+
     const promises = [];
+    each(blockNums, (blockNum) => {
+      promises.push(new Promise(async (resolve, reject) => {
+        try {
+          // Parse each result set and insert
+          const logs = await getLogs({ naka, abiObj, blockNum });
+          each(logs, async (log) => {
+            const {
+              resultSet,
+              nextConsensusThreshold,
+              nextArbitrationEndTime,
+            } = await parseLog({ naka, abiObj, log });
+            await DBHelper.insertResultSet(db, resultSet);
 
-    // Loop pending result sets
-    const pending = await DBHelper.findResultSet(
-      db,
-      { txStatus: TX_STATUS.PENDING },
-    );
-    each(pending, async (pendingResultSet) => {
-      const txReceipt = await getTransactionReceipt(pendingResultSet.txid);
+            // Update event round info
+            await updateEventRound({
+              resultSet,
+              nextConsensusThreshold,
+              nextArbitrationEndTime,
+            });
 
-      // Confirm result set if tx is confirmed
-      if (!isNull(txReceipt)) {
-        promises.push(new Promise(async (resolve, reject) => {
-          try {
             // Update tx receipt
+            let txReceipt = txReceipts[resultSet.txid];
+            if (!txReceipt) {
+              txReceipt = await getTransactionReceipt(resultSet.txid);
+            }
             await DBHelper.insertTransactionReceipt(db, txReceipt);
+          });
 
-            // Get logs
-            const logs = await getLogs({
-              naka,
-              abiObj,
-              blockNum: txReceipt.blockNum,
-            });
-
-            // Parse each log and update
-            each(logs, async (log) => {
-              const {
-                resultSet,
-                nextConsensusThreshold,
-                nextArbitrationEndTime,
-              } = await parseLog({ naka, abiObj, log });
-              await DBHelper.insertResultSet(db, resultSet);
-
-              // Update event round info
-              await updateEventRound({
-                resultSet,
-                nextConsensusThreshold,
-                nextArbitrationEndTime,
-              });
-            });
-
-            resolve();
-          } catch (insertErr) {
-            logger().error(`insert ResultSet: ${insertErr.message}`);
-            reject(insertErr);
-          }
-        }));
-      }
+          resolve();
+        } catch (insertErr) {
+          logger().error(`insert ResultSet: ${insertErr.message}`);
+          reject(insertErr);
+        }
+      }));
     });
-
     await Promise.all(promises);
   } catch (err) {
     throw Error('Error syncResultSet:', err);
