@@ -1,5 +1,4 @@
 const { each, isNull } = require('lodash');
-const insertTxReceipt = require('./tx-receipt');
 const { web3 } = require('../web3');
 const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');

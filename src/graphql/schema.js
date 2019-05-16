@@ -111,7 +111,7 @@ type Bet implements Transaction {
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int!
+  blockNum: Int
   block: Block
   eventAddress: String!
   betterAddress: String!
@@ -131,7 +131,7 @@ type ResultSet implements Transaction {
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int!
+  blockNum: Int
   block: Block
   eventAddress: String!
   centralizedOracleAddress: String
@@ -151,7 +151,7 @@ type Withdraw implements Transaction {
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int!
+  blockNum: Int
   block: Block
   eventAddress: String!
   winnerAddress: String!
