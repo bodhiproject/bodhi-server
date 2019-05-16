@@ -13,10 +13,23 @@ module.exports = {
     WITHDRAWING: 'WITHDRAWING',
   },
 
+  TX_TYPE: {
+    CREATE_EVENT: 'CREATE_EVENT',
+    BET: 'BET',
+    RESULT_SET: 'RESULT_SET',
+    VOTE: 'VOTE',
+    WITHDRAW: 'WITHDRAW',
+  },
+
   TX_STATUS: {
     PENDING: 'PENDING',
     SUCCESS: 'SUCCESS',
     FAIL: 'FAIL',
+  },
+
+  ORDER_DIRECTION: {
+    ASCENDING: 'ASC',
+    DESCENDING: 'DESC',
   },
 
   INVALID_RESULT_INDEX: 255,

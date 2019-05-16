@@ -42,12 +42,12 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       const resultSet = new ResultSet({
         txid: log.transactionHash,
         txStatus: TX_STATUS.SUCCESS,
-        blockNum: log.blockNumber,
+        blockNum: Number(log.blockNumber),
         eventAddress,
         centralizedOracleAddress: null,
-        resultIndex,
-        amount,
-        eventRound,
+        resultIndex: Number(resultIndex),
+        amount: amount.toString(10),
+        eventRound: Number(eventRound),
       });
 
       // Insert/update

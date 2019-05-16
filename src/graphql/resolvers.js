@@ -1,9 +1,9 @@
 const { sum } = require('lodash');
 const Queries = require('./queries');
 const Mutations = require('./mutations');
-const { TX_STATUS } = require('../constants');
+const { TX_TYPE, TX_STATUS } = require('../constants');
 const pubsub = require('../route/pubsub');
-const { DBHelper } = require('../db/db-helper');
+const DBHelper = require('../db/db-helper');
 
 /* eslint-disable object-curly-newline */
 module.exports = {
@@ -11,6 +11,19 @@ module.exports = {
   Mutation: Mutations,
   Subscription: {
     onSyncInfo: { subscribe: () => pubsub.asyncIterator('onSyncInfo') },
+  },
+
+  Transaction: {
+    __resolveType: (tx) => {
+      switch (tx.txType) {
+        case TX_TYPE.CREATE_EVENT: return 'MultipleResultsEvent';
+        case TX_TYPE.BET: return 'Bet';
+        case TX_TYPE.RESULT_SET: return 'ResultSet';
+        case TX_TYPE.VOTE: return 'Bet';
+        case TX_TYPE.WITHDRAW: return 'Withdraw';
+        default: return null;
+      }
+    },
   },
 
   MultipleResultsEvent: {

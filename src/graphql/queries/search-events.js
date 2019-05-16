@@ -8,7 +8,7 @@ const buildFilters = ({
   resultIndex,
   status,
   language,
-}) => {
+} = {}) => {
   const filter = (
     txid
     || address

@@ -15,7 +15,7 @@ services:
       - NETWORK=mainnet
       - SSL=true
       - SSL_KEY_PATH=/root/bodhi-server/creds/nakachain.org.key
-      - SSL_CERT_PATH=/root/bodhi-server/creds/nakachain.org.crt
+      - SSL_CERT_PATH=/root/bodhi-server/creds/nakachain.org.pem
       - LOG_LEVEL=debug
     volumes:
       - bodhi-server-mainnet:/root/bodhi-server/data

@@ -1,7 +1,7 @@
 const { isNull } = require('lodash');
 const { TX_STATUS, EVENT_STATUS } = require('../../constants');
 const { logger } = require('../../utils/logger');
-const { DBHelper } = require('../../db/db-helper');
+const DBHelper = require('../../db/db-helper');
 const MultipleResultsEvent = require('../../models/multiple-results-event');
 
 module.exports = async (

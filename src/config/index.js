@@ -7,8 +7,8 @@ const contractMetadata = require('./contract-metadata');
 const CONFIG = {
   CONTRACT_VERSION: Number(process.env.CONTRACT_VERSION),
   NETWORK: process.env.NETWORK,
-  RPC_MAINNET: 'wss://api.nakachain.org/ws',
-  RPC_TESTNET: 'wss://testnet.api.nakachain.org/ws',
+  RPC_MAINNET: 'https://api.nakachain.org',
+  RPC_TESTNET: 'https://testnet.api.nakachain.org',
   PROTOCOL: process.env.SSL === 'true' ? 'https' : 'http',
   HOSTNAME: 'localhost',
   API_PORT_MAINNET: 8888,

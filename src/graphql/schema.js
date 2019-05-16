@@ -14,15 +14,32 @@ enum EventStatus {
   WITHDRAWING
 }
 
+enum TransactionType {
+  CREATE_EVENT
+  BET
+  RESULT_SET
+  VOTE
+  WITHDRAW
+}
+
 enum TransactionStatus {
   PENDING
   SUCCESS
   FAIL
 }
 
+interface Transaction {
+  txType: TransactionType!
+  txid: String!
+  txStatus: TransactionStatus!
+  txReceipt: TransactionReceipt
+  blockNum: Int!
+  block: Block
+}
+
 type Block {
-  number: Int!
-  time: String!
+  blockNum: Int!
+  blockTime: String!
 }
 
 type PendingTransactions {
@@ -35,11 +52,11 @@ type PendingTransactions {
 type TransactionReceipt {
   status: Boolean!
   blockHash: String!
-  blockNumber: String!
+  blockNumber: Int!
   transactionHash: String!
   from: String!
-  to: String!
-  contractAddress: String!
+  to: String
+  contractAddress: String
   cumulativeGasUsed: Int!
   gasUsed: Int!
 }
@@ -50,7 +67,8 @@ type PageInfo {
   count: Int!
 }
 
-type MultipleResultsEvent {
+type MultipleResultsEvent implements Transaction {
+  txType: TransactionType!
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
@@ -58,7 +76,7 @@ type MultipleResultsEvent {
   block: Block
   address: String
   ownerAddress: String!
-  version: Int
+  version: Int!
   name: String!
   results: [String!]!
   numOfResults: Int!
@@ -87,7 +105,8 @@ type PaginatedEvents {
   items: [MultipleResultsEvent]!
 }
 
-type Bet {
+type Bet implements Transaction {
+  txType: TransactionType!
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
@@ -106,7 +125,8 @@ type PaginatedBets {
   items: [Bet]!
 }
 
-type ResultSet {
+type ResultSet implements Transaction {
+  txType: TransactionType!
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
@@ -125,7 +145,8 @@ type PaginatedResultSets {
   items: [ResultSet]!
 }
 
-type Withdraw {
+type Withdraw implements Transaction {
+  txType: TransactionType!
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
@@ -141,6 +162,12 @@ type PaginatedWithdraws {
   totalCount: Int!
   pageInfo: PageInfo
   items: [Withdraw]!
+}
+
+type PaginatedTransactions {
+  totalCount: Int!
+  pageInfo: PageInfo
+  items: [Transaction]!
 }
 
 type SyncInfo {
@@ -213,6 +240,12 @@ input WithdrawFilter {
   winnerAddress: String
 }
 
+input TransactionFilter {
+  OR: [TransactionFilter!]
+  eventAddress: String
+  transactorAddress: String
+}
+
 type Query {
   events(
     filter: EventFilter
@@ -250,6 +283,12 @@ type Query {
     limit: Int
     skip: Int
   ): PaginatedWithdraws!
+
+  transactions(
+    filter: TransactionFilter
+    limit: Int
+    skip: Int
+  ): PaginatedTransactions!
 
   syncInfo: SyncInfo!
 

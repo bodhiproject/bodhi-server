@@ -1,7 +1,7 @@
 const { each, find, orderBy: _orderBy } = require('lodash');
 const MultipleResultsEventApi = require('../../api/multiple-results-event');
 
-const buildFilters = ({ eventAddress }) => {
+const buildFilters = ({ eventAddress } = {}) => {
   if (!eventAddress) throw Error('eventAddress missing in filters');
 
   const filters = { eventAddress };

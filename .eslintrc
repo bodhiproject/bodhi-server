@@ -8,6 +8,7 @@
     "class-methods-use-this": "off",
     "consistent-return": "warn",
     "import/prefer-default-export": "off",
+    "no-param-reassign": "warn",
     "no-plusplus": "off",
     "no-unused-vars": "warn",
     "no-use-before-define": "off",

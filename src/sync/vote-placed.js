@@ -42,22 +42,19 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       const bet = new Bet({
         txid: log.transactionHash,
         txStatus: TX_STATUS.SUCCESS,
-        blockNum: log.blockNumber,
+        blockNum: Number(log.blockNumber),
         eventAddress,
         betterAddress: voter,
-        resultIndex,
-        amount,
-        eventRound,
+        resultIndex: Number(resultIndex),
+        amount: amount.toString(10),
+        eventRound: Number(eventRound),
       });
 
       // Insert/update
       promises.push(new Promise(async (resolve, reject) => {
         try {
           await DBHelper.insertBet(db, bet);
-
-          // Fetch/insert tx receipt
           await insertTxReceipt(bet.txid);
-
           resolve();
         } catch (insertErr) {
           logger().error(`insert Vote: ${insertErr.message}`);

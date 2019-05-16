@@ -1,7 +1,7 @@
 const { isNull } = require('lodash');
 const Withdraw = require('../../models/withdraw');
 const { logger } = require('../../utils/logger');
-const { DBHelper } = require('../../db/db-helper');
+const DBHelper = require('../../db/db-helper');
 const { TX_STATUS } = require('../../constants');
 
 module.exports = async (

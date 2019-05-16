@@ -70,43 +70,31 @@ module.exports = async (contractMetadata, currentBlockNum) => {
       const multipleResultsEvent = new MultipleResultsEvent({
         txid: log.transactionHash,
         txStatus: TX_STATUS.SUCCESS,
-        blockNum: log.blockNumber,
+        blockNum: Number(log.blockNumber),
         address: eventAddr,
         ownerAddress: ownerAddr,
-        version,
+        version: Number(version),
         name: eventName,
         results: eventResults,
-        numOfResults,
+        numOfResults: Number(numOfResults),
         centralizedOracle,
-        betStartTime,
-        betEndTime,
-        resultSetStartTime,
-        resultSetEndTime,
-        escrowAmount,
-        arbitrationLength,
-        thresholdPercentIncrease,
-        arbitrationRewardPercentage,
-        consensusThreshold,
-        arbitrationEndTime,
+        betStartTime: betStartTime.toString(10),
+        betEndTime: betEndTime.toString(10),
+        resultSetStartTime: resultSetStartTime.toString(10),
+        resultSetEndTime: resultSetEndTime.toString(10),
+        escrowAmount: escrowAmount.toString(10),
+        arbitrationLength: arbitrationLength.toString(10),
+        thresholdPercentIncrease: thresholdPercentIncrease.toString(10),
+        arbitrationRewardPercentage: arbitrationRewardPercentage.toString(10),
+        consensusThreshold: consensusThreshold.toString(10),
+        arbitrationEndTime: arbitrationEndTime.toString(10),
       });
 
       // Insert/update
       promises.push(new Promise(async (resolve, reject) => {
         try {
-          const existingEvent =
-            await DBHelper.findOneEvent(db, { txid: multipleResultsEvent.txid });
-          if (isNull(existingEvent)) {
-            // Existing event not found
-            await DBHelper.insertEvent(db, multipleResultsEvent);
-          } else {
-            // Existing event found
-            multipleResultsEvent.language = existingEvent.language;
-            await DBHelper.updateEvent(db, multipleResultsEvent);
-          }
-
-          // Fetch/insert tx receipt
+          await DBHelper.insertEvent(db, multipleResultsEvent);
           await insertTxReceipt(multipleResultsEvent.txid);
-
           resolve();
         } catch (insertErr) {
           logger().error(`insert MultipleResultsEvent: ${insertErr.message}`);

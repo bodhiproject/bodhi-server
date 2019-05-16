@@ -1,5 +1,4 @@
-const _ = require('lodash');
-
+const { isNull } = require('lodash');
 const { logger } = require('../utils/logger');
 const { EVENT_STATUS } = require('../constants');
 
@@ -19,7 +18,7 @@ module.exports = class DBHelper {
       await db.Blocks.insert({
         _id: blockNum,
         blockNum,
-        blockTime,
+        blockTime: blockTime.toString(),
       });
     } catch (err) {
       logger().error(`INSERT Block error: ${err.message}`);
@@ -58,7 +57,17 @@ module.exports = class DBHelper {
 
   static async insertEvent(db, event) {
     try {
-      await db.Events.insert(event);
+      const existing = await DBHelper.findOneEvent(
+        db,
+        { txid: event.txid },
+      );
+      if (isNull(existing)) {
+        await db.Events.insert(event);
+      } else {
+        // Set non-blockchain vars from existing event
+        event.language = existing.language;
+        await DBHelper.updateEvent(db, event);
+      }
     } catch (err) {
       logger().error(`INSERT Event error: ${err.message}`);
       throw err;
@@ -68,7 +77,7 @@ module.exports = class DBHelper {
   static async updateEvent(db, event) {
     try {
       await db.Events.update(
-        { address: event.address },
+        { txid: event.txid },
         { $set: event },
         {},
       );
@@ -133,12 +142,10 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          status: {
-            $or: [
-              EVENT_STATUS.ORACLE_RESULT_SETTING,
-              EVENT_STATUS.OPEN_RESULT_SETTING,
-            ],
-          },
+          $or: [
+            { status: EVENT_STATUS.ORACLE_RESULT_SETTING },
+            { status: EVENT_STATUS.OPEN_RESULT_SETTING },
+          ],
           currentRound: { $gt: 0 },
         },
         { $set: { status: EVENT_STATUS.ARBITRATION } },
@@ -187,9 +194,27 @@ module.exports = class DBHelper {
 
   static async insertBet(db, bet) {
     try {
-      await db.Bets.insert(bet);
+      const existing = await DBHelper.findOneBet(db, { txid: bet.txid });
+      if (isNull(existing)) {
+        await db.Bets.insert(bet);
+      } else {
+        await DBHelper.updateBet(db, bet);
+      }
     } catch (err) {
       logger().error(`INSERT Bet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateBet(db, bet) {
+    try {
+      await db.Bets.update(
+        { txid: bet.txid },
+        { $set: bet },
+        {},
+      );
+    } catch (err) {
+      logger().error(`UPDATE Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -215,9 +240,30 @@ module.exports = class DBHelper {
 
   static async insertResultSet(db, resultSet) {
     try {
-      await db.ResultSets.insert(resultSet);
+      const existing = await DBHelper.findOneResultSet(
+        db,
+        { txid: resultSet.txid },
+      );
+      if (isNull(existing)) {
+        await db.ResultSets.insert(resultSet);
+      } else {
+        await DBHelper.updateResultSet(db, resultSet);
+      }
     } catch (err) {
       logger().error(`INSERT ResultSet error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateResultSet(db, resultSet) {
+    try {
+      await db.ResultSets.update(
+        { txid: resultSet.txid },
+        { $set: resultSet },
+        {},
+      );
+    } catch (err) {
+      logger().error(`UPDATE ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -243,9 +289,30 @@ module.exports = class DBHelper {
 
   static async insertWithdraw(db, withdraw) {
     try {
-      await db.Withdraws.insert(withdraw);
+      const existing = await DBHelper.findOneWithdraw(
+        db,
+        { txid: withdraw.txid },
+      );
+      if (isNull(existing)) {
+        await db.Withdraws.insert(withdraw);
+      } else {
+        await DBHelper.updateWithdraw(db, withdraw);
+      }
     } catch (err) {
       logger().error(`INSERT Withdraw error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateWithdraw(db, withdraw) {
+    try {
+      await db.Withdraws.update(
+        { txid: withdraw.txid },
+        { $set: withdraw },
+        {},
+      );
+    } catch (err) {
+      logger().error(`UPDATE Withdraw error: ${err.message}`);
       throw err;
     }
   }

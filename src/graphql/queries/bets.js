@@ -7,7 +7,7 @@ const buildFilters = ({
   betterAddress,
   resultIndex,
   eventRound,
-}) => {
+} = {}) => {
   const filter = (
     txid
     || eventAddress
