@@ -142,12 +142,10 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          status: {
-            $or: [
-              EVENT_STATUS.ORACLE_RESULT_SETTING,
-              EVENT_STATUS.OPEN_RESULT_SETTING,
-            ],
-          },
+          $or: [
+            { status: EVENT_STATUS.ORACLE_RESULT_SETTING },
+            { status: EVENT_STATUS.OPEN_RESULT_SETTING },
+          ],
           currentRound: { $gt: 0 },
         },
         { $set: { status: EVENT_STATUS.ARBITRATION } },
