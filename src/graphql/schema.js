@@ -345,7 +345,6 @@ type Mutation {
 
   addPendingWithdraw(
     txid: String!
-    blockNum: Int!
     eventAddress: String!
     winnerAddress: String!
     winningAmount: String!
