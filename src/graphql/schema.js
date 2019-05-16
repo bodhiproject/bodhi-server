@@ -50,15 +50,16 @@ type PendingTransactions {
 }
 
 type TransactionReceipt {
-  status: Boolean!
-  blockHash: String!
-  blockNumber: Int!
+  status: Boolean
+  blockHash: String
+  blockNumber: Int
   transactionHash: String!
   from: String!
   to: String
   contractAddress: String
-  cumulativeGasUsed: Int!
+  cumulativeGasUsed: Int
   gasUsed: Int!
+  gasPrice: String
 }
 
 type PageInfo {
@@ -76,7 +77,7 @@ type MultipleResultsEvent implements Transaction {
   block: Block
   address: String
   ownerAddress: String!
-  version: Int!
+  version: Int
   name: String!
   results: [String!]!
   numOfResults: Int!
@@ -312,9 +313,7 @@ type Query {
 type Mutation {
   addPendingEvent(
     txid: String!
-    blockNum: Int!
     ownerAddress: String!
-    version: Int!
     name: String!
     results: [String!]!
     numOfResults: Int!
