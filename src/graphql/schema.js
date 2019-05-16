@@ -254,7 +254,7 @@ type Query {
     limit: Int
     skip: Int
     pendingTxsAddress: String
-    roundBets: Boolean
+    includeRoundBets: Boolean
   ): PaginatedEvents!
 
   searchEvents(

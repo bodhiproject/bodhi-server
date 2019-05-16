@@ -62,8 +62,8 @@ module.exports = {
       address,
       currentRound,
       numOfResults,
-    }, { roundBets }, { db }) => {
-      if (roundBets) {
+    }, { includeRoundBets }, { db }) => {
+      if (includeRoundBets) {
         // Fetch all bets for this round
         const bets = await DBHelper.findBet(db, {
           txStatus: TX_STATUS.SUCCESS,
