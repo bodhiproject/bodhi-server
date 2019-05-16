@@ -336,7 +336,6 @@ type Mutation {
 
   addPendingResultSet(
     txid: String!
-    blockNum: Int!
     eventAddress: String!
     centralizedOracleAddress: String!
     resultIndex: Int!

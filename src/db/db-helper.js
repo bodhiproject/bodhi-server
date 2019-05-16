@@ -261,11 +261,20 @@ module.exports = class DBHelper {
   }
 
   /* ResultSets */
+  static async findResultSet(db, query) {
+    try {
+      return await db.ResultSets.find(query);
+    } catch (err) {
+      logger().error(`FIND ResultSet error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async findOneResultSet(db, query) {
     try {
       return await db.ResultSets.findOne(query);
     } catch (err) {
-      logger().error(`FIND ResultSet error: ${err.message}`);
+      logger().error(`FINDONE ResultSet error: ${err.message}`);
       throw err;
     }
   }
