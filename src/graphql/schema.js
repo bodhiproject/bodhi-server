@@ -224,10 +224,9 @@ input EventFilter {
 }
 
 input WithdrawableEventFilter {
-  OR: [WithdrawableEventFilter!]
   version: Int
   language: String
-  withdrawerAddress: String
+  withdrawerAddress: String!
 }
 
 input BetFilter {
@@ -280,7 +279,7 @@ type Query {
   ): [MultipleResultsEvent]!
 
   withdrawableEvents(
-    filter: WithdrawableEventFilter
+    filter: WithdrawableEventFilter!
     orderBy: [Order!]
     limit: Int
     skip: Int
