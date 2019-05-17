@@ -212,7 +212,11 @@ input EventFilter {
   txid: String
   address: String
   ownerAddress: String
-  resultIndex: Int
+  version: Int
+  centralizedOracle: String
+  excludeCentralizedOracle: String
+  currentRound: Int
+  currentResultIndex: Int
   status: EventStatus
   language: String
 }
