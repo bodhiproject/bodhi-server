@@ -61,4 +61,5 @@ module.exports = {
   getTransaction,
   getTransactionReceipt,
   sumBN,
+  sumArrayBN,
 };
