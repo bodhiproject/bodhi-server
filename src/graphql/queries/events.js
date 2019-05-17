@@ -33,10 +33,14 @@ const buildFilters = ({
 };
 
 module.exports = async (
-  root,
-  { filter, orderBy, limit, skip },
-  { db: { Events } },
+  parent,
+  { filter, orderBy, limit, skip, pendingTxsAddress, includeRoundBets },
+  context,
 ) => {
+  const { db: { Events } } = context;
+  context.pendingTxsAddress = pendingTxsAddress;
+  context.includeRoundBets = includeRoundBets;
+
   const query = filter ? { $or: buildFilters(filter) } : {};
   return runPaginatedQuery({
     db: Events,

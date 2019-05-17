@@ -28,11 +28,11 @@ module.exports = {
   },
 
   MultipleResultsEvent: {
-    txReceipt: async ({ txid }, data, { db }) =>
+    txReceipt: async ({ txid }, args, { db }) =>
       DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
-    block: async ({ blockNum }, data, { db }) =>
+    block: async ({ blockNum }, args, { db }) =>
       DBHelper.findOneBlock(db, { blockNum }),
-    pendingTxs: async ({ address }, { pendingTxsAddress }, { db }) => {
+    pendingTxs: async ({ address }, args, { db, pendingTxsAddress }) => {
       if (pendingTxsAddress) {
         const bet = await DBHelper.countBet(db, {
           txStatus: TX_STATUS.PENDING,
@@ -58,11 +58,11 @@ module.exports = {
       }
       return null;
     },
-    roundBets: async ({
-      address,
-      currentRound,
-      numOfResults,
-    }, { includeRoundBets }, { db }) => {
+    roundBets: async (
+      { address, currentRound, numOfResults },
+      args,
+      { db, includeRoundBets },
+    ) => {
       if (includeRoundBets) {
         // Fetch all bets for this round
         const bets = await DBHelper.findBet(db, {
@@ -84,23 +84,23 @@ module.exports = {
   },
 
   Bet: {
-    txReceipt: async ({ txid }, data, { db }) =>
+    txReceipt: async ({ txid }, args, { db }) =>
       DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
-    block: async ({ blockNum }, data, { db }) =>
+    block: async ({ blockNum }, args, { db }) =>
       DBHelper.findOneBlock(db, { blockNum }),
   },
 
   ResultSet: {
-    txReceipt: async ({ txid }, data, { db }) =>
+    txReceipt: async ({ txid }, args, { db }) =>
       DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
-    block: async ({ blockNum }, data, { db }) =>
+    block: async ({ blockNum }, args, { db }) =>
       DBHelper.findOneBlock(db, { blockNum }),
   },
 
   Withdraw: {
-    txReceipt: async ({ txid }, data, { db }) =>
+    txReceipt: async ({ txid }, args, { db }) =>
       DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
-    block: async ({ blockNum }, data, { db }) =>
+    block: async ({ blockNum }, args, { db }) =>
       DBHelper.findOneBlock(db, { blockNum }),
   },
 };
