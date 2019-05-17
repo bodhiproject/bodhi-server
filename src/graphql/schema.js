@@ -174,7 +174,7 @@ type PaginatedTransactions {
 
 type SyncInfo {
   syncBlockNum: Int
-  syncBlockTime: String
+  syncBlockTime: Int
   syncPercent: Int
 }
 
@@ -320,10 +320,10 @@ type Mutation {
     results: [String!]!
     numOfResults: Int!
     centralizedOracle: String!
-    betStartTime: String!
-    betEndTime: String!
-    resultSetStartTime: String!
-    resultSetEndTime: String!
+    betStartTime: Int!
+    betEndTime: Int!
+    resultSetStartTime: Int!
+    resultSetEndTime: Int!
     language: String!
   ): MultipleResultsEvent!
 
