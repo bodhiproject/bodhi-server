@@ -139,6 +139,7 @@ type ResultSet implements Transaction {
   resultIndex: Int!
   amount: String!
   eventRound: Int!
+  resultName: String
 }
 
 type PaginatedResultSets {
