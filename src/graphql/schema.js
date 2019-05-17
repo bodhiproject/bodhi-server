@@ -216,11 +216,11 @@ input EventFilter {
   ownerAddress: String
   version: Int
   centralizedOracle: String
-  excludeCentralizedOracle: String
   currentRound: Int
   currentResultIndex: Int
   status: EventStatus
   language: String
+  excludeCentralizedOracle: String
 }
 
 input BetFilter {
