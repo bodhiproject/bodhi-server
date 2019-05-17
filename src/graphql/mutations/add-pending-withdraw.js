@@ -33,7 +33,7 @@ module.exports = async (
     eventAddress,
     winnerAddress,
     winningAmount,
-    escrowAmount,
+    escrowWithdrawAmount: escrowAmount,
   });
   await DBHelper.insertWithdraw(db, withdraw);
   logger().debug(`Mutation addPendingWithdraw txid:${txid}`);

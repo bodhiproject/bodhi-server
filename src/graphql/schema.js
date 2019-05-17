@@ -156,7 +156,7 @@ type Withdraw implements Transaction {
   eventAddress: String!
   winnerAddress: String!
   winningAmount: String!
-  escrowAmount: String!
+  escrowWithdrawAmount: String!
 }
 
 type PaginatedWithdraws {

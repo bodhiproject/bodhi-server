@@ -79,7 +79,7 @@ const parseLog = async ({ naka, abiObj, log }) => {
     eventAddress,
     winnerAddress: winner,
     winningAmount: winningAmount.toString(10),
-    escrowAmount: escrowAmount.toString(10),
+    escrowWithdrawAmount: escrowAmount.toString(10),
   });
 };
 
