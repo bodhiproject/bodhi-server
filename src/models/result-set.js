@@ -11,7 +11,6 @@ module.exports = class ResultSet {
   validate(params) {
     if (!isString(params.txid)) throw Error('txid must be a String');
     if (!isString(params.txStatus)) throw Error('txStatus must be a String');
-    if (!isFinite(params.blockNum)) throw Error('blockNum must be a Number');
     if (!isString(params.eventAddress)) throw Error('eventAddress must be a String');
     if (!isFinite(params.resultIndex)) throw Error('resultIndex must be a Number');
     if (!isString(params.amount)) throw Error('amount must be a String');

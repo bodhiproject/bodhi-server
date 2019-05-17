@@ -11,7 +11,6 @@ module.exports = class MultipleResultsEvent {
   validate(params) {
     if (!isString(params.txid)) throw Error('txid must be a String');
     if (!isString(params.txStatus)) throw Error('txStatus must be a String');
-    if (!isFinite(params.blockNum)) throw Error('blockNum must be a Number');
     if (!isString(params.ownerAddress)) throw Error('ownerAddress must be a String');
     if (!isFinite(params.version)) throw Error('version must be a Number');
     if (!isString(params.name)) throw Error('name must be a String');
