@@ -64,6 +64,7 @@ const getLogs = async ({ naka, abiObj, blockNum }) => {
 };
 
 const parseLog = async ({ naka, abiObj, contractMetadata, log }) => {
+  // TODO: remove manual parsing when web3 is fixed. broken in 1.0.0-beta.54.
   const eventAddr = `0x${log.topics[1].substr(26)}`;
   const ownerAddr = `0x${log.topics[2].substr(26)}`;
   // const {
