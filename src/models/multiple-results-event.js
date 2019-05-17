@@ -15,10 +15,10 @@ module.exports = class MultipleResultsEvent {
     if (!isString(params.name)) throw Error('name must be a String');
     if (!isFinite(params.numOfResults)) throw Error('numOfResults must be a Number');
     if (!isString(params.centralizedOracle)) throw Error('centralizedOracle must be a String');
-    if (!isString(params.betStartTime)) throw Error('betStartTime must be a String');
-    if (!isString(params.betEndTime)) throw Error('betEndTime must be a String');
-    if (!isString(params.resultSetStartTime)) throw Error('resultSetStartTime must be a String');
-    if (!isString(params.resultSetEndTime)) throw Error('resultSetEndTime must be a String');
+    if (!isFinite(params.betStartTime)) throw Error('betStartTime must be a Number');
+    if (!isFinite(params.betEndTime)) throw Error('betEndTime must be a Number');
+    if (!isFinite(params.resultSetStartTime)) throw Error('resultSetStartTime must be a Number');
+    if (!isFinite(params.resultSetEndTime)) throw Error('resultSetEndTime must be a Number');
   }
 
   format(params) {
