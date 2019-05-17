@@ -64,35 +64,37 @@ const getLogs = async ({ naka, abiObj, blockNum }) => {
 };
 
 const parseLog = async ({ naka, abiObj, contractMetadata, log }) => {
-  const {
-    eventAddr,
-    ownerAddr,
-  } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
+  const eventAddr = `0x${log.topics[1].substr(26)}`;
+  const ownerAddr = `0x${log.topics[2].substr(26)}`;
+  // const {
+  //   eventAddr,
+  //   ownerAddr,
+  // } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
 
   // Get event data
   const contract = new naka.eth.Contract(
     contractMetadata.MultipleResultsEvent.abi,
     eventAddr,
   );
-  const [
-    version,
-    eventName,
-    eventResults,
-    numOfResults,
-  ] = await contract.methods.eventMetadata().call();
-  const [
-    centralizedOracle,
-    betStartTime,
-    betEndTime,
-    resultSetStartTime,
-    resultSetEndTime,
-  ] = await contract.methods.centralizedMetadata().call();
-  const [
-    escrowAmount,
-    arbitrationLength,
-    thresholdPercentIncrease,
-    arbitrationRewardPercentage,
-  ] = await contract.methods.configMetadata().call();
+  let res = await contract.methods.eventMetadata().call();
+  const version = res['0'];
+  const eventName = res['1'];
+  const eventResults = res['2'];
+  const numOfResults = res['3'];
+
+  res = await contract.methods.centralizedMetadata().call();
+  const centralizedOracle = res['0'];
+  const betStartTime = res['1'];
+  const betEndTime = res['2'];
+  const resultSetStartTime = res['3'];
+  const resultSetEndTime = res['4'];
+
+  res = await contract.methods.configMetadata().call();
+  const escrowAmount = res['0'];
+  const arbitrationLength = res['1'];
+  const thresholdPercentIncrease = res['2'];
+  const arbitrationRewardPercentage = res['3'];
+
   const consensusThreshold =
     await contract.methods.currentConsensusThreshold().call();
   const arbitrationEndTime =

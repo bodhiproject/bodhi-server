@@ -48,6 +48,7 @@ module.exports = async (
     status: EVENT_STATUS.CREATED,
     language,
   });
+  console.log('NAKA: multipleResultsEvent', multipleResultsEvent);
   await DBHelper.insertEvent(db, multipleResultsEvent);
   logger().debug(`Mutation addPendingEvent txid:${txid}`);
 

@@ -19,7 +19,6 @@ module.exports = class MultipleResultsEvent {
     if (!isString(params.betEndTime)) throw Error('betEndTime must be a String');
     if (!isString(params.resultSetStartTime)) throw Error('resultSetStartTime must be a String');
     if (!isString(params.resultSetEndTime)) throw Error('resultSetEndTime must be a String');
-    if (!isString(params.language)) throw Error('language must be a String');
   }
 
   format(params) {
@@ -35,7 +34,7 @@ module.exports = class MultipleResultsEvent {
     this.version = params.version;
     this.name = params.name;
     this.results = filter(
-      map(params.results, item => web3().utils.toAscii(item)),
+      map(params.results, item => web3().utils.hexToUtf8(item)),
       item => !!item,
     );
     this.numOfResults = params.numOfResults;
