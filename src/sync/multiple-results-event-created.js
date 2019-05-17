@@ -112,16 +112,16 @@ const parseLog = async ({ naka, abiObj, contractMetadata, log }) => {
     results: eventResults,
     numOfResults: Number(numOfResults),
     centralizedOracle,
-    betStartTime: betStartTime.toString(10),
-    betEndTime: betEndTime.toString(10),
-    resultSetStartTime: resultSetStartTime.toString(10),
-    resultSetEndTime: resultSetEndTime.toString(10),
+    betStartTime: betStartTime.toNumber(),
+    betEndTime: betEndTime.toNumber(),
+    resultSetStartTime: resultSetStartTime.toNumber(),
+    resultSetEndTime: resultSetEndTime.toNumber(),
     escrowAmount: escrowAmount.toString(10),
     arbitrationLength: arbitrationLength.toString(10),
     thresholdPercentIncrease: thresholdPercentIncrease.toString(10),
     arbitrationRewardPercentage: arbitrationRewardPercentage.toString(10),
     consensusThreshold: consensusThreshold.toString(10),
-    arbitrationEndTime: arbitrationEndTime.toString(10),
+    arbitrationEndTime: arbitrationEndTime.toNumber(),
   });
 };
 

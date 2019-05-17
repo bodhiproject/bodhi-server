@@ -50,7 +50,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
     await updateStatusBetting(currentBlockTime);
     await updateStatusOracleResultSetting(currentBlockTime);
     await updateStatusOpenResultSetting(currentBlockTime);
-    await updateStatusArbitration();
+    await updateStatusArbitration(currentBlockTime);
     await updateStatusWithdrawing(currentBlockTime);
 
     // Insert block
@@ -151,9 +151,9 @@ const updateStatusOpenResultSetting = async (currentBlockTime) => {
 /**
  * Updates any events which are in the arbitration status.
  */
-const updateStatusArbitration = async () => {
+const updateStatusArbitration = async (currentBlockTime) => {
   try {
-    await DBHelper.updateEventStatusArbitration(db);
+    await DBHelper.updateEventStatusArbitration(db, currentBlockTime);
   } catch (err) {
     throw err;
   }

@@ -82,10 +82,10 @@ type MultipleResultsEvent implements Transaction {
   results: [String!]!
   numOfResults: Int!
   centralizedOracle: String!
-  betStartTime: String!
-  betEndTime: String!
-  resultSetStartTime: String!
-  resultSetEndTime: String!
+  betStartTime: Int!
+  betEndTime: Int!
+  resultSetStartTime: Int!
+  resultSetEndTime: Int!
   escrowAmount: String
   arbitrationLength: String
   thresholdPercentIncrease: String
@@ -93,11 +93,12 @@ type MultipleResultsEvent implements Transaction {
   currentRound: Int
   currentResultIndex: Int
   consensusThreshold: String
-  arbitrationEndTime: String
+  arbitrationEndTime: Int
   status: EventStatus!
   language: String!
   pendingTxs: PendingTransactions
   roundBets: [String]
+  totalBets: String
 }
 
 type PaginatedEvents {

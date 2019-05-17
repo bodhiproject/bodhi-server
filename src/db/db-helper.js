@@ -123,9 +123,10 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          status: EVENT_STATUS.CREATED,
+          $not: { status: EVENT_STATUS.BETTING },
           betStartTime: { $lte: currBlockTime },
           betEndTime: { $gt: currBlockTime },
+          currentRound: 0,
         },
         { $set: { status: EVENT_STATUS.BETTING } },
         { multi: true },
@@ -140,9 +141,10 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          status: EVENT_STATUS.BETTING,
-          betEndTime: { $lte: currBlockTime },
+          $not: { status: EVENT_STATUS.ORACLE_RESULT_SETTING },
+          resultSetStartTime: { $lte: currBlockTime },
           resultSetEndTime: { $gt: currBlockTime },
+          currentRound: 0,
         },
         { $set: { status: EVENT_STATUS.ORACLE_RESULT_SETTING } },
         { multi: true },
@@ -157,7 +159,7 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          status: EVENT_STATUS.ORACLE_RESULT_SETTING,
+          $not: { status: EVENT_STATUS.OPEN_RESULT_SETTING },
           resultSetEndTime: { $lte: currBlockTime },
           currentRound: 0,
         },
@@ -170,14 +172,12 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEventStatusArbitration(db) {
+  static async updateEventStatusArbitration(db, currBlockTime) {
     try {
       await db.Events.update(
         {
-          $or: [
-            { status: EVENT_STATUS.ORACLE_RESULT_SETTING },
-            { status: EVENT_STATUS.OPEN_RESULT_SETTING },
-          ],
+          $not: { status: EVENT_STATUS.ARBITRATION },
+          arbitrationEndTime: { $gt: currBlockTime },
           currentRound: { $gt: 0 },
         },
         { $set: { status: EVENT_STATUS.ARBITRATION } },
@@ -193,8 +193,9 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          status: EVENT_STATUS.ARBITRATION,
+          $not: { status: EVENT_STATUS.WITHDRAWING },
           arbitrationEndTime: { $lte: currBlockTime },
+          currentRound: { $gt: 0 },
         },
         { $set: { status: EVENT_STATUS.WITHDRAWING } },
         { multi: true },
