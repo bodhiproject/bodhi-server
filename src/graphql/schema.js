@@ -223,6 +223,13 @@ input EventFilter {
   excludeCentralizedOracle: String
 }
 
+input WithdrawableEventFilter {
+  OR: [WithdrawableEventFilter!]
+  version: Int
+  language: String
+  withdrawerAddress: String
+}
+
 input BetFilter {
   OR: [BetFilter!]
   txid: String
@@ -271,6 +278,13 @@ type Query {
     limit: Int
     skip: Int
   ): [MultipleResultsEvent]!
+
+  withdrawableEvents(
+    filter: WithdrawableEventFilter
+    orderBy: [Order!]
+    limit: Int
+    skip: Int
+  ): PaginatedEvents!
 
   bets(
     filter: BetFilter
