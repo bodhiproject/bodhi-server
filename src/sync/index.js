@@ -106,7 +106,7 @@ const getBlockTime = async (blockNum) => {
   try {
     const block = await web3().eth.getBlock(blockNum);
     if (isNull(block)) return block;
-    return block.timestamp;
+    return Number(block.timestamp);
   } catch (err) {
     throw Error('Error getting block time:', err);
   }

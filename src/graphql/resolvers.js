@@ -81,9 +81,6 @@ module.exports = {
       }
       return null;
     },
-    totalBets: async ({ address, currentRound, numOfResults },) => {
-
-    },
   },
 
   Bet: {
