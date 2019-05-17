@@ -1,4 +1,4 @@
-const { isNull } = require('lodash');
+const { isNull, each } = require('lodash');
 const { web3 } = require('../web3');
 const TransactionReceipt = require('../models/tx-receipt');
 
@@ -41,6 +41,20 @@ const getTransactionReceipt = async (txid) => {
 const sumBN = (first, second) => {
   const { utils } = web3();
   return utils.toBN(first).add(utils.toBN(second));
+};
+
+/**
+ * Sums all the string numbers in the array.
+ * @param {array} arr Array of string amounts to sum
+ * @return {BN} BN instance
+ */
+const sumArrayBN = (arr) => {
+  const { utils } = web3();
+  let total = utils.toBN(0);
+  each(arr, (num) => {
+    total = total.add(utils.toBN(num));
+  });
+  return total;
 };
 
 module.exports = {

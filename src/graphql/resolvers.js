@@ -4,7 +4,7 @@ const Mutations = require('./mutations');
 const { TX_TYPE, TX_STATUS } = require('../constants');
 const pubsub = require('../route/pubsub');
 const DBHelper = require('../db/db-helper');
-const { sumBN } = require('../utils/web3-utils');
+const { sumBN, sumArrayBN } = require('../utils/web3-utils');
 
 /* eslint-disable object-curly-newline */
 module.exports = {
@@ -80,6 +80,15 @@ module.exports = {
         return rounds;
       }
       return null;
+    },
+    totalBets: async ({ address }, args, { db }) => {
+      const bets = await DBHelper.findBet(db, {
+        txStatus: TX_STATUS.SUCCESS,
+        eventAddress: address,
+      });
+      const amounts = [];
+      each(bets, bet => amounts.push(bet.amount));
+      return sumArrayBN(amounts).toString(10);
     },
   },
 
