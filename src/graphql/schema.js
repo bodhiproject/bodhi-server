@@ -119,6 +119,7 @@ type Bet implements Transaction {
   resultIndex: Int!
   amount: String!
   eventRound: Int!
+  resultName: String
 }
 
 type PaginatedBets {

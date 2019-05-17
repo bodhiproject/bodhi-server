@@ -97,6 +97,10 @@ module.exports = {
       DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
     block: async ({ blockNum }, args, { db }) =>
       DBHelper.findOneBlock(db, { blockNum }),
+    resultName: async ({ eventAddress, resultIndex }, args, { db }) => {
+      const event = await DBHelper.findOneEvent(db, { address: eventAddress });
+      return event && event.results[resultIndex];
+    },
   },
 
   ResultSet: {
