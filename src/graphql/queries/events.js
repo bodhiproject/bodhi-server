@@ -21,7 +21,7 @@ const buildFilters = ({
   if (txid) filter.txid = txid;
   if (address) filter.address = address;
   if (ownerAddress) filter.ownerAddress = ownerAddress;
-  if (!isNumber(version)) filter.version = version;
+  if (isNumber(version)) filter.version = version;
 
   if (centralizedOracle) {
     if (excludeCentralizedOracle) throw errCOracleFilterConflict;
@@ -31,8 +31,8 @@ const buildFilters = ({
     filter.centralizedOracle = { $ne: excludeCentralizedOracle };
   }
 
-  if (!isNumber(currentRound)) filter.currentRound = currentRound;
-  if (!isNumber(currentResultIndex)) filter.currentResultIndex = currentResultIndex;
+  if (isNumber(currentRound)) filter.currentRound = currentRound;
+  if (isNumber(currentResultIndex)) filter.currentResultIndex = currentResultIndex;
   if (status) filter.status = status;
   if (language) filter.language = language;
 
