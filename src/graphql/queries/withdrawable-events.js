@@ -9,7 +9,7 @@ const { EVENT_STATUS } = require('../../constants');
  * @param {object} db DB context
  * @return {array} Array of unique bets by the withdrawer
  */
-const getWithdrawerBets = async (withdrawerAddress, db) => {
+const getUniqueBets = async (withdrawerAddress, db) => {
   if (!withdrawerAddress) throw Error('Must include withdrawerAddress filter');
 
   let bets = await DBHelper.findBet(db, { betterAddress: withdrawerAddress });
@@ -42,7 +42,7 @@ const buildFilters = (bets, filter) => {
 };
 
 module.exports = async (parent, { filter, orderBy, limit, skip }, { db }) => {
-  const bets = await getWithdrawerBets(filter.withdrawerAddress, db);
+  const bets = await getUniqueBets(filter.withdrawerAddress, db);
   const query = { $or: buildFilters(bets, filter) };
   return runPaginatedQuery({
     db: db.Events,
