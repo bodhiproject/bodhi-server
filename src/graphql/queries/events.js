@@ -36,10 +36,11 @@ const buildFilters = ({
   if (status) filter.status = status;
   if (language) filter.language = language;
 
-  let filters = filter ? [filter] : [];
+  let filters = Object.keys(filter).length !== 0 ? [filter] : [];
   for (let i = 0; i < OR.length; i++) {
     filters = filters.concat(buildFilters(OR[i]));
   }
+
   return filters;
 };
 
