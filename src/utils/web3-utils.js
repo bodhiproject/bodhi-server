@@ -1,5 +1,5 @@
 const { isNull } = require('lodash');
-const web3 = require('../web3');
+const { web3 } = require('../web3');
 const TransactionReceipt = require('../models/tx-receipt');
 
 /**
@@ -8,7 +8,7 @@ const TransactionReceipt = require('../models/tx-receipt');
  * @return {TransactionReceipt} Transaction receipt
  */
 const getTransaction = async (txid) => {
-  const tx = web3().eth.getTransaction(txid);
+  const tx = await web3().eth.getTransaction(txid);
   return new TransactionReceipt({
     transactionHash: tx.hash,
     blockHash: tx.blockHash,
