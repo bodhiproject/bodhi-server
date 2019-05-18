@@ -255,7 +255,6 @@ input WithdrawFilter {
 }
 
 input TransactionFilter {
-  OR: [TransactionFilter!]
   eventAddress: String
   transactorAddress: String
 }
@@ -271,11 +270,11 @@ type Query {
   ): PaginatedEvents!
 
   searchEvents(
-    searchPhrase: String
     filter: EventFilter
     orderBy: [Order!]
     limit: Int
     skip: Int
+    searchPhrase: String
   ): [MultipleResultsEvent]!
 
   withdrawableEvents(

@@ -3,7 +3,6 @@ const { buildCursorOptions, constructPageInfo } = require('./utils');
 const { ORDER_DIRECTION } = require('../../constants');
 
 const buildTxFilters = ({
-  OR = [],
   eventAddress,
   transactorAddress,
 } = {}) => {
@@ -14,12 +13,7 @@ const buildTxFilters = ({
   const filter = {};
   if (eventAddress) filter.eventAddress = eventAddress;
   if (transactorAddress) filter.transactorAddress = transactorAddress;
-
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildTxFilters(OR[i]));
-  }
-  return filters;
+  return [filter];
 };
 
 const buildEventFilters = ({
