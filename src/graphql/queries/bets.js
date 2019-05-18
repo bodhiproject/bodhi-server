@@ -1,3 +1,4 @@
+const { isArray, each, merge } = require('lodash');
 const { runPaginatedQuery } = require('./utils');
 
 const buildFilters = ({
@@ -8,24 +9,25 @@ const buildFilters = ({
   resultIndex,
   eventRound,
 } = {}) => {
-  const filter = (
-    txid
-    || eventAddress
-    || betterAddress
-    || resultIndex
-    || eventRound
-  ) ? {} : null;
+  let filters = [];
 
+  // Handle OR array
+  if (isArray(OR)) {
+    each(OR, (f) => {
+      filters = merge(filters, buildFilters(f));
+    });
+    return filters;
+  }
+
+  // Handle other fields
+  const filter = {};
   if (txid) filter.txid = txid;
   if (eventAddress) filter.eventAddress = eventAddress;
   if (betterAddress) filter.betterAddress = betterAddress;
   if (resultIndex) filter.resultIndex = resultIndex;
   if (eventRound) filter.eventRound = eventRound;
 
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildFilters(OR[i]));
-  }
+  if (Object.keys(filter).length > 0) filters.push(filter);
   return filters;
 };
 
