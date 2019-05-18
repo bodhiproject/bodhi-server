@@ -64,8 +64,8 @@ const getLogs = async ({ naka, abiObj, blockNum }) => {
   });
 };
 
-const parseLog = async ({ naka, log }) => {
-  // TODO: uncomment when web3 decodeLog works
+const parseLog = async ({ naka, abiObj, log }) => {
+  // TODO: uncomment when web3 decodeLog works. broken in 1.0.0-beta.54.
   // const {
   //   eventAddress,
   //   better,
@@ -109,7 +109,7 @@ module.exports = async (contractMetadata, currBlockNum) => {
           // Parse each bet and insert
           const logs = await getLogs({ naka, abiObj, blockNum });
           each(logs, async (log) => {
-            const bet = await parseLog({ naka, log });
+            const bet = await parseLog({ naka, abiObj, log });
             await DBHelper.insertBet(db, bet);
 
             // Update tx receipt
