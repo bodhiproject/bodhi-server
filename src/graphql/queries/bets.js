@@ -2,7 +2,7 @@ const { isArray, each, merge } = require('lodash');
 const { runPaginatedQuery } = require('./utils');
 
 const buildFilters = ({
-  OR = [],
+  OR,
   txid,
   eventAddress,
   betterAddress,
