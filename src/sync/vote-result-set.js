@@ -28,14 +28,26 @@ const getLogs = async ({ naka, abiObj, blockNum }) => {
 };
 
 const parseLog = async ({ naka, abiObj, log }) => {
-  const {
-    eventAddress,
-    resultIndex,
-    amount,
-    eventRound,
-    nextConsensusThreshold,
-    nextArbitrationEndTime,
-  } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
+  // TODO: uncomment when web3 decodeLog works. broken in 1.0.0-beta.54.
+  // const {
+  //   eventAddress,
+  //   resultIndex,
+  //   amount,
+  //   eventRound,
+  //   nextConsensusThreshold,
+  //   nextArbitrationEndTime,
+  // } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
+
+  const eventAddress = naka.eth.abi.decodeParameter('address', log.topics[1]);
+  const decodedData = naka.eth.abi.decodeParameters(
+    ['uint8', 'uint256', 'uint8', 'uint256', 'uint256'],
+    log.data,
+  );
+  const resultIndex = decodedData['0'];
+  const amount = decodedData['1'];
+  const eventRound = decodedData['2'];
+  const nextConsensusThreshold = decodedData['3'].toString(10);
+  const nextArbitrationEndTime = decodedData['4'].toString(10);
 
   const resultSet = new ResultSet({
     txid: log.transactionHash,
