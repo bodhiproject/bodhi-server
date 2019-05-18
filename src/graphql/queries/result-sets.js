@@ -26,7 +26,6 @@ const buildFilters = ({
   if (centralizedOracleAddress) filter.centralizedOracleAddress = centralizedOracleAddress;
   if (resultIndex) filter.resultIndex = resultIndex;
   if (eventRound) filter.eventRound = eventRound;
-
   if (Object.keys(filter).length > 0) filters.push(filter);
   return filters;
 };

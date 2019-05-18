@@ -28,7 +28,6 @@ const buildFilters = ({
   if (status) filter.status = status;
   if (resultIndex) filter.resultIndex = resultIndex;
   if (language) filter.language = language;
-
   if (Object.keys(filter).length > 0) filters.push(filter);
   return filters;
 };

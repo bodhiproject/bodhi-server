@@ -26,7 +26,6 @@ const buildFilters = ({
   if (betterAddress) filter.betterAddress = betterAddress;
   if (resultIndex) filter.resultIndex = resultIndex;
   if (eventRound) filter.eventRound = eventRound;
-
   if (Object.keys(filter).length > 0) filters.push(filter);
   return filters;
 };
