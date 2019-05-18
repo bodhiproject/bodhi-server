@@ -1,11 +1,11 @@
-const { isNumber } = require('lodash');
+const { isArray, each, isNumber, merge } = require('lodash');
 const { runPaginatedQuery } = require('./utils');
 
 const errCOracleFilterConflict =
   Error('Cannot have both centralizedOracle and excludeCentralizedOracle filters');
 
 const buildFilters = ({
-  OR = [],
+  OR,
   txid,
   address,
   ownerAddress,
@@ -17,6 +17,17 @@ const buildFilters = ({
   status,
   language,
 } = {}) => {
+  let filters = [];
+
+  // Handle OR array
+  if (isArray(OR)) {
+    each(OR, (f) => {
+      filters = merge(filters, buildFilters(f));
+    });
+    return filters;
+  }
+
+  // Handle other fields
   const filter = {};
   if (txid) filter.txid = txid;
   if (address) filter.address = address;
@@ -36,10 +47,7 @@ const buildFilters = ({
   if (status) filter.status = status;
   if (language) filter.language = language;
 
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildFilters(OR[i]));
-  }
+  if (Object.keys(filter).length > 0) filters.push(filter);
   return filters;
 };
 
