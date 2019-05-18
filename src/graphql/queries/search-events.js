@@ -1,7 +1,8 @@
+const { isArray, each, merge } = require('lodash');
 const { buildCursorOptions } = require('./utils');
 
 const buildFilters = ({
-  OR = [],
+  OR,
   txid,
   address,
   ownerAddress,
@@ -9,15 +10,18 @@ const buildFilters = ({
   status,
   language,
 } = {}) => {
-  const filter = (
-    txid
-    || address
-    || ownerAddress
-    || resultIndex
-    || status
-    || language
-  ) ? {} : null;
+  let filters = [];
 
+  // Handle OR array
+  if (isArray(OR)) {
+    each(OR, (f) => {
+      filters = merge(filters, buildFilters(f));
+    });
+    return filters;
+  }
+
+  // Handle other fields
+  const filter = {};
   if (txid) filter.txid = txid;
   if (address) filter.address = address;
   if (ownerAddress) filter.ownerAddress = ownerAddress;
@@ -25,10 +29,7 @@ const buildFilters = ({
   if (resultIndex) filter.resultIndex = resultIndex;
   if (language) filter.language = language;
 
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildFilters(OR[i]));
-  }
+  if (Object.keys(filter).length > 0) filters.push(filter);
   return filters;
 };
 
