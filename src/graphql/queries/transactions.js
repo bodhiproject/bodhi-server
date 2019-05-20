@@ -1,4 +1,4 @@
-const { merge, orderBy: order, slice } = require('lodash');
+const { concat, orderBy: order, slice } = require('lodash');
 const { buildCursorOptions, constructPageInfo } = require('./utils');
 const { ORDER_DIRECTION } = require('../../constants');
 
@@ -85,7 +85,7 @@ module.exports = async (
   const withdraws = await cursor.exec();
 
   // Combine to single list
-  let txs = merge(events, bets, resultSets, withdraws);
+  let txs = concat(events, bets, resultSets, withdraws);
   const totalCount = txs.length;
 
   // Order list by blockNum

@@ -1,4 +1,4 @@
-const { isArray, each, merge } = require('lodash');
+const { isArray, each } = require('lodash');
 const { buildCursorOptions } = require('./utils');
 
 const buildFilters = ({
@@ -15,7 +15,7 @@ const buildFilters = ({
   // Handle OR array
   if (isArray(OR)) {
     each(OR, (f) => {
-      filters = merge(filters, buildFilters(f));
+      filters = filters.concat(buildFilters(f));
     });
     return filters;
   }

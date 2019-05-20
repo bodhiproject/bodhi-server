@@ -1,4 +1,4 @@
-const { isArray, each, isNumber, merge } = require('lodash');
+const { isArray, each, isNumber } = require('lodash');
 const { runPaginatedQuery } = require('./utils');
 
 const errCOracleFilterConflict =
@@ -22,7 +22,7 @@ const buildFilters = ({
   // Handle OR array
   if (isArray(OR)) {
     each(OR, (f) => {
-      filters = merge(filters, buildFilters(f));
+      filters = filters.concat(buildFilters(f));
     });
     return filters;
   }
