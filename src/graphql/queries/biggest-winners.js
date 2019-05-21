@@ -1,10 +1,24 @@
-const { each, find, orderBy: _orderBy } = require('lodash');
+const { each, find, orderBy: _orderBy, isArray } = require('lodash');
 const MultipleResultsEventApi = require('../../api/multiple-results-event');
 
-const buildFilters = ({ eventAddress } = {}) => {
-  if (!eventAddress) throw Error('eventAddress missing in filters');
+const buildFilters = ({
+  OR,
+  eventAddress,
+} = {}) => {
+  let filters = [];
 
-  const filters = { eventAddress };
+  // Handle OR array
+  if (isArray(OR)) {
+    each(OR, (f) => {
+      filters = filters.concat(buildFilters(f));
+    });
+    return filters;
+  }
+
+  // Handle other fields
+  const filter = {};
+  if (eventAddress) filter.eventAddress = eventAddress;
+  if (Object.keys(filter).length > 0) filters.push(filter);
   return filters;
 };
 
