@@ -1,5 +1,5 @@
 const events = require('./events');
-const searchEvents = require('./events');
+const searchEvents = require('./search-events');
 const bets = require('./bets');
 const resultSets = require('./result-sets');
 const withdraws = require('./withdraws');

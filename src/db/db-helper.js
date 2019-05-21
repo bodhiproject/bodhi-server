@@ -18,7 +18,7 @@ module.exports = class DBHelper {
       await db.Blocks.insert({
         _id: blockNum,
         blockNum,
-        blockTime: blockTime.toString(),
+        blockTime,
       });
     } catch (err) {
       logger().error(`INSERT Block error: ${err.message}`);
@@ -38,19 +38,51 @@ module.exports = class DBHelper {
 
   static async insertTransactionReceipt(db, txReceipt) {
     try {
-      await db.TransactionReceipts.insert(txReceipt);
+      const existing = await DBHelper.findOneTransactionReceipt(
+        db,
+        { transactionHash: txReceipt.transactionHash },
+      );
+      if (isNull(existing)) {
+        await db.TransactionReceipts.insert(txReceipt);
+      } else {
+        // Set fields from existing
+        txReceipt.gasPrice = existing.gasPrice;
+        await DBHelper.updateTransactionReceipt(db, txReceipt);
+      }
     } catch (err) {
       logger().error(`INSERT TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
 
+  static async updateTransactionReceipt(db, txReceipt) {
+    try {
+      await db.TransactionReceipts.update(
+        { transactionHash: txReceipt.transactionHash },
+        { $set: txReceipt },
+        {},
+      );
+    } catch (err) {
+      logger().error(`UPDATE TransactionReceipt error: ${err.message}`);
+      throw err;
+    }
+  }
+
   /* Events */
+  static async findEvent(db, query) {
+    try {
+      return await db.Events.find(query);
+    } catch (err) {
+      logger().error(`FIND Event error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async findOneEvent(db, query) {
     try {
       return await db.Events.findOne(query);
     } catch (err) {
-      logger().error(`FIND Event error: ${err.message}`);
+      logger().error(`FINDONE Event error: ${err.message}`);
       throw err;
     }
   }
@@ -91,9 +123,10 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          status: EVENT_STATUS.CREATED,
+          $not: { status: EVENT_STATUS.BETTING },
           betStartTime: { $lte: currBlockTime },
           betEndTime: { $gt: currBlockTime },
+          currentRound: 0,
         },
         { $set: { status: EVENT_STATUS.BETTING } },
         { multi: true },
@@ -108,9 +141,10 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          status: EVENT_STATUS.BETTING,
-          betEndTime: { $lte: currBlockTime },
+          $not: { status: EVENT_STATUS.ORACLE_RESULT_SETTING },
+          resultSetStartTime: { $lte: currBlockTime },
           resultSetEndTime: { $gt: currBlockTime },
+          currentRound: 0,
         },
         { $set: { status: EVENT_STATUS.ORACLE_RESULT_SETTING } },
         { multi: true },
@@ -125,7 +159,7 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          status: EVENT_STATUS.ORACLE_RESULT_SETTING,
+          $not: { status: EVENT_STATUS.OPEN_RESULT_SETTING },
           resultSetEndTime: { $lte: currBlockTime },
           currentRound: 0,
         },
@@ -138,14 +172,12 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEventStatusArbitration(db) {
+  static async updateEventStatusArbitration(db, currBlockTime) {
     try {
       await db.Events.update(
         {
-          $or: [
-            { status: EVENT_STATUS.ORACLE_RESULT_SETTING },
-            { status: EVENT_STATUS.OPEN_RESULT_SETTING },
-          ],
+          $not: { status: EVENT_STATUS.ARBITRATION },
+          arbitrationEndTime: { $gt: currBlockTime },
           currentRound: { $gt: 0 },
         },
         { $set: { status: EVENT_STATUS.ARBITRATION } },
@@ -161,8 +193,9 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          status: EVENT_STATUS.ARBITRATION,
+          $not: { status: EVENT_STATUS.WITHDRAWING },
           arbitrationEndTime: { $lte: currBlockTime },
+          currentRound: { $gt: 0 },
         },
         { $set: { status: EVENT_STATUS.WITHDRAWING } },
         { multi: true },
@@ -174,11 +207,20 @@ module.exports = class DBHelper {
   }
 
   /* Bets */
+  static async findBet(db, query) {
+    try {
+      return await db.Bets.find(query);
+    } catch (err) {
+      logger().error(`FIND Bet error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async findOneBet(db, query) {
     try {
       return await db.Bets.findOne(query);
     } catch (err) {
-      logger().error(`FIND Bet error: ${err.message}`);
+      logger().error(`FINDONE Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -220,11 +262,20 @@ module.exports = class DBHelper {
   }
 
   /* ResultSets */
+  static async findResultSet(db, query) {
+    try {
+      return await db.ResultSets.find(query);
+    } catch (err) {
+      logger().error(`FIND ResultSet error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async findOneResultSet(db, query) {
     try {
       return await db.ResultSets.findOne(query);
     } catch (err) {
-      logger().error(`FIND ResultSet error: ${err.message}`);
+      logger().error(`FINDONE ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -269,11 +320,20 @@ module.exports = class DBHelper {
   }
 
   /* Withdraws */
+  static async findWithdraw(db, query) {
+    try {
+      return await db.Withdraws.find(query);
+    } catch (err) {
+      logger().error(`FIND Withdraw error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async findOneWithdraw(db, query) {
     try {
       return await db.Withdraws.findOne(query);
     } catch (err) {
-      logger().error(`FIND Withdraw error: ${err.message}`);
+      logger().error(`FINDONE Withdraw error: ${err.message}`);
       throw err;
     }
   }

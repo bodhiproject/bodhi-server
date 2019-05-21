@@ -33,13 +33,13 @@ interface Transaction {
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int!
+  blockNum: Int
   block: Block
 }
 
 type Block {
   blockNum: Int!
-  blockTime: String!
+  blockTime: Int!
 }
 
 type PendingTransactions {
@@ -50,15 +50,16 @@ type PendingTransactions {
 }
 
 type TransactionReceipt {
-  status: Boolean!
-  blockHash: String!
-  blockNumber: Int!
+  status: Boolean
+  blockHash: String
+  blockNumber: Int
   transactionHash: String!
   from: String!
   to: String
   contractAddress: String
-  cumulativeGasUsed: Int!
+  cumulativeGasUsed: Int
   gasUsed: Int!
+  gasPrice: String
 }
 
 type PageInfo {
@@ -72,19 +73,19 @@ type MultipleResultsEvent implements Transaction {
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int!
+  blockNum: Int
   block: Block
   address: String
   ownerAddress: String!
-  version: Int!
+  version: Int
   name: String!
   results: [String!]!
   numOfResults: Int!
   centralizedOracle: String!
-  betStartTime: String!
-  betEndTime: String!
-  resultSetStartTime: String!
-  resultSetEndTime: String!
+  betStartTime: Int!
+  betEndTime: Int!
+  resultSetStartTime: Int!
+  resultSetEndTime: Int!
   escrowAmount: String
   arbitrationLength: String
   thresholdPercentIncrease: String
@@ -92,11 +93,12 @@ type MultipleResultsEvent implements Transaction {
   currentRound: Int
   currentResultIndex: Int
   consensusThreshold: String
-  arbitrationEndTime: String
-  totalBets: String
+  arbitrationEndTime: Int
   status: EventStatus!
   language: String!
   pendingTxs: PendingTransactions
+  roundBets: [String]
+  totalBets: String
 }
 
 type PaginatedEvents {
@@ -110,13 +112,14 @@ type Bet implements Transaction {
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int!
+  blockNum: Int
   block: Block
   eventAddress: String!
   betterAddress: String!
   resultIndex: Int!
   amount: String!
   eventRound: Int!
+  resultName: String
 }
 
 type PaginatedBets {
@@ -130,13 +133,14 @@ type ResultSet implements Transaction {
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int!
+  blockNum: Int
   block: Block
   eventAddress: String!
   centralizedOracleAddress: String
   resultIndex: Int!
   amount: String!
   eventRound: Int!
+  resultName: String
 }
 
 type PaginatedResultSets {
@@ -150,12 +154,12 @@ type Withdraw implements Transaction {
   txid: String!
   txStatus: TransactionStatus!
   txReceipt: TransactionReceipt
-  blockNum: Int!
+  blockNum: Int
   block: Block
   eventAddress: String!
   winnerAddress: String!
   winningAmount: String!
-  escrowAmount: String!
+  escrowWithdrawAmount: String!
 }
 
 type PaginatedWithdraws {
@@ -172,7 +176,7 @@ type PaginatedTransactions {
 
 type SyncInfo {
   syncBlockNum: Int
-  syncBlockTime: String
+  syncBlockTime: Int
   syncPercent: Int
 }
 
@@ -210,9 +214,19 @@ input EventFilter {
   txid: String
   address: String
   ownerAddress: String
-  resultIndex: Int
+  version: Int
+  centralizedOracle: String
+  currentRound: Int
+  currentResultIndex: Int
   status: EventStatus
   language: String
+  excludeCentralizedOracle: String
+}
+
+input WithdrawableEventFilter {
+  version: Int
+  language: String
+  withdrawerAddress: String!
 }
 
 input BetFilter {
@@ -241,7 +255,6 @@ input WithdrawFilter {
 }
 
 input TransactionFilter {
-  OR: [TransactionFilter!]
   eventAddress: String
   transactorAddress: String
 }
@@ -253,15 +266,23 @@ type Query {
     limit: Int
     skip: Int
     pendingTxsAddress: String
+    includeRoundBets: Boolean
   ): PaginatedEvents!
 
   searchEvents(
-    searchPhrase: String
     filter: EventFilter
     orderBy: [Order!]
     limit: Int
     skip: Int
+    searchPhrase: String
   ): [MultipleResultsEvent]!
+
+  withdrawableEvents(
+    filter: WithdrawableEventFilter!
+    orderBy: [Order!]
+    limit: Int
+    skip: Int
+  ): PaginatedEvents!
 
   bets(
     filter: BetFilter
@@ -312,23 +333,20 @@ type Query {
 type Mutation {
   addPendingEvent(
     txid: String!
-    blockNum: Int!
     ownerAddress: String!
-    version: Int!
     name: String!
     results: [String!]!
     numOfResults: Int!
     centralizedOracle: String!
-    betStartTime: String!
-    betEndTime: String!
-    resultSetStartTime: String!
-    resultSetEndTime: String!
+    betStartTime: Int!
+    betEndTime: Int!
+    resultSetStartTime: Int!
+    resultSetEndTime: Int!
     language: String!
   ): MultipleResultsEvent!
 
   addPendingBet(
     txid: String!
-    blockNum: Int!
     eventAddress: String!
     betterAddress: String!
     resultIndex: Int!
@@ -338,7 +356,6 @@ type Mutation {
 
   addPendingResultSet(
     txid: String!
-    blockNum: Int!
     eventAddress: String!
     centralizedOracleAddress: String!
     resultIndex: Int!
@@ -348,7 +365,6 @@ type Mutation {
 
   addPendingWithdraw(
     txid: String!
-    blockNum: Int!
     eventAddress: String!
     winnerAddress: String!
     winningAmount: String!

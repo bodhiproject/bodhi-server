@@ -50,7 +50,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
     await updateStatusBetting(currentBlockTime);
     await updateStatusOracleResultSetting(currentBlockTime);
     await updateStatusOpenResultSetting(currentBlockTime);
-    await updateStatusArbitration();
+    await updateStatusArbitration(currentBlockTime);
     await updateStatusWithdrawing(currentBlockTime);
 
     // Insert block
@@ -106,7 +106,7 @@ const getBlockTime = async (blockNum) => {
   try {
     const block = await web3().eth.getBlock(blockNum);
     if (isNull(block)) return block;
-    return block.timestamp;
+    return Number(block.timestamp);
   } catch (err) {
     throw Error('Error getting block time:', err);
   }
@@ -151,9 +151,9 @@ const updateStatusOpenResultSetting = async (currentBlockTime) => {
 /**
  * Updates any events which are in the arbitration status.
  */
-const updateStatusArbitration = async () => {
+const updateStatusArbitration = async (currentBlockTime) => {
   try {
-    await DBHelper.updateEventStatusArbitration(db);
+    await DBHelper.updateEventStatusArbitration(db, currentBlockTime);
   } catch (err) {
     throw err;
   }

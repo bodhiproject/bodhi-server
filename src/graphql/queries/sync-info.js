@@ -10,7 +10,7 @@ module.exports = async (root, {}, { db: { Blocks } }) => { // eslint-disable-lin
   }
 
   const syncBlockNum = (blocks && blocks[0].blockNum) || 0;
-  const syncBlockTime = (blocks && blocks[0].blockTime) || '0';
+  const syncBlockTime = (blocks && blocks[0].blockTime) || 0;
   const syncPercent = await calculateSyncPercent(syncBlockNum);
 
   return {
