@@ -187,7 +187,7 @@ type AllStats {
 }
 
 type MostBet {
-  eventAddress: String!
+  eventAddress: String
   betterAddress: String!
   amount: String!
 }
