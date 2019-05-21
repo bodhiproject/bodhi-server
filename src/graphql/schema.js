@@ -119,6 +119,7 @@ type Bet implements Transaction {
   resultIndex: Int!
   amount: String!
   eventRound: Int!
+  resultName: String
 }
 
 type PaginatedBets {
@@ -139,6 +140,7 @@ type ResultSet implements Transaction {
   resultIndex: Int!
   amount: String!
   eventRound: Int!
+  resultName: String
 }
 
 type PaginatedResultSets {
@@ -212,9 +214,19 @@ input EventFilter {
   txid: String
   address: String
   ownerAddress: String
-  resultIndex: Int
+  version: Int
+  centralizedOracle: String
+  currentRound: Int
+  currentResultIndex: Int
   status: EventStatus
   language: String
+  excludeCentralizedOracle: String
+}
+
+input WithdrawableEventFilter {
+  version: Int
+  language: String
+  withdrawerAddress: String!
 }
 
 input BetFilter {
@@ -243,7 +255,6 @@ input WithdrawFilter {
 }
 
 input TransactionFilter {
-  OR: [TransactionFilter!]
   eventAddress: String
   transactorAddress: String
 }
@@ -259,12 +270,19 @@ type Query {
   ): PaginatedEvents!
 
   searchEvents(
-    searchPhrase: String
     filter: EventFilter
     orderBy: [Order!]
     limit: Int
     skip: Int
+    searchPhrase: String
   ): [MultipleResultsEvent]!
+
+  withdrawableEvents(
+    filter: WithdrawableEventFilter!
+    orderBy: [Order!]
+    limit: Int
+    skip: Int
+  ): PaginatedEvents!
 
   bets(
     filter: BetFilter

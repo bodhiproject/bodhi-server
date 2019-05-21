@@ -64,18 +64,19 @@ const getLogs = async ({ naka, abiObj, blockNum }) => {
 };
 
 const parseLog = async ({ naka, abiObj, contractMetadata, log }) => {
-  // TODO: remove manual parsing when web3 is fixed. broken in 1.0.0-beta.54.
-  const eventAddr = `0x${log.topics[1].substr(26)}`;
-  const ownerAddr = `0x${log.topics[2].substr(26)}`;
+  // TODO: uncomment when web3 decodeLog works. broken in 1.0.0-beta.54.
   // const {
   //   eventAddr,
   //   ownerAddr,
   // } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
 
+  const address = naka.eth.abi.decodeParameter('address', log.topics[1]);
+  const ownerAddress = naka.eth.abi.decodeParameter('address', log.topics[2]);
+
   // Get event data
   const contract = new naka.eth.Contract(
     contractMetadata.MultipleResultsEvent.abi,
-    eventAddr,
+    address,
   );
   let res = await contract.methods.eventMetadata().call();
   const version = res['0'];
@@ -105,8 +106,8 @@ const parseLog = async ({ naka, abiObj, contractMetadata, log }) => {
     txid: log.transactionHash,
     txStatus: TX_STATUS.SUCCESS,
     blockNum: Number(log.blockNumber),
-    address: eventAddr,
-    ownerAddress: ownerAddr,
+    address,
+    ownerAddress,
     version: Number(version),
     name: eventName,
     results: eventResults,

@@ -1,34 +1,53 @@
+const { isArray, each, isNumber } = require('lodash');
 const { runPaginatedQuery } = require('./utils');
 
+const errCOracleFilterConflict =
+  Error('Cannot have both centralizedOracle and excludeCentralizedOracle filters');
+
 const buildFilters = ({
-  OR = [],
+  OR,
   txid,
   address,
   ownerAddress,
-  resultIndex,
+  version,
+  centralizedOracle,
+  excludeCentralizedOracle,
+  currentRound,
+  currentResultIndex,
   status,
   language,
 } = {}) => {
-  const filter = (
-    txid
-    || address
-    || ownerAddress
-    || resultIndex
-    || status
-    || language
-  ) ? {} : null;
+  let filters = [];
 
+  // Handle OR array
+  if (isArray(OR)) {
+    each(OR, (f) => {
+      filters = filters.concat(buildFilters(f));
+    });
+    return filters;
+  }
+
+  // Handle other fields
+  const filter = {};
   if (txid) filter.txid = txid;
   if (address) filter.address = address;
   if (ownerAddress) filter.ownerAddress = ownerAddress;
+  if (isNumber(version)) filter.version = version;
+
+  if (centralizedOracle) {
+    if (excludeCentralizedOracle) throw errCOracleFilterConflict;
+    filter.centralizedOracle = centralizedOracle;
+  } else if (excludeCentralizedOracle) {
+    if (centralizedOracle) throw errCOracleFilterConflict;
+    filter.centralizedOracle = { $ne: excludeCentralizedOracle };
+  }
+
+  if (isNumber(currentRound)) filter.currentRound = currentRound;
+  if (isNumber(currentResultIndex)) filter.currentResultIndex = currentResultIndex;
   if (status) filter.status = status;
-  if (resultIndex) filter.resultIndex = resultIndex;
   if (language) filter.language = language;
 
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildFilters(OR[i]));
-  }
+  if (Object.keys(filter).length > 0) filters.push(filter);
   return filters;
 };
 

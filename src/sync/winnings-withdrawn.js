@@ -65,21 +65,31 @@ const getLogs = async ({ naka, abiObj, blockNum }) => {
 };
 
 const parseLog = async ({ naka, abiObj, log }) => {
-  const {
-    eventAddress,
-    winner,
-    winningAmount,
-    escrowAmount,
-  } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
+  // TODO: uncomment when web3 decodeLog works. broken in 1.0.0-beta.54.
+  // const {
+  //   eventAddress,
+  //   winner,
+  //   winningAmount,
+  //   escrowAmount,
+  // } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
+
+  const eventAddress = naka.eth.abi.decodeParameter('address', log.topics[1]);
+  const winnerAddress = naka.eth.abi.decodeParameter('address', log.topics[2]);
+  const decodedData = naka.eth.abi.decodeParameters(
+    ['uint256', 'uint256'],
+    log.data,
+  );
+  const winningAmount = decodedData['0'];
+  const escrowWithdrawAmount = decodedData['1'];
 
   return new Withdraw({
     txid: log.transactionHash,
     txStatus: TX_STATUS.SUCCESS,
     blockNum: Number(log.blockNumber),
     eventAddress,
-    winnerAddress: winner,
+    winnerAddress,
     winningAmount: winningAmount.toString(10),
-    escrowWithdrawAmount: escrowAmount.toString(10),
+    escrowWithdrawAmount: escrowWithdrawAmount.toString(10),
   });
 };
 

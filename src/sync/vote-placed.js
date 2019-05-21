@@ -65,20 +65,31 @@ const getLogs = async ({ naka, abiObj, blockNum }) => {
 };
 
 const parseLog = async ({ naka, abiObj, log }) => {
-  const {
-    eventAddress,
-    voter,
-    resultIndex,
-    amount,
-    eventRound,
-  } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
+  // TODO: uncomment when web3 decodeLog works. broken in 1.0.0-beta.54.
+  // const {
+  //   eventAddress,
+  //   voter,
+  //   resultIndex,
+  //   amount,
+  //   eventRound,
+  // } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
+
+  const eventAddress = naka.eth.abi.decodeParameter('address', log.topics[1]);
+  const betterAddress = naka.eth.abi.decodeParameter('address', log.topics[2]);
+  const decodedData = naka.eth.abi.decodeParameters(
+    ['uint8', 'uint256', 'uint8'],
+    log.data,
+  );
+  const resultIndex = decodedData['0'];
+  const amount = decodedData['1'];
+  const eventRound = decodedData['2'];
 
   return new Bet({
     txid: log.transactionHash,
     txStatus: TX_STATUS.SUCCESS,
     blockNum: Number(log.blockNumber),
     eventAddress,
-    betterAddress: voter,
+    betterAddress,
     resultIndex: Number(resultIndex),
     amount: amount.toString(10),
     eventRound: Number(eventRound),

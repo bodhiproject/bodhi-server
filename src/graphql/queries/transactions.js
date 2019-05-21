@@ -1,9 +1,8 @@
-const { merge, orderBy: order, slice } = require('lodash');
+const { concat, orderBy: order, slice } = require('lodash');
 const { buildCursorOptions, constructPageInfo } = require('./utils');
 const { ORDER_DIRECTION } = require('../../constants');
 
 const buildTxFilters = ({
-  OR = [],
   eventAddress,
   transactorAddress,
 } = {}) => {
@@ -14,12 +13,7 @@ const buildTxFilters = ({
   const filter = {};
   if (eventAddress) filter.eventAddress = eventAddress;
   if (transactorAddress) filter.transactorAddress = transactorAddress;
-
-  let filters = filter ? [filter] : [];
-  for (let i = 0; i < OR.length; i++) {
-    filters = filters.concat(buildTxFilters(OR[i]));
-  }
-  return filters;
+  return [filter];
 };
 
 const buildEventFilters = ({
@@ -91,7 +85,7 @@ module.exports = async (
   const withdraws = await cursor.exec();
 
   // Combine to single list
-  let txs = merge(events, bets, resultSets, withdraws);
+  let txs = concat(events, bets, resultSets, withdraws);
   const totalCount = txs.length;
 
   // Order list by blockNum
