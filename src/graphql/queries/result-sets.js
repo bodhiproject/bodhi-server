@@ -4,6 +4,7 @@ const { runPaginatedQuery } = require('./utils');
 const buildFilters = ({
   OR,
   txid,
+  txStatus,
   eventAddress,
   centralizedOracleAddress,
   resultIndex,
@@ -22,6 +23,7 @@ const buildFilters = ({
   // Handle other fields
   const filter = {};
   if (txid) filter.txid = txid;
+  if (txStatus) filter.txStatus = txStatus;
   if (eventAddress) filter.eventAddress = eventAddress;
   if (centralizedOracleAddress) filter.centralizedOracleAddress = centralizedOracleAddress;
   if (resultIndex) filter.resultIndex = resultIndex;

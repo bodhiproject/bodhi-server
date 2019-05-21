@@ -4,6 +4,7 @@ const { runPaginatedQuery } = require('./utils');
 const buildFilters = ({
   OR,
   txid,
+  txStatus,
   eventAddress,
   winnerAddress,
 } = {}) => {
@@ -20,6 +21,7 @@ const buildFilters = ({
   // Handle other fields
   const filter = {};
   if (txid) filter.txid = txid;
+  if (txStatus) filter.txStatus = txStatus;
   if (eventAddress) filter.eventAddress = eventAddress;
   if (winnerAddress) filter.winnerAddress = winnerAddress;
   if (Object.keys(filter).length > 0) filters.push(filter);
