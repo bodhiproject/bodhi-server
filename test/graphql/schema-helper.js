@@ -89,10 +89,30 @@ const PAGINATED_BETS = `
   }
 `;
 
+const PAGINATED_RESULT_SETS = `
+  totalCount
+  ${PAGE_INFO}
+  items {
+    txType
+    txid
+    txStatus
+    ${TX_RECEIPT}
+    blockNum
+    ${BLOCK}
+    eventAddress
+    centralizedOracleAddress
+    resultIndex
+    amount
+    eventRound
+    resultName
+  }
+`;
+
 module.exports = {
   PAGE_INFO,
   BLOCK,
   TX_RECEIPT,
   PAGINATED_EVENTS,
   PAGINATED_BETS,
+  PAGINATED_RESULT_SETS,
 };

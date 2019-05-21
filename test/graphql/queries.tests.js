@@ -1,5 +1,9 @@
 const EasyGraphQLTester = require('easygraphql-tester');
-const { PAGINATED_EVENTS, PAGINATED_BETS } = require('./schema-helper');
+const {
+  PAGINATED_EVENTS,
+  PAGINATED_BETS,
+  PAGINATED_RESULT_SETS,
+} = require('./schema-helper');
 const schema = require('../../src/graphql/schema');
 
 const tester = new EasyGraphQLTester(schema);
@@ -252,6 +256,103 @@ describe('queries', () => {
         query {
           bets(filter: { eventRound: 0 }) {
             ${PAGINATED_BETS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+  });
+
+  describe('resultSets', () => {
+    it('should return the query', async () => {
+      const valid = `
+        query {
+          resultSets {
+            ${PAGINATED_RESULT_SETS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the OR filter', async () => {
+      const valid = `
+        query {
+          resultSets(filter: { OR: [
+            { txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }
+            { txStatus: SUCCESS }
+            { eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }
+            { centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }
+            { resultIndex: 0 }
+            { eventRound: 0 }
+          ] }) {
+            ${PAGINATED_RESULT_SETS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the txid filter', async () => {
+      const valid = `
+        query {
+          resultSets(filter: { txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }) {
+            ${PAGINATED_RESULT_SETS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the txStatus filter', async () => {
+      const valid = `
+        query {
+          resultSets(filter: { txStatus: SUCCESS }) {
+            ${PAGINATED_RESULT_SETS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the eventAddress filter', async () => {
+      const valid = `
+        query {
+          resultSets(filter: { eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }) {
+            ${PAGINATED_RESULT_SETS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the centralizedOracleAddress filter', async () => {
+      const valid = `
+        query {
+          resultSets(filter: { centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }) {
+            ${PAGINATED_RESULT_SETS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the resultIndex filter', async () => {
+      const valid = `
+        query {
+          resultSets(filter: { resultIndex: 0 }) {
+            ${PAGINATED_RESULT_SETS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the eventRound filter', async () => {
+      const valid = `
+        query {
+          resultSets(filter: { eventRound: 0 }) {
+            ${PAGINATED_RESULT_SETS}
           }
         }
       `;
