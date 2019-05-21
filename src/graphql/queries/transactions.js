@@ -13,7 +13,7 @@ const buildTxFilters = ({
   const filter = {};
   if (eventAddress) filter.eventAddress = eventAddress;
   if (transactorAddress) filter.transactorAddress = transactorAddress;
-  return [filter];
+  return filter;
 };
 
 const buildEventFilters = ({
