@@ -3,6 +3,7 @@ const {
   PAGINATED_EVENTS,
   PAGINATED_BETS,
   PAGINATED_RESULT_SETS,
+  PAGINATED_WITHDRAWS,
 } = require('./schema-helper');
 const schema = require('../../src/graphql/schema');
 
@@ -353,6 +354,79 @@ describe('queries', () => {
         query {
           resultSets(filter: { eventRound: 0 }) {
             ${PAGINATED_RESULT_SETS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+  });
+
+  describe('withdraws', () => {
+    it('should return the query', async () => {
+      const valid = `
+        query {
+          withdraws {
+            ${PAGINATED_WITHDRAWS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the OR filter', async () => {
+      const valid = `
+        query {
+          withdraws(filter: { OR: [
+            { txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }
+            { txStatus: SUCCESS }
+            { eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }
+            { winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }
+          ] }) {
+            ${PAGINATED_WITHDRAWS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the txid filter', async () => {
+      const valid = `
+        query {
+          withdraws(filter: { txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }) {
+            ${PAGINATED_WITHDRAWS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the txStatus filter', async () => {
+      const valid = `
+        query {
+          withdraws(filter: { txStatus: SUCCESS }) {
+            ${PAGINATED_WITHDRAWS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the eventAddress filter', async () => {
+      const valid = `
+        query {
+          withdraws(filter: { eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }) {
+            ${PAGINATED_WITHDRAWS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the winnerAddress filter', async () => {
+      const valid = `
+        query {
+          withdraws(filter: { winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }) {
+            ${PAGINATED_WITHDRAWS}
           }
         }
       `;

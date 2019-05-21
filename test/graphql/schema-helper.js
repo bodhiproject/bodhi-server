@@ -108,6 +108,23 @@ const PAGINATED_RESULT_SETS = `
   }
 `;
 
+const PAGINATED_WITHDRAWS = `
+  totalCount
+  ${PAGE_INFO}
+  items {
+    txType
+    txid
+    txStatus
+    ${TX_RECEIPT}
+    blockNum
+    ${BLOCK}
+    eventAddress
+    winnerAddress
+    winningAmount
+    escrowWithdrawAmount
+  }
+`;
+
 module.exports = {
   PAGE_INFO,
   BLOCK,
@@ -115,4 +132,5 @@ module.exports = {
   PAGINATED_EVENTS,
   PAGINATED_BETS,
   PAGINATED_RESULT_SETS,
+  PAGINATED_WITHDRAWS,
 };
