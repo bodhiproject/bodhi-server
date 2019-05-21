@@ -212,6 +212,7 @@ input Order {
 input EventFilter {
   OR: [EventFilter!]
   txid: String
+  txStatus: TransactionStatus
   address: String
   ownerAddress: String
   version: Int
@@ -232,6 +233,7 @@ input WithdrawableEventFilter {
 input BetFilter {
   OR: [BetFilter!]
   txid: String
+  txStatus: TransactionStatus
   eventAddress: String
   betterAddress: String
   resultIndex: Int
@@ -241,6 +243,7 @@ input BetFilter {
 input ResultSetFilter {
   OR: [ResultSetFilter!]
   txid: String
+  txStatus: TransactionStatus
   eventAddress: String
   centralizedOracleAddress: String
   resultIndex: Int
@@ -250,6 +253,7 @@ input ResultSetFilter {
 input WithdrawFilter {
   OR: [WithdrawFilter!]
   txid: String
+  txStatus: TransactionStatus
   eventAddress: String
   winnerAddress: String
 }

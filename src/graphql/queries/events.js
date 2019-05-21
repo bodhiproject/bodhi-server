@@ -7,6 +7,7 @@ const errCOracleFilterConflict =
 const buildFilters = ({
   OR,
   txid,
+  txStatus,
   address,
   ownerAddress,
   version,
@@ -30,6 +31,7 @@ const buildFilters = ({
   // Handle other fields
   const filter = {};
   if (txid) filter.txid = txid;
+  if (txStatus) filter.txStatus = txStatus;
   if (address) filter.address = address;
   if (ownerAddress) filter.ownerAddress = ownerAddress;
   if (isNumber(version)) filter.version = version;
