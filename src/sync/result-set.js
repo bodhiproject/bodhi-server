@@ -102,7 +102,7 @@ const parseLog = async ({ naka, abiObj, log }) => {
   return {
     resultSet,
     nextConsensusThreshold,
-    nextArbitrationEndTime,
+    nextArbitrationEndTime: Number(nextArbitrationEndTime),
   };
 };
 
