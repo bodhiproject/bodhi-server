@@ -63,7 +63,7 @@ const parseLog = async ({ naka, abiObj, log }) => {
   return {
     resultSet,
     nextConsensusThreshold,
-    nextArbitrationEndTime,
+    nextArbitrationEndTime: Number(nextArbitrationEndTime),
   };
 };
 
@@ -74,7 +74,7 @@ const updateEventRound = async ({
 }) => {
   const event = await DBHelper.findOneEvent(
     db,
-    { eventAddress: resultSet.eventAddress },
+    { address: resultSet.eventAddress },
   );
   event.currentRound = resultSet.eventRound + 1;
   event.currentResultIndex = resultSet.resultIndex;
