@@ -20,13 +20,13 @@ module.exports = class Withdraw {
   format(params) {
     // Chain params
     this.txType = TX_TYPE.WITHDRAW;
-    this.txid = params.txid;
+    this.txid = params.txid.toLowerCase();
     this.txStatus = params.txStatus;
     this.blockNum = Number(params.blockNum);
 
     // Withdraw params
-    this.eventAddress = params.eventAddress;
-    this.winnerAddress = params.winnerAddress;
+    this.eventAddress = params.eventAddress.toLowerCase();
+    this.winnerAddress = params.winnerAddress.toLowerCase();
     this.winningAmount = params.winningAmount.toString(10);
     this.escrowWithdrawAmount = params.escrowWithdrawAmount.toString(10);
   }
