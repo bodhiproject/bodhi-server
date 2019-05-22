@@ -1,11 +1,24 @@
-const { isNumber, toInteger } = require('lodash');
+const { isNumber, toInteger, isArray } = require('lodash');
 const { web3 } = require('../../web3');
 
-const buildFilters = ({ eventAddress } = {}) => {
-  const filters = {};
+const buildFilters = ({
+  OR,
+  eventAddress,
+} = {}) => {
+  let filters = [];
 
-  if (eventAddress) filters.eventAddress = eventAddress;
+  // Handle OR array
+  if (isArray(OR)) {
+    each(OR, (f) => {
+      filters = filters.concat(buildFilters(f));
+    });
+    return filters;
+  }
 
+  // Handle other fields
+  const filter = {};
+  if (eventAddress) filter.eventAddress = eventAddress;
+  if (Object.keys(filter).length > 0) filters.push(filter);
   return filters;
 };
 
@@ -16,7 +29,6 @@ module.exports = async (
   { db: { Bets } },
 ) => {
   const betFilters = buildFilters(filter);
-
   const query = filter ? { $or: betFilters } : {};
   const result = await Bets.find(query);
   const naka = web3();
@@ -32,7 +44,6 @@ module.exports = async (
   }, {});
 
   let items = Object.keys(accumulated).map(key => ({
-    eventAddress: betFilters[0].eventAddress,
     betterAddress: key,
     amount: accumulated[key].toString(10),
   }));
