@@ -1,6 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
 const { isString } = require('lodash');
 const { TX_TYPE } = require('../constants');
+const { toLowerCase } = require('../utils');
 
 module.exports = class Withdraw {
   constructor(params) {
@@ -20,13 +21,13 @@ module.exports = class Withdraw {
   format(params) {
     // Chain params
     this.txType = TX_TYPE.WITHDRAW;
-    this.txid = params.txid.toLowerCase();
+    this.txid = toLowerCase(params.txid);
     this.txStatus = params.txStatus;
     this.blockNum = Number(params.blockNum);
 
     // Withdraw params
-    this.eventAddress = params.eventAddress.toLowerCase();
-    this.winnerAddress = params.winnerAddress.toLowerCase();
+    this.eventAddress = toLowerCase(params.eventAddress);
+    this.winnerAddress = toLowerCase(params.winnerAddress);
     this.winningAmount = params.winningAmount.toString(10);
     this.escrowWithdrawAmount = params.escrowWithdrawAmount.toString(10);
   }

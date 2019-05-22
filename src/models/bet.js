@@ -1,6 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
 const { isFinite, isString } = require('lodash');
 const { TX_TYPE } = require('../constants');
+const { toLowerCase } = require('../utils');
 
 module.exports = class Bet {
   constructor(params) {
@@ -21,13 +22,13 @@ module.exports = class Bet {
   format(params) {
     // Chain params
     this.txType = Number(params.eventRound) === 0 ? TX_TYPE.BET : TX_TYPE.VOTE;
-    this.txid = params.txid.toLowerCase();
+    this.txid = toLowerCase(params.txid);
     this.txStatus = params.txStatus;
     this.blockNum = params.blockNum;
 
     // Bet params
-    this.eventAddress = params.eventAddress.toLowerCase();
-    this.betterAddress = params.betterAddress.toLowerCase();
+    this.eventAddress = toLowerCase(params.eventAddress);
+    this.betterAddress = toLowerCase(params.betterAddress);
     this.resultIndex = params.resultIndex;
     this.amount = params.amount.toString(10);
     this.eventRound = params.eventRound;

@@ -1,5 +1,6 @@
 /* eslint no-underscore-dangle: 0 */
 const { isFinite, isString, isNull } = require('lodash');
+const { toLowerCase } = require('../utils');
 
 module.exports = class TransactionReceipt {
   constructor(params) {
@@ -29,12 +30,12 @@ module.exports = class TransactionReceipt {
 
   format(params) {
     this.status = params.status;
-    this.blockHash = params.blockHash;
+    this.blockHash = toLowerCase(params.blockHash);
     this.blockNum = params.blockNumber;
-    this.transactionHash = params.transactionHash;
-    this.from = params.from;
-    this.to = params.to;
-    this.contractAddress = params.contractAddress;
+    this.transactionHash = toLowerCase(params.transactionHash);
+    this.from = toLowerCase(params.from);
+    this.to = toLowerCase(params.to);
+    this.contractAddress = toLowerCase(params.contractAddress);
     this.cumulativeGasUsed = params.cumulativeGasUsed;
     this.gasUsed = params.gasUsed;
     this.gasPrice = params.gasPrice;
