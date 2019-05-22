@@ -4,6 +4,50 @@ const { web3 } = require('../../web3');
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
 
+/**
+ * Loops through the entire filter object and lowercases all of the filters
+ * on the list of filters to lower.
+ * @param {object} filters Filters to lowercase
+ * @return {object} Lowercased filters
+ */
+const lowercaseFilters = (filters) => {
+  if (!filters) return filters;
+  const copy = filters;
+
+  // List of filters that need to be lowercased
+  const filtersToLower = [
+    'txid',
+    'address',
+    'ownerAddress',
+    'centralizedOracle',
+    'excludeCentralizedOracle',
+    'withdrawerAddress',
+    'eventAddress',
+    'betterAddress',
+    'centralizedOracleAddress',
+    'winnerAddress',
+    'transactorAddress',
+  ];
+
+  // Loop through each filter
+  each(copy, (value, key) => {
+    // Handle root level filters
+    if (filtersToLower.includes(key)) copy[key] = value.toLowerCase();
+
+    // Handle OR filter array
+    if (key === 'OR') {
+      each(filters.OR, (orFilter, orIndex) => {
+        each(orFilter, (orValue, orKey) => {
+          if (filtersToLower.includes(orKey)) {
+            copy.OR[orIndex][orKey] = orValue.toLowerCase();
+          }
+        });
+      });
+    }
+  });
+  return copy;
+};
+
 const buildCursorOptions = (cursor, orderBy, limit, skip) => {
   if (!isEmpty(orderBy)) {
     const sortDict = {};
@@ -56,6 +100,7 @@ const calculateSyncPercent = async (blockNum) => {
 };
 
 module.exports = {
+  lowercaseFilters,
   buildCursorOptions,
   constructPageInfo,
   runPaginatedQuery,
