@@ -1,5 +1,6 @@
 const EasyGraphQLTester = require('easygraphql-tester');
 const {
+  MULTIPLE_RESULTS_EVENT,
   PAGINATED_EVENTS,
   PAGINATED_BETS,
   PAGINATED_RESULT_SETS,
@@ -160,6 +161,19 @@ describe('queries', () => {
         query {
           events(filter: { excludeCentralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }) {
             ${PAGINATED_EVENTS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+  });
+
+  describe.only('searchEvents', () => {
+    it('should return the query', async () => {
+      const valid = `
+        query {
+          searchEvents {
+            ${MULTIPLE_RESULTS_EVENT}
           }
         }
       `;

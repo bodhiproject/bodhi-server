@@ -28,45 +28,49 @@ const TX_RECEIPT = `
   }
 `;
 
+const MULTIPLE_RESULTS_EVENT = `
+  txType
+  txid
+  txStatus
+  ${TX_RECEIPT}
+  blockNum
+  ${BLOCK}
+  address
+  ownerAddress
+  version
+  name
+  results
+  numOfResults
+  centralizedOracle
+  betStartTime
+  betEndTime
+  resultSetStartTime
+  resultSetEndTime
+  escrowAmount
+  arbitrationLength
+  thresholdPercentIncrease
+  arbitrationRewardPercentage
+  currentRound
+  currentResultIndex
+  consensusThreshold
+  arbitrationEndTime
+  status
+  language
+  pendingTxs {
+    bet
+    resultSet
+    withdraw
+    total
+  }
+  roundBets
+  totalBets
+`;
+
 const PAGINATED_EVENTS = `
   totalCount
   ${PAGE_INFO}
   items {
-    txType
-    txid
-    txStatus
-    ${TX_RECEIPT}
-    blockNum
-    ${BLOCK}
-    address
-    ownerAddress
-    version
-    name
-    results
-    numOfResults
-    centralizedOracle
-    betStartTime
-    betEndTime
-    resultSetStartTime
-    resultSetEndTime
-    escrowAmount
-    arbitrationLength
-    thresholdPercentIncrease
-    arbitrationRewardPercentage
-    currentRound
-    currentResultIndex
-    consensusThreshold
-    arbitrationEndTime
-    status
-    language
-    pendingTxs {
-      bet
-      resultSet
-      withdraw
-      total
-    }
-    roundBets
-    totalBets
+    ${MULTIPLE_RESULTS_EVENT}
   }
 `;
 
@@ -129,6 +133,7 @@ module.exports = {
   PAGE_INFO,
   BLOCK,
   TX_RECEIPT,
+  MULTIPLE_RESULTS_EVENT,
   PAGINATED_EVENTS,
   PAGINATED_BETS,
   PAGINATED_RESULT_SETS,
