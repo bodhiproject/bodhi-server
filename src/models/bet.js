@@ -21,13 +21,13 @@ module.exports = class Bet {
   format(params) {
     // Chain params
     this.txType = Number(params.eventRound) === 0 ? TX_TYPE.BET : TX_TYPE.VOTE;
-    this.txid = params.txid;
+    this.txid = params.txid.toLowerCase();
     this.txStatus = params.txStatus;
     this.blockNum = params.blockNum;
 
     // Bet params
-    this.eventAddress = params.eventAddress;
-    this.betterAddress = params.betterAddress;
+    this.eventAddress = params.eventAddress.toLowerCase();
+    this.betterAddress = params.betterAddress.toLowerCase();
     this.resultIndex = params.resultIndex;
     this.amount = params.amount.toString(10);
     this.eventRound = params.eventRound;
