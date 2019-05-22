@@ -27,7 +27,7 @@ module.exports = async (
   root,
   { filter, orderBy, limit, skip },
   { db: { Bets } },
-  ) => {
+) => {
   const betFilters = buildFilters(filter);
   const query = filter ? { $or: betFilters } : {};
   const result = await Bets.find(query);
