@@ -180,6 +180,11 @@ type SyncInfo {
   syncPercent: Int
 }
 
+type TotalResultBets {
+  resultBets: [String]!
+  betterBets: [String]
+}
+
 type AllStats {
   eventCount: String!
   participantCount: String!
@@ -263,6 +268,11 @@ input TransactionFilter {
   transactorAddress: String
 }
 
+input TotalResultBetsFilter {
+  eventAddress: String!
+  betterAddress: String
+}
+
 type Query {
   events(
     filter: EventFilter
@@ -316,6 +326,10 @@ type Query {
   ): PaginatedTransactions!
 
   syncInfo: SyncInfo!
+
+  totalResultBets(
+    filter: TotalResultBetsFilter
+  ): TotalResultBets!
 
   allStats: AllStats!
 
