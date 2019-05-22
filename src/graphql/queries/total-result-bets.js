@@ -1,4 +1,4 @@
-const { fill, each, map } = require('lodash');
+const { isNull, fill, each, map } = require('lodash');
 const DBHelper = require('../../db/db-helper');
 const { web3 } = require('../../web3');
 
@@ -15,7 +15,7 @@ const accumulateBets = (numOfResults, bets) => {
 
 module.exports = async (
   root,
-  { filter },
+  { filter = {} },
   { db },
 ) => {
   const { eventAddress, betterAddress } = filter;
@@ -23,6 +23,7 @@ module.exports = async (
 
   // Get num of results for event
   const event = await DBHelper.findOneEvent(db, { address: eventAddress });
+  if (isNull(event)) throw Error('Event not found');
   const { numOfResults } = event;
 
   // Accumulate all result bets
