@@ -31,7 +31,7 @@ const buildBetFilters = ({
   transactorAddress,
 }) => {
   const filters = {};
-  if (eventAddress) filters.address = eventAddress;
+  if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.betterAddress = transactorAddress;
   return filters;
 };
@@ -41,7 +41,7 @@ const buildResultSetFilters = ({
   transactorAddress,
 }) => {
   const filters = {};
-  if (eventAddress) filters.address = eventAddress;
+  if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.centralizedOracleAddress = transactorAddress;
   return filters;
 };
@@ -51,7 +51,7 @@ const buildWithdrawFilters = ({
   transactorAddress,
 }) => {
   const filters = {};
-  if (eventAddress) filters.address = eventAddress;
+  if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.winnerAddress = transactorAddress;
   return filters;
 };
