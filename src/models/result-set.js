@@ -1,5 +1,5 @@
 /* eslint no-underscore-dangle: 0 */
-const { isFinite, isString } = require('lodash');
+const { isFinite, isString, isNull } = require('lodash');
 const { TX_TYPE } = require('../constants');
 
 module.exports = class ResultSet {
@@ -20,13 +20,15 @@ module.exports = class ResultSet {
   format(params) {
     // Chain params
     this.txType = TX_TYPE.RESULT_SET;
-    this.txid = params.txid;
+    this.txid = params.txid.toLowerCase();
     this.txStatus = params.txStatus;
     this.blockNum = params.blockNum;
 
     // Result Set params
-    this.eventAddress = params.eventAddress;
-    this.centralizedOracleAddress = params.centralizedOracleAddress;
+    this.eventAddress = params.eventAddress.toLowerCase();
+    this.centralizedOracleAddress = !isNull(params.centralizedOracleAddress)
+      ? params.centralizedOracleAddress.toLowerCase()
+      : null;
     this.resultIndex = params.resultIndex;
     this.amount = params.amount;
     this.eventRound = params.eventRound;
