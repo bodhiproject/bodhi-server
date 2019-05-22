@@ -1,5 +1,5 @@
 const { isArray, each } = require('lodash');
-const { buildCursorOptions } = require('./utils');
+const { lowercaseFilters, buildCursorOptions } = require('./utils');
 
 const buildFilters = ({
   OR,
@@ -49,11 +49,11 @@ const buildSearchPhrase = (searchPhrase) => {
 
 module.exports = async (
   root,
-  { searchPhrase, filter, orderBy, limit, skip },
+  { filter, orderBy, limit, skip, searchPhrase },
   { db: { Events } },
 ) => {
   const filters = [];
-  if (filter) filters.push({ $or: buildFilters(filter) });
+  if (filter) filters.push({ $or: buildFilters(lowercaseFilters(filter)) });
   if (searchPhrase) filters.push({ $or: buildSearchPhrase(searchPhrase) });
 
   const query = { $and: filters };

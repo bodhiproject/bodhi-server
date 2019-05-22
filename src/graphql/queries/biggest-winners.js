@@ -1,4 +1,5 @@
 const { each, find, orderBy: _orderBy, isArray } = require('lodash');
+const { lowercaseFilters } = require('./utils');
 const MultipleResultsEventApi = require('../../api/multiple-results-event');
 
 const buildFilters = ({
@@ -28,8 +29,7 @@ module.exports = async (
   { filter, orderBy, limit, skip },
   { db: { Bets } },
 ) => {
-  const filters = buildFilters(filter);
-  const query = filter ? { $or: filters } : {};
+  const query = filter ? { $or: buildFilters(lowercaseFilters(filter)) } : {};
   const bets = await Bets.find(query);
 
   const filtered = [];

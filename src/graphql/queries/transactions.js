@@ -1,5 +1,5 @@
 const { concat, orderBy: order, slice } = require('lodash');
-const { buildCursorOptions, constructPageInfo } = require('./utils');
+const { lowercaseFilters, buildCursorOptions, constructPageInfo } = require('./utils');
 const { ORDER_DIRECTION } = require('../../constants');
 
 const buildTxFilters = ({
@@ -61,7 +61,7 @@ module.exports = async (
   { filter, limit = 500, skip = 0 },
   { db: { Events, Bets, ResultSets, Withdraws } },
 ) => {
-  const txFilters = buildTxFilters(filter);
+  const txFilters = buildTxFilters(lowercaseFilters(filter));
   const orderBy = { blockNum: -1 };
 
   // Run Events query

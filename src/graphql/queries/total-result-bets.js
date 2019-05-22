@@ -1,4 +1,5 @@
 const { isNull, fill, each, map } = require('lodash');
+const { lowercaseFilters } = require('./utils');
 const DBHelper = require('../../db/db-helper');
 const { web3 } = require('../../web3');
 
@@ -18,7 +19,7 @@ module.exports = async (
   { filter = {} },
   { db },
 ) => {
-  const { eventAddress, betterAddress } = filter;
+  const { eventAddress, betterAddress } = lowercaseFilters(filter);
   if (!eventAddress) throw Error('Must include eventAddress filter');
 
   // Get num of results for event
