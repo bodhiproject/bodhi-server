@@ -5,6 +5,7 @@ const resultSets = require('./result-sets');
 const withdraws = require('./withdraws');
 const transactions = require('./transactions');
 const syncInfo = require('./sync-info');
+const totalResultBets = require('./total-result-bets');
 const allStats = require('./all-stats');
 const mostBets = require('./most-bets');
 const biggestWinners = require('./biggest-winners');
@@ -17,6 +18,7 @@ module.exports = {
   withdraws,
   transactions,
   syncInfo,
+  totalResultBets,
   allStats,
   mostBets,
   biggestWinners,
