@@ -42,6 +42,8 @@ const initConfig = () => {
       endBlock,
     };
   });
+
+  if (!versionConfig) throw Error('Could not initialize versionConfig');
 };
 
 /**
