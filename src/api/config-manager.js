@@ -4,11 +4,13 @@ const { BLOCKCHAIN_ENV } = require('../constants');
 const { web3 } = require('../web3');
 const { logger } = require('../utils/logger');
 
+const naka = web3();
+const { utils: { toBN } } = naka;
+
 function getContract() {
   const metadata = getContractMetadata(0).ConfigManager;
   const address = CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET
     ? metadata.mainnet : metadata.testnet;
-  const naka = web3();
   return new naka.eth.Contract(metadata.abi, address);
 }
 
@@ -34,7 +36,7 @@ module.exports = {
   async eventEscrowAmount() {
     try {
       const res = await getContract().methods.eventEscrowAmount().call();
-      return res.toString(10);
+      return toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error ConfigManager.eventEscrowAmount(): ${err.message}`);
       throw err;
@@ -44,7 +46,7 @@ module.exports = {
   async arbitrationLength() {
     try {
       const res = await getContract().methods.arbitrationLength().call();
-      return res.toString(10);
+      return toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error ConfigManager.arbitrationLength(): ${err.message}`);
       throw err;
@@ -54,7 +56,7 @@ module.exports = {
   async arbitrationRewardPercentage() {
     try {
       const res = await getContract().methods.arbitrationRewardPercentage().call();
-      return res.toString(10);
+      return toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error ConfigManager.arbitrationRewardPercentage(): ${err.message}`);
       throw err;
@@ -64,7 +66,7 @@ module.exports = {
   async startingOracleThreshold() {
     try {
       const res = await getContract().methods.startingOracleThreshold().call();
-      return res.toString(10);
+      return toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error ConfigManager.startingOracleThreshold(): ${err.message}`);
       throw err;
@@ -74,7 +76,7 @@ module.exports = {
   async thresholdPercentIncrease() {
     try {
       const res = await getContract().methods.thresholdPercentIncrease().call();
-      return res.toString(10);
+      return toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error ConfigManager.thresholdPercentIncrease(): ${err.message}`);
       throw err;

@@ -3,9 +3,11 @@ const { getContractMetadata } = require('../config');
 const { web3 } = require('../web3');
 const { logger } = require('../utils/logger');
 
+const naka = web3();
+const { utils: { toBN, toAscii } } = naka;
+
 function getContract(eventAddress) {
   const metadata = getContractMetadata().MultipleResultsEvent;
-  const naka = web3();
   return new naka.eth.Contract(metadata.abi, eventAddress);
 }
 
@@ -15,9 +17,10 @@ module.exports = {
       const { eventAddress, address } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
       if (isUndefined(address)) throw TypeError('address is not defined');
+
       const res = await getContract(eventAddress).methods.calculateWinnings()
         .call({ from: address });
-      return res.toString(10);
+      return toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.calculateWinnings(): ${err.message}`);
       throw err;
@@ -30,7 +33,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const res = await getContract(eventAddress).methods.version().call();
-      return res.toNumber();
+      return toBN(res).toNumber();
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.version(): ${err.message}`);
       throw err;
@@ -43,7 +46,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const res = await getContract(eventAddress).methods.currentRound().call();
-      return res.toNumber();
+      return toBN(res).toNumber();
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.currentRound(): ${err.message}`);
       throw err;
@@ -56,7 +59,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const res = await getContract(eventAddress).methods.currentResultIndex().call();
-      return res.toNumber();
+      return toBN(res).toNumber();
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.currentResultIndex(): ${err.message}`);
       throw err;
@@ -69,7 +72,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const res = await getContract(eventAddress).methods.currentConsensusThreshold().call();
-      return res.toString(10);
+      return toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.currentConsensusThreshold(): ${err.message}`);
       throw err;
@@ -82,7 +85,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const res = await getContract(eventAddress).methods.currentArbitrationEndTime().call();
-      return res.toString(10);
+      return toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.currentArbitrationEndTime(): ${err.message}`);
       throw err;
@@ -96,10 +99,10 @@ module.exports = {
 
       const res = await getContract(eventAddress).methods.eventMetadata().call();
       return [
-        res[0].toNumber(),
+        toBN(res[0]).toNumber(),
         res[1],
-        map(res[2], item => web3().utils.toAscii(item)),
-        res[3].toNumber(),
+        map(res[2], item => toAscii(item)),
+        toBN(res[3]).toNumber(),
       ];
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.eventMetadata(): ${err.message}`);
@@ -115,10 +118,10 @@ module.exports = {
       const res = await getContract(eventAddress).methods.centralizedMetadata().call();
       return [
         res[0],
-        res[1].toString(10),
-        res[2].toString(10),
-        res[3].toString(10),
-        res[4].toString(10),
+        toBN(res[1]).toString(10),
+        toBN(res[2]).toString(10),
+        toBN(res[3]).toString(10),
+        toBN(res[4]).toString(10),
       ];
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.centralizedMetadata(): ${err.message}`);
@@ -133,10 +136,10 @@ module.exports = {
 
       const res = await getContract(eventAddress).methods.configMetadata().call();
       return [
-        res[0].toString(10),
-        res[1].toString(10),
-        res[2].toString(10),
-        res[3].toString(10),
+        toBN(res[0]).toString(10),
+        toBN(res[1]).toString(10),
+        toBN(res[2]).toString(10),
+        toBN(res[3]).toString(10),
       ];
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.configMetadata(): ${err.message}`);
@@ -150,7 +153,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const res = await getContract(eventAddress).methods.totalBets().call();
-      return res.toString(10);
+      return toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.totalBets(): ${err.message}`);
       throw err;
