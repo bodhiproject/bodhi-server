@@ -1,13 +1,18 @@
-const { isUndefined, map } = require('lodash');
+const { isNull, isUndefined, map } = require('lodash');
 const { getContractMetadata } = require('../config');
 const { web3 } = require('../web3');
 const { logger } = require('../utils/logger');
+const { db } = require('../db');
+const DBHelper = require('../db/db-helper');
 
-function getContract(eventAddress) {
-  const metadata = getContractMetadata().MultipleResultsEvent;
+const getContract = async (eventAddress) => {
+  const event = await DBHelper.findOneEvent(db, { address: eventAddress });
+  if (isNull(event)) throw Error('Event not found');
+
+  const metadata = getContractMetadata(event.version).MultipleResultsEvent;
   const naka = web3();
   return new naka.eth.Contract(metadata.abi, eventAddress);
-}
+};
 
 module.exports = {
   async calculateWinnings(args) {
