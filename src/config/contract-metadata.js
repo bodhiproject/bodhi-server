@@ -1,13 +1,10 @@
 /* eslint-disable */
-
-// Use the contract version number as the object key
+/**
+ * Use the contract version number as the object key.
+ * For all new versions, must include EventFactory and MultipleResultsEvent data.
+ */
 module.exports = {
   1: {
-    ConfigManager: {
-      mainnet: '',
-      testnet: '0x4739f0edf7fe6094bb799bfcfa97b377686d1c00',
-      abi: [{"constant": true,"inputs": [],"name": "owner","outputs": [{"name": "","type": "address"}],"payable": false,"stateMutability": "view","type": "function"},{"constant": false,"inputs": [{"name": "_newOwner","type": "address"}],"name": "transferOwnership","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"inputs": [],"payable": false,"stateMutability": "nonpayable","type": "constructor"},{"anonymous": false,"inputs": [{"indexed": true,"name": "oldAddress","type": "address"},{"indexed": true,"name": "newAddress","type": "address"}],"name": "BodhiTokenChanged","type": "event"},{"anonymous": false,"inputs": [{"indexed": true,"name": "oldAddress","type": "address"},{"indexed": true,"name": "newAddress","type": "address"}],"name": "EventFactoryChanged","type": "event"},{"anonymous": false,"inputs": [{"indexed": true,"name": "contractAddress","type": "address"}],"name": "ContractWhitelisted","type": "event"},{"anonymous": false,"inputs": [{"indexed": true,"name": "_previousOwner","type": "address"},{"indexed": true,"name": "_newOwner","type": "address"}],"name": "OwnershipTransferred","type": "event"},{"constant": false,"inputs": [{"name": "contractAddress","type": "address"}],"name": "addToWhitelist","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": false,"inputs": [{"name": "contractAddress","type": "address"}],"name": "setBodhiToken","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": false,"inputs": [{"name": "contractAddress","type": "address"}],"name": "setEventFactory","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": false,"inputs": [{"name": "newAmount","type": "uint256"}],"name": "setEventEscrowAmount","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": false,"inputs": [{"name": "newLength","type": "uint256"}],"name": "setArbitrationLength","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": false,"inputs": [{"name": "newPercentage","type": "uint8"}],"name": "setArbitrationRewardPercentage","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": false,"inputs": [{"name": "newThreshold","type": "uint256"}],"name": "setStartingOracleThreshold","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": false,"inputs": [{"name": "newPercentage","type": "uint256"}],"name": "setConsensusThresholdPercentIncrease","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": true,"inputs": [],"name": "bodhiTokenAddress","outputs": [{"name": "","type": "address"}],"payable": false,"stateMutability": "view","type": "function"},{"constant": true,"inputs": [],"name": "eventFactoryAddress","outputs": [{"name": "","type": "address"}],"payable": false,"stateMutability": "view","type": "function"},{"constant": true,"inputs": [],"name": "eventEscrowAmount","outputs": [{"name": "","type": "uint256"}],"payable": false,"stateMutability": "view","type": "function"},{"constant": true,"inputs": [],"name": "arbitrationLength","outputs": [{"name": "","type": "uint256"}],"payable": false,"stateMutability": "view","type": "function"},{"constant": true,"inputs": [],"name": "arbitrationRewardPercentage","outputs": [{"name": "","type": "uint8"}],"payable": false,"stateMutability": "view","type": "function"},{"constant": true,"inputs": [],"name": "startingOracleThreshold","outputs": [{"name": "","type": "uint256"}],"payable": false,"stateMutability": "view","type": "function"},{"constant": true,"inputs": [],"name": "thresholdPercentIncrease","outputs": [{"name": "","type": "uint256"}],"payable": false,"stateMutability": "view","type": "function"},{"constant": true,"inputs": [{"name": "contractAddress","type": "address"}],"name": "isWhitelisted","outputs": [{"name": "","type": "bool"}],"payable": false,"stateMutability": "view","type": "function"}],
-    },
     EventFactory: {
       mainnet: '',
       mainnetDeployBlock: 0,
@@ -37,5 +34,4 @@ module.exports = {
     },
   },
 };
-
 /* eslint-enable */

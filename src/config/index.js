@@ -5,7 +5,6 @@ const { BLOCKCHAIN_ENV } = require('../constants');
 const contractMetadata = require('./contract-metadata');
 
 const CONFIG = {
-  CONTRACT_VERSION: Number(process.env.CONTRACT_VERSION),
   NETWORK: process.env.NETWORK,
   RPC_MAINNET: 'https://api.nakachain.org',
   RPC_TESTNET: 'https://testnet.api.nakachain.org',
@@ -131,14 +130,6 @@ const getContractMetadata = (version) => {
   return contractMetadata[version];
 };
 
-/**
- * Gets the contract address for the given contract name.
- * @param {string} contractName Name of contract to fetch.
- * @return {string} Address of the contract.
- */
-const getContractAddress = contractName =>
-  contractMetadata[CONFIG.CONTRACT_VERSION][contractName][CONFIG.NETWORK];
-
 const getSSLCredentials = () => {
   if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
     throw Error('SSL Key and Cert paths not found');
@@ -158,6 +149,5 @@ module.exports = {
   isMainnet,
   determineContractVersion,
   getContractMetadata,
-  getContractAddress,
   getSSLCredentials,
 };

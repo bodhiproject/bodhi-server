@@ -1,6 +1,6 @@
 const { each, isNull } = require('lodash');
 const { web3 } = require('../web3');
-const { getContractAddress } = require('../config');
+const { CONFIG } = require('../config');
 const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
 const { getTransactionReceipt } = require('../utils/web3-utils');
@@ -53,12 +53,12 @@ const getBlocksAndReceipts = async (currBlockNum) => {
   return { blockNums, txReceipts };
 };
 
-const getLogs = async ({ naka, abiObj, blockNum }) => {
+const getLogs = async ({ naka, abiObj, contractMetadata, blockNum }) => {
   const eventSig = naka.eth.abi.encodeEventSignature(abiObj);
   return naka.eth.getPastLogs({
     fromBlock: blockNum,
     toBlock: blockNum,
-    address: getContractAddress('EventFactory'),
+    address: contractMetadata.EventFactory[CONFIG.NETWORK],
     topics: [eventSig],
   });
 };
@@ -137,7 +137,7 @@ module.exports = async (contractMetadata, currBlockNum) => {
       promises.push(new Promise(async (resolve, reject) => {
         try {
           // Parse each event and insert
-          const logs = await getLogs({ naka, abiObj, blockNum });
+          const logs = await getLogs({ naka, abiObj, contractMetadata, blockNum });
           each(logs, async (log) => {
             const event = await parseLog({ naka, abiObj, contractMetadata, log });
             await DBHelper.insertEvent(db, event);
