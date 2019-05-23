@@ -126,7 +126,7 @@ const determineContractVersion = (blockNum) => {
  * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
  * @return {Object} Contract metadata.
  */
-const getContractMetadata = (version = CONFIG.CONTRACT_VERSION) => {
+const getContractMetadata = (version) => {
   if (!isNumber(version)) throw Error('Must supply a version number');
   return contractMetadata[version];
 };
@@ -156,6 +156,7 @@ module.exports = {
   getDbDir,
   getLogsDir,
   isMainnet,
+  determineContractVersion,
   getContractMetadata,
   getContractAddress,
   getSSLCredentials,

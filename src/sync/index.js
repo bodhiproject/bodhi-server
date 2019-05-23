@@ -1,6 +1,9 @@
 const { isNull } = require('lodash');
-
-const { getContractMetadata, isMainnet } = require('../config');
+const {
+  determineContractVersion,
+  getContractMetadata,
+  isMainnet,
+} = require('../config');
 const { web3 } = require('../web3');
 const syncMultipleResultsEventCreated = require('./multiple-results-event-created');
 const syncBetPlaced = require('./bet-placed');
@@ -14,7 +17,6 @@ const { logger } = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
 
 const SYNC_START_DELAY = 4000;
-let contractMetadata;
 
 /**
  * Starts the sync logic. It will loop indefinitely until cancelled.
@@ -22,11 +24,6 @@ let contractMetadata;
  */
 const startSync = async (shouldUpdateLocalTxs) => {
   try {
-    if (!contractMetadata) {
-      contractMetadata = getContractMetadata();
-      if (!contractMetadata) throw Error('No contract metadata found');
-    }
-
     const currentBlockNum = await getStartBlock();
     const currentBlockTime = await getBlockTime(currentBlockNum);
 
@@ -37,6 +34,10 @@ const startSync = async (shouldUpdateLocalTxs) => {
     }
 
     logger().debug(`Syncing block ${currentBlockNum}`);
+
+    // Get contract metadata based on block number
+    const contractVersion = determineContractVersion(currentBlockNum);
+    const contractMetadata = getContractMetadata(contractVersion);
 
     // Parse blockchain logs
     await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
@@ -82,18 +83,18 @@ const delayThenSync = (delay, shouldUpdateLocalTxs) => {
  * Determines the start block to start syncing from.
  */
 const getStartBlock = async () => {
-  // Get deploy block of EventFactory
-  let startBlock = isMainnet()
-    ? contractMetadata.EventFactory.mainnetDeployBlock
-    : contractMetadata.EventFactory.testnetDeployBlock;
-  if (!startBlock) throw Error('Missing deploy block for EventFactory');
-
-  // Check if last block synced is greater than the deploy block
+  let startBlock;
   const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
   if (blocks.length > 0) {
+    // Blocks found in DB, use the last synced block as start
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
+  } else {
+    // No blocks found in DB, use earliest version's deploy block
+    const contractMetadata = getContractMetadata(0);
+    startBlock = isMainnet()
+      ? contractMetadata.EventFactory.mainnetDeployBlock
+      : contractMetadata.EventFactory.testnetDeployBlock;
   }
-
   return startBlock;
 };
 
