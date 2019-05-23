@@ -1,4 +1,5 @@
-const { isNumber, toInteger, isArray } = require('lodash');
+const { each, isNumber, toInteger, isArray } = require('lodash');
+const { lowercaseFilters } = require('./utils');
 const { web3 } = require('../../web3');
 
 const buildFilters = ({
@@ -28,8 +29,7 @@ module.exports = async (
   { filter, orderBy, limit, skip },
   { db: { Bets } },
 ) => {
-  const betFilters = buildFilters(filter);
-  const query = filter ? { $or: betFilters } : {};
+  const query = filter ? { $or: buildFilters(lowercaseFilters(filter)) } : {};
   const result = await Bets.find(query);
   const naka = web3();
 

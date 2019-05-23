@@ -1,5 +1,5 @@
 const { isArray, each, isNumber } = require('lodash');
-const { runPaginatedQuery } = require('./utils');
+const { lowercaseFilters, runPaginatedQuery } = require('./utils');
 
 const errCOracleFilterConflict =
   Error('Cannot have both centralizedOracle and excludeCentralizedOracle filters');
@@ -62,7 +62,7 @@ module.exports = async (
   context.pendingTxsAddress = pendingTxsAddress;
   context.includeRoundBets = includeRoundBets;
 
-  const query = filter ? { $or: buildFilters(filter) } : {};
+  const query = filter ? { $or: buildFilters(lowercaseFilters(filter)) } : {};
   return runPaginatedQuery({
     db: Events,
     filter: query,

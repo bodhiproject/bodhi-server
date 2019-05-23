@@ -1,4 +1,4 @@
-const { find } = require('lodash');
+const { find, isUndefined, isNull, isString } = require('lodash');
 
 module.exports = {
   /**
@@ -11,5 +11,17 @@ module.exports = {
   getAbiObject: (abi, name, type) => {
     if (!abi) return undefined;
     return find(abi, { name, type });
+  },
+
+  /**
+   * Returns the lowercased string if the string is valid.
+   * @param {string} str String to lowercase
+   * @return {string} Lowercased string
+   */
+  toLowerCase: (str) => {
+    if (isUndefined(str)) return undefined;
+    if (isNull(str)) return null;
+    if (!isString(str)) return str;
+    return str.toLowerCase();
   },
 };

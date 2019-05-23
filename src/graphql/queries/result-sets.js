@@ -1,5 +1,5 @@
 const { isArray, each } = require('lodash');
-const { runPaginatedQuery } = require('./utils');
+const { lowercaseFilters, runPaginatedQuery } = require('./utils');
 
 const buildFilters = ({
   OR,
@@ -37,7 +37,7 @@ module.exports = async (
   { filter, orderBy, limit, skip },
   { db: { ResultSets } },
 ) => {
-  const query = filter ? { $or: buildFilters(filter) } : {};
+  const query = filter ? { $or: buildFilters(lowercaseFilters(filter)) } : {};
   return runPaginatedQuery({
     db: ResultSets,
     filter: query,

@@ -1,5 +1,6 @@
 const { isFinite, isString, map, filter } = require('lodash');
 const { TX_TYPE, INVALID_RESULT_INDEX, EVENT_STATUS } = require('../constants');
+const { toLowerCase } = require('../utils');
 const { web3 } = require('../web3');
 
 module.exports = class MultipleResultsEvent {
@@ -24,13 +25,13 @@ module.exports = class MultipleResultsEvent {
   format(params) {
     // Chain params
     this.txType = TX_TYPE.CREATE_EVENT;
-    this.txid = params.txid;
+    this.txid = toLowerCase(params.txid);
     this.txStatus = params.txStatus;
     this.blockNum = params.blockNum;
 
     // Event params
-    this.address = params.address;
-    this.ownerAddress = params.ownerAddress;
+    this.address = toLowerCase(params.address);
+    this.ownerAddress = toLowerCase(params.ownerAddress);
     this.version = params.version;
     this.name = params.name;
     this.results = filter(
@@ -38,7 +39,7 @@ module.exports = class MultipleResultsEvent {
       item => !!item,
     );
     this.numOfResults = params.numOfResults;
-    this.centralizedOracle = params.centralizedOracle;
+    this.centralizedOracle = toLowerCase(params.centralizedOracle);
     this.betStartTime = params.betStartTime;
     this.betEndTime = params.betEndTime;
     this.resultSetStartTime = params.resultSetStartTime;

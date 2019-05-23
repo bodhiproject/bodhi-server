@@ -1,5 +1,5 @@
 const { uniqBy, each } = require('lodash');
-const { runPaginatedQuery } = require('./utils');
+const { lowercaseFilters, runPaginatedQuery } = require('./utils');
 const DBHelper = require('../../db/db-helper');
 const { EVENT_STATUS } = require('../../constants');
 
@@ -42,8 +42,9 @@ const buildFilters = (bets, filter) => {
 };
 
 module.exports = async (parent, { filter, orderBy, limit, skip }, { db }) => {
-  const bets = await getUniqueBets(filter.withdrawerAddress, db);
-  const query = { $or: buildFilters(bets, filter) };
+  const filters = lowercaseFilters(filter);
+  const bets = await getUniqueBets(filters.withdrawerAddress, db);
+  const query = { $or: buildFilters(bets, filters) };
   return runPaginatedQuery({
     db: db.Events,
     filter: query,

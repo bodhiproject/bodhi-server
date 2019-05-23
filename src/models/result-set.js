@@ -1,6 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
 const { isFinite, isString } = require('lodash');
 const { TX_TYPE } = require('../constants');
+const { toLowerCase } = require('../utils');
 
 module.exports = class ResultSet {
   constructor(params) {
@@ -20,13 +21,13 @@ module.exports = class ResultSet {
   format(params) {
     // Chain params
     this.txType = TX_TYPE.RESULT_SET;
-    this.txid = params.txid;
+    this.txid = toLowerCase(params.txid);
     this.txStatus = params.txStatus;
     this.blockNum = params.blockNum;
 
     // Result Set params
-    this.eventAddress = params.eventAddress;
-    this.centralizedOracleAddress = params.centralizedOracleAddress;
+    this.eventAddress = toLowerCase(params.eventAddress);
+    this.centralizedOracleAddress = toLowerCase(params.centralizedOracleAddress);
     this.resultIndex = params.resultIndex;
     this.amount = params.amount;
     this.eventRound = params.eventRound;
