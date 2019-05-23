@@ -87,7 +87,7 @@ const getStartBlock = async () => {
   const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
   if (blocks.length > 0) {
     // Blocks found in DB, use the last synced block as start
-    startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
+    startBlock = blocks[0].blockNum + 1;
   } else {
     // No blocks found in DB, use earliest version's deploy block
     const contractMetadata = getContractMetadata(0);
