@@ -1,5 +1,4 @@
 const { isUndefined, map } = require('lodash');
-
 const { getContractMetadata } = require('../config');
 const { web3 } = require('../web3');
 const { logger } = require('../utils/logger');
