@@ -88,6 +88,11 @@ function getLogsDir() {
 
 const isMainnet = () => CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET;
 
+/**
+ * Determines the correct contract version for a block number.
+ * @param {number} blockNum Block number to determine which contract version to use.
+ * @return {number} Contract version.
+ */
 const determineContractVersion = (blockNum) => {
   if (isUndefined(blockNum)) throw Error('blockNum is undefined');
   if (!versionConfig) throw Error('versionConfig was not initialized');
