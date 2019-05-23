@@ -16,7 +16,8 @@ module.exports = {
       const { eventAddress, address } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
       if (isUndefined(address)) throw TypeError('address is not defined');
-      const res = await getContract(eventAddress).methods.calculateWinnings().call({from: address});
+      const res = await getContract(eventAddress).methods.calculateWinnings()
+        .call({ from: address });
       return res.toString(10);
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.calculateWinnings(): ${err.message}`);
