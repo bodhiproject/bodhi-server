@@ -21,8 +21,8 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
       if (isUndefined(address)) throw TypeError('address is not defined');
 
-      const res = await getContract(eventAddress).methods.calculateWinnings()
-        .call({ from: address });
+      const contract = await getContract(eventAddress);
+      const res = await contract.methods.calculateWinnings().call({ from: address });
       return web3().utils.toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.calculateWinnings(): ${err.message}`);
@@ -35,7 +35,8 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const res = await getContract(eventAddress).methods.version().call();
+      const contract = await getContract(eventAddress);
+      const res = await contract.methods.version().call();
       return web3().utils.toBN(res).toNumber();
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.version(): ${err.message}`);
@@ -48,7 +49,8 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const res = await getContract(eventAddress).methods.currentRound().call();
+      const contract = await getContract(eventAddress);
+      const res = await contract.methods.currentRound().call();
       return web3().utils.toBN(res).toNumber();
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.currentRound(): ${err.message}`);
@@ -61,7 +63,8 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const res = await getContract(eventAddress).methods.currentResultIndex().call();
+      const contract = await getContract(eventAddress);
+      const res = await contract.methods.currentResultIndex().call();
       return web3().utils.toBN(res).toNumber();
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.currentResultIndex(): ${err.message}`);
@@ -74,7 +77,8 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const res = await getContract(eventAddress).methods.currentConsensusThreshold().call();
+      const contract = await getContract(eventAddress);
+      const res = await contract.methods.currentConsensusThreshold().call();
       return web3().utils.toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.currentConsensusThreshold(): ${err.message}`);
@@ -87,7 +91,8 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const res = await getContract(eventAddress).methods.currentArbitrationEndTime().call();
+      const contract = await getContract(eventAddress);
+      const res = await contract.methods.currentArbitrationEndTime().call();
       return web3().utils.toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.currentArbitrationEndTime(): ${err.message}`);
@@ -101,7 +106,8 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const { utils: { toBN, toAscii } } = web3();
-      const res = await getContract(eventAddress).methods.eventMetadata().call();
+      const contract = await getContract(eventAddress);
+      const res = await contract.methods.eventMetadata().call();
       return [
         toBN(res[0]).toNumber(),
         res[1],
@@ -120,7 +126,8 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const { utils: { toBN } } = web3();
-      const res = await getContract(eventAddress).methods.centralizedMetadata().call();
+      const contract = await getContract(eventAddress);
+      const res = await contract.methods.centralizedMetadata().call();
       return [
         res[0],
         web3().utils.toBN(res[1]).toString(10),
@@ -140,7 +147,8 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const { utils: { toBN } } = web3();
-      const res = await getContract(eventAddress).methods.configMetadata().call();
+      const contract = await getContract(eventAddress);
+      const res = await contract.methods.configMetadata().call();
       return [
         toBN(res[0]).toString(10),
         toBN(res[1]).toString(10),
@@ -158,7 +166,8 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const res = await getContract(eventAddress).methods.totalBets().call();
+      const contract = await getContract(eventAddress);
+      const res = await contract.methods.totalBets().call();
       return web3().utils.toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.totalBets(): ${err.message}`);
@@ -172,7 +181,8 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
       if (isUndefined(address)) throw TypeError('address is not defined');
 
-      return getContract(eventAddress).methods.didWithdraw(address).call();
+      const contract = await getContract(eventAddress);
+      return contract.methods.didWithdraw(address).call();
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.didWithdraw(): ${err.message}`);
       throw err;
@@ -184,7 +194,8 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      return getContract(eventAddress).methods.didWithdrawEscrow().call();
+      const contract = await getContract(eventAddress);
+      return contract.methods.didWithdrawEscrow().call();
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.didWithdrawEscrow(): ${err.message}`);
       throw err;
