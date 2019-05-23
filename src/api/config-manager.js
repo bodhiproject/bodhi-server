@@ -4,13 +4,13 @@ const { BLOCKCHAIN_ENV } = require('../constants');
 const { web3 } = require('../web3');
 const { logger } = require('../utils/logger');
 
-function getContract() {
+const getContract = () => {
   const metadata = getContractMetadata(0).ConfigManager;
   const address = CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET
     ? metadata.mainnet : metadata.testnet;
   const naka = web3();
   return new naka.eth.Contract(metadata.abi, address);
-}
+};
 
 module.exports = {
   async bodhiTokenAddress() {
