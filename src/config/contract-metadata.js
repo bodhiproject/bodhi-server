@@ -2,6 +2,9 @@
 /**
  * Use the contract version number as the object key.
  * For all new versions, must include EventFactory and MultipleResultsEvent data.
+ * 
+ * IMPORTANT: The deployBlocks must be a block in the future that has not already
+ * been synced.
  */
 module.exports = {
   1: {
@@ -9,7 +12,7 @@ module.exports = {
       mainnet: '',
       mainnetDeployBlock: 0,
       testnet: '0x4116704445877d54188d11104b1843bb9089ccf5',
-      testnetDeployBlock: 3413512,
+      testnetDeployBlock: 3418128,
       abi: [{"inputs": [{"name": "configManager","type": "address"}],"payable": false,"stateMutability": "nonpayable","type": "constructor"},{"anonymous": false,"inputs": [{"indexed": true,"name": "eventAddress","type": "address"},{"indexed": true,"name": "ownerAddress","type": "address"}],"name": "MultipleResultsEventCreated","type": "event"},{"constant": false,"inputs": [{"name": "from","type": "address"},{"name": "value","type": "uint256"},{"name": "data","type": "bytes"}],"name": "tokenFallback","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": false,"inputs": [],"name": "withdrawEscrow","outputs": [{"name": "","type": "uint256"}],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": true,"inputs": [],"name": "didWithdraw","outputs": [{"name": "","type": "bool"}],"payable": false,"stateMutability": "view","type": "function"}],
     },
     MultipleResultsEvent: {
