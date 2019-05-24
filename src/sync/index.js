@@ -8,7 +8,7 @@ const web3 = require('../web3');
 const syncMultipleResultsEventCreated = require('./multiple-results-event-created');
 const { syncBetPlaced, pendingBetPlaced } = require('./bet-placed');
 const { syncResultSet, pendingResultSet } = require('./result-set');
-const syncVotePlaced = require('./vote-placed');
+const { syncVotePlaced, pendingVotePlaced } = require('./vote-placed');
 const syncVoteResultSet = require('./vote-result-set');
 const syncWinningsWithdrawn = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
@@ -90,6 +90,7 @@ const startSync = async () => {
     // Add pending promises
     await pendingBetPlaced({ startBlock, syncPromises });
     await pendingResultSet({ startBlock, syncPromises });
+    await pendingVotePlaced({ startBlock, syncPromises });
     await Promise.all(syncPromises);
 
     // Update statuses

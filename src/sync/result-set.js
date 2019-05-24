@@ -43,7 +43,7 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises }) => {
 
 const pendingResultSet = async ({ startBlock, syncPromises }) => {
   try {
-    // Find pending bets that have a block number less than the startBlock
+    // Find pending result sets that have a block number less than the startBlock
     const pending = await DBHelper.findResultSet(
       { txStatus: TX_STATUS.PENDING, blockNum: { $lt: startBlock }, eventRound: 0 },
       { blockNum: 1 },

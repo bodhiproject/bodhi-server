@@ -5,7 +5,7 @@ const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
 const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
-const parseBet = require('./parsers/bet-placed');
+const parseBet = require('./parsers/bet');
 
 const syncBetPlaced = async ({ startBlock, endBlock, syncPromises }) => {
   try {
