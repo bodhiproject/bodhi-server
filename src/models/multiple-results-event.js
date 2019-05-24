@@ -1,7 +1,7 @@
 const { isFinite, isString, map, filter } = require('lodash');
 const { TX_TYPE, INVALID_RESULT_INDEX, EVENT_STATUS } = require('../constants');
 const { toLowerCase } = require('../utils');
-const { web3 } = require('../web3');
+const web3 = require('../web3');
 
 module.exports = class MultipleResultsEvent {
   constructor(params) {
@@ -35,7 +35,7 @@ module.exports = class MultipleResultsEvent {
     this.version = params.version;
     this.name = params.name;
     this.results = filter(
-      map(params.results, item => web3().utils.hexToUtf8(item)),
+      map(params.results, item => web3.utils.hexToUtf8(item)),
       item => !!item,
     );
     this.numOfResults = params.numOfResults;

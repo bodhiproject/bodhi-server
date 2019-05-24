@@ -1,5 +1,5 @@
 const { uniqBy, each } = require('lodash');
-const { web3 } = require('../../web3');
+const web3 = require('../../web3');
 
 module.exports = async (
   root,
@@ -10,9 +10,9 @@ module.exports = async (
   const bets = await Bets.find({});
   const participantCount = uniqBy(bets, 'betterAddress').length;
 
-  let totalBets = web3().utils.toBN(0);
+  let totalBets = web3.utils.toBN(0);
   each(bets, (bet) => {
-    totalBets = totalBets.add(web3().utils.toBN(bet.amount));
+    totalBets = totalBets.add(web3.utils.toBN(bet.amount));
   });
 
   return {

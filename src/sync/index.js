@@ -1,11 +1,10 @@
-const { isNull } = require('lodash');
 const {
   determineContractVersion,
   getContractVersionEndBlock,
   getContractMetadata,
   isMainnet,
 } = require('../config');
-const { web3 } = require('../web3');
+const web3 = require('../web3');
 const syncMultipleResultsEventCreated = require('./multiple-results-event-created');
 const syncBetPlaced = require('./bet-placed');
 const syncResultSet = require('./result-set');
@@ -56,7 +55,7 @@ const delayThenSync = (delay) => {
 const startSync = async () => {
   try {
     // Determine start and end blocks
-    const latestBlock = await web3().eth.getBlockNumber();
+    const latestBlock = await web3.eth.getBlockNumber();
     const startBlock = await getStartBlock();
     let endBlock = Math.min(startBlock + BLOCK_BATCHES, latestBlock);
 

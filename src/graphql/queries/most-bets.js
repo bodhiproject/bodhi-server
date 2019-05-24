@@ -1,6 +1,6 @@
 const { each, isNumber, toInteger, isArray } = require('lodash');
 const { lowercaseFilters } = require('./utils');
-const { web3 } = require('../../web3');
+const web3 = require('../../web3');
 
 const buildFilters = ({
   OR,
@@ -31,12 +31,11 @@ module.exports = async (
 ) => {
   const query = filter ? { $or: buildFilters(lowercaseFilters(filter)) } : {};
   const result = await Bets.find(query);
-  const naka = web3();
 
   const accumulated = result.reduce((acc, cur) => {
-    const amount = naka.utils.toBN(cur.amount);
+    const amount = web3.utils.toBN(cur.amount);
     if (Object.keys(acc).includes(cur.betterAddress)) {
-      acc[cur.betterAddress] = naka.utils.toBN(acc[cur.betterAddress]).add(amount);
+      acc[cur.betterAddress] = web3.utils.toBN(acc[cur.betterAddress]).add(amount);
     } else {
       acc[cur.betterAddress] = amount;
     }

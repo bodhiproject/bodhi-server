@@ -1,5 +1,5 @@
 const { isNull, each } = require('lodash');
-const { web3 } = require('../web3');
+const web3 = require('../web3');
 const TransactionReceipt = require('../models/tx-receipt');
 
 /**
@@ -8,7 +8,7 @@ const TransactionReceipt = require('../models/tx-receipt');
  * @return {TransactionReceipt} Transaction receipt
  */
 const getTransaction = async (txid) => {
-  const tx = await web3().eth.getTransaction(txid);
+  const tx = await web3.eth.getTransaction(txid);
   return new TransactionReceipt({
     transactionHash: tx.hash,
     blockHash: tx.blockHash,
@@ -27,7 +27,7 @@ const getTransaction = async (txid) => {
  * @return {TransactionReceipt|null} Transaction receipt or null
  */
 const getTransactionReceipt = async (txid) => {
-  const receipt = await web3().eth.getTransactionReceipt(txid);
+  const receipt = await web3.eth.getTransactionReceipt(txid);
   if (isNull(receipt)) return null;
   return new TransactionReceipt(receipt);
 };
@@ -39,7 +39,7 @@ const getTransactionReceipt = async (txid) => {
  * @return {BN} BN instance
  */
 const sumBN = (first, second) => {
-  const { utils } = web3();
+  const { utils } = web3;
   return utils.toBN(first).add(utils.toBN(second));
 };
 
@@ -49,7 +49,7 @@ const sumBN = (first, second) => {
  * @return {BN} BN instance
  */
 const sumArrayBN = (arr) => {
-  const { utils } = web3();
+  const { utils } = web3;
   let total = utils.toBN(0);
   each(arr, (num) => {
     total = total.add(utils.toBN(num));

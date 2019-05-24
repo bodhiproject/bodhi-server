@@ -1,10 +1,10 @@
 const { isNull, fill, each, map } = require('lodash');
 const { lowercaseFilters } = require('./utils');
 const DBHelper = require('../../db/db-helper');
-const { web3 } = require('../../web3');
+const web3 = require('../../web3');
 
 const accumulateBets = (numOfResults, bets) => {
-  const { toBN } = web3().utils;
+  const { toBN } = web3.utils;
   const accumBets = fill(Array(numOfResults), toBN(0));
 
   each(bets, (bet) => {
