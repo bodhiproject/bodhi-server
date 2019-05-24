@@ -3,23 +3,13 @@ const { CONFIG } = require('./config');
 const { BLOCKCHAIN_ENV } = require('./constants');
 const { logger } = require('./utils/logger');
 
-let instance;
+let url;
+if (CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET) {
+  url = CONFIG.RPC_MAINNET;
+  logger().info('Web3 connected to Mainnet');
+} else {
+  url = CONFIG.RPC_TESTNET;
+  logger().info('Web3 connected to Testnet');
+}
 
-const initWeb3 = () => {
-  if (!instance) {
-    if (CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET) {
-      instance = new Web3(CONFIG.RPC_MAINNET);
-      logger().info('Web3 connected to Mainnet');
-    } else {
-      instance = new Web3(CONFIG.RPC_TESTNET);
-      logger().info('Web3 connected to Testnet');
-    }
-  }
-};
-
-const web3 = () => instance;
-
-module.exports = {
-  initWeb3,
-  web3,
-};
+module.exports = new Web3(url);

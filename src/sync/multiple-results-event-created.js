@@ -52,7 +52,9 @@ const getBlocksAndReceipts = async (currBlockNum) => {
   return { blockNums, txReceipts };
 };
 
-const getLogs = async ({ naka, abiObj, contractMetadata, blockNum }) => {
+const getLogs = async ({ naka, abiObj, startBlock, endBlock }) => {
+
+
   const eventSig = naka.eth.abi.encodeEventSignature(abiObj);
   return naka.eth.getPastLogs({
     fromBlock: blockNum,
@@ -129,7 +131,7 @@ module.exports = async (contractMetadata, currBlockNum) => {
   try {
     const naka = web3();
     const abiObj = getAbiObj(contractMetadata);
-    const { blockNums, txReceipts } = await getBlocksAndReceipts(currBlockNum);
+    // const { blockNums, txReceipts } = await getBlocksAndReceipts(currBlockNum);
 
     const promises = [];
     each(blockNums, (blockNum) => {

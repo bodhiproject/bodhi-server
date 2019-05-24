@@ -16,6 +16,7 @@ const { logger } = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
 
 const SYNC_START_DELAY = 4000;
+const BLOCK_BATCHES = 1000;
 
 /**
  * Starts the sync logic. It will loop indefinitely until cancelled.
@@ -23,6 +24,18 @@ const SYNC_START_DELAY = 4000;
  */
 const startSync = async (shouldUpdateLocalTxs) => {
   try {
+    const latestBlock = await web3().eth.getBlockNumber();
+    const startBlock = await getStartBlock();
+    const endBlock = Math.min(startBlock + BLOCK_BATCHES, latestBlock);
+    logger().debug(`Syncing blocks ${startBlock} - ${endBlock}`);
+
+    const syncPromises = [];
+    
+
+
+
+
+
     const currentBlockNum = await getStartBlock();
     const currentBlockTime = await getBlockTime(currentBlockNum);
 
