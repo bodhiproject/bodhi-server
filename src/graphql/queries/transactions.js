@@ -43,6 +43,7 @@ const buildResultSetFilters = ({
   const filters = {};
   if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.centralizedOracleAddress = transactorAddress;
+  filters.fromVote = false;
   return filters;
 };
 
