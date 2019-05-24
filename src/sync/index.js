@@ -17,7 +17,7 @@ const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
 
 const SYNC_START_DELAY = 3000;
-const BLOCK_BATCHES = 1000;
+const BLOCK_BATCHES = 50;
 
 /**
  * Determines the start block to start syncing from.
@@ -70,7 +70,7 @@ const startSync = async () => {
     }
     const contractMetadata = getContractMetadata(startBlockVersion);
 
-    logger.debug(`Syncing blocks ${startBlock} - ${endBlock}`);
+    logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
 
     const syncPromises = [];
     await syncMultipleResultsEventCreated({
