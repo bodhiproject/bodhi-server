@@ -322,9 +322,10 @@ module.exports = class DBHelper {
   }
 
   /* Withdraws */
-  static async findWithdraw(query) {
+  static async findWithdraw(query, sort) {
     try {
-      return await db.Withdraws.find(query);
+      if (sort) return db.Withdraws.cfind(query).sort(sort).exec();
+      return db.Withdraws.find(query);
     } catch (err) {
       logger.error(`FIND Withdraw error: ${err.message}`);
       throw err;
