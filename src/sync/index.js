@@ -12,6 +12,7 @@ const syncVotePlaced = require('./vote-placed');
 const syncVoteResultSet = require('./vote-result-set');
 const syncWinningsWithdrawn = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
+const pendingBetPlaced = require('./bet-placed-pending');
 const DBHelper = require('../db/db-helper');
 const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
@@ -71,8 +72,9 @@ const startSync = async () => {
     const contractMetadata = getContractMetadata(startBlockVersion);
 
     logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
-
     const syncPromises = [];
+
+    // Add sync promises
     await syncMultipleResultsEventCreated({
       contractMetadata,
       startBlock,
@@ -85,9 +87,10 @@ const startSync = async () => {
     await syncVoteResultSet({ contractMetadata, startBlock, endBlock, syncPromises });
     await syncWinningsWithdrawn({ contractMetadata, startBlock, endBlock, syncPromises });
     syncBlocks({ startBlock, endBlock, syncPromises });
-    await Promise.all(syncPromises);
 
-    // TODO: handle pending items that have previous block numbers
+    // Add pending promises
+    await pendingBetPlaced({ startBlock, endBlock, syncPromises });
+    await Promise.all(syncPromises);
 
     // Update statuses
     const { blockTime } = await DBHelper.findOneBlock({ blockNum: endBlock });

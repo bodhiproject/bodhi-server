@@ -206,9 +206,10 @@ module.exports = class DBHelper {
   }
 
   /* Bets */
-  static async findBet(query) {
+  static async findBet(query, sort) {
     try {
-      return await db.Bets.find(query);
+      if (sort) return db.Bets.cfind(query).sort(sort).exec();
+      return db.Bets.find(query);
     } catch (err) {
       logger.error(`FIND Bet error: ${err.message}`);
       throw err;

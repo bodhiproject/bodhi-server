@@ -1,0 +1,7 @@
+module.exports = {
+  BetPlaced: 'e3d1fd0718455a4e70616f7c531752095dda6f41171af3e245535d0e39191982',
+  ResultSet: 'c89c1df5e00bd75ca61515fdd2d9a287a9dcc585099975326451173f5aad6336',
+  VotePlaced: '10a3e83702c3eeb615307c7e58326da79dc5ae809a53f7e63b54d7b53df5c0e7',
+  VoteResultSet: '0aeda895291e57aaf84f7c7ad9e843cf88e33dedc2ce8c0228cfeaecffdfc2ff',
+  WinningsWithdrawn: '97263beea7d4a219c985fc740565fb86d4cddc960817b71d0bbc130551009797',
+};
