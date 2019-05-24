@@ -67,7 +67,8 @@ const startSync = async (shouldUpdateLocalTxs) => {
     await DBHelper.updateEventStatusArbitration(blockTime);
     await DBHelper.updateEventStatusWithdrawing(blockTime);
 
-
+    // Send syncInfo subscription message
+    await publishSyncInfo(endBlock, blockTime);
 
 
 
@@ -105,7 +106,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
     // await insertBlock(currentBlockNum, currentBlockTime);
 
     // Send syncInfo subscription message
-    await publishSyncInfo(currentBlockNum, currentBlockTime);
+    // await publishSyncInfo(currentBlockNum, currentBlockTime);
 
     // No delay if next block is already confirmed
     delayThenSync(0, shouldUpdateLocalTxs);
