@@ -279,6 +279,10 @@ module.exports = class DBHelper {
     }
   }
 
+  static async findLatestResultSet(query) {
+    return db.ResultSets.cfind(query).sort({ blockNum: -1 }).limit(1).exec();
+  }
+
   static async countResultSet(query) {
     try {
       return await db.ResultSets.count(query);

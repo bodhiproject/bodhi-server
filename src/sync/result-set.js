@@ -84,10 +84,10 @@ const parseLog = async ({ naka, abiObj, log }) => {
   const resultIndex = decodedData['0'];
   const amount = decodedData['1'];
   const eventRound = decodedData['2'];
-  const nextConsensusThreshold = decodedData['3'].toString(10);
-  const nextArbitrationEndTime = decodedData['4'].toString(10);
+  const nextConsensusThreshold = decodedData['3'];
+  const nextArbitrationEndTime = decodedData['4'];
 
-  const resultSet = new ResultSet({
+  return new ResultSet({
     txid: log.transactionHash,
     txStatus: TX_STATUS.SUCCESS,
     blockNum: Number(log.blockNumber),
@@ -96,26 +96,9 @@ const parseLog = async ({ naka, abiObj, log }) => {
     resultIndex: Number(resultIndex),
     amount: amount.toString(10),
     eventRound: Number(eventRound),
+    nextConsensusThreshold: nextConsensusThreshold.toString(10),
+    nextArbitrationEndTime: Number(nextArbitrationEndTime.toString(10)),
   });
-
-  return {
-    resultSet,
-    nextConsensusThreshold,
-    nextArbitrationEndTime: Number(nextArbitrationEndTime),
-  };
-};
-
-const updateEventRound = async ({
-  resultSet,
-  nextConsensusThreshold,
-  nextArbitrationEndTime,
-}) => {
-  const event = await DBHelper.findOneEvent({ address: resultSet.eventAddress });
-  event.currentRound = resultSet.eventRound + 1;
-  event.currentResultIndex = resultSet.resultIndex;
-  event.consensusThreshold = nextConsensusThreshold;
-  event.arbitrationEndTime = nextArbitrationEndTime;
-  await DBHelper.updateEvent(event);
 };
 
 module.exports = async (contractMetadata, currBlockNum) => {
@@ -131,19 +114,8 @@ module.exports = async (contractMetadata, currBlockNum) => {
           // Parse each result set and insert
           const logs = await getLogs({ naka, abiObj, blockNum });
           each(logs, async (log) => {
-            const {
-              resultSet,
-              nextConsensusThreshold,
-              nextArbitrationEndTime,
-            } = await parseLog({ naka, abiObj, log });
+            const resultSet = await parseLog({ naka, abiObj, log });
             await DBHelper.insertResultSet(resultSet);
-
-            // Update event round info
-            await updateEventRound({
-              resultSet,
-              nextConsensusThreshold,
-              nextArbitrationEndTime,
-            });
 
             // Update tx receipt
             let txReceipt = txReceipts[resultSet.txid];

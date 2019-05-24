@@ -1,6 +1,8 @@
 const { find, isUndefined, isNull, isString } = require('lodash');
 
 module.exports = {
+  isDefined: item => !isUndefined(item) && !isNull(item),
+
   /**
    * Gets the object from the ABI given the name and type
    * @param {object} abi ABI to search in

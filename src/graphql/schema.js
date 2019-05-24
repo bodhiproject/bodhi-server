@@ -140,6 +140,8 @@ type ResultSet implements Transaction {
   resultIndex: Int!
   amount: String!
   eventRound: Int!
+  nextConsensusThreshold: String
+  nextArbitrationEndTime: Int
   resultName: String
 }
 
