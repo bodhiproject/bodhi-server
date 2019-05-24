@@ -22,7 +22,7 @@ const syncWinningsWithdrawn = async ({ startBlock, endBlock, syncPromises }) => 
       syncPromises.push(new Promise(async (resolve, reject) => {
         try {
           // Parse and insert withdraw
-          const withdraw = await parseWithdraw({ log });
+          const withdraw = parseWithdraw({ log });
           await DBHelper.insertWithdraw(withdraw);
 
           // Fetch and insert tx receipt

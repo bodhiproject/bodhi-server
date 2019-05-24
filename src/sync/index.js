@@ -5,7 +5,10 @@ const {
   isMainnet,
 } = require('../config');
 const web3 = require('../web3');
-const syncMultipleResultsEventCreated = require('./multiple-results-event-created');
+const {
+  syncMultipleResultsEventCreated,
+  pendingMultipleResultsEventCreated,
+} = require('./multiple-results-event-created');
 const { syncBetPlaced, pendingBetPlaced } = require('./bet-placed');
 const { syncResultSet, pendingResultSet } = require('./result-set');
 const { syncVotePlaced, pendingVotePlaced } = require('./vote-placed');
@@ -88,6 +91,7 @@ const startSync = async () => {
     syncBlocks({ startBlock, endBlock, syncPromises });
 
     // Add pending promises
+    await pendingMultipleResultsEventCreated({ startBlock, syncPromises });
     await pendingBetPlaced({ startBlock, syncPromises });
     await pendingResultSet({ startBlock, syncPromises });
     await pendingVotePlaced({ startBlock, syncPromises });

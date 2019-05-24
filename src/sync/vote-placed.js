@@ -22,7 +22,7 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises }) => {
       syncPromises.push(new Promise(async (resolve, reject) => {
         try {
           // Parse and insert vote
-          const bet = await parseBet({ log });
+          const bet = parseBet({ log });
           await DBHelper.insertBet(bet);
 
           // Fetch and insert tx receipt

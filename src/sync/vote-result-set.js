@@ -22,7 +22,7 @@ const syncVoteResultSet = async ({ startBlock, endBlock, syncPromises }) => {
       syncPromises.push(new Promise(async (resolve, reject) => {
         try {
           // Parse and insert vote result set
-          const resultSet = await parseResultSet({ log });
+          const resultSet = parseResultSet({ log });
           await DBHelper.insertResultSet(resultSet);
 
           // Fetch and insert tx receipt

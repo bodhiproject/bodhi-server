@@ -71,9 +71,10 @@ module.exports = class DBHelper {
   }
 
   /* Events */
-  static async findEvent(query) {
+  static async findEvent(query, sort) {
     try {
-      return await db.Events.find(query);
+      if (sort) return db.Events.cfind(query).sort(sort).exec();
+      return db.Events.find(query);
     } catch (err) {
       logger.error(`FIND Event error: ${err.message}`);
       throw err;
