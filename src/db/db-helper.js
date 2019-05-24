@@ -13,6 +13,10 @@ module.exports = class DBHelper {
     }
   }
 
+  static async findLatestBlock(db) {
+    return db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
+  }
+
   static async insertBlock(db, blockNum, blockTime) {
     try {
       await db.Blocks.insert({

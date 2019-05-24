@@ -84,7 +84,7 @@ const delayThenSync = (delay, shouldUpdateLocalTxs) => {
  */
 const getStartBlock = async () => {
   let startBlock;
-  const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
+  const blocks = await DBHelper.findLatestBlock(db);
   if (blocks.length > 0) {
     // Blocks found in DB, use the last synced block as start
     startBlock = blocks[0].blockNum + 1;
