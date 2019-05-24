@@ -43,7 +43,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
     const contractMetadata = getContractMetadata(startBlockVersion);
 
     logger().debug(`Syncing blocks ${startBlock} - ${endBlock}`);
-    
+
     const syncPromises = [];
     await syncMultipleResultsEventCreated({
       contractMetadata,
@@ -56,22 +56,23 @@ const startSync = async (shouldUpdateLocalTxs) => {
     await syncVotePlaced({ contractMetadata, startBlock, endBlock, syncPromises });
     await syncVoteResultSet({ contractMetadata, startBlock, endBlock, syncPromises });
     await syncWinningsWithdrawn({ contractMetadata, startBlock, endBlock, syncPromises });
-    syncBlocks({ startBlock, endBlock, syncPromises })
+    syncBlocks({ startBlock, endBlock, syncPromises });
     await Promise.all(syncPromises);
 
     // Update statuses
-    await DBHelper.updateEventStatusBetting(currentBlockTime);
-    await DBHelper.updateEventStatusOracleResultSetting(currentBlockTime);
-    await DBHelper.updateEventStatusOpenResultSetting(currentBlockTime);
-    await DBHelper.updateEventStatusArbitration(currentBlockTime);
-    await DBHelper.updateEventStatusWithdrawing(currentBlockTime);
+    const { blockTime } = await DBHelper.findOneBlock({ blockNum: endBlock });
+    await DBHelper.updateEventStatusBetting(blockTime);
+    await DBHelper.updateEventStatusOracleResultSetting(blockTime);
+    await DBHelper.updateEventStatusOpenResultSetting(blockTime);
+    await DBHelper.updateEventStatusArbitration(blockTime);
+    await DBHelper.updateEventStatusWithdrawing(blockTime);
 
 
 
 
 
-    const currentBlockNum = await getStartBlock();
-    const currentBlockTime = await getBlockTime(currentBlockNum);
+    // const currentBlockNum = await getStartBlock();
+    // const currentBlockTime = await getBlockTime(currentBlockNum);
 
     // If block time is null, then we are at latest block.
     if (isNull(currentBlockTime)) {
@@ -79,29 +80,29 @@ const startSync = async (shouldUpdateLocalTxs) => {
       return;
     }
 
-    logger().debug(`Syncing block ${currentBlockNum}`);
+    // logger().debug(`Syncing block ${currentBlockNum}`);
 
     // Get contract metadata based on block number
-    const contractVersion = determineContractVersion(currentBlockNum);
-    const contractMetadata = getContractMetadata(contractVersion);
+    // const contractVersion = determineContractVersion(currentBlockNum);
+    // const contractMetadata = getContractMetadata(contractVersion);
 
     // Parse blockchain logs
-    await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
-    await syncBetPlaced(contractMetadata, currentBlockNum);
-    await syncResultSet(contractMetadata, currentBlockNum);
-    await syncVotePlaced(contractMetadata, currentBlockNum);
-    await syncVoteResultSet(contractMetadata, currentBlockNum);
-    await syncWinningsWithdrawn(contractMetadata, currentBlockNum);
+    // await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
+    // await syncBetPlaced(contractMetadata, currentBlockNum);
+    // await syncResultSet(contractMetadata, currentBlockNum);
+    // await syncVotePlaced(contractMetadata, currentBlockNum);
+    // await syncVoteResultSet(contractMetadata, currentBlockNum);
+    // await syncWinningsWithdrawn(contractMetadata, currentBlockNum);
 
     // Update statuses
-    await updateStatusBetting(currentBlockTime);
-    await updateStatusOracleResultSetting(currentBlockTime);
-    await updateStatusOpenResultSetting(currentBlockTime);
-    await updateStatusArbitration(currentBlockTime);
-    await updateStatusWithdrawing(currentBlockTime);
+    // await updateStatusBetting(currentBlockTime);
+    // await updateStatusOracleResultSetting(currentBlockTime);
+    // await updateStatusOpenResultSetting(currentBlockTime);
+    // await updateStatusArbitration(currentBlockTime);
+    // await updateStatusWithdrawing(currentBlockTime);
 
     // Insert block
-    await insertBlock(currentBlockNum, currentBlockTime);
+    // await insertBlock(currentBlockNum, currentBlockTime);
 
     // Send syncInfo subscription message
     await publishSyncInfo(currentBlockNum, currentBlockTime);
