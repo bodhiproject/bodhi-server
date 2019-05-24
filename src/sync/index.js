@@ -17,14 +17,13 @@ const DBHelper = require('../db/db-helper');
 const { logger } = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
 
-const SYNC_START_DELAY = 4000;
+const SYNC_START_DELAY = 3000;
 const BLOCK_BATCHES = 1000;
 
 /**
  * Starts the sync logic. It will loop indefinitely until cancelled.
- * @param shouldUpdateLocalTxs {Boolean} Should it update the local txs or not.
  */
-const startSync = async (shouldUpdateLocalTxs) => {
+const startSync = async () => {
   try {
     // Determine start and end blocks
     const latestBlock = await web3().eth.getBlockNumber();
@@ -77,7 +76,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
 
     // If block time is null, then we are at latest block.
     if (isNull(currentBlockTime)) {
-      delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs);
+      delayThenSync(SYNC_START_DELAY);
       return;
     }
 
@@ -109,7 +108,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
     // await publishSyncInfo(currentBlockNum, currentBlockTime);
 
     // No delay if next block is already confirmed
-    delayThenSync(0, shouldUpdateLocalTxs);
+    delayThenSync(0);
   } catch (err) {
     throw err;
   }
@@ -118,12 +117,11 @@ const startSync = async (shouldUpdateLocalTxs) => {
 /**
  * Delays for the specified time then calls startSync.
  * @param {number} delay Number of milliseconds to delay.
- * @param {boolean} shouldUpdateLocalTxs Should updateLocalTxs or not.
  */
-const delayThenSync = (delay, shouldUpdateLocalTxs) => {
+const delayThenSync = (delay) => {
   logger().debug('sleep');
   setTimeout(() => {
-    startSync(shouldUpdateLocalTxs);
+    startSync();
   }, delay);
 };
 
