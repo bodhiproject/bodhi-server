@@ -141,6 +141,7 @@ type ResultSet implements Transaction {
   amount: String!
   eventRound: Int!
   resultName: String
+  fromVote: Boolean
 }
 
 type PaginatedResultSets {
@@ -253,6 +254,7 @@ input ResultSetFilter {
   centralizedOracleAddress: String
   resultIndex: Int
   eventRound: Int
+  fromVote: Boolean
 }
 
 input WithdrawFilter {
