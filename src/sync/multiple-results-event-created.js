@@ -122,7 +122,7 @@ module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }
       address: contractMetadata.EventFactory[CONFIG.NETWORK],
       topics: [web3.eth.abi.encodeEventSignature(abiObj)],
     });
-    logger().info(`Found ${logs.length} Events`);
+    logger().info(`Found ${logs.length} MultipleResultsEventCreated`);
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {

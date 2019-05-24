@@ -51,7 +51,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
       syncPromises,
     });
     await syncBetPlaced({ contractMetadata, startBlock, endBlock, syncPromises });
-
+    await syncResultSet({ contractMetadata, startBlock, endBlock, syncPromises });
 
 
 

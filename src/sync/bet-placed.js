@@ -92,13 +92,13 @@ module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }
       toBlock: endBlock,
       topics: [web3.eth.abi.encodeEventSignature(abiObj)],
     });
-    logger().info(`Found ${logs.length} Bets`);
+    logger().info(`Found ${logs.length} BetPlaced`);
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
       syncPromises.push(new Promise(async (resolve, reject) => {
         try {
-          // Parse and insert event
+          // Parse and insert bet
           const bet = await parseLog({ abiObj, log });
           await DBHelper.insertBet(bet);
 
