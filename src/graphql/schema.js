@@ -381,6 +381,7 @@ type Mutation {
     resultIndex: Int!
     amount: String!
     eventRound: Int!
+    fromVote: Boolean
   ): ResultSet!
 
   addPendingWithdraw(
