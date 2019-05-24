@@ -17,6 +17,7 @@ module.exports = async (
     resultIndex,
     amount,
     eventRound,
+    fromVote,
   } = data;
 
   // Verify not already existing
@@ -36,9 +37,11 @@ module.exports = async (
     resultIndex,
     amount,
     eventRound,
+    fromVote,
   });
   await DBHelper.insertResultSet(db, resultSet);
   logger().debug(`Mutation addPendingResultSet txid:${txid}`);
 
+  console.log(resultSet);
   return resultSet;
 };
