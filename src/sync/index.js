@@ -71,18 +71,12 @@ const startSync = async () => {
       const contractEndBlock = getContractVersionEndBlock(startBlockVersion);
       if (contractEndBlock !== -1) endBlock = contractEndBlock;
     }
-    const contractMetadata = getContractMetadata(startBlockVersion);
 
     logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
     const syncPromises = [];
 
     // Add sync promises
-    await syncMultipleResultsEventCreated({
-      contractMetadata,
-      startBlock,
-      endBlock,
-      syncPromises,
-    });
+    await syncMultipleResultsEventCreated({ startBlock, endBlock, syncPromises });
     await syncBetPlaced({ startBlock, endBlock, syncPromises });
     await syncResultSet({ startBlock, endBlock, syncPromises });
     await syncVotePlaced({ startBlock, endBlock, syncPromises });
