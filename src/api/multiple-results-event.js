@@ -22,7 +22,7 @@ module.exports = {
       if (isUndefined(address)) throw TypeError('address is not defined');
 
       const contract = await getContract(eventAddress);
-      const res = await contract.methods.calculateWinnings().call({ from: address });
+      const res = await contract.methods.calculateWinnings(address).call();
       return web3().utils.toBN(res).toString(10);
     } catch (err) {
       logger().error(`Error MultipleResultsEvent.calculateWinnings(): ${err.message}`);
