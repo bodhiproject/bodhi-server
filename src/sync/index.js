@@ -1,9 +1,4 @@
-const {
-  determineContractVersion,
-  getContractVersionEndBlock,
-  getContractMetadata,
-  isMainnet,
-} = require('../config');
+const { getContractMetadata, isMainnet } = require('../config');
 const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
@@ -60,17 +55,7 @@ const startSync = async () => {
     // Determine start and end blocks
     const latestBlock = await web3.eth.getBlockNumber();
     const startBlock = await getStartBlock();
-    let endBlock = Math.min(startBlock + BLOCK_BATCHES, latestBlock);
-
-    // Get contractMetadata for start and end blocks. If they are different,
-    // set the end block to the contract version end block so we don't need to
-    // pass different contract metadata versions.
-    const startBlockVersion = determineContractVersion(startBlock);
-    const endBlockVersion = determineContractVersion(endBlock);
-    if (startBlockVersion !== endBlockVersion) {
-      const contractEndBlock = getContractVersionEndBlock(startBlockVersion);
-      if (contractEndBlock !== -1) endBlock = contractEndBlock;
-    }
+    const endBlock = Math.min(startBlock + BLOCK_BATCHES, latestBlock);
 
     logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
     const syncPromises = [];
