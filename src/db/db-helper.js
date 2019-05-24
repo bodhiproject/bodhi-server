@@ -262,9 +262,10 @@ module.exports = class DBHelper {
   }
 
   /* ResultSets */
-  static async findResultSet(query) {
+  static async findResultSet(query, sort) {
     try {
-      return await db.ResultSets.find(query);
+      if (sort) return db.ResultSets.cfind(query).sort(sort).exec();
+      return db.ResultSets.find(query);
     } catch (err) {
       logger.error(`FIND ResultSet error: ${err.message}`);
       throw err;

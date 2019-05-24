@@ -3,9 +3,9 @@ const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
 const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
+const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseBet = require('./parsers/bet-placed');
-const DBHelper = require('../db/db-helper');
 
 const syncBetPlaced = async ({ startBlock, endBlock, syncPromises }) => {
   try {
@@ -54,10 +54,10 @@ const pendingBetPlaced = async ({ startBlock, syncPromises }) => {
     // Determine range to search logs
     let fromBlock;
     let toBlock;
-    each(pending, (pendingBet) => {
-      const betBlock = pendingBet.blockNum;
-      if (!fromBlock || betBlock < fromBlock) fromBlock = betBlock;
-      if (!toBlock || betBlock > toBlock) toBlock = betBlock;
+    each(pending, (p) => {
+      const pBlock = p.blockNum;
+      if (!fromBlock || pBlock < fromBlock) fromBlock = pBlock;
+      if (!toBlock || pBlock > toBlock) toBlock = pBlock;
     });
 
     await syncBetPlaced({
