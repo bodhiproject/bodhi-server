@@ -110,14 +110,17 @@ module.exports = async (contractMetadata, currBlockNum) => {
           const logs = await getLogs({ naka, abiObj, blockNum });
           each(logs, async (log) => {
             const bet = await parseLog({ naka, abiObj, log });
-            await DBHelper.insertBet(db, bet);
+            // check if same txid exists in result set
+            const sameResultSets = await DBHelper.countResultSet(db, { txid: bet.txid });
+            if (sameResultSets === 0) {
+              await DBHelper.insertBet(db, bet);
 
-            // Update tx receipt
-            let txReceipt = txReceipts[bet.txid];
-            if (!txReceipt) txReceipt = await getTransactionReceipt(bet.txid);
-            await DBHelper.insertTransactionReceipt(db, txReceipt);
+              // Update tx receipt
+              let txReceipt = txReceipts[bet.txid];
+              if (!txReceipt) txReceipt = await getTransactionReceipt(bet.txid);
+              await DBHelper.insertTransactionReceipt(db, txReceipt);
+            }
           });
-
           resolve();
         } catch (insertErr) {
           logger().error(`insert Bet: ${insertErr.message}`);
