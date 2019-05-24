@@ -140,6 +140,7 @@ module.exports = async (contractMetadata, currBlockNum) => {
               nextConsensusThreshold,
               nextArbitrationEndTime,
             } = await parseLog({ naka, abiObj, log });
+            resultSet.fromVote = false;
             await DBHelper.insertResultSet(db, resultSet);
 
             // Update event round info
