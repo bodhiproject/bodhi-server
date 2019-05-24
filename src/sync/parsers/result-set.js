@@ -20,7 +20,9 @@ module.exports = ({ log }) => {
     txStatus: TX_STATUS.SUCCESS,
     blockNum: Number(log.blockNumber),
     eventAddress,
-    centralizedOracleAddress,
+    centralizedOracleAddress: Number(eventRound) === 0
+      ? centralizedOracleAddress
+      : null,
     resultIndex: Number(resultIndex),
     amount: amount.toString(10),
     eventRound: Number(eventRound),
