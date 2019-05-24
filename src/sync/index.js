@@ -21,6 +21,36 @@ const SYNC_START_DELAY = 3000;
 const BLOCK_BATCHES = 1000;
 
 /**
+ * Determines the start block to start syncing from.
+ */
+const getStartBlock = async () => {
+  let startBlock;
+  const blocks = await DBHelper.findLatestBlock();
+  if (blocks.length > 0) {
+    // Blocks found in DB, use the last synced block as start
+    startBlock = blocks[0].blockNum + 1;
+  } else {
+    // No blocks found in DB, use earliest version's deploy block
+    const contractMetadata = getContractMetadata(0);
+    startBlock = isMainnet()
+      ? contractMetadata.EventFactory.mainnetDeployBlock
+      : contractMetadata.EventFactory.testnetDeployBlock;
+  }
+  return startBlock;
+};
+
+/**
+ * Delays for the specified time then calls startSync.
+ * @param {number} delay Number of milliseconds to delay.
+ */
+const delayThenSync = (delay) => {
+  logger().debug('sleep');
+  setTimeout(() => {
+    startSync();
+  }, delay);
+};
+
+/**
  * Starts the sync logic. It will loop indefinitely until cancelled.
  */
 const startSync = async () => {
@@ -58,6 +88,8 @@ const startSync = async () => {
     syncBlocks({ startBlock, endBlock, syncPromises });
     await Promise.all(syncPromises);
 
+    // TODO: handle pending items that have previous block numbers
+
     // Update statuses
     const { blockTime } = await DBHelper.findOneBlock({ blockNum: endBlock });
     await DBHelper.updateEventStatusBetting(blockTime);
@@ -69,79 +101,10 @@ const startSync = async () => {
     // Send syncInfo subscription message
     await publishSyncInfo(endBlock, blockTime);
 
-
-
-    // const currentBlockNum = await getStartBlock();
-    // const currentBlockTime = await getBlockTime(currentBlockNum);
-
-    // If block time is null, then we are at latest block.
-    if (isNull(currentBlockTime)) {
-      delayThenSync(SYNC_START_DELAY);
-      return;
-    }
-
-    // logger().debug(`Syncing block ${currentBlockNum}`);
-
-    // Get contract metadata based on block number
-    // const contractVersion = determineContractVersion(currentBlockNum);
-    // const contractMetadata = getContractMetadata(contractVersion);
-
-    // Parse blockchain logs
-    // await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
-    // await syncBetPlaced(contractMetadata, currentBlockNum);
-    // await syncResultSet(contractMetadata, currentBlockNum);
-    // await syncVotePlaced(contractMetadata, currentBlockNum);
-    // await syncVoteResultSet(contractMetadata, currentBlockNum);
-    // await syncWinningsWithdrawn(contractMetadata, currentBlockNum);
-
-    // Update statuses
-    // await updateStatusBetting(currentBlockTime);
-    // await updateStatusOracleResultSetting(currentBlockTime);
-    // await updateStatusOpenResultSetting(currentBlockTime);
-    // await updateStatusArbitration(currentBlockTime);
-    // await updateStatusWithdrawing(currentBlockTime);
-
-    // Insert block
-    // await insertBlock(currentBlockNum, currentBlockTime);
-
-    // Send syncInfo subscription message
-    // await publishSyncInfo(currentBlockNum, currentBlockTime);
-
-    // No delay if next block is already confirmed
-    delayThenSync(0);
+    delayThenSync(SYNC_START_DELAY);
   } catch (err) {
     throw err;
   }
-};
-
-/**
- * Delays for the specified time then calls startSync.
- * @param {number} delay Number of milliseconds to delay.
- */
-const delayThenSync = (delay) => {
-  logger().debug('sleep');
-  setTimeout(() => {
-    startSync();
-  }, delay);
-};
-
-/**
- * Determines the start block to start syncing from.
- */
-const getStartBlock = async () => {
-  let startBlock;
-  const blocks = await DBHelper.findLatestBlock();
-  if (blocks.length > 0) {
-    // Blocks found in DB, use the last synced block as start
-    startBlock = blocks[0].blockNum + 1;
-  } else {
-    // No blocks found in DB, use earliest version's deploy block
-    const contractMetadata = getContractMetadata(0);
-    startBlock = isMainnet()
-      ? contractMetadata.EventFactory.mainnetDeployBlock
-      : contractMetadata.EventFactory.testnetDeployBlock;
-  }
-  return startBlock;
 };
 
 module.exports = startSync;
