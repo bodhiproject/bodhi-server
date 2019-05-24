@@ -11,7 +11,6 @@ services:
     ports:
       - 8888:8888
     environment:
-      - CONTRACT_VERSION=0
       - NETWORK=mainnet
       - SSL=true
       - SSL_KEY_PATH=/root/bodhi-server/creds/nakachain.org.key

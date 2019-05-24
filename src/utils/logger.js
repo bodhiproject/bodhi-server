@@ -1,4 +1,3 @@
-require('dotenv').config();
 require('winston-daily-rotate-file');
 const moment = require('moment');
 const winston = require('winston');
