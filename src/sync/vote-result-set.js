@@ -1,5 +1,5 @@
 const { each } = require('lodash');
-const { web3 } = require('../web3');
+const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
 const { logger } = require('../utils/logger');
@@ -7,26 +7,7 @@ const { getTransactionReceipt } = require('../utils/web3-utils');
 const DBHelper = require('../db/db-helper');
 const ResultSet = require('../models/result-set');
 
-const getAbiObj = (contractMetadata) => {
-  const abiObj = getAbiObject(
-    contractMetadata.MultipleResultsEvent.abi,
-    'VoteResultSet',
-    'event',
-  );
-  if (!abiObj) throw Error('VoteResultSet event not found in ABI');
-  return abiObj;
-};
-
-const getLogs = async ({ naka, abiObj, blockNum }) => {
-  const eventSig = naka.eth.abi.encodeEventSignature(abiObj);
-  return naka.eth.getPastLogs({
-    fromBlock: blockNum,
-    toBlock: blockNum,
-    topics: [eventSig],
-  });
-};
-
-const parseLog = async ({ naka, abiObj, log }) => {
+const parseLog = async ({ abiObj, log }) => {
   // TODO: uncomment when web3 decodeLog works. broken in 1.0.0-beta.54.
   // const {
   //   eventAddress,
@@ -35,10 +16,10 @@ const parseLog = async ({ naka, abiObj, log }) => {
   //   eventRound,
   //   nextConsensusThreshold,
   //   nextArbitrationEndTime,
-  // } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
+  // } = web3.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
 
-  const eventAddress = naka.eth.abi.decodeParameter('address', log.topics[1]);
-  const decodedData = naka.eth.abi.decodeParameters(
+  const eventAddress = web3.eth.abi.decodeParameter('address', log.topics[1]);
+  const decodedData = web3.eth.abi.decodeParameters(
     ['uint8', 'uint256', 'uint8', 'uint256', 'uint256'],
     log.data,
   );
@@ -62,35 +43,43 @@ const parseLog = async ({ naka, abiObj, log }) => {
   });
 };
 
-module.exports = async (contractMetadata, currBlockNum) => {
+module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }) => {
   try {
-    const naka = web3();
-    const abiObj = getAbiObj(contractMetadata);
-    const blockNums = [currBlockNum];
+    // Get event abi obj
+    const abiObj = getAbiObject(
+      contractMetadata.MultipleResultsEvent.abi,
+      'VoteResultSet',
+      'event',
+    );
+    if (!abiObj) throw Error('VoteResultSet event not found in ABI');
 
-    const promises = [];
-    each(blockNums, (blockNum) => {
-      promises.push(new Promise(async (resolve, reject) => {
+    // Fetch logs
+    const logs = await web3.eth.getPastLogs({
+      fromBlock: startBlock,
+      toBlock: endBlock,
+      topics: [web3.eth.abi.encodeEventSignature(abiObj)],
+    });
+    logger().info(`Found ${logs.length} VoteResultSet`);
+
+    // Add to syncPromises array to be executed in parallel
+    each(logs, (log) => {
+      syncPromises.push(new Promise(async (resolve, reject) => {
         try {
-          // Parse each result set and insert
-          const logs = await getLogs({ naka, abiObj, blockNum });
-          each(logs, async (log) => {
-            const resultSet = await parseLog({ naka, abiObj, log });
-            await DBHelper.insertResultSet(resultSet);
+          // Parse and insert result set
+          const resultSet = await parseLog({ abiObj, log });
+          await DBHelper.insertResultSet(resultSet);
 
-            // Update tx receipt
-            const txReceipt = await getTransactionReceipt(resultSet.txid);
-            await DBHelper.insertTransactionReceipt(txReceipt);
-          });
+          // Fetch and insert tx receipt
+          const txReceipt = await getTransactionReceipt(resultSet.txid);
+          await DBHelper.insertTransactionReceipt(txReceipt);
 
           resolve();
         } catch (insertErr) {
-          logger().error(`insert ResultSet: ${insertErr.message}`);
-          reject(insertErr);
+          logger().error(`insert VoteResultSet: ${insertErr.message}`);
+          reject();
         }
       }));
     });
-    await Promise.all(promises);
   } catch (err) {
     throw Error('Error syncVoteResultSet:', err);
   }
