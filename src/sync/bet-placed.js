@@ -5,7 +5,6 @@ const { getAbiObject } = require('../utils');
 const { logger } = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
 const Bet = require('../models/bet');
-const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 
 const getAbiObj = (contractMetadata) => {
@@ -29,10 +28,10 @@ const getBlocksAndReceipts = async (currBlockNum) => {
   const txReceipts = {};
   const promises = [];
 
-  const pending = await DBHelper.findBet(
-    db,
-    { txStatus: TX_STATUS.PENDING, eventRound: 0 },
-  );
+  const pending = await DBHelper.findBet({
+    txStatus: TX_STATUS.PENDING,
+    eventRound: 0,
+  });
   each(pending, async (pendingBet) => {
     promises.push(new Promise(async (resolve, reject) => {
       try {
@@ -110,12 +109,12 @@ module.exports = async (contractMetadata, currBlockNum) => {
           const logs = await getLogs({ naka, abiObj, blockNum });
           each(logs, async (log) => {
             const bet = await parseLog({ naka, abiObj, log });
-            await DBHelper.insertBet(db, bet);
+            await DBHelper.insertBet(bet);
 
             // Update tx receipt
             let txReceipt = txReceipts[bet.txid];
             if (!txReceipt) txReceipt = await getTransactionReceipt(bet.txid);
-            await DBHelper.insertTransactionReceipt(db, txReceipt);
+            await DBHelper.insertTransactionReceipt(txReceipt);
           });
 
           resolve();

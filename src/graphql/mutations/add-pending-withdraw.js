@@ -19,12 +19,12 @@ module.exports = async (
   } = data;
 
   // Verify not already existing
-  const existing = await DBHelper.findOneWithdraw(db, { txid });
+  const existing = await DBHelper.findOneWithdraw({ txid });
   if (!isNull(existing)) throw Error('Withdraw already exists');
 
   // Fetch transaction info and insert
   const txReceipt = await getTransaction(txid);
-  await DBHelper.insertTransactionReceipt(db, txReceipt);
+  await DBHelper.insertTransactionReceipt(txReceipt);
 
   const withdraw = new Withdraw({
     txid,
@@ -35,7 +35,7 @@ module.exports = async (
     winningAmount,
     escrowWithdrawAmount: escrowAmount,
   });
-  await DBHelper.insertWithdraw(db, withdraw);
+  await DBHelper.insertWithdraw(withdraw);
   logger().debug(`Mutation addPendingWithdraw txid:${txid}`);
 
   return withdraw;

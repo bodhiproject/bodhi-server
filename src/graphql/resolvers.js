@@ -28,23 +28,22 @@ module.exports = {
   },
 
   MultipleResultsEvent: {
-    txReceipt: async ({ txid }, args, { db }) =>
-      DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
-    block: async ({ blockNum }, args, { db }) =>
-      DBHelper.findOneBlock(db, { blockNum }),
-    pendingTxs: async ({ address }, args, { db, pendingTxsAddress }) => {
+    txReceipt: async ({ txid }) =>
+      DBHelper.findOneTransactionReceipt({ transactionHash: txid }),
+    block: async ({ blockNum }) => DBHelper.findOneBlock({ blockNum }),
+    pendingTxs: async ({ address }, args, { pendingTxsAddress }) => {
       if (pendingTxsAddress) {
-        const bet = await DBHelper.countBet(db, {
+        const bet = await DBHelper.countBet({
           txStatus: TX_STATUS.PENDING,
           eventAddress: address,
           betterAddress: pendingTxsAddress,
         });
-        const resultSet = await DBHelper.countResultSet(db, {
+        const resultSet = await DBHelper.countResultSet({
           txStatus: TX_STATUS.PENDING,
           eventAddress: address,
           centralizedOracleAddress: pendingTxsAddress,
         });
-        const withdraw = await DBHelper.countWithdraw(db, {
+        const withdraw = await DBHelper.countWithdraw({
           txStatus: TX_STATUS.PENDING,
           eventAddress: address,
           winnerAddress: pendingTxsAddress,
@@ -61,11 +60,11 @@ module.exports = {
     roundBets: async (
       { address, currentRound, numOfResults },
       args,
-      { db, includeRoundBets },
+      { includeRoundBets },
     ) => {
       if (includeRoundBets) {
         // Fetch all bets for this round
-        const bets = await DBHelper.findBet(db, {
+        const bets = await DBHelper.findBet({
           txStatus: TX_STATUS.SUCCESS,
           eventAddress: address,
           eventRound: currentRound,
@@ -81,8 +80,8 @@ module.exports = {
       }
       return null;
     },
-    totalBets: async ({ address }, args, { db }) => {
-      const bets = await DBHelper.findBet(db, {
+    totalBets: async ({ address }) => {
+      const bets = await DBHelper.findBet({
         txStatus: TX_STATUS.SUCCESS,
         eventAddress: address,
       });
@@ -93,32 +92,29 @@ module.exports = {
   },
 
   Bet: {
-    txReceipt: async ({ txid }, args, { db }) =>
-      DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
-    block: async ({ blockNum }, args, { db }) =>
-      DBHelper.findOneBlock(db, { blockNum }),
-    resultName: async ({ eventAddress, resultIndex }, args, { db }) => {
-      const event = await DBHelper.findOneEvent(db, { address: eventAddress });
+    txReceipt: async ({ txid }) =>
+      DBHelper.findOneTransactionReceipt({ transactionHash: txid }),
+    block: async ({ blockNum }) => DBHelper.findOneBlock({ blockNum }),
+    resultName: async ({ eventAddress, resultIndex }) => {
+      const event = await DBHelper.findOneEvent({ address: eventAddress });
       return event && event.results[resultIndex];
     },
   },
 
   ResultSet: {
-    txReceipt: async ({ txid }, args, { db }) =>
-      DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
-    block: async ({ blockNum }, args, { db }) =>
-      DBHelper.findOneBlock(db, { blockNum }),
-    resultName: async ({ eventAddress, resultIndex }, args, { db }) => {
-      const event = await DBHelper.findOneEvent(db, { address: eventAddress });
+    txReceipt: async ({ txid }) =>
+      DBHelper.findOneTransactionReceipt({ transactionHash: txid }),
+    block: async ({ blockNum }) => DBHelper.findOneBlock({ blockNum }),
+    resultName: async ({ eventAddress, resultIndex }) => {
+      const event = await DBHelper.findOneEvent({ address: eventAddress });
       return event && event.results[resultIndex];
     },
   },
 
   Withdraw: {
-    txReceipt: async ({ txid }, args, { db }) =>
-      DBHelper.findOneTransactionReceipt(db, { transactionHash: txid }),
-    block: async ({ blockNum }, args, { db }) =>
-      DBHelper.findOneBlock(db, { blockNum }),
+    txReceipt: async ({ txid }) =>
+      DBHelper.findOneTransactionReceipt({ transactionHash: txid }),
+    block: async ({ blockNum }) => DBHelper.findOneBlock({ blockNum }),
   },
 };
 /* eslint-enable object-curly-newline */

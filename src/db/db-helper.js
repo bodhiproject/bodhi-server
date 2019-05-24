@@ -1,10 +1,11 @@
 const { isNull } = require('lodash');
 const { logger } = require('../utils/logger');
 const { EVENT_STATUS } = require('../constants');
+const { db } = require('.');
 
 module.exports = class DBHelper {
   /* Blocks */
-  static async findOneBlock(db, query) {
+  static async findOneBlock(query) {
     try {
       return await db.Blocks.findOne(query);
     } catch (err) {
@@ -13,11 +14,11 @@ module.exports = class DBHelper {
     }
   }
 
-  static async findLatestBlock(db) {
+  static async findLatestBlock() {
     return db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
   }
 
-  static async insertBlock(db, blockNum, blockTime) {
+  static async insertBlock(blockNum, blockTime) {
     try {
       await db.Blocks.insert({
         _id: blockNum,
@@ -31,7 +32,7 @@ module.exports = class DBHelper {
   }
 
   /* TransactionReceipts */
-  static async findOneTransactionReceipt(db, query) {
+  static async findOneTransactionReceipt(query) {
     try {
       return await db.TransactionReceipts.findOne(query);
     } catch (err) {
@@ -40,18 +41,15 @@ module.exports = class DBHelper {
     }
   }
 
-  static async insertTransactionReceipt(db, txReceipt) {
+  static async insertTransactionReceipt(txReceipt) {
     try {
-      const existing = await DBHelper.findOneTransactionReceipt(
-        db,
-        { transactionHash: txReceipt.transactionHash },
-      );
+      const existing = await DBHelper.findOneTransactionReceipt({ transactionHash: txReceipt.transactionHash });
       if (isNull(existing)) {
         await db.TransactionReceipts.insert(txReceipt);
       } else {
         // Set fields from existing
         txReceipt.gasPrice = existing.gasPrice;
-        await DBHelper.updateTransactionReceipt(db, txReceipt);
+        await DBHelper.updateTransactionReceipt(txReceipt);
       }
     } catch (err) {
       logger().error(`INSERT TransactionReceipt error: ${err.message}`);
@@ -59,7 +57,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateTransactionReceipt(db, txReceipt) {
+  static async updateTransactionReceipt(txReceipt) {
     try {
       await db.TransactionReceipts.update(
         { transactionHash: txReceipt.transactionHash },
@@ -73,7 +71,7 @@ module.exports = class DBHelper {
   }
 
   /* Events */
-  static async findEvent(db, query) {
+  static async findEvent(query) {
     try {
       return await db.Events.find(query);
     } catch (err) {
@@ -82,7 +80,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async findOneEvent(db, query) {
+  static async findOneEvent(query) {
     try {
       return await db.Events.findOne(query);
     } catch (err) {
@@ -91,18 +89,15 @@ module.exports = class DBHelper {
     }
   }
 
-  static async insertEvent(db, event) {
+  static async insertEvent(event) {
     try {
-      const existing = await DBHelper.findOneEvent(
-        db,
-        { txid: event.txid },
-      );
+      const existing = await DBHelper.findOneEvent({ txid: event.txid });
       if (isNull(existing)) {
         await db.Events.insert(event);
       } else {
         // Set non-blockchain vars from existing event
         event.language = existing.language;
-        await DBHelper.updateEvent(db, event);
+        await DBHelper.updateEvent(event);
       }
     } catch (err) {
       logger().error(`INSERT Event error: ${err.message}`);
@@ -110,7 +105,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEvent(db, event) {
+  static async updateEvent(event) {
     try {
       await db.Events.update(
         { txid: event.txid },
@@ -123,7 +118,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEventStatusBetting(db, currBlockTime) {
+  static async updateEventStatusBetting(currBlockTime) {
     try {
       await db.Events.update(
         {
@@ -141,7 +136,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEventStatusOracleResultSetting(db, currBlockTime) {
+  static async updateEventStatusOracleResultSetting(currBlockTime) {
     try {
       await db.Events.update(
         {
@@ -159,7 +154,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEventStatusOpenResultSetting(db, currBlockTime) {
+  static async updateEventStatusOpenResultSetting(currBlockTime) {
     try {
       await db.Events.update(
         {
@@ -176,7 +171,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEventStatusArbitration(db, currBlockTime) {
+  static async updateEventStatusArbitration(currBlockTime) {
     try {
       await db.Events.update(
         {
@@ -193,7 +188,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEventStatusWithdrawing(db, currBlockTime) {
+  static async updateEventStatusWithdrawing(currBlockTime) {
     try {
       await db.Events.update(
         {
@@ -211,7 +206,7 @@ module.exports = class DBHelper {
   }
 
   /* Bets */
-  static async findBet(db, query) {
+  static async findBet(query) {
     try {
       return await db.Bets.find(query);
     } catch (err) {
@@ -220,7 +215,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async findOneBet(db, query) {
+  static async findOneBet(query) {
     try {
       return await db.Bets.findOne(query);
     } catch (err) {
@@ -229,7 +224,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async countBet(db, query) {
+  static async countBet(query) {
     try {
       return await db.Bets.count(query);
     } catch (err) {
@@ -238,13 +233,13 @@ module.exports = class DBHelper {
     }
   }
 
-  static async insertBet(db, bet) {
+  static async insertBet(bet) {
     try {
-      const existing = await DBHelper.findOneBet(db, { txid: bet.txid });
+      const existing = await DBHelper.findOneBet({ txid: bet.txid });
       if (isNull(existing)) {
         await db.Bets.insert(bet);
       } else {
-        await DBHelper.updateBet(db, bet);
+        await DBHelper.updateBet(bet);
       }
     } catch (err) {
       logger().error(`INSERT Bet error: ${err.message}`);
@@ -252,7 +247,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateBet(db, bet) {
+  static async updateBet(bet) {
     try {
       await db.Bets.update(
         { txid: bet.txid },
@@ -266,7 +261,7 @@ module.exports = class DBHelper {
   }
 
   /* ResultSets */
-  static async findResultSet(db, query) {
+  static async findResultSet(query) {
     try {
       return await db.ResultSets.find(query);
     } catch (err) {
@@ -275,7 +270,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async findOneResultSet(db, query) {
+  static async findOneResultSet(query) {
     try {
       return await db.ResultSets.findOne(query);
     } catch (err) {
@@ -284,7 +279,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async countResultSet(db, query) {
+  static async countResultSet(query) {
     try {
       return await db.ResultSets.count(query);
     } catch (err) {
@@ -293,16 +288,13 @@ module.exports = class DBHelper {
     }
   }
 
-  static async insertResultSet(db, resultSet) {
+  static async insertResultSet(resultSet) {
     try {
-      const existing = await DBHelper.findOneResultSet(
-        db,
-        { txid: resultSet.txid },
-      );
+      const existing = await DBHelper.findOneResultSet({ txid: resultSet.txid });
       if (isNull(existing)) {
         await db.ResultSets.insert(resultSet);
       } else {
-        await DBHelper.updateResultSet(db, resultSet);
+        await DBHelper.updateResultSet(resultSet);
       }
     } catch (err) {
       logger().error(`INSERT ResultSet error: ${err.message}`);
@@ -310,7 +302,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateResultSet(db, resultSet) {
+  static async updateResultSet(resultSet) {
     try {
       await db.ResultSets.update(
         { txid: resultSet.txid },
@@ -324,7 +316,7 @@ module.exports = class DBHelper {
   }
 
   /* Withdraws */
-  static async findWithdraw(db, query) {
+  static async findWithdraw(query) {
     try {
       return await db.Withdraws.find(query);
     } catch (err) {
@@ -333,7 +325,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async findOneWithdraw(db, query) {
+  static async findOneWithdraw(query) {
     try {
       return await db.Withdraws.findOne(query);
     } catch (err) {
@@ -342,7 +334,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async countWithdraw(db, query) {
+  static async countWithdraw(query) {
     try {
       return await db.Withdraws.count(query);
     } catch (err) {
@@ -351,16 +343,13 @@ module.exports = class DBHelper {
     }
   }
 
-  static async insertWithdraw(db, withdraw) {
+  static async insertWithdraw(withdraw) {
     try {
-      const existing = await DBHelper.findOneWithdraw(
-        db,
-        { txid: withdraw.txid },
-      );
+      const existing = await DBHelper.findOneWithdraw({ txid: withdraw.txid });
       if (isNull(existing)) {
         await db.Withdraws.insert(withdraw);
       } else {
-        await DBHelper.updateWithdraw(db, withdraw);
+        await DBHelper.updateWithdraw(withdraw);
       }
     } catch (err) {
       logger().error(`INSERT Withdraw error: ${err.message}`);
@@ -368,7 +357,7 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateWithdraw(db, withdraw) {
+  static async updateWithdraw(withdraw) {
     try {
       await db.Withdraws.update(
         { txid: withdraw.txid },

@@ -25,12 +25,12 @@ module.exports = async (
   } = data;
 
   // Verify not already existing
-  const existing = await DBHelper.findOneEvent(db, { txid });
+  const existing = await DBHelper.findOneEvent({ txid });
   if (!isNull(existing)) throw Error('Event already exists');
 
   // Fetch transaction info and insert
   const txReceipt = await getTransaction(txid);
-  await DBHelper.insertTransactionReceipt(db, txReceipt);
+  await DBHelper.insertTransactionReceipt(txReceipt);
 
   const multipleResultsEvent = new MultipleResultsEvent({
     txid,
@@ -48,7 +48,7 @@ module.exports = async (
     status: EVENT_STATUS.CREATED,
     language,
   });
-  await DBHelper.insertEvent(db, multipleResultsEvent);
+  await DBHelper.insertEvent(multipleResultsEvent);
   logger().debug(`Mutation addPendingEvent txid:${txid}`);
 
   return multipleResultsEvent;

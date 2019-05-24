@@ -20,12 +20,12 @@ module.exports = async (
   } = data;
 
   // Verify not already existing
-  const existing = await DBHelper.findOneBet(db, { txid });
+  const existing = await DBHelper.findOneBet({ txid });
   if (!isNull(existing)) throw Error('Bet already exists');
 
   // Fetch transaction info and insert
   const txReceipt = await getTransaction(txid);
-  await DBHelper.insertTransactionReceipt(db, txReceipt);
+  await DBHelper.insertTransactionReceipt(txReceipt);
 
   const bet = new Bet({
     txid,
@@ -37,7 +37,7 @@ module.exports = async (
     amount,
     eventRound,
   });
-  await DBHelper.insertBet(db, bet);
+  await DBHelper.insertBet(bet);
   logger().debug(`Mutation addPendingBet txid:${txid}`);
 
   return bet;

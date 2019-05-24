@@ -20,12 +20,12 @@ module.exports = async (
   } = data;
 
   // Verify not already existing
-  const existing = await DBHelper.findOneResultSet(db, { txid });
+  const existing = await DBHelper.findOneResultSet({ txid });
   if (!isNull(existing)) throw Error('ResultSet already exists');
 
   // Fetch transaction info and insert
   const txReceipt = await getTransaction(txid);
-  await DBHelper.insertTransactionReceipt(db, txReceipt);
+  await DBHelper.insertTransactionReceipt(txReceipt);
 
   const resultSet = new ResultSet({
     txid,
@@ -37,7 +37,7 @@ module.exports = async (
     amount,
     eventRound,
   });
-  await DBHelper.insertResultSet(db, resultSet);
+  await DBHelper.insertResultSet(resultSet);
   logger().debug(`Mutation addPendingResultSet txid:${txid}`);
 
   return resultSet;

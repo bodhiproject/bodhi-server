@@ -23,18 +23,18 @@ module.exports = async (
   if (!eventAddress) throw Error('Must include eventAddress filter');
 
   // Get num of results for event
-  const event = await DBHelper.findOneEvent(db, { address: eventAddress });
+  const event = await DBHelper.findOneEvent({ address: eventAddress });
   if (isNull(event)) throw Error('Event not found');
   const { numOfResults } = event;
 
   // Accumulate all result bets
-  let bets = await DBHelper.findBet(db, { eventAddress });
+  let bets = await DBHelper.findBet({ eventAddress });
   const resultBets = accumulateBets(numOfResults, bets);
 
   // Accumulate all better bets
   let betterBets;
   if (betterAddress) {
-    bets = await DBHelper.findBet(db, { eventAddress, betterAddress });
+    bets = await DBHelper.findBet({ eventAddress, betterAddress });
     betterBets = accumulateBets(numOfResults, bets);
   }
 

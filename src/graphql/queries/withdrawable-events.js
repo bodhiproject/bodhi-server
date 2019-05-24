@@ -12,7 +12,7 @@ const { EVENT_STATUS } = require('../../constants');
 const getUniqueBets = async (withdrawerAddress, db) => {
   if (!withdrawerAddress) throw Error('Must include withdrawerAddress filter');
 
-  let bets = await DBHelper.findBet(db, { betterAddress: withdrawerAddress });
+  let bets = await DBHelper.findBet({ betterAddress: withdrawerAddress });
   bets = uniqBy(bets, b => [b.eventAddress, b.resultIndex].join());
   return bets;
 };

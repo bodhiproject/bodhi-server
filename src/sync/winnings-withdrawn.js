@@ -4,7 +4,6 @@ const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
 const { logger } = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
-const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const Withdraw = require('../models/withdraw');
 
@@ -29,10 +28,7 @@ const getBlocksAndReceipts = async (currBlockNum) => {
   const txReceipts = {};
   const promises = [];
 
-  const pending = await DBHelper.findWithdraw(
-    db,
-    { txStatus: TX_STATUS.PENDING },
-  );
+  const pending = await DBHelper.findWithdraw({ txStatus: TX_STATUS.PENDING });
   each(pending, async (pendingBet) => {
     promises.push(new Promise(async (resolve, reject) => {
       try {
@@ -107,12 +103,12 @@ module.exports = async (contractMetadata, currBlockNum) => {
           const logs = await getLogs({ naka, abiObj, blockNum });
           each(logs, async (log) => {
             const withdraw = await parseLog({ naka, abiObj, log });
-            await DBHelper.insertWithdraw(db, withdraw);
+            await DBHelper.insertWithdraw(withdraw);
 
             // Update tx receipt
             let txReceipt = txReceipts[withdraw.txid];
             if (!txReceipt) txReceipt = await getTransactionReceipt(withdraw.txid);
-            await DBHelper.insertTransactionReceipt(db, txReceipt);
+            await DBHelper.insertTransactionReceipt(txReceipt);
           });
 
           resolve();

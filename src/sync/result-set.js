@@ -4,7 +4,6 @@ const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
 const { logger } = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
-const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const ResultSet = require('../models/result-set');
 
@@ -29,10 +28,10 @@ const getBlocksAndReceipts = async (currBlockNum) => {
   const txReceipts = {};
   const promises = [];
 
-  const pending = await DBHelper.findResultSet(
-    db,
-    { txStatus: TX_STATUS.PENDING, eventRound: 0 },
-  );
+  const pending = await DBHelper.findResultSet({
+    txStatus: TX_STATUS.PENDING,
+    eventRound: 0,
+  });
   each(pending, async (pendingResultSet) => {
     promises.push(new Promise(async (resolve, reject) => {
       try {
@@ -111,15 +110,12 @@ const updateEventRound = async ({
   nextConsensusThreshold,
   nextArbitrationEndTime,
 }) => {
-  const event = await DBHelper.findOneEvent(
-    db,
-    { address: resultSet.eventAddress },
-  );
+  const event = await DBHelper.findOneEvent({ address: resultSet.eventAddress });
   event.currentRound = resultSet.eventRound + 1;
   event.currentResultIndex = resultSet.resultIndex;
   event.consensusThreshold = nextConsensusThreshold;
   event.arbitrationEndTime = nextArbitrationEndTime;
-  await DBHelper.updateEvent(db, event);
+  await DBHelper.updateEvent(event);
 };
 
 module.exports = async (contractMetadata, currBlockNum) => {
@@ -140,7 +136,7 @@ module.exports = async (contractMetadata, currBlockNum) => {
               nextConsensusThreshold,
               nextArbitrationEndTime,
             } = await parseLog({ naka, abiObj, log });
-            await DBHelper.insertResultSet(db, resultSet);
+            await DBHelper.insertResultSet(resultSet);
 
             // Update event round info
             await updateEventRound({
@@ -152,7 +148,7 @@ module.exports = async (contractMetadata, currBlockNum) => {
             // Update tx receipt
             let txReceipt = txReceipts[resultSet.txid];
             if (!txReceipt) txReceipt = await getTransactionReceipt(resultSet.txid);
-            await DBHelper.insertTransactionReceipt(db, txReceipt);
+            await DBHelper.insertTransactionReceipt(txReceipt);
           });
 
           resolve();

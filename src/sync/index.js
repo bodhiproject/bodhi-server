@@ -11,7 +11,6 @@ const syncResultSet = require('./result-set');
 const syncVotePlaced = require('./vote-placed');
 const syncVoteResultSet = require('./vote-result-set');
 const syncWinningsWithdrawn = require('./winnings-withdrawn');
-const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 const { logger } = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
@@ -84,7 +83,7 @@ const delayThenSync = (delay, shouldUpdateLocalTxs) => {
  */
 const getStartBlock = async () => {
   let startBlock;
-  const blocks = await DBHelper.findLatestBlock(db);
+  const blocks = await DBHelper.findLatestBlock();
   if (blocks.length > 0) {
     // Blocks found in DB, use the last synced block as start
     startBlock = blocks[0].blockNum + 1;
@@ -119,7 +118,7 @@ const getBlockTime = async (blockNum) => {
  */
 const updateStatusBetting = async (currentBlockTime) => {
   try {
-    await DBHelper.updateEventStatusBetting(db, currentBlockTime);
+    await DBHelper.updateEventStatusBetting(currentBlockTime);
   } catch (err) {
     throw err;
   }
@@ -131,7 +130,7 @@ const updateStatusBetting = async (currentBlockTime) => {
  */
 const updateStatusOracleResultSetting = async (currentBlockTime) => {
   try {
-    await DBHelper.updateEventStatusOracleResultSetting(db, currentBlockTime);
+    await DBHelper.updateEventStatusOracleResultSetting(currentBlockTime);
   } catch (err) {
     throw err;
   }
@@ -143,7 +142,7 @@ const updateStatusOracleResultSetting = async (currentBlockTime) => {
  */
 const updateStatusOpenResultSetting = async (currentBlockTime) => {
   try {
-    await DBHelper.updateEventStatusOpenResultSetting(db, currentBlockTime);
+    await DBHelper.updateEventStatusOpenResultSetting(currentBlockTime);
   } catch (err) {
     throw err;
   }
@@ -154,7 +153,7 @@ const updateStatusOpenResultSetting = async (currentBlockTime) => {
  */
 const updateStatusArbitration = async (currentBlockTime) => {
   try {
-    await DBHelper.updateEventStatusArbitration(db, currentBlockTime);
+    await DBHelper.updateEventStatusArbitration(currentBlockTime);
   } catch (err) {
     throw err;
   }
@@ -165,7 +164,7 @@ const updateStatusArbitration = async (currentBlockTime) => {
  */
 const updateStatusWithdrawing = async (currentBlockTime) => {
   try {
-    await DBHelper.updateEventStatusWithdrawing(db, currentBlockTime);
+    await DBHelper.updateEventStatusWithdrawing(currentBlockTime);
   } catch (err) {
     throw err;
   }
@@ -173,7 +172,7 @@ const updateStatusWithdrawing = async (currentBlockTime) => {
 
 const insertBlock = async (currentBlockNum, currentBlockTime) => {
   try {
-    await DBHelper.insertBlock(db, currentBlockNum, currentBlockTime);
+    await DBHelper.insertBlock(currentBlockNum, currentBlockTime);
     logger().debug(`Inserted block ${currentBlockNum}`);
   } catch (err) {
     throw err;

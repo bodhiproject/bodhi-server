@@ -2,11 +2,10 @@ const { isNull, isUndefined, map } = require('lodash');
 const { getContractMetadata } = require('../config');
 const { web3 } = require('../web3');
 const { logger } = require('../utils/logger');
-const { db } = require('../db');
 const DBHelper = require('../db/db-helper');
 
 const getContract = async (eventAddress) => {
-  const event = await DBHelper.findOneEvent(db, { address: eventAddress });
+  const event = await DBHelper.findOneEvent({ address: eventAddress });
   if (isNull(event)) throw Error('Event not found');
 
   const metadata = getContractMetadata(event.version).MultipleResultsEvent;
