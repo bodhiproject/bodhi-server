@@ -1,5 +1,5 @@
 const { each, isNull } = require('lodash');
-const { web3 } = require('../web3');
+const web3 = require('../web3');
 const { CONFIG } = require('../config');
 const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
@@ -7,16 +7,6 @@ const { getTransactionReceipt } = require('../utils/web3-utils');
 const { logger } = require('../utils/logger');
 const MultipleResultsEvent = require('../models/multiple-results-event');
 const DBHelper = require('../db/db-helper');
-
-const getAbiObj = (contractMetadata) => {
-  const abiObj = getAbiObject(
-    contractMetadata.EventFactory.abi,
-    'MultipleResultsEventCreated',
-    'event',
-  );
-  if (!abiObj) throw Error('MultipleResultsEventCreated event not found in ABI');
-  return abiObj;
-};
 
 /**
  * Gets the block numbers needed to parse logs for.
@@ -52,30 +42,18 @@ const getBlocksAndReceipts = async (currBlockNum) => {
   return { blockNums, txReceipts };
 };
 
-const getLogs = async ({ naka, abiObj, startBlock, endBlock }) => {
-
-
-  const eventSig = naka.eth.abi.encodeEventSignature(abiObj);
-  return naka.eth.getPastLogs({
-    fromBlock: blockNum,
-    toBlock: blockNum,
-    address: contractMetadata.EventFactory[CONFIG.NETWORK],
-    topics: [eventSig],
-  });
-};
-
-const parseLog = async ({ naka, abiObj, contractMetadata, log }) => {
+const parseLog = async ({ abiObj, contractMetadata, log }) => {
   // TODO: uncomment when web3 decodeLog works. broken in 1.0.0-beta.54.
   // const {
   //   eventAddr,
   //   ownerAddr,
-  // } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
+  // } = web3.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
 
-  const address = naka.eth.abi.decodeParameter('address', log.topics[1]);
-  const ownerAddress = naka.eth.abi.decodeParameter('address', log.topics[2]);
+  const address = web3.eth.abi.decodeParameter('address', log.topics[1]);
+  const ownerAddress = web3.eth.abi.decodeParameter('address', log.topics[2]);
 
   // Get event data
-  const contract = new naka.eth.Contract(
+  const contract = new web3.eth.Contract(
     contractMetadata.MultipleResultsEvent.abi,
     address,
   );
@@ -127,36 +105,43 @@ const parseLog = async ({ naka, abiObj, contractMetadata, log }) => {
   });
 };
 
-module.exports = async (contractMetadata, currBlockNum) => {
+module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }) => {
   try {
-    const naka = web3();
-    const abiObj = getAbiObj(contractMetadata);
-    // const { blockNums, txReceipts } = await getBlocksAndReceipts(currBlockNum);
+    // Get event abi obj
+    const abiObj = getAbiObject(
+      contractMetadata.EventFactory.abi,
+      'MultipleResultsEventCreated',
+      'event',
+    );
+    if (!abiObj) throw Error('MultipleResultsEventCreated event not found in ABI');
 
-    const promises = [];
-    each(blockNums, (blockNum) => {
-      promises.push(new Promise(async (resolve, reject) => {
+    // Fetch logs
+    const logs = await web3.eth.getPastLogs({
+      fromBlock: startBlock,
+      toBlock: endBlock,
+      address: contractMetadata.EventFactory[CONFIG.NETWORK],
+      topics: [web3.eth.abi.encodeEventSignature(abiObj)],
+    });
+
+    // Add promise to main syncPromises array
+    each(logs, (log) => {
+      syncPromises.push(new Promise(async (resolve, reject) => {
         try {
-          // Parse each event and insert
-          const logs = await getLogs({ naka, abiObj, contractMetadata, blockNum });
-          each(logs, async (log) => {
-            const event = await parseLog({ naka, abiObj, contractMetadata, log });
-            await DBHelper.insertEvent(event);
+          // Parse and insert event
+          const event = await parseLog({ abiObj, contractMetadata, log });
+          await DBHelper.insertEvent(event);
 
-            // Update tx receipt
-            let txReceipt = txReceipts[event.txid];
-            if (!txReceipt) txReceipt = await getTransactionReceipt(event.txid);
-            await DBHelper.insertTransactionReceipt(txReceipt);
-          });
+          // Fetch and insert tx receipt
+          const txReceipt = await getTransactionReceipt(event.txid);
+          await DBHelper.insertTransactionReceipt(txReceipt);
 
           resolve();
         } catch (insertErr) {
           logger().error(`insert Bet: ${insertErr.message}`);
-          reject(insertErr);
+          reject();
         }
       }));
     });
-    await Promise.all(promises);
   } catch (err) {
     throw Error('Error syncMultipleResultsEventCreated:', err);
   }

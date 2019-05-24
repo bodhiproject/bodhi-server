@@ -123,6 +123,13 @@ const determineContractVersion = (blockNum) => {
 };
 
 /**
+ * Gets the end block of a given contract version.
+ * @param {number} version Contract version number
+ * @return {number} End block of the contract version
+ */
+const getContractVersionEndBlock = version => versionConfig[version].endBlock;
+
+/**
  * Gets the smart contract metadata based on version.
  * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
  * @return {Object} Contract metadata.
@@ -150,6 +157,7 @@ module.exports = {
   getLogsDir,
   isMainnet,
   determineContractVersion,
+  getContractVersionEndBlock,
   getContractMetadata,
   getSSLCredentials,
 };

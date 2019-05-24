@@ -1,6 +1,7 @@
 const { isNull } = require('lodash');
 const {
   determineContractVersion,
+  getContractVersionEndBlock,
   getContractMetadata,
   isMainnet,
 } = require('../config');
@@ -24,13 +25,34 @@ const BLOCK_BATCHES = 1000;
  */
 const startSync = async (shouldUpdateLocalTxs) => {
   try {
+    // Determine start and end blocks
     const latestBlock = await web3().eth.getBlockNumber();
     const startBlock = await getStartBlock();
-    const endBlock = Math.min(startBlock + BLOCK_BATCHES, latestBlock);
+    let endBlock = Math.min(startBlock + BLOCK_BATCHES, latestBlock);
+
+    // Get contractMetadata for start and end blocks. If they are different,
+    // set the end block to the contract version end block so we don't need to
+    // pass different contract metadata versions.
+    const startBlockVersion = determineContractVersion(startBlock);
+    const endBlockVersion = determineContractVersion(endBlock);
+    if (startBlockVersion !== endBlockVersion) {
+      const contractEndBlock = getContractVersionEndBlock(startBlockVersion);
+      if (contractEndBlock !== -1) endBlock = contractEndBlock;
+    }
+    const contractMetadata = getContractMetadata(startBlockVersion);
+
     logger().debug(`Syncing blocks ${startBlock} - ${endBlock}`);
 
     const syncPromises = [];
-    
+    await syncMultipleResultsEventCreated({
+      contractMetadata,
+      startBlock,
+      endBlock,
+      syncPromises,
+    });
+
+
+
 
 
 
