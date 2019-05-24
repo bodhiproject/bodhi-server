@@ -108,7 +108,7 @@ module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }
 
           resolve();
         } catch (insertErr) {
-          logger().error(`insert Bet: ${insertErr.message}`);
+          logger().error(`insert BetPlaced: ${insertErr.message}`);
           reject();
         }
       }));

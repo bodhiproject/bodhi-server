@@ -138,7 +138,7 @@ module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }
 
           resolve();
         } catch (insertErr) {
-          logger().error(`insert MultipleResultsEvent: ${insertErr.message}`);
+          logger().error(`insert MultipleResultsEventCreated: ${insertErr.message}`);
           reject();
         }
       }));

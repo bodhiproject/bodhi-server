@@ -12,6 +12,7 @@ const syncResultSet = require('./result-set');
 const syncVotePlaced = require('./vote-placed');
 const syncVoteResultSet = require('./vote-result-set');
 const syncWinningsWithdrawn = require('./winnings-withdrawn');
+const syncBlocks = require('./blocks');
 const DBHelper = require('../db/db-helper');
 const { logger } = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
@@ -42,7 +43,7 @@ const startSync = async (shouldUpdateLocalTxs) => {
     const contractMetadata = getContractMetadata(startBlockVersion);
 
     logger().debug(`Syncing blocks ${startBlock} - ${endBlock}`);
-
+    
     const syncPromises = [];
     await syncMultipleResultsEventCreated({
       contractMetadata,
@@ -54,7 +55,16 @@ const startSync = async (shouldUpdateLocalTxs) => {
     await syncResultSet({ contractMetadata, startBlock, endBlock, syncPromises });
     await syncVotePlaced({ contractMetadata, startBlock, endBlock, syncPromises });
     await syncVoteResultSet({ contractMetadata, startBlock, endBlock, syncPromises });
+    await syncWinningsWithdrawn({ contractMetadata, startBlock, endBlock, syncPromises });
+    syncBlocks({ startBlock, endBlock, syncPromises })
+    await Promise.all(syncPromises);
 
+    // Update statuses
+    await updateStatusBetting(currentBlockTime);
+    await updateStatusOracleResultSetting(currentBlockTime);
+    await updateStatusOpenResultSetting(currentBlockTime);
+    await updateStatusArbitration(currentBlockTime);
+    await updateStatusWithdrawing(currentBlockTime);
 
 
 
@@ -133,21 +143,6 @@ const getStartBlock = async () => {
 };
 
 /**
- * Gets the block time of the current syncing block.
- * @param blockNum {number} Block number to get the block time of.
- * @return {number|null} Block timestamp of the given block number or null.
- */
-const getBlockTime = async (blockNum) => {
-  try {
-    const block = await web3().eth.getBlock(blockNum);
-    if (isNull(block)) return block;
-    return Number(block.timestamp);
-  } catch (err) {
-    throw Error('Error getting block time:', err);
-  }
-};
-
-/**
  * Updates any events which are in the betting status.
  * @param {number} currentBlockTime Current block timestamp.
  */
@@ -200,15 +195,6 @@ const updateStatusArbitration = async (currentBlockTime) => {
 const updateStatusWithdrawing = async (currentBlockTime) => {
   try {
     await DBHelper.updateEventStatusWithdrawing(currentBlockTime);
-  } catch (err) {
-    throw err;
-  }
-};
-
-const insertBlock = async (currentBlockNum, currentBlockTime) => {
-  try {
-    await DBHelper.insertBlock(currentBlockNum, currentBlockTime);
-    logger().debug(`Inserted block ${currentBlockNum}`);
   } catch (err) {
     throw err;
   }

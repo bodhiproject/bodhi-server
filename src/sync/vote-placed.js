@@ -108,7 +108,7 @@ module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }
 
           resolve();
         } catch (insertErr) {
-          logger().error(`insert Vote: ${insertErr.message}`);
+          logger().error(`insert VotePlaced: ${insertErr.message}`);
           reject();
         }
       }));
