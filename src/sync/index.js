@@ -6,13 +6,12 @@ const {
 } = require('../config');
 const web3 = require('../web3');
 const syncMultipleResultsEventCreated = require('./multiple-results-event-created');
-const syncBetPlaced = require('./bet-placed');
+const { syncBetPlaced, pendingBetPlaced } = require('./bet-placed');
 const syncResultSet = require('./result-set');
 const syncVotePlaced = require('./vote-placed');
 const syncVoteResultSet = require('./vote-result-set');
 const syncWinningsWithdrawn = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
-const pendingBetPlaced = require('./bet-placed-pending');
 const DBHelper = require('../db/db-helper');
 const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
@@ -89,7 +88,7 @@ const startSync = async () => {
     syncBlocks({ startBlock, endBlock, syncPromises });
 
     // Add pending promises
-    await pendingBetPlaced({ startBlock, endBlock, syncPromises });
+    await pendingBetPlaced({ startBlock, syncPromises });
     await Promise.all(syncPromises);
 
     // Update statuses
