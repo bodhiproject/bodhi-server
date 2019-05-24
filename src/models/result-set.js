@@ -31,5 +31,6 @@ module.exports = class ResultSet {
     this.resultIndex = params.resultIndex;
     this.amount = params.amount;
     this.eventRound = params.eventRound;
+    this.fromVote = params.fromVote;
   }
 };
