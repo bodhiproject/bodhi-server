@@ -1,6 +1,6 @@
 const { isNull } = require('lodash');
 const ResultSet = require('../../models/result-set');
-const { logger } = require('../../utils/logger');
+const logger = require('../../utils/logger');
 const { getTransaction } = require('../../utils/web3-utils');
 const DBHelper = require('../../db/db-helper');
 const { TX_STATUS } = require('../../constants');
@@ -34,7 +34,7 @@ module.exports = async (root, data) => {
     eventRound,
   });
   await DBHelper.insertResultSet(resultSet);
-  logger().debug(`Mutation addPendingResultSet txid:${txid}`);
+  logger.debug(`Mutation addPendingResultSet txid:${txid}`);
 
   return resultSet;
 };

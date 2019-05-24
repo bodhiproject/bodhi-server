@@ -2,7 +2,7 @@ const { each } = require('lodash');
 const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
-const { logger } = require('../utils/logger');
+const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
 const DBHelper = require('../db/db-helper');
 const ResultSet = require('../models/result-set');
@@ -59,7 +59,7 @@ module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }
       toBlock: endBlock,
       topics: [web3.eth.abi.encodeEventSignature(abiObj)],
     });
-    logger().info(`Found ${logs.length} VoteResultSet`);
+    logger.info(`Found ${logs.length} VoteResultSet`);
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
@@ -75,7 +75,7 @@ module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }
 
           resolve();
         } catch (insertErr) {
-          logger().error(`insert VoteResultSet: ${insertErr.message}`);
+          logger.error(`insert VoteResultSet: ${insertErr.message}`);
           reject();
         }
       }));

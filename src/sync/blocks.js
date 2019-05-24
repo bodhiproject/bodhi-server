@@ -1,6 +1,6 @@
 const { isNull } = require('lodash');
 const web3 = require('../web3');
-const { logger } = require('../utils/logger');
+const logger = require('../utils/logger');
 const DBHelper = require('../db/db-helper');
 
 /**
@@ -25,7 +25,7 @@ module.exports = ({ startBlock, endBlock, syncPromises }) => {
 
           resolve();
         } catch (insertErr) {
-          logger().error(`insert Block: ${insertErr.message}`);
+          logger.error(`insert Block: ${insertErr.message}`);
           reject();
         }
       }));

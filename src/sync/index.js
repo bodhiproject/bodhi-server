@@ -13,7 +13,7 @@ const syncVoteResultSet = require('./vote-result-set');
 const syncWinningsWithdrawn = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
 const DBHelper = require('../db/db-helper');
-const { logger } = require('../utils/logger');
+const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
 
 const SYNC_START_DELAY = 3000;
@@ -43,7 +43,7 @@ const getStartBlock = async () => {
  * @param {number} delay Number of milliseconds to delay.
  */
 const delayThenSync = (delay) => {
-  logger().debug('sleep');
+  logger.debug('sleep');
   setTimeout(() => {
     startSync();
   }, delay);
@@ -70,7 +70,7 @@ const startSync = async () => {
     }
     const contractMetadata = getContractMetadata(startBlockVersion);
 
-    logger().debug(`Syncing blocks ${startBlock} - ${endBlock}`);
+    logger.debug(`Syncing blocks ${startBlock} - ${endBlock}`);
 
     const syncPromises = [];
     await syncMultipleResultsEventCreated({

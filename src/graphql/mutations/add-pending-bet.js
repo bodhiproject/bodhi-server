@@ -1,6 +1,6 @@
 const { isNull } = require('lodash');
 const Bet = require('../../models/bet');
-const { logger } = require('../../utils/logger');
+const logger = require('../../utils/logger');
 const { getTransaction } = require('../../utils/web3-utils');
 const DBHelper = require('../../db/db-helper');
 const { TX_STATUS } = require('../../constants');
@@ -38,7 +38,7 @@ module.exports = async (
     eventRound,
   });
   await DBHelper.insertBet(bet);
-  logger().debug(`Mutation addPendingBet txid:${txid}`);
+  logger.debug(`Mutation addPendingBet txid:${txid}`);
 
   return bet;
 };

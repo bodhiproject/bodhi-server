@@ -1,5 +1,5 @@
 const { isNull } = require('lodash');
-const { logger } = require('../utils/logger');
+const logger = require('../utils/logger');
 const { EVENT_STATUS } = require('../constants');
 const { db } = require('.');
 
@@ -9,7 +9,7 @@ module.exports = class DBHelper {
     try {
       return await db.Blocks.findOne(query);
     } catch (err) {
-      logger().error(`FIND Block error: ${err.message}`);
+      logger.error(`FIND Block error: ${err.message}`);
       throw err;
     }
   }
@@ -26,7 +26,7 @@ module.exports = class DBHelper {
         blockTime,
       });
     } catch (err) {
-      logger().error(`INSERT Block error: ${err.message}`);
+      logger.error(`INSERT Block error: ${err.message}`);
       throw err;
     }
   }
@@ -36,7 +36,7 @@ module.exports = class DBHelper {
     try {
       return await db.TransactionReceipts.findOne(query);
     } catch (err) {
-      logger().error(`FIND TransactionReceipt error: ${err.message}`);
+      logger.error(`FIND TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
@@ -52,7 +52,7 @@ module.exports = class DBHelper {
         await DBHelper.updateTransactionReceipt(txReceipt);
       }
     } catch (err) {
-      logger().error(`INSERT TransactionReceipt error: ${err.message}`);
+      logger.error(`INSERT TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
@@ -65,7 +65,7 @@ module.exports = class DBHelper {
         {},
       );
     } catch (err) {
-      logger().error(`UPDATE TransactionReceipt error: ${err.message}`);
+      logger.error(`UPDATE TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
@@ -75,7 +75,7 @@ module.exports = class DBHelper {
     try {
       return await db.Events.find(query);
     } catch (err) {
-      logger().error(`FIND Event error: ${err.message}`);
+      logger.error(`FIND Event error: ${err.message}`);
       throw err;
     }
   }
@@ -84,7 +84,7 @@ module.exports = class DBHelper {
     try {
       return await db.Events.findOne(query);
     } catch (err) {
-      logger().error(`FINDONE Event error: ${err.message}`);
+      logger.error(`FINDONE Event error: ${err.message}`);
       throw err;
     }
   }
@@ -100,7 +100,7 @@ module.exports = class DBHelper {
         await DBHelper.updateEvent(event);
       }
     } catch (err) {
-      logger().error(`INSERT Event error: ${err.message}`);
+      logger.error(`INSERT Event error: ${err.message}`);
       throw err;
     }
   }
@@ -113,7 +113,7 @@ module.exports = class DBHelper {
         {},
       );
     } catch (err) {
-      logger().error(`UPDATE Event error: ${err.message}`);
+      logger.error(`UPDATE Event error: ${err.message}`);
       throw err;
     }
   }
@@ -131,7 +131,7 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      logger().error(`UPDATE Event Status Betting error: ${err.message}`);
+      logger.error(`UPDATE Event Status Betting error: ${err.message}`);
       throw err;
     }
   }
@@ -149,7 +149,7 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      logger().error(`UPDATE Event Status Oracle Result Setting error: ${err.message}`);
+      logger.error(`UPDATE Event Status Oracle Result Setting error: ${err.message}`);
       throw err;
     }
   }
@@ -166,7 +166,7 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      logger().error(`UPDATE Event Status Open Result Setting error: ${err.message}`);
+      logger.error(`UPDATE Event Status Open Result Setting error: ${err.message}`);
       throw err;
     }
   }
@@ -183,7 +183,7 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      logger().error(`UPDATE Event Status Arbitration error: ${err.message}`);
+      logger.error(`UPDATE Event Status Arbitration error: ${err.message}`);
       throw err;
     }
   }
@@ -200,7 +200,7 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      logger().error(`UPDATE Event Status Withdrawing error: ${err.message}`);
+      logger.error(`UPDATE Event Status Withdrawing error: ${err.message}`);
       throw err;
     }
   }
@@ -210,7 +210,7 @@ module.exports = class DBHelper {
     try {
       return await db.Bets.find(query);
     } catch (err) {
-      logger().error(`FIND Bet error: ${err.message}`);
+      logger.error(`FIND Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -219,7 +219,7 @@ module.exports = class DBHelper {
     try {
       return await db.Bets.findOne(query);
     } catch (err) {
-      logger().error(`FINDONE Bet error: ${err.message}`);
+      logger.error(`FINDONE Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -228,7 +228,7 @@ module.exports = class DBHelper {
     try {
       return await db.Bets.count(query);
     } catch (err) {
-      logger().error(`COUNT Bet error: ${err.message}`);
+      logger.error(`COUNT Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -242,7 +242,7 @@ module.exports = class DBHelper {
         await DBHelper.updateBet(bet);
       }
     } catch (err) {
-      logger().error(`INSERT Bet error: ${err.message}`);
+      logger.error(`INSERT Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -255,7 +255,7 @@ module.exports = class DBHelper {
         {},
       );
     } catch (err) {
-      logger().error(`UPDATE Bet error: ${err.message}`);
+      logger.error(`UPDATE Bet error: ${err.message}`);
       throw err;
     }
   }
@@ -265,7 +265,7 @@ module.exports = class DBHelper {
     try {
       return await db.ResultSets.find(query);
     } catch (err) {
-      logger().error(`FIND ResultSet error: ${err.message}`);
+      logger.error(`FIND ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -274,7 +274,7 @@ module.exports = class DBHelper {
     try {
       return await db.ResultSets.findOne(query);
     } catch (err) {
-      logger().error(`FINDONE ResultSet error: ${err.message}`);
+      logger.error(`FINDONE ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -287,7 +287,7 @@ module.exports = class DBHelper {
     try {
       return await db.ResultSets.count(query);
     } catch (err) {
-      logger().error(`COUNT ResultSet error: ${err.message}`);
+      logger.error(`COUNT ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -301,7 +301,7 @@ module.exports = class DBHelper {
         await DBHelper.updateResultSet(resultSet);
       }
     } catch (err) {
-      logger().error(`INSERT ResultSet error: ${err.message}`);
+      logger.error(`INSERT ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -314,7 +314,7 @@ module.exports = class DBHelper {
         {},
       );
     } catch (err) {
-      logger().error(`UPDATE ResultSet error: ${err.message}`);
+      logger.error(`UPDATE ResultSet error: ${err.message}`);
       throw err;
     }
   }
@@ -324,7 +324,7 @@ module.exports = class DBHelper {
     try {
       return await db.Withdraws.find(query);
     } catch (err) {
-      logger().error(`FIND Withdraw error: ${err.message}`);
+      logger.error(`FIND Withdraw error: ${err.message}`);
       throw err;
     }
   }
@@ -333,7 +333,7 @@ module.exports = class DBHelper {
     try {
       return await db.Withdraws.findOne(query);
     } catch (err) {
-      logger().error(`FINDONE Withdraw error: ${err.message}`);
+      logger.error(`FINDONE Withdraw error: ${err.message}`);
       throw err;
     }
   }
@@ -342,7 +342,7 @@ module.exports = class DBHelper {
     try {
       return await db.Withdraws.count(query);
     } catch (err) {
-      logger().error(`COUNT Withdraw error: ${err.message}`);
+      logger.error(`COUNT Withdraw error: ${err.message}`);
       throw err;
     }
   }
@@ -356,7 +356,7 @@ module.exports = class DBHelper {
         await DBHelper.updateWithdraw(withdraw);
       }
     } catch (err) {
-      logger().error(`INSERT Withdraw error: ${err.message}`);
+      logger.error(`INSERT Withdraw error: ${err.message}`);
       throw err;
     }
   }
@@ -369,7 +369,7 @@ module.exports = class DBHelper {
         {},
       );
     } catch (err) {
-      logger().error(`UPDATE Withdraw error: ${err.message}`);
+      logger.error(`UPDATE Withdraw error: ${err.message}`);
       throw err;
     }
   }

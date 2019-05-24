@@ -2,7 +2,7 @@ const { each, isNull } = require('lodash');
 const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
 const { getAbiObject } = require('../utils');
-const { logger } = require('../utils/logger');
+const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
 const Bet = require('../models/bet');
 const DBHelper = require('../db/db-helper');
@@ -34,7 +34,7 @@ const getBlocksAndReceipts = async (currBlockNum) => {
         }
         resolve();
       } catch (err) {
-        logger().error(`getBlocksAndReceipts: ${err.message}`);
+        logger.error(`getBlocksAndReceipts: ${err.message}`);
         reject();
       }
     }));
@@ -92,7 +92,7 @@ module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }
       toBlock: endBlock,
       topics: [web3.eth.abi.encodeEventSignature(abiObj)],
     });
-    logger().info(`Found ${logs.length} BetPlaced`);
+    logger.info(`Found ${logs.length} BetPlaced`);
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
@@ -108,7 +108,7 @@ module.exports = async ({ contractMetadata, startBlock, endBlock, syncPromises }
 
           resolve();
         } catch (insertErr) {
-          logger().error(`insert BetPlaced: ${insertErr.message}`);
+          logger.error(`insert BetPlaced: ${insertErr.message}`);
           reject();
         }
       }));
