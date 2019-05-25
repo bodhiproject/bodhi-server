@@ -32,6 +32,7 @@ const syncMultipleResultsEventCreated = async (
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
           logger.error(`insert MultipleResultsEventCreated: ${insertErr.message}`);
+          throw Error(`insert MultipleResultsEventCreated: ${insertErr.message}`);
         }
       }));
     });

@@ -24,6 +24,7 @@ module.exports = ({ startBlock, endBlock, syncPromises, limit }) => {
           await DBHelper.insertBlock(blockNum, blockTime);
         } catch (insertErr) {
           logger.error(`insert Block: ${insertErr.message}`);
+          throw Error(`insert Block: ${insertErr.message}`);
         }
       }));
     };

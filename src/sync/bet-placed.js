@@ -30,6 +30,7 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
           logger.error(`insert BetPlaced: ${insertErr.message}`);
+          throw Error(`insert BetPlaced: ${insertErr.message}`);
         }
       }));
     });

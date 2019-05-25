@@ -36,6 +36,7 @@ const syncVoteResultSet = async (
           await updateEvent(resultSet);
         } catch (insertErr) {
           logger.error(`insert VoteResultSet: ${insertErr.message}`);
+          throw Error(`insert VoteResultSet: ${insertErr.message}`);
         }
       }));
     });

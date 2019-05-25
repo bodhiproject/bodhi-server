@@ -30,6 +30,7 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
           logger.error(`insert VotePlaced: ${insertErr.message}`);
+          throw Error(`insert VotePlaced: ${insertErr.message}`);
         }
       }));
     });

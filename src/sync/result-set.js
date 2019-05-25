@@ -34,6 +34,7 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
           await updateEvent(resultSet);
         } catch (insertErr) {
           logger.error(`insert ResultSet: ${insertErr.message}`);
+          throw Error(`insert ResultSet: ${insertErr.message}`);
         }
       }));
     });

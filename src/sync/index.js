@@ -17,7 +17,7 @@ const { publishSyncInfo } = require('../graphql/subscriptions');
 
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
-const PROMISE_CONCURRENCY_LIMIT = 40;
+const PROMISE_CONCURRENCY_LIMIT = 30;
 
 /**
  * Determines the start block to start syncing from.
