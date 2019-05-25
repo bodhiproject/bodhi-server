@@ -27,7 +27,6 @@ module.exports = class DBHelper {
       });
     } catch (err) {
       logger.error(`INSERT Block error: ${err.message}`);
-      throw err;
     }
   }
 

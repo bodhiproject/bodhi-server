@@ -32,7 +32,12 @@ let startBlock;
 const readStartBlockFile = () => {
   try {
     const filePath = `${getBaseDataDir()}/${START_BLOCK_FILENAME}`;
-    if (fs.existsSync(filePath)) return Number(fs.readFileSync(filePath));
+    if (fs.existsSync(filePath)) {
+      logger.info('Found start block config');
+      const start = fs.readFileSync(filePath);
+      fs.removeSync(filePath);
+      return Number(start);
+    }
   } catch (err) {
     logger.error('Could not read start block file');
   }
@@ -110,7 +115,6 @@ const startSync = async () => {
     // Determine start and end blocks
     const latestBlock = await web3.eth.getBlockNumber();
     startBlock = await getStartBlock();
-    console.log('NAKA: startSync -> startBlock', startBlock);
     const endBlock = Math.min(startBlock + BLOCK_BATCH_COUNT, latestBlock);
 
     logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
