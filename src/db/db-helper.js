@@ -43,7 +43,8 @@ module.exports = class DBHelper {
 
   static async insertTransactionReceipt(txReceipt) {
     try {
-      const existing = await DBHelper.findOneTransactionReceipt({ transactionHash: txReceipt.transactionHash });
+      const existing =
+        await DBHelper.findOneTransactionReceipt({ transactionHash: txReceipt.transactionHash });
       if (isNull(existing)) {
         await db.TransactionReceipts.insert(txReceipt);
       } else {
