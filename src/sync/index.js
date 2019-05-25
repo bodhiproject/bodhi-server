@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const pLimit = require('p-limit');
 const { isUndefined } = require('lodash');
+const moment = require('moment');
 const { getContractMetadata, isMainnet, getBaseDataDir } = require('../config');
 const web3 = require('../web3');
 const {
@@ -112,6 +113,9 @@ const startSync = async () => {
   try {
     if (!signalsHandled) setupSignalHandler();
 
+    // Track exec time
+    const execStartMs = moment().valueOf();
+
     // Determine start and end blocks
     const latestBlock = await web3.eth.getBlockNumber();
     startBlock = await getStartBlock();
@@ -160,6 +164,10 @@ const startSync = async () => {
 
     // Send syncInfo subscription message
     await publishSyncInfo(endBlock, blockTime);
+
+    // Display exec time
+    const execTimeMs = moment().valueOf() - execStartMs;
+    logger.info(`Completed in ${execTimeMs} ms`);
 
     delayThenSync(SYNC_START_DELAY);
   } catch (err) {
