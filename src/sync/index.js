@@ -23,6 +23,8 @@ const BLOCK_BATCH_COUNT = 500;
 const PROMISE_CONCURRENCY_LIMIT = 30;
 const START_BLOCK_FILENAME = 'start_block.dat';
 
+const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
+let syncPromises = [];
 let signalsHandled = false;
 let startBlock;
 
@@ -125,8 +127,7 @@ const startSync = async () => {
 
     // Events need to be synced before all other types to avoid race conditions
     // when updating the event.
-    let syncPromises = [];
-    let limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
+    syncPromises = [];
     await syncMultipleResultsEventCreated({
       startBlock,
       endBlock,
@@ -137,7 +138,6 @@ const startSync = async () => {
 
     // Add sync promises
     syncPromises = [];
-    limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
     await syncBetPlaced({ startBlock, endBlock, syncPromises, limit });
     await syncResultSet({ startBlock, endBlock, syncPromises, limit });
     await syncVotePlaced({ startBlock, endBlock, syncPromises, limit });
