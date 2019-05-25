@@ -19,7 +19,7 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
-      syncPromises.push(limit(async (resolve, reject) => {
+      syncPromises.push(limit(async () => {
         try {
           // Parse and insert bet
           const bet = parseBet({ log });
@@ -28,11 +28,8 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
           // Fetch and insert tx receipt
           const txReceipt = await getTransactionReceipt(bet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
-
-          resolve();
         } catch (insertErr) {
           logger.error(`insert BetPlaced: ${insertErr.message}`);
-          reject();
         }
       }));
     });

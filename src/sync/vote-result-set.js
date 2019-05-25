@@ -21,7 +21,7 @@ const syncVoteResultSet = async (
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
-      syncPromises.push(limit(async (resolve, reject) => {
+      syncPromises.push(limit(async () => {
         try {
           // Parse and insert vote result set
           const resultSet = parseResultSet({ log });
@@ -30,11 +30,8 @@ const syncVoteResultSet = async (
           // Fetch and insert tx receipt
           const txReceipt = await getTransactionReceipt(resultSet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
-
-          resolve();
         } catch (insertErr) {
           logger.error(`insert VoteResultSet: ${insertErr.message}`);
-          reject();
         }
       }));
     });

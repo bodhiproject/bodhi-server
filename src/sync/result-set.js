@@ -19,7 +19,7 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
-      syncPromises.push(limit(async (resolve, reject) => {
+      syncPromises.push(limit(async () => {
         try {
           // Parse and insert result set
           const resultSet = parseResultSet({ log });
@@ -28,11 +28,8 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
           // Fetch and insert tx receipt
           const txReceipt = await getTransactionReceipt(resultSet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
-
-          resolve();
         } catch (insertErr) {
           logger.error(`insert ResultSet: ${insertErr.message}`);
-          reject();
         }
       }));
     });

@@ -21,7 +21,7 @@ const syncWinningsWithdrawn = async (
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
-      syncPromises.push(limit(async (resolve, reject) => {
+      syncPromises.push(limit(async () => {
         try {
           // Parse and insert withdraw
           const withdraw = parseWithdraw({ log });
@@ -30,11 +30,8 @@ const syncWinningsWithdrawn = async (
           // Fetch and insert tx receipt
           const txReceipt = await getTransactionReceipt(withdraw.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
-
-          resolve();
         } catch (insertErr) {
           logger.error(`insert WinningsWithdrawn: ${insertErr.message}`);
-          reject();
         }
       }));
     });
