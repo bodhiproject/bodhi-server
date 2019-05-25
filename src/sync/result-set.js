@@ -7,7 +7,7 @@ const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseResultSet = require('./parsers/result-set');
 
-const syncResultSet = async ({ startBlock, endBlock, syncPromises }) => {
+const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
     // Fetch logs
     const logs = await web3.eth.getPastLogs({
@@ -19,7 +19,7 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises }) => {
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
-      syncPromises.push(new Promise(async (resolve, reject) => {
+      syncPromises.push(limit(async (resolve, reject) => {
         try {
           // Parse and insert result set
           const resultSet = parseResultSet({ log });
@@ -41,7 +41,7 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises }) => {
   }
 };
 
-const pendingResultSet = async ({ startBlock, syncPromises }) => {
+const pendingResultSet = async ({ startBlock, syncPromises, limit }) => {
   try {
     // Find pending result sets that have a block number less than the startBlock
     const pending = await DBHelper.findResultSet(
@@ -64,6 +64,7 @@ const pendingResultSet = async ({ startBlock, syncPromises }) => {
       startBlock: fromBlock,
       endBlock: toBlock,
       syncPromises,
+      limit,
     });
   } catch (err) {
     throw Error('Error pendingResultSet:', err);

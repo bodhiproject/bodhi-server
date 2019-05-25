@@ -64,21 +64,21 @@ const startSync = async () => {
     const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
 
     // Add sync promises
-    await syncMultipleResultsEventCreated({ startBlock, endBlock, syncPromises });
-    await syncBetPlaced({ startBlock, endBlock, syncPromises });
-    await syncResultSet({ startBlock, endBlock, syncPromises });
-    await syncVotePlaced({ startBlock, endBlock, syncPromises });
-    await syncVoteResultSet({ startBlock, endBlock, syncPromises });
-    await syncWinningsWithdrawn({ startBlock, endBlock, syncPromises });
-    syncBlocks({ startBlock, endBlock, syncPromises });
+    await syncMultipleResultsEventCreated({ startBlock, endBlock, syncPromises, limit });
+    await syncBetPlaced({ startBlock, endBlock, syncPromises, limit });
+    await syncResultSet({ startBlock, endBlock, syncPromises, limit });
+    await syncVotePlaced({ startBlock, endBlock, syncPromises, limit });
+    await syncVoteResultSet({ startBlock, endBlock, syncPromises, limit });
+    await syncWinningsWithdrawn({ startBlock, endBlock, syncPromises, limit });
+    syncBlocks({ startBlock, endBlock, syncPromises, limit });
 
     // Add pending promises
-    await pendingMultipleResultsEventCreated({ startBlock, syncPromises });
-    await pendingBetPlaced({ startBlock, syncPromises });
-    await pendingResultSet({ startBlock, syncPromises });
-    await pendingVotePlaced({ startBlock, syncPromises });
-    await pendingVoteResultSet({ startBlock, syncPromises });
-    await pendingWinningsWithdrawn({ startBlock, syncPromises });
+    await pendingMultipleResultsEventCreated({ startBlock, syncPromises, limit });
+    await pendingBetPlaced({ startBlock, syncPromises, limit });
+    await pendingResultSet({ startBlock, syncPromises, limit });
+    await pendingVotePlaced({ startBlock, syncPromises, limit });
+    await pendingVoteResultSet({ startBlock, syncPromises, limit });
+    await pendingWinningsWithdrawn({ startBlock, syncPromises, limit });
     await Promise.all(syncPromises);
 
     // Update statuses

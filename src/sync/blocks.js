@@ -14,10 +14,10 @@ const getBlockTime = async (blockNum) => {
   return Number(block.timestamp);
 };
 
-module.exports = ({ startBlock, endBlock, syncPromises }) => {
+module.exports = ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
     const addPromise = (blockNum) => {
-      syncPromises.push(new Promise(async (resolve, reject) => {
+      syncPromises.push(limit(async (resolve, reject) => {
         try {
           // Get block time and insert
           const blockTime = await getBlockTime(blockNum);

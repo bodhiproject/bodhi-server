@@ -7,7 +7,7 @@ const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseBet = require('./parsers/bet');
 
-const syncVotePlaced = async ({ startBlock, endBlock, syncPromises }) => {
+const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
     // Fetch logs
     const logs = await web3.eth.getPastLogs({
@@ -19,7 +19,7 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises }) => {
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
-      syncPromises.push(new Promise(async (resolve, reject) => {
+      syncPromises.push(limit(async (resolve, reject) => {
         try {
           // Parse and insert vote
           const bet = parseBet({ log });
@@ -41,7 +41,7 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises }) => {
   }
 };
 
-const pendingVotePlaced = async ({ startBlock, syncPromises }) => {
+const pendingVotePlaced = async ({ startBlock, syncPromises, limit }) => {
   try {
     // Find pending votes that have a block number less than the startBlock
     const pending = await DBHelper.findBet(
@@ -68,6 +68,7 @@ const pendingVotePlaced = async ({ startBlock, syncPromises }) => {
       startBlock: fromBlock,
       endBlock: toBlock,
       syncPromises,
+      limit,
     });
   } catch (err) {
     throw Error('Error pendingVotePlaced:', err);

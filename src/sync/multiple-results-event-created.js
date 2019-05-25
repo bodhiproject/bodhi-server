@@ -7,7 +7,9 @@ const logger = require('../utils/logger');
 const DBHelper = require('../db/db-helper');
 const parseEvent = require('./parsers/multiple-results-event');
 
-const syncMultipleResultsEventCreated = async ({ startBlock, endBlock, syncPromises }) => {
+const syncMultipleResultsEventCreated = async (
+  { startBlock, endBlock, syncPromises, limit },
+) => {
   try {
     // Fetch logs
     const logs = await web3.eth.getPastLogs({
@@ -19,7 +21,7 @@ const syncMultipleResultsEventCreated = async ({ startBlock, endBlock, syncPromi
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
-      syncPromises.push(new Promise(async (resolve, reject) => {
+      syncPromises.push(limit(async (resolve, reject) => {
         try {
           // Parse and insert event
           const event = await parseEvent({ log });
@@ -41,7 +43,9 @@ const syncMultipleResultsEventCreated = async ({ startBlock, endBlock, syncPromi
   }
 };
 
-const pendingMultipleResultsEventCreated = async ({ startBlock, syncPromises }) => {
+const pendingMultipleResultsEventCreated = async (
+  { startBlock, syncPromises, limit },
+) => {
   try {
     // Find pending events that have a block number less than the startBlock
     const pending = await DBHelper.findEvent(
@@ -64,6 +68,7 @@ const pendingMultipleResultsEventCreated = async ({ startBlock, syncPromises }) 
       startBlock: fromBlock,
       endBlock: toBlock,
       syncPromises,
+      limit,
     });
   } catch (err) {
     throw Error('Error pendingMultipleResultsEventCreated:', err);

@@ -7,7 +7,9 @@ const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseWithdraw = require('./parsers/withdraw');
 
-const syncWinningsWithdrawn = async ({ startBlock, endBlock, syncPromises }) => {
+const syncWinningsWithdrawn = async (
+  { startBlock, endBlock, syncPromises, limit },
+) => {
   try {
     // Fetch logs
     const logs = await web3.eth.getPastLogs({
@@ -19,7 +21,7 @@ const syncWinningsWithdrawn = async ({ startBlock, endBlock, syncPromises }) => 
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
-      syncPromises.push(new Promise(async (resolve, reject) => {
+      syncPromises.push(limit(async (resolve, reject) => {
         try {
           // Parse and insert withdraw
           const withdraw = parseWithdraw({ log });
@@ -41,7 +43,9 @@ const syncWinningsWithdrawn = async ({ startBlock, endBlock, syncPromises }) => 
   }
 };
 
-const pendingWinningsWithdrawn = async ({ startBlock, syncPromises }) => {
+const pendingWinningsWithdrawn = async (
+  { startBlock, syncPromises, limit },
+) => {
   try {
     // Find pending winnings withdrawn that have a block number less than the startBlock
     const pending = await DBHelper.findWithdraw(
@@ -64,6 +68,7 @@ const pendingWinningsWithdrawn = async ({ startBlock, syncPromises }) => {
       startBlock: fromBlock,
       endBlock: toBlock,
       syncPromises,
+      limit,
     });
   } catch (err) {
     throw Error('Error pendingWinningsWithdrawn:', err);
