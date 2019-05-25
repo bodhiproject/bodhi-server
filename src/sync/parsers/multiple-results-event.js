@@ -34,11 +34,6 @@ module.exports = async ({ log }) => {
   const thresholdPercentIncrease = res['2'];
   const arbitrationRewardPercentage = res['3'];
 
-  const consensusThreshold =
-    await contract.methods.currentConsensusThreshold().call();
-  const arbitrationEndTime =
-    await contract.methods.currentArbitrationEndTime().call();
-
   return new MultipleResultsEvent({
     txid: log.transactionHash,
     txStatus: TX_STATUS.SUCCESS,
@@ -58,7 +53,5 @@ module.exports = async ({ log }) => {
     arbitrationLength: arbitrationLength.toString(10),
     thresholdPercentIncrease: thresholdPercentIncrease.toString(10),
     arbitrationRewardPercentage: arbitrationRewardPercentage.toString(10),
-    consensusThreshold: consensusThreshold.toString(10),
-    arbitrationEndTime: arbitrationEndTime.toNumber(),
   });
 };

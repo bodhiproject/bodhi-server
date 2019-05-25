@@ -54,6 +54,7 @@ const delayThenSync = (delay) => {
  */
 const startSync = async () => {
   try {
+    console.time('sync');
     // Determine start and end blocks
     const latestBlock = await web3.eth.getBlockNumber();
     const startBlock = await getStartBlock();
@@ -92,6 +93,7 @@ const startSync = async () => {
     // Send syncInfo subscription message
     await publishSyncInfo(endBlock, blockTime);
 
+    console.timeEnd('sync');
     delayThenSync(SYNC_START_DELAY);
   } catch (err) {
     throw err;

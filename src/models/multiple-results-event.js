@@ -1,5 +1,5 @@
 const { isFinite, isString, map, filter } = require('lodash');
-const { TX_TYPE, INVALID_RESULT_INDEX, EVENT_STATUS } = require('../constants');
+const { TX_TYPE, EVENT_STATUS } = require('../constants');
 const { toLowerCase } = require('../utils');
 const web3 = require('../web3');
 
@@ -48,10 +48,6 @@ module.exports = class MultipleResultsEvent {
     this.arbitrationLength = params.arbitrationLength;
     this.thresholdPercentIncrease = params.thresholdPercentIncrease;
     this.arbitrationRewardPercentage = params.arbitrationRewardPercentage;
-    this.currentRound = 0;
-    this.currentResultIndex = INVALID_RESULT_INDEX;
-    this.consensusThreshold = params.consensusThreshold;
-    this.arbitrationEndTime = params.arbitrationEndTime;
 
     // Backend params
     this.status = params.status || EVENT_STATUS.BETTING;
