@@ -1,3 +1,4 @@
+const pLimit = require('p-limit');
 const { getContractMetadata, isMainnet } = require('../config');
 const web3 = require('../web3');
 const {
@@ -15,7 +16,8 @@ const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
 
 const SYNC_START_DELAY = 3000;
-const BLOCK_BATCHES = 50;
+const BLOCK_BATCH_COUNT = 500;
+const PROMISE_CONCURRENCY_LIMIT = 40;
 
 /**
  * Determines the start block to start syncing from.
@@ -55,10 +57,11 @@ const startSync = async () => {
     // Determine start and end blocks
     const latestBlock = await web3.eth.getBlockNumber();
     const startBlock = await getStartBlock();
-    const endBlock = Math.min(startBlock + BLOCK_BATCHES, latestBlock);
+    const endBlock = Math.min(startBlock + BLOCK_BATCH_COUNT, latestBlock);
 
     logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
     const syncPromises = [];
+    const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
 
     // Add sync promises
     await syncMultipleResultsEventCreated({ startBlock, endBlock, syncPromises });
