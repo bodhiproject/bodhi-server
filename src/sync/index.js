@@ -19,15 +19,46 @@ const { publishSyncInfo } = require('../graphql/subscriptions');
 
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
-const PROMISE_CONCURRENCY_LIMIT = 100;
+const PROMISE_CONCURRENCY_LIMIT = 30;
+const START_BLOCK_FILENAME = 'start_block.dat';
 
 let startBlock;
+
+/**
+ * Checks if the start block file exists, and returns the start block if so.
+ * @return {number|undefined} Block where the sync stopped last
+ */
+const readStartBlockFile = () => {
+  try {
+    const filePath = `${getBaseDataDir()}/${START_BLOCK_FILENAME}`;
+    if (fs.existsSync(filePath)) return Number(fs.readFileSync(filePath));
+  } catch (err) {
+    logger.error('Could not read start block file');
+  }
+  return undefined;
+};
+
+/**
+ * Writes the start block to a temp file so when the sync is started again,
+ * it can use the start block where the error occurred or when the sync was stopped.
+ */
+const writeStartBlockFile = () => {
+  if (isUndefined(startBlock)) return;
+
+  const filePath = `${getBaseDataDir()}/${START_BLOCK_FILENAME}`;
+  fs.writeFileSync(filePath, `${startBlock}`);
+};
 
 /**
  * Determines the start block to start syncing from.
  */
 const getStartBlock = async () => {
   let start;
+
+  // Tries to get start block from start block file
+  start = readStartBlockFile();
+  if (start) return start;
+
   const blocks = await DBHelper.findLatestBlock();
   if (blocks.length > 0) {
     // Blocks found in DB, use the last synced block as start
@@ -51,17 +82,6 @@ const delayThenSync = (delay) => {
   setTimeout(() => {
     startSync();
   }, delay);
-};
-
-/**
- * Writes the startBlock to a temp file so when the sync is started again,
- * it can use the startBlock where the error occurred or when the sync was stopped.
- */
-const writeStartBlockFile = () => {
-  if (isUndefined(startBlock)) return;
-
-  const filePath = `${getBaseDataDir()}/start_block.dat`;
-  fs.writeFileSync(filePath, `${startBlock}`);
 };
 
 /**
