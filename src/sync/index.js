@@ -1,5 +1,7 @@
+const fs = require('fs-extra');
 const pLimit = require('p-limit');
-const { getContractMetadata, isMainnet } = require('../config');
+const { isUndefined } = require('lodash');
+const { getContractMetadata, isMainnet, getBaseDataDir } = require('../config');
 const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
@@ -17,7 +19,9 @@ const { publishSyncInfo } = require('../graphql/subscriptions');
 
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
-const PROMISE_CONCURRENCY_LIMIT = 30;
+const PROMISE_CONCURRENCY_LIMIT = 100;
+
+let startBlock;
 
 /**
  * Determines the start block to start syncing from.
@@ -50,14 +54,24 @@ const delayThenSync = (delay) => {
 };
 
 /**
+ * Writes the startBlock to a temp file so when the sync is started again,
+ * it can use the startBlock where the error occurred or when the sync was stopped.
+ */
+const writeStartBlockFile = () => {
+  if (isUndefined(startBlock)) return;
+
+  const filePath = `${getBaseDataDir()}/start_block.dat`;
+  fs.writeFileSync(filePath, `${startBlock}`);
+};
+
+/**
  * Starts the sync logic. It will loop indefinitely until cancelled.
  */
 const startSync = async () => {
   try {
-    console.time('sync');
     // Determine start and end blocks
     const latestBlock = await web3.eth.getBlockNumber();
-    const startBlock = await getStartBlock();
+    startBlock = await getStartBlock();
     const endBlock = Math.min(startBlock + BLOCK_BATCH_COUNT, latestBlock);
 
     logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
@@ -93,9 +107,9 @@ const startSync = async () => {
     // Send syncInfo subscription message
     await publishSyncInfo(endBlock, blockTime);
 
-    console.timeEnd('sync');
     delayThenSync(SYNC_START_DELAY);
   } catch (err) {
+    writeStartBlockFile();
     throw err;
   }
 };

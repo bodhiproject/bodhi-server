@@ -153,6 +153,7 @@ const getSSLCredentials = () => {
 module.exports = {
   CONFIG,
   initConfig,
+  getBaseDataDir,
   getDbDir,
   getLogsDir,
   isMainnet,
