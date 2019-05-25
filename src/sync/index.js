@@ -27,19 +27,19 @@ let startBlock;
  * Determines the start block to start syncing from.
  */
 const getStartBlock = async () => {
-  let startBlock;
+  let start;
   const blocks = await DBHelper.findLatestBlock();
   if (blocks.length > 0) {
     // Blocks found in DB, use the last synced block as start
-    startBlock = blocks[0].blockNum + 1;
+    start = blocks[0].blockNum + 1;
   } else {
     // No blocks found in DB, use earliest version's deploy block
     const contractMetadata = getContractMetadata(0);
-    startBlock = isMainnet()
+    start = isMainnet()
       ? contractMetadata.EventFactory.mainnetDeployBlock
       : contractMetadata.EventFactory.testnetDeployBlock;
   }
-  return startBlock;
+  return start;
 };
 
 /**
