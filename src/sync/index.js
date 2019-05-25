@@ -22,6 +22,7 @@ const BLOCK_BATCH_COUNT = 500;
 const PROMISE_CONCURRENCY_LIMIT = 30;
 const START_BLOCK_FILENAME = 'start_block.dat';
 
+let signalsHandled = false;
 let startBlock;
 
 /**
@@ -47,6 +48,21 @@ const writeStartBlockFile = () => {
 
   const filePath = `${getBaseDataDir()}/${START_BLOCK_FILENAME}`;
   fs.writeFileSync(filePath, `${startBlock}`);
+};
+
+/**
+ * Sets up event signal handlers for when the sync is stopped.
+ */
+const setupSignalHandler = () => {
+  const onShutdown = () => {
+    writeStartBlockFile();
+    process.exit(0);
+  };
+
+  process
+    .on('SIGINT', () => onShutdown())
+    .on('SIGTERM', () => onShutdown());
+  signalsHandled = true;
 };
 
 /**
@@ -89,9 +105,12 @@ const delayThenSync = (delay) => {
  */
 const startSync = async () => {
   try {
+    if (!signalsHandled) setupSignalHandler();
+
     // Determine start and end blocks
     const latestBlock = await web3.eth.getBlockNumber();
     startBlock = await getStartBlock();
+    console.log('NAKA: startSync -> startBlock', startBlock);
     const endBlock = Math.min(startBlock + BLOCK_BATCH_COUNT, latestBlock);
 
     logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
