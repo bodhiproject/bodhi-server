@@ -9,6 +9,7 @@ const totalResultBets = require('./total-result-bets');
 const allStats = require('./all-stats');
 const mostBets = require('./most-bets');
 const biggestWinners = require('./biggest-winners');
+const withdrawableEvents = require('./withdrawable-events');
 
 module.exports = {
   events,
@@ -22,4 +23,5 @@ module.exports = {
   allStats,
   mostBets,
   biggestWinners,
+  withdrawableEvents,
 };
