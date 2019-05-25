@@ -32,22 +32,22 @@ module.exports = {
     txReceipt: async ({ txid }) =>
       DBHelper.findOneTransactionReceipt({ transactionHash: txid }),
     block: async ({ blockNum }) => DBHelper.findOneBlock({ blockNum }),
-    currentRound: async ({ address }) => {
-      const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
-      return isDefined(resSet) ? resSet.eventRound + 1 : 0;
-    },
-    currentResultIndex: async ({ address }) => {
-      const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
-      return isDefined(resSet) ? resSet.resultIndex : INVALID_RESULT_INDEX;
-    },
-    consensusThreshold: async ({ address, consensusThreshold }) => {
-      const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
-      return isDefined(resSet) ? resSet.nextConsensusThreshold : consensusThreshold;
-    },
-    arbitrationEndTime: async ({ address }) => {
-      const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
-      return isDefined(resSet) ? resSet.nextArbitrationEndTime : 0;
-    },
+    // currentRound: async ({ address }) => {
+    //   const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
+    //   return isDefined(resSet) ? resSet.eventRound + 1 : 0;
+    // },
+    // currentResultIndex: async ({ address }) => {
+    //   const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
+    //   return isDefined(resSet) ? resSet.resultIndex : INVALID_RESULT_INDEX;
+    // },
+    // consensusThreshold: async ({ address, consensusThreshold }) => {
+    //   const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
+    //   return isDefined(resSet) ? resSet.nextConsensusThreshold : consensusThreshold;
+    // },
+    // arbitrationEndTime: async ({ address }) => {
+    //   const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
+    //   return isDefined(resSet) ? resSet.nextArbitrationEndTime : 0;
+    // },
     pendingTxs: async ({ address }, args, { pendingTxsAddress }) => {
       if (pendingTxsAddress) {
         const bet = await DBHelper.countBet({
