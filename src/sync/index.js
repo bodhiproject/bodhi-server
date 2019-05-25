@@ -118,11 +118,22 @@ const startSync = async () => {
     const endBlock = Math.min(startBlock + BLOCK_BATCH_COUNT, latestBlock);
 
     logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
-    const syncPromises = [];
-    const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
+
+    // Events need to be synced before all other types to avoid race conditions
+    // when updating the event.
+    let syncPromises = [];
+    let limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
+    await syncMultipleResultsEventCreated({
+      startBlock,
+      endBlock,
+      syncPromises,
+      limit,
+    });
+    await Promise.all(syncPromises);
 
     // Add sync promises
-    await syncMultipleResultsEventCreated({ startBlock, endBlock, syncPromises, limit });
+    syncPromises = [];
+    limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
     await syncBetPlaced({ startBlock, endBlock, syncPromises, limit });
     await syncResultSet({ startBlock, endBlock, syncPromises, limit });
     await syncVotePlaced({ startBlock, endBlock, syncPromises, limit });
