@@ -1,4 +1,5 @@
 const { each } = require('lodash');
+const updateEvent = require('./update-event');
 const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
 const logger = require('../utils/logger');
@@ -28,6 +29,9 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
           // Fetch and insert tx receipt
           const txReceipt = await getTransactionReceipt(resultSet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
+
+          // Update event
+          await updateEvent(resultSet);
         } catch (insertErr) {
           logger.error(`insert ResultSet: ${insertErr.message}`);
         }

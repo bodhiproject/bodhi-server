@@ -1,11 +1,10 @@
 const { sum, fill, each } = require('lodash');
 const Queries = require('./queries');
 const Mutations = require('./mutations');
-const { TX_TYPE, TX_STATUS, INVALID_RESULT_INDEX } = require('../constants');
+const { TX_TYPE, TX_STATUS } = require('../constants');
 const pubsub = require('../route/pubsub');
 const DBHelper = require('../db/db-helper');
 const { sumBN, sumArrayBN } = require('../utils/web3-utils');
-const { isDefined } = require('../utils');
 
 /* eslint-disable object-curly-newline */
 module.exports = {
@@ -32,22 +31,6 @@ module.exports = {
     txReceipt: async ({ txid }) =>
       DBHelper.findOneTransactionReceipt({ transactionHash: txid }),
     block: async ({ blockNum }) => DBHelper.findOneBlock({ blockNum }),
-    // currentRound: async ({ address }) => {
-    //   const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
-    //   return isDefined(resSet) ? resSet.eventRound + 1 : 0;
-    // },
-    // currentResultIndex: async ({ address }) => {
-    //   const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
-    //   return isDefined(resSet) ? resSet.resultIndex : INVALID_RESULT_INDEX;
-    // },
-    // consensusThreshold: async ({ address, consensusThreshold }) => {
-    //   const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
-    //   return isDefined(resSet) ? resSet.nextConsensusThreshold : consensusThreshold;
-    // },
-    // arbitrationEndTime: async ({ address }) => {
-    //   const resSet = await DBHelper.findLatestResultSet({ eventAddress: address });
-    //   return isDefined(resSet) ? resSet.nextArbitrationEndTime : 0;
-    // },
     pendingTxs: async ({ address }, args, { pendingTxsAddress }) => {
       if (pendingTxsAddress) {
         const bet = await DBHelper.countBet({
