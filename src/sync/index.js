@@ -79,9 +79,7 @@ const startSync = async () => {
     await pendingVotePlaced({ startBlock, syncPromises, limit });
     await pendingVoteResultSet({ startBlock, syncPromises, limit });
     await pendingWinningsWithdrawn({ startBlock, syncPromises, limit });
-    console.log('promise count:', syncPromises.length);
-    const res = await Promise.all(syncPromises);
-    console.log(res);
+    await Promise.all(syncPromises);
 
     // Update statuses
     const { blockTime } = await DBHelper.findOneBlock({ blockNum: endBlock });
