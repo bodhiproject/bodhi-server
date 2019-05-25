@@ -20,6 +20,9 @@ module.exports = class DBHelper {
 
   static async insertBlock(blockNum, blockTime) {
     try {
+      const existing = await DBHelper.findOneBlock({ blockNum });
+      if (!isNull(existing)) return;
+
       await db.Blocks.insert({
         _id: blockNum,
         blockNum,
@@ -27,6 +30,7 @@ module.exports = class DBHelper {
       });
     } catch (err) {
       logger.error(`INSERT Block error: ${err.message}`);
+      throw err;
     }
   }
 
