@@ -103,13 +103,13 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const { utils: { toBN, toAscii } } = web3;
+      const { utils: { toBN, hexToUtf8 } } = web3;
       const contract = await getContract(eventAddress);
       const res = await contract.methods.eventMetadata().call();
       return [
         toBN(res[0]).toNumber(),
         res[1],
-        map(res[2], item => toAscii(item)),
+        map(res[2], item => hexToUtf8(item)),
         toBN(res[3]).toNumber(),
       ];
     } catch (err) {
