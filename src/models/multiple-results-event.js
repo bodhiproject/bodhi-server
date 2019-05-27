@@ -42,7 +42,7 @@ module.exports = class MultipleResultsEvent {
           // UI was passing Chinese chars converted fromAscii so the hex is
           // invalid. This will change the result names so it doesn't break
           // the sync.
-          if (err.includes('Invalid UTF-8 detected')) return '(parse error)';
+          if (err.message.includes('Invalid UTF-8 detected')) return '(parse error)';
           throw err;
         }
       }),
