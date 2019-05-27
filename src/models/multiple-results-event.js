@@ -35,7 +35,17 @@ module.exports = class MultipleResultsEvent {
     this.version = params.version;
     this.name = params.name;
     this.results = filter(
-      map(params.results, item => web3.utils.hexToUtf8(item)),
+      map(params.results, (item) => {
+        try {
+          return web3.utils.hexToUtf8(item);
+        } catch (err) {
+          // UI was passing Chinese chars converted fromAscii so the hex is
+          // invalid. This will change the result names so it doesn't break
+          // the sync.
+          if (err.includes('Invalid UTF-8 detected')) return '(parse error)';
+          throw err;
+        }
+      }),
       item => !!item,
     );
     this.numOfResults = params.numOfResults;
