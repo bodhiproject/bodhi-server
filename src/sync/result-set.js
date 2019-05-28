@@ -1,6 +1,7 @@
-const { each } = require('lodash');
+const { each, isNull } = require('lodash');
 const updateEvent = require('./update-event');
 const web3 = require('../web3');
+const { CONFIG } = require('../config');
 const { TX_STATUS } = require('../constants');
 const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
@@ -33,13 +34,13 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
           // Update event
           await updateEvent(resultSet);
         } catch (insertErr) {
-          logger.error(`insert ResultSet: ${insertErr.message}`);
-          throw Error(`insert ResultSet: ${insertErr.message}`);
+          logger.error(`Error syncResultSet: ${insertErr.message}`);
+          throw Error(`Error syncResultSet: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    throw Error('Error syncResultSet:', err);
+    throw Error('Error syncResultSet getPastLogs:', err);
   }
 };
 
@@ -69,11 +70,40 @@ const pendingResultSet = async ({ startBlock, syncPromises, limit }) => {
       limit,
     });
   } catch (err) {
-    throw Error('Error pendingResultSet:', err);
+    throw Error('Error pendingResultSet findResultSet:', err);
+  }
+};
+
+const checkFailedResultSets = async ({ startBlock, syncPromises, limit }) => {
+  try {
+    const pending = await DBHelper.findResultSet({
+      txStatus: TX_STATUS.PENDING,
+      blockNum: { $lt: startBlock - CONFIG.FAILED_TX_BLOCK_THRESHOLD },
+      eventRound: 0,
+    });
+    if (pending.length === 0) return;
+    logger.info(`Checking ${pending.length} failed ResultSet`);
+
+    each(pending, (p) => {
+      syncPromises.push(limit(async () => {
+        try {
+          const txReceipt = await getTransactionReceipt(p.txid);
+          if (!isNull(txReceipt) && !txReceipt.status) {
+            await DBHelper.updateResultSet(p.txid, { txStatus: TX_STATUS.FAIL });
+            await DBHelper.insertTransactionReceipt(txReceipt);
+          }
+        } catch (insertErr) {
+          logger.error(`Error checkFailedResultSets: ${insertErr.message}`);
+        }
+      }));
+    });
+  } catch (err) {
+    logger.error('Error checkFailedResultSets findResultSet:', err);
   }
 };
 
 module.exports = {
   syncResultSet,
   pendingResultSet,
+  checkFailedResultSets,
 };

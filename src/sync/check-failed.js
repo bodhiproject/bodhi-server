@@ -1,4 +1,5 @@
 const { checkFailedBets } = require('./bet-placed');
+const { checkFailedResultSets } = require('./result-set');
 
 // Check for failed txs every x number of blocks
 const BLOCK_CHECK_INTERVAL = 1200;
@@ -14,5 +15,6 @@ module.exports = async ({ startBlock, endBlock, syncPromises, limit }) => {
 
   if (check) {
     await checkFailedBets({ startBlock, syncPromises, limit });
+    await checkFailedResultSets({ startBlock, syncPromises, limit });
   }
 };

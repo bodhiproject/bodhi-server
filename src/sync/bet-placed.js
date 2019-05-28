@@ -1,5 +1,6 @@
 const { each, isNull } = require('lodash');
 const web3 = require('../web3');
+const { CONFIG } = require('../config');
 const { TX_STATUS } = require('../constants');
 const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
@@ -73,11 +74,11 @@ const checkFailedBets = async ({ startBlock, syncPromises, limit }) => {
   try {
     const pending = await DBHelper.findBet({
       txStatus: TX_STATUS.PENDING,
-      blockNum: { $lt: startBlock - 10 },
+      blockNum: { $lt: startBlock - CONFIG.FAILED_TX_BLOCK_THRESHOLD },
       eventRound: 0,
     });
     if (pending.length === 0) return;
-    logger.info(`Checking ${pending.length} long pending BetPlaced`);
+    logger.info(`Checking ${pending.length} failed BetPlaced`);
 
     each(pending, (p) => {
       syncPromises.push(limit(async () => {
@@ -88,12 +89,12 @@ const checkFailedBets = async ({ startBlock, syncPromises, limit }) => {
             await DBHelper.insertTransactionReceipt(txReceipt);
           }
         } catch (insertErr) {
-          logger.error(`Error checkLongPendingBets: ${insertErr.message}`);
+          logger.error(`Error checkFailedBets: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    logger.error('Error checkLongPendingBets findBet:', err);
+    logger.error('Error checkFailedBets findBet:', err);
   }
 };
 

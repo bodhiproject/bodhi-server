@@ -301,7 +301,7 @@ module.exports = class DBHelper {
       if (isNull(existing)) {
         await db.ResultSets.insert(resultSet);
       } else {
-        await DBHelper.updateResultSet(resultSet);
+        await DBHelper.updateResultSet(resultSet.txid, resultSet);
       }
     } catch (err) {
       logger.error(`INSERT ResultSet error: ${err.message}`);
@@ -309,13 +309,9 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateResultSet(resultSet) {
+  static async updateResultSet(txid, fields) {
     try {
-      await db.ResultSets.update(
-        { txid: resultSet.txid },
-        { $set: resultSet },
-        {},
-      );
+      await db.ResultSets.update({ txid }, { $set: fields }, {});
     } catch (err) {
       logger.error(`UPDATE ResultSet error: ${err.message}`);
       throw err;
