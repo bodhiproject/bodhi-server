@@ -102,7 +102,7 @@ module.exports = class DBHelper {
       } else {
         // Set non-blockchain vars from existing event
         event.language = existing.language;
-        await DBHelper.updateEvent(event);
+        await DBHelper.updateEvent(event.txid, event);
       }
     } catch (err) {
       logger.error(`INSERT Event error: ${err.message}`);
@@ -110,13 +110,9 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEvent(event) {
+  static async updateEvent(txid, fields) {
     try {
-      await db.Events.update(
-        { txid: event.txid },
-        { $set: event },
-        {},
-      );
+      await db.Events.update({ txid }, { $set: fields }, {});
     } catch (err) {
       logger.error(`UPDATE Event error: ${err.message}`);
       throw err;

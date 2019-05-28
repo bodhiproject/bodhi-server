@@ -1,3 +1,4 @@
+const { failedMultipleResultsEventCreated } = require('./multiple-results-event-created');
 const { failedBets } = require('./bet-placed');
 const { failedResultSets } = require('./result-set');
 const { failedVotePlaced } = require('./vote-placed');
@@ -17,6 +18,7 @@ module.exports = async ({ startBlock, endBlock, syncPromises, limit }) => {
   }
 
   if (check) {
+    await failedMultipleResultsEventCreated({ startBlock, syncPromises, limit });
     await failedBets({ startBlock, syncPromises, limit });
     await failedResultSets({ startBlock, syncPromises, limit });
     await failedVotePlaced({ startBlock, syncPromises, limit });
