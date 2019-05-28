@@ -5,11 +5,7 @@ const { getTransaction } = require('../../utils/web3-utils');
 const DBHelper = require('../../db/db-helper');
 const { TX_STATUS } = require('../../constants');
 
-module.exports = async (
-  root,
-  data,
-  { db },
-) => {
+module.exports = async (root, data) => {
   const {
     txid,
     eventAddress,
