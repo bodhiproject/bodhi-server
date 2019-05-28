@@ -7,14 +7,30 @@ const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
   pendingMultipleResultsEventCreated,
+  failedMultipleResultsEventCreated,
 } = require('./multiple-results-event-created');
-const { syncBetPlaced, pendingBetPlaced } = require('./bet-placed');
-const { syncResultSet, pendingResultSet } = require('./result-set');
-const { syncVotePlaced, pendingVotePlaced } = require('./vote-placed');
-const { syncVoteResultSet, pendingVoteResultSet } = require('./vote-result-set');
-const { syncWinningsWithdrawn, pendingWinningsWithdrawn } = require('./winnings-withdrawn');
+const { syncBetPlaced, pendingBetPlaced, failedBets } = require('./bet-placed');
+const {
+  syncResultSet,
+  pendingResultSet,
+  failedResultSets,
+} = require('./result-set');
+const {
+  syncVotePlaced,
+  pendingVotePlaced,
+  failedVotePlaced,
+} = require('./vote-placed');
+const {
+  syncVoteResultSet,
+  pendingVoteResultSet,
+  failedVoteResultSets,
+} = require('./vote-result-set');
+const {
+  syncWinningsWithdrawn,
+  pendingWinningsWithdrawn,
+  failedWinningsWithdrawn,
+} = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
-const checkFailedTxs = require('./check-failed');
 const DBHelper = require('../db/db-helper');
 const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
@@ -22,6 +38,7 @@ const { publishSyncInfo } = require('../graphql/subscriptions');
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
 const PROMISE_CONCURRENCY_LIMIT = 30;
+const FAILED_CHECK_INTERVAL = 1200;
 const START_BLOCK_FILENAME = 'start_block.dat';
 
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
@@ -164,9 +181,23 @@ const startSync = async () => {
     await DBHelper.updateEventStatusWithdrawing(blockTime);
 
     // Check for failed txs every x blocks
-    syncPromises = [];
-    await checkFailedTxs({ startBlock, endBlock, syncPromises, limit });
-    await Promise.all(syncPromises);
+    let checkFailed = false;
+    for (let i = startBlock; i <= endBlock; i++) {
+      if (i % FAILED_CHECK_INTERVAL === 0) {
+        checkFailed = true;
+        break;
+      }
+    }
+    if (checkFailed) {
+      syncPromises = [];
+      await failedMultipleResultsEventCreated({ startBlock, syncPromises, limit });
+      await failedBets({ startBlock, syncPromises, limit });
+      await failedResultSets({ startBlock, syncPromises, limit });
+      await failedVotePlaced({ startBlock, syncPromises, limit });
+      await failedVoteResultSets({ startBlock, syncPromises, limit });
+      await failedWinningsWithdrawn({ startBlock, syncPromises, limit });
+      await Promise.all(syncPromises);
+    }
 
     // Send syncInfo subscription message
     await publishSyncInfo(endBlock, blockTime);
