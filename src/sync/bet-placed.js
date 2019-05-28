@@ -1,4 +1,4 @@
-const { each } = require('lodash');
+const { each, isNull } = require('lodash');
 const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
 const logger = require('../utils/logger');
@@ -29,13 +29,13 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
           const txReceipt = await getTransactionReceipt(bet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
-          logger.error(`insert BetPlaced: ${insertErr.message}`);
-          throw Error(`insert BetPlaced: ${insertErr.message}`);
+          logger.error(`Error syncBetPlaced: ${insertErr.message}`);
+          throw Error(`Error syncBetPlaced: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    throw Error('Error syncBetPlaced:', err);
+    throw Error('Error syncBetPlaced getPastLogs:', err);
   }
 };
 
@@ -65,11 +65,40 @@ const pendingBetPlaced = async ({ startBlock, syncPromises, limit }) => {
       limit,
     });
   } catch (err) {
-    throw Error('Error pendingBetPlaced:', err);
+    throw Error('Error pendingBetPlaced findBet:', err);
+  }
+};
+
+const checkLongPendingBets = async ({ startBlock, syncPromises, limit }) => {
+  try {
+    const pending = await DBHelper.findBet({
+      txStatus: TX_STATUS.PENDING,
+      blockNum: { $lt: startBlock - 10 },
+      eventRound: 0,
+    });
+    if (pending.length === 0) return;
+    logger.info(`Checking ${pending.length} long pending BetPlaced`);
+
+    each(pending, (p) => {
+      syncPromises.push(limit(async () => {
+        try {
+          const txReceipt = await getTransactionReceipt(p.txid);
+          if (!isNull(txReceipt) && !txReceipt.status) {
+            await DBHelper.updateBet(p.txid, { txStatus: TX_STATUS.FAIL });
+            await DBHelper.insertTransactionReceipt(txReceipt);
+          }
+        } catch (insertErr) {
+          logger.error(`Error checkLongPendingBets: ${insertErr.message}`);
+        }
+      }));
+    });
+  } catch (err) {
+    logger.error('Error checkLongPendingBets findBet:', err);
   }
 };
 
 module.exports = {
   syncBetPlaced,
   pendingBetPlaced,
+  checkLongPendingBets,
 };

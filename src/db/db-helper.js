@@ -245,7 +245,7 @@ module.exports = class DBHelper {
       if (isNull(existing)) {
         await db.Bets.insert(bet);
       } else {
-        await DBHelper.updateBet(bet);
+        await DBHelper.updateBet(bet.txid, bet);
       }
     } catch (err) {
       logger.error(`INSERT Bet error: ${err.message}`);
@@ -253,13 +253,9 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateBet(bet) {
+  static async updateBet(txid, fields) {
     try {
-      await db.Bets.update(
-        { txid: bet.txid },
-        { $set: bet },
-        {},
-      );
+      await db.Bets.update({ txid }, { $set: fields }, {});
     } catch (err) {
       logger.error(`UPDATE Bet error: ${err.message}`);
       throw err;
