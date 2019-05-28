@@ -70,7 +70,7 @@ const pendingBetPlaced = async ({ startBlock, syncPromises, limit }) => {
   }
 };
 
-const checkFailedBets = async ({ startBlock, syncPromises, limit }) => {
+const failedBets = async ({ startBlock, syncPromises, limit }) => {
   try {
     const pending = await DBHelper.findBet({
       txStatus: TX_STATUS.PENDING,
@@ -89,17 +89,17 @@ const checkFailedBets = async ({ startBlock, syncPromises, limit }) => {
             await DBHelper.insertTransactionReceipt(txReceipt);
           }
         } catch (insertErr) {
-          logger.error(`Error checkFailedBets: ${insertErr.message}`);
+          logger.error(`Error failedBets: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    logger.error('Error checkFailedBets findBet:', err);
+    logger.error('Error failedBets findBet:', err);
   }
 };
 
 module.exports = {
   syncBetPlaced,
   pendingBetPlaced,
-  checkFailedBets,
+  failedBets,
 };

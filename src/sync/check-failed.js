@@ -1,6 +1,6 @@
-const { checkFailedBets } = require('./bet-placed');
-const { checkFailedResultSets } = require('./result-set');
-const { checkFailedVotePlaced } = require('./vote-placed');
+const { failedBets } = require('./bet-placed');
+const { failedResultSets } = require('./result-set');
+const { failedVotePlaced } = require('./vote-placed');
 const { failedVoteResultSets } = require('./vote-result-set');
 
 // Check for failed txs every x number of blocks
@@ -16,9 +16,9 @@ module.exports = async ({ startBlock, endBlock, syncPromises, limit }) => {
   }
 
   if (check) {
-    await checkFailedBets({ startBlock, syncPromises, limit });
-    await checkFailedResultSets({ startBlock, syncPromises, limit });
-    await checkFailedVotePlaced({ startBlock, syncPromises, limit });
+    await failedBets({ startBlock, syncPromises, limit });
+    await failedResultSets({ startBlock, syncPromises, limit });
+    await failedVotePlaced({ startBlock, syncPromises, limit });
     await failedVoteResultSets({ startBlock, syncPromises, limit });
   }
 };

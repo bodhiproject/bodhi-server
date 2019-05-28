@@ -74,7 +74,7 @@ const pendingVotePlaced = async ({ startBlock, syncPromises, limit }) => {
   }
 };
 
-const checkFailedVotePlaced = async ({ startBlock, syncPromises, limit }) => {
+const failedVotePlaced = async ({ startBlock, syncPromises, limit }) => {
   try {
     const pending = await DBHelper.findBet({
       txStatus: TX_STATUS.PENDING,
@@ -93,17 +93,17 @@ const checkFailedVotePlaced = async ({ startBlock, syncPromises, limit }) => {
             await DBHelper.insertTransactionReceipt(txReceipt);
           }
         } catch (insertErr) {
-          logger.error(`Error checkFailedVotePlaced: ${insertErr.message}`);
+          logger.error(`Error failedVotePlaced: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    logger.error('Error checkFailedVotePlaced findBet:', err);
+    logger.error('Error failedVotePlaced findBet:', err);
   }
 };
 
 module.exports = {
   syncVotePlaced,
   pendingVotePlaced,
-  checkFailedVotePlaced,
+  failedVotePlaced,
 };

@@ -74,7 +74,7 @@ const pendingResultSet = async ({ startBlock, syncPromises, limit }) => {
   }
 };
 
-const checkFailedResultSets = async ({ startBlock, syncPromises, limit }) => {
+const failedResultSets = async ({ startBlock, syncPromises, limit }) => {
   try {
     const pending = await DBHelper.findResultSet({
       txStatus: TX_STATUS.PENDING,
@@ -93,17 +93,17 @@ const checkFailedResultSets = async ({ startBlock, syncPromises, limit }) => {
             await DBHelper.insertTransactionReceipt(txReceipt);
           }
         } catch (insertErr) {
-          logger.error(`Error checkFailedResultSets: ${insertErr.message}`);
+          logger.error(`Error failedResultSets: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    logger.error('Error checkFailedResultSets findResultSet:', err);
+    logger.error('Error failedResultSets findResultSet:', err);
   }
 };
 
 module.exports = {
   syncResultSet,
   pendingResultSet,
-  checkFailedResultSets,
+  failedResultSets,
 };
