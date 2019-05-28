@@ -69,7 +69,7 @@ const pendingBetPlaced = async ({ startBlock, syncPromises, limit }) => {
   }
 };
 
-const checkLongPendingBets = async ({ startBlock, syncPromises, limit }) => {
+const checkFailedBets = async ({ startBlock, syncPromises, limit }) => {
   try {
     const pending = await DBHelper.findBet({
       txStatus: TX_STATUS.PENDING,
@@ -100,5 +100,5 @@ const checkLongPendingBets = async ({ startBlock, syncPromises, limit }) => {
 module.exports = {
   syncBetPlaced,
   pendingBetPlaced,
-  checkLongPendingBets,
+  checkFailedBets,
 };

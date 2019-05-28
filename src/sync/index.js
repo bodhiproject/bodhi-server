@@ -14,6 +14,7 @@ const { syncVotePlaced, pendingVotePlaced } = require('./vote-placed');
 const { syncVoteResultSet, pendingVoteResultSet } = require('./vote-result-set');
 const { syncWinningsWithdrawn, pendingWinningsWithdrawn } = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
+const checkFailedTxs = require('./check-failed');
 const DBHelper = require('../db/db-helper');
 const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
@@ -161,6 +162,11 @@ const startSync = async () => {
     await DBHelper.updateEventStatusOpenResultSetting(blockTime);
     await DBHelper.updateEventStatusArbitration(blockTime);
     await DBHelper.updateEventStatusWithdrawing(blockTime);
+
+    // Check for failed txs every x blocks
+    syncPromises = [];
+    await checkFailedTxs({ startBlock, endBlock, syncPromises, limit });
+    await Promise.all(syncPromises);
 
     // Send syncInfo subscription message
     await publishSyncInfo(endBlock, blockTime);
