@@ -1,15 +1,11 @@
 const { isNull } = require('lodash');
 const ResultSet = require('../../models/result-set');
-const { logger } = require('../../utils/logger');
+const logger = require('../../utils/logger');
 const { getTransaction } = require('../../utils/web3-utils');
 const DBHelper = require('../../db/db-helper');
 const { TX_STATUS } = require('../../constants');
 
-module.exports = async (
-  root,
-  data,
-  { db },
-) => {
+module.exports = async (root, data) => {
   const {
     txid,
     eventAddress,
@@ -20,12 +16,12 @@ module.exports = async (
   } = data;
 
   // Verify not already existing
-  const existing = await DBHelper.findOneResultSet(db, { txid });
+  const existing = await DBHelper.findOneResultSet({ txid });
   if (!isNull(existing)) throw Error('ResultSet already exists');
 
   // Fetch transaction info and insert
   const txReceipt = await getTransaction(txid);
-  await DBHelper.insertTransactionReceipt(db, txReceipt);
+  await DBHelper.insertTransactionReceipt(txReceipt);
 
   const resultSet = new ResultSet({
     txid,
@@ -37,8 +33,8 @@ module.exports = async (
     amount,
     eventRound,
   });
-  await DBHelper.insertResultSet(db, resultSet);
-  logger().debug(`Mutation addPendingResultSet txid:${txid}`);
+  await DBHelper.insertResultSet(resultSet);
+  logger.debug(`Mutation addPendingResultSet txid:${txid}`);
 
   return resultSet;
 };

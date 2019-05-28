@@ -1,181 +1,214 @@
-const { isNull } = require('lodash');
+const fs = require('fs-extra');
+const pLimit = require('p-limit');
+const { isUndefined } = require('lodash');
+const moment = require('moment');
+const { getContractMetadata, isMainnet, getBaseDataDir } = require('../config');
+const web3 = require('../web3');
 const {
-  determineContractVersion,
-  getContractMetadata,
-  isMainnet,
-} = require('../config');
-const { web3 } = require('../web3');
-const syncMultipleResultsEventCreated = require('./multiple-results-event-created');
-const syncBetPlaced = require('./bet-placed');
-const syncResultSet = require('./result-set');
-const syncVotePlaced = require('./vote-placed');
-const syncVoteResultSet = require('./vote-result-set');
-const syncWinningsWithdrawn = require('./winnings-withdrawn');
-const { db } = require('../db');
+  syncMultipleResultsEventCreated,
+  pendingMultipleResultsEventCreated,
+  failedMultipleResultsEventCreated,
+} = require('./multiple-results-event-created');
+const { syncBetPlaced, pendingBetPlaced, failedBets } = require('./bet-placed');
+const {
+  syncResultSet,
+  pendingResultSet,
+  failedResultSets,
+} = require('./result-set');
+const {
+  syncVotePlaced,
+  pendingVotePlaced,
+  failedVotePlaced,
+} = require('./vote-placed');
+const {
+  syncVoteResultSet,
+  pendingVoteResultSet,
+  failedVoteResultSets,
+} = require('./vote-result-set');
+const {
+  syncWinningsWithdrawn,
+  pendingWinningsWithdrawn,
+  failedWinningsWithdrawn,
+} = require('./winnings-withdrawn');
+const syncBlocks = require('./blocks');
 const DBHelper = require('../db/db-helper');
-const { logger } = require('../utils/logger');
+const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
 
-const SYNC_START_DELAY = 4000;
+const SYNC_START_DELAY = 3000;
+const BLOCK_BATCH_COUNT = 500;
+const PROMISE_CONCURRENCY_LIMIT = 30;
+const FAILED_CHECK_INTERVAL = 1200;
+const START_BLOCK_FILENAME = 'start_block.dat';
+
+const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
+let syncPromises = [];
+let signalsHandled = false;
+let startBlock;
 
 /**
- * Starts the sync logic. It will loop indefinitely until cancelled.
- * @param shouldUpdateLocalTxs {Boolean} Should it update the local txs or not.
+ * Checks if the start block file exists, and returns the start block if so.
+ * @return {number|undefined} Block where the sync stopped last
  */
-const startSync = async (shouldUpdateLocalTxs) => {
+const readStartBlockFile = () => {
   try {
-    const currentBlockNum = await getStartBlock();
-    const currentBlockTime = await getBlockTime(currentBlockNum);
-
-    // If block time is null, then we are at latest block.
-    if (isNull(currentBlockTime)) {
-      delayThenSync(SYNC_START_DELAY, shouldUpdateLocalTxs);
-      return;
+    const filePath = `${getBaseDataDir()}/${START_BLOCK_FILENAME}`;
+    if (fs.existsSync(filePath)) {
+      logger.info('Found start block config');
+      const start = fs.readFileSync(filePath);
+      fs.removeSync(filePath);
+      return Number(start);
     }
-
-    logger().debug(`Syncing block ${currentBlockNum}`);
-
-    // Get contract metadata based on block number
-    const contractVersion = determineContractVersion(currentBlockNum);
-    const contractMetadata = getContractMetadata(contractVersion);
-
-    // Parse blockchain logs
-    await syncMultipleResultsEventCreated(contractMetadata, currentBlockNum);
-    await syncBetPlaced(contractMetadata, currentBlockNum);
-    await syncResultSet(contractMetadata, currentBlockNum);
-    await syncVotePlaced(contractMetadata, currentBlockNum);
-    await syncVoteResultSet(contractMetadata, currentBlockNum);
-    await syncWinningsWithdrawn(contractMetadata, currentBlockNum);
-
-    // Update statuses
-    await updateStatusBetting(currentBlockTime);
-    await updateStatusOracleResultSetting(currentBlockTime);
-    await updateStatusOpenResultSetting(currentBlockTime);
-    await updateStatusArbitration(currentBlockTime);
-    await updateStatusWithdrawing(currentBlockTime);
-
-    // Insert block
-    await insertBlock(currentBlockNum, currentBlockTime);
-
-    // Send syncInfo subscription message
-    await publishSyncInfo(currentBlockNum, currentBlockTime);
-
-    // No delay if next block is already confirmed
-    delayThenSync(0, shouldUpdateLocalTxs);
   } catch (err) {
-    throw err;
+    logger.error('Could not read start block file');
   }
+  return undefined;
 };
 
 /**
- * Delays for the specified time then calls startSync.
- * @param {number} delay Number of milliseconds to delay.
- * @param {boolean} shouldUpdateLocalTxs Should updateLocalTxs or not.
+ * Writes the start block to a temp file so when the sync is started again,
+ * it can use the start block where the error occurred or when the sync was stopped.
  */
-const delayThenSync = (delay, shouldUpdateLocalTxs) => {
-  logger().debug('sleep');
-  setTimeout(() => {
-    startSync(shouldUpdateLocalTxs);
-  }, delay);
+const writeStartBlockFile = () => {
+  if (isUndefined(startBlock)) return;
+
+  const filePath = `${getBaseDataDir()}/${START_BLOCK_FILENAME}`;
+  fs.writeFileSync(filePath, `${startBlock}`);
+};
+
+/**
+ * Sets up event signal handlers for when the sync is stopped.
+ */
+const setupSignalHandler = () => {
+  const onShutdown = () => {
+    writeStartBlockFile();
+    process.exit(0);
+  };
+
+  process
+    .on('SIGINT', () => onShutdown())
+    .on('SIGTERM', () => onShutdown());
+  signalsHandled = true;
 };
 
 /**
  * Determines the start block to start syncing from.
  */
 const getStartBlock = async () => {
-  let startBlock;
-  const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
+  let start;
+
+  // Tries to get start block from start block file
+  start = readStartBlockFile();
+  if (start) return start;
+
+  const blocks = await DBHelper.findLatestBlock();
   if (blocks.length > 0) {
     // Blocks found in DB, use the last synced block as start
-    startBlock = blocks[0].blockNum + 1;
+    start = blocks[0].blockNum + 1;
   } else {
     // No blocks found in DB, use earliest version's deploy block
     const contractMetadata = getContractMetadata(0);
-    startBlock = isMainnet()
+    start = isMainnet()
       ? contractMetadata.EventFactory.mainnetDeployBlock
       : contractMetadata.EventFactory.testnetDeployBlock;
   }
-  return startBlock;
+  return start;
 };
 
 /**
- * Gets the block time of the current syncing block.
- * @param blockNum {number} Block number to get the block time of.
- * @return {number|null} Block timestamp of the given block number or null.
+ * Delays for the specified time then calls startSync.
+ * @param {number} delay Number of milliseconds to delay.
  */
-const getBlockTime = async (blockNum) => {
-  try {
-    const block = await web3().eth.getBlock(blockNum);
-    if (isNull(block)) return block;
-    return Number(block.timestamp);
-  } catch (err) {
-    throw Error('Error getting block time:', err);
-  }
+const delayThenSync = (delay) => {
+  logger.debug('sleep');
+  setTimeout(() => {
+    startSync();
+  }, delay);
 };
 
 /**
- * Updates any events which are in the betting status.
- * @param {number} currentBlockTime Current block timestamp.
+ * Starts the sync logic. It will loop indefinitely until cancelled.
  */
-const updateStatusBetting = async (currentBlockTime) => {
+const startSync = async () => {
   try {
-    await DBHelper.updateEventStatusBetting(db, currentBlockTime);
-  } catch (err) {
-    throw err;
-  }
-};
+    if (!signalsHandled) setupSignalHandler();
 
-/**
- * Updates any events which are in the oracle result setting status.
- * @param {number} currentBlockTime Current block timestamp.
- */
-const updateStatusOracleResultSetting = async (currentBlockTime) => {
-  try {
-    await DBHelper.updateEventStatusOracleResultSetting(db, currentBlockTime);
-  } catch (err) {
-    throw err;
-  }
-};
+    // Track exec time
+    const execStartMs = moment().valueOf();
 
-/**
- * Updates any events which are in the open result setting status.
- * @param {number} currentBlockTime Current block timestamp.
- */
-const updateStatusOpenResultSetting = async (currentBlockTime) => {
-  try {
-    await DBHelper.updateEventStatusOpenResultSetting(db, currentBlockTime);
-  } catch (err) {
-    throw err;
-  }
-};
+    // Determine start and end blocks
+    const latestBlock = await web3.eth.getBlockNumber();
+    startBlock = await getStartBlock();
+    const endBlock = Math.min(startBlock + BLOCK_BATCH_COUNT, latestBlock);
 
-/**
- * Updates any events which are in the arbitration status.
- */
-const updateStatusArbitration = async (currentBlockTime) => {
-  try {
-    await DBHelper.updateEventStatusArbitration(db, currentBlockTime);
-  } catch (err) {
-    throw err;
-  }
-};
+    logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
 
-/**
- * Updates any events which are in the withdrawing status.
- */
-const updateStatusWithdrawing = async (currentBlockTime) => {
-  try {
-    await DBHelper.updateEventStatusWithdrawing(db, currentBlockTime);
-  } catch (err) {
-    throw err;
-  }
-};
+    // Events need to be synced before all other types to avoid race conditions
+    // when updating the event.
+    syncPromises = [];
+    await syncMultipleResultsEventCreated({
+      startBlock,
+      endBlock,
+      syncPromises,
+      limit,
+    });
+    await pendingMultipleResultsEventCreated({ startBlock, syncPromises, limit });
+    await Promise.all(syncPromises);
 
-const insertBlock = async (currentBlockNum, currentBlockTime) => {
-  try {
-    await DBHelper.insertBlock(db, currentBlockNum, currentBlockTime);
-    logger().debug(`Inserted block ${currentBlockNum}`);
+    // Add sync promises
+    syncPromises = [];
+    await syncBetPlaced({ startBlock, endBlock, syncPromises, limit });
+    await syncResultSet({ startBlock, endBlock, syncPromises, limit });
+    await syncVotePlaced({ startBlock, endBlock, syncPromises, limit });
+    await syncVoteResultSet({ startBlock, endBlock, syncPromises, limit });
+    await syncWinningsWithdrawn({ startBlock, endBlock, syncPromises, limit });
+    syncBlocks({ startBlock, endBlock, syncPromises, limit });
+
+    // Add pending promises
+    await pendingBetPlaced({ startBlock, syncPromises, limit });
+    await pendingResultSet({ startBlock, syncPromises, limit });
+    await pendingVotePlaced({ startBlock, syncPromises, limit });
+    await pendingVoteResultSet({ startBlock, syncPromises, limit });
+    await pendingWinningsWithdrawn({ startBlock, syncPromises, limit });
+    await Promise.all(syncPromises);
+
+    // Update statuses
+    const { blockTime } = await DBHelper.findOneBlock({ blockNum: endBlock });
+    await DBHelper.updateEventStatusBetting(blockTime);
+    await DBHelper.updateEventStatusOracleResultSetting(blockTime);
+    await DBHelper.updateEventStatusOpenResultSetting(blockTime);
+    await DBHelper.updateEventStatusArbitration(blockTime);
+    await DBHelper.updateEventStatusWithdrawing(blockTime);
+
+    // Check for failed txs every x blocks
+    let checkFailed = false;
+    for (let i = startBlock; i <= endBlock; i++) {
+      if (i % FAILED_CHECK_INTERVAL === 0) {
+        checkFailed = true;
+        break;
+      }
+    }
+    if (checkFailed) {
+      syncPromises = [];
+      await failedMultipleResultsEventCreated({ startBlock, syncPromises, limit });
+      await failedBets({ startBlock, syncPromises, limit });
+      await failedResultSets({ startBlock, syncPromises, limit });
+      await failedVotePlaced({ startBlock, syncPromises, limit });
+      await failedVoteResultSets({ startBlock, syncPromises, limit });
+      await failedWinningsWithdrawn({ startBlock, syncPromises, limit });
+      await Promise.all(syncPromises);
+    }
+
+    // Send syncInfo subscription message
+    await publishSyncInfo(endBlock, blockTime);
+
+    // Display exec time
+    const execTimeMs = moment().valueOf() - execStartMs;
+    logger.info(`Completed in ${execTimeMs} ms`);
+
+    delayThenSync(SYNC_START_DELAY);
   } catch (err) {
+    writeStartBlockFile();
     throw err;
   }
 };

@@ -14,9 +14,7 @@
     "no-use-before-define": "off",
     "object-curly-newline": [
       "error", 
-      {
-        "ImportDeclaration": "never"
-      }
+      { "ImportDeclaration": "never" }
     ]
   }
 }

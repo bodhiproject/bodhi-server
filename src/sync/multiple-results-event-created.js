@@ -1,162 +1,108 @@
 const { each, isNull } = require('lodash');
-const { web3 } = require('../web3');
+const web3 = require('../web3');
 const { CONFIG } = require('../config');
 const { TX_STATUS } = require('../constants');
-const { getAbiObject } = require('../utils');
+const EventSig = require('../config/event-sig');
 const { getTransactionReceipt } = require('../utils/web3-utils');
-const { logger } = require('../utils/logger');
-const MultipleResultsEvent = require('../models/multiple-results-event');
-const { db } = require('../db');
+const logger = require('../utils/logger');
 const DBHelper = require('../db/db-helper');
+const parseEvent = require('./parsers/multiple-results-event');
 
-const getAbiObj = (contractMetadata) => {
-  const abiObj = getAbiObject(
-    contractMetadata.EventFactory.abi,
-    'MultipleResultsEventCreated',
-    'event',
-  );
-  if (!abiObj) throw Error('MultipleResultsEventCreated event not found in ABI');
-  return abiObj;
-};
-
-/**
- * Gets the block numbers needed to parse logs for.
- * Also returns tx receipts for confirmed pending items.
- * @param {number} currBlockNum Current block number
- * @return {object} Block numbers and tx receipts
- */
-const getBlocksAndReceipts = async (currBlockNum) => {
-  const blockNums = [currBlockNum];
-  const txReceipts = {};
-  const promises = [];
-
-  const pending = await DBHelper.findEvent(db, { txStatus: TX_STATUS.PENDING });
-  each(pending, async (pendingEvent) => {
-    promises.push(new Promise(async (resolve, reject) => {
-      try {
-        const txReceipt = await getTransactionReceipt(pendingEvent.txid);
-        if (!isNull(txReceipt)) {
-          if (!blockNums.includes(txReceipt.blockNum)) {
-            blockNums.push(txReceipt.blockNum);
-          }
-          txReceipts[pendingEvent.txid] = txReceipt;
-        }
-        resolve();
-      } catch (err) {
-        logger().error(`getBlocksAndReceipts: ${err.message}`);
-        reject();
-      }
-    }));
-  });
-  await Promise.all(promises);
-
-  return { blockNums, txReceipts };
-};
-
-const getLogs = async ({ naka, abiObj, contractMetadata, blockNum }) => {
-  const eventSig = naka.eth.abi.encodeEventSignature(abiObj);
-  return naka.eth.getPastLogs({
-    fromBlock: blockNum,
-    toBlock: blockNum,
-    address: contractMetadata.EventFactory[CONFIG.NETWORK],
-    topics: [eventSig],
-  });
-};
-
-const parseLog = async ({ naka, abiObj, contractMetadata, log }) => {
-  // TODO: uncomment when web3 decodeLog works. broken in 1.0.0-beta.54.
-  // const {
-  //   eventAddr,
-  //   ownerAddr,
-  // } = naka.eth.abi.decodeLog(abiObj.inputs, log.data, log.topics);
-
-  const address = naka.eth.abi.decodeParameter('address', log.topics[1]);
-  const ownerAddress = naka.eth.abi.decodeParameter('address', log.topics[2]);
-
-  // Get event data
-  const contract = new naka.eth.Contract(
-    contractMetadata.MultipleResultsEvent.abi,
-    address,
-  );
-  let res = await contract.methods.eventMetadata().call();
-  const version = res['0'];
-  const eventName = res['1'];
-  const eventResults = res['2'];
-  const numOfResults = res['3'];
-
-  res = await contract.methods.centralizedMetadata().call();
-  const centralizedOracle = res['0'];
-  const betStartTime = res['1'];
-  const betEndTime = res['2'];
-  const resultSetStartTime = res['3'];
-  const resultSetEndTime = res['4'];
-
-  res = await contract.methods.configMetadata().call();
-  const escrowAmount = res['0'];
-  const arbitrationLength = res['1'];
-  const thresholdPercentIncrease = res['2'];
-  const arbitrationRewardPercentage = res['3'];
-
-  const consensusThreshold =
-    await contract.methods.currentConsensusThreshold().call();
-  const arbitrationEndTime =
-    await contract.methods.currentArbitrationEndTime().call();
-
-  return new MultipleResultsEvent({
-    txid: log.transactionHash,
-    txStatus: TX_STATUS.SUCCESS,
-    blockNum: Number(log.blockNumber),
-    address,
-    ownerAddress,
-    version: Number(version),
-    name: eventName,
-    results: eventResults,
-    numOfResults: Number(numOfResults),
-    centralizedOracle,
-    betStartTime: betStartTime.toNumber(),
-    betEndTime: betEndTime.toNumber(),
-    resultSetStartTime: resultSetStartTime.toNumber(),
-    resultSetEndTime: resultSetEndTime.toNumber(),
-    escrowAmount: escrowAmount.toString(10),
-    arbitrationLength: arbitrationLength.toString(10),
-    thresholdPercentIncrease: thresholdPercentIncrease.toString(10),
-    arbitrationRewardPercentage: arbitrationRewardPercentage.toString(10),
-    consensusThreshold: consensusThreshold.toString(10),
-    arbitrationEndTime: arbitrationEndTime.toNumber(),
-  });
-};
-
-module.exports = async (contractMetadata, currBlockNum) => {
+const syncMultipleResultsEventCreated = async (
+  { startBlock, endBlock, syncPromises, limit },
+) => {
   try {
-    const naka = web3();
-    const abiObj = getAbiObj(contractMetadata);
-    const { blockNums, txReceipts } = await getBlocksAndReceipts(currBlockNum);
+    // Fetch logs
+    const logs = await web3.eth.getPastLogs({
+      fromBlock: startBlock,
+      toBlock: endBlock,
+      topics: [EventSig.MultipleResultsEventCreated],
+    });
+    logger.info(`Found ${logs.length} MultipleResultsEventCreated`);
 
-    const promises = [];
-    each(blockNums, (blockNum) => {
-      promises.push(new Promise(async (resolve, reject) => {
+    // Add to syncPromises array to be executed in parallel
+    each(logs, (log) => {
+      syncPromises.push(limit(async () => {
         try {
-          // Parse each event and insert
-          const logs = await getLogs({ naka, abiObj, contractMetadata, blockNum });
-          each(logs, async (log) => {
-            const event = await parseLog({ naka, abiObj, contractMetadata, log });
-            await DBHelper.insertEvent(db, event);
+          // Parse and insert event
+          const event = await parseEvent({ log });
+          await DBHelper.insertEvent(event);
 
-            // Update tx receipt
-            let txReceipt = txReceipts[event.txid];
-            if (!txReceipt) txReceipt = await getTransactionReceipt(event.txid);
-            await DBHelper.insertTransactionReceipt(db, txReceipt);
-          });
-
-          resolve();
+          // Fetch and insert tx receipt
+          const txReceipt = await getTransactionReceipt(event.txid);
+          await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
-          logger().error(`insert Bet: ${insertErr.message}`);
-          reject(insertErr);
+          logger.error(`Error syncMultipleResultsEventCreated: ${insertErr.message}`);
+          throw Error(`Error syncMultipleResultsEventCreated: ${insertErr.message}`);
         }
       }));
     });
-    await Promise.all(promises);
   } catch (err) {
     throw Error('Error syncMultipleResultsEventCreated:', err);
   }
+};
+
+const pendingMultipleResultsEventCreated = async (
+  { startBlock, syncPromises, limit },
+) => {
+  try {
+    // Find pending events that have a block number less than the startBlock
+    const pending = await DBHelper.findEvent(
+      { txStatus: TX_STATUS.PENDING, blockNum: { $lt: startBlock } },
+      { blockNum: 1 },
+    );
+    if (pending.length === 0) return;
+    logger.info(`Found ${pending.length} pending MultipleResultsEventCreated`);
+
+    // Determine range to search logs
+    let fromBlock;
+    let toBlock;
+    each(pending, (p) => {
+      const pBlock = p.blockNum;
+      if (!fromBlock || pBlock < fromBlock) fromBlock = pBlock;
+      if (!toBlock || pBlock > toBlock) toBlock = pBlock;
+    });
+
+    await syncMultipleResultsEventCreated({
+      startBlock: fromBlock,
+      endBlock: toBlock,
+      syncPromises,
+      limit,
+    });
+  } catch (err) {
+    throw Error('Error pendingMultipleResultsEventCreated findEvent:', err);
+  }
+};
+
+const failedMultipleResultsEventCreated = async ({ startBlock, syncPromises, limit }) => {
+  try {
+    const pending = await DBHelper.findEvent({
+      txStatus: TX_STATUS.PENDING,
+      blockNum: { $lt: startBlock - CONFIG.FAILED_TX_BLOCK_THRESHOLD },
+    });
+    if (pending.length === 0) return;
+    logger.info(`Checking ${pending.length} failed MultipleResultsEventCreated`);
+
+    each(pending, (p) => {
+      syncPromises.push(limit(async () => {
+        try {
+          const txReceipt = await getTransactionReceipt(p.txid);
+          if (!isNull(txReceipt) && !txReceipt.status) {
+            await DBHelper.updateEvent(p.txid, { txStatus: TX_STATUS.FAIL });
+            await DBHelper.insertTransactionReceipt(txReceipt);
+          }
+        } catch (insertErr) {
+          logger.error(`Error failedMultipleResultsEventCreated: ${insertErr.message}`);
+        }
+      }));
+    });
+  } catch (err) {
+    logger.error('Error failedMultipleResultsEventCreated findEvent:', err);
+  }
+};
+
+module.exports = {
+  syncMultipleResultsEventCreated,
+  pendingMultipleResultsEventCreated,
+  failedMultipleResultsEventCreated,
 };

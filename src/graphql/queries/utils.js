@@ -1,5 +1,5 @@
 const { isEmpty, each, isNumber, toInteger } = require('lodash');
-const { web3 } = require('../../web3');
+const web3 = require('../../web3');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -95,7 +95,7 @@ const runPaginatedQuery = async ({ db, filter, orderBy, limit, skip }) => {
 };
 
 const calculateSyncPercent = async (blockNum) => {
-  const chainBlock = await web3().eth.getBlock('latest');
+  const chainBlock = await web3.eth.getBlock('latest');
   return Math.floor((blockNum / chainBlock.number) * 100);
 };
 

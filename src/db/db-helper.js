@@ -1,61 +1,67 @@
 const { isNull } = require('lodash');
-const { logger } = require('../utils/logger');
+const logger = require('../utils/logger');
 const { EVENT_STATUS } = require('../constants');
+const { db } = require('.');
 
 module.exports = class DBHelper {
   /* Blocks */
-  static async findOneBlock(db, query) {
+  static async findOneBlock(query) {
     try {
-      return await db.Blocks.findOne(query);
+      return db.Blocks.findOne(query);
     } catch (err) {
-      logger().error(`FIND Block error: ${err.message}`);
+      logger.error(`FIND Block error: ${err.message}`);
       throw err;
     }
   }
 
-  static async insertBlock(db, blockNum, blockTime) {
+  static async findLatestBlock() {
+    return db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
+  }
+
+  static async insertBlock(blockNum, blockTime) {
     try {
+      const existing = await DBHelper.findOneBlock({ blockNum });
+      if (!isNull(existing)) return;
+
       await db.Blocks.insert({
         _id: blockNum,
         blockNum,
         blockTime,
       });
     } catch (err) {
-      logger().error(`INSERT Block error: ${err.message}`);
+      logger.error(`INSERT Block error: ${err.message}`);
       throw err;
     }
   }
 
   /* TransactionReceipts */
-  static async findOneTransactionReceipt(db, query) {
+  static async findOneTransactionReceipt(query) {
     try {
-      return await db.TransactionReceipts.findOne(query);
+      return db.TransactionReceipts.findOne(query);
     } catch (err) {
-      logger().error(`FIND TransactionReceipt error: ${err.message}`);
+      logger.error(`FIND TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
 
-  static async insertTransactionReceipt(db, txReceipt) {
+  static async insertTransactionReceipt(txReceipt) {
     try {
-      const existing = await DBHelper.findOneTransactionReceipt(
-        db,
-        { transactionHash: txReceipt.transactionHash },
-      );
+      const existing =
+        await DBHelper.findOneTransactionReceipt({ transactionHash: txReceipt.transactionHash });
       if (isNull(existing)) {
         await db.TransactionReceipts.insert(txReceipt);
       } else {
         // Set fields from existing
         txReceipt.gasPrice = existing.gasPrice;
-        await DBHelper.updateTransactionReceipt(db, txReceipt);
+        await DBHelper.updateTransactionReceipt(txReceipt);
       }
     } catch (err) {
-      logger().error(`INSERT TransactionReceipt error: ${err.message}`);
+      logger.error(`INSERT TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
 
-  static async updateTransactionReceipt(db, txReceipt) {
+  static async updateTransactionReceipt(txReceipt) {
     try {
       await db.TransactionReceipts.update(
         { transactionHash: txReceipt.transactionHash },
@@ -63,63 +69,57 @@ module.exports = class DBHelper {
         {},
       );
     } catch (err) {
-      logger().error(`UPDATE TransactionReceipt error: ${err.message}`);
+      logger.error(`UPDATE TransactionReceipt error: ${err.message}`);
       throw err;
     }
   }
 
   /* Events */
-  static async findEvent(db, query) {
+  static async findEvent(query, sort) {
     try {
-      return await db.Events.find(query);
+      if (sort) return db.Events.cfind(query).sort(sort).exec();
+      return db.Events.find(query);
     } catch (err) {
-      logger().error(`FIND Event error: ${err.message}`);
+      logger.error(`FIND Event error: ${err.message}`);
       throw err;
     }
   }
 
-  static async findOneEvent(db, query) {
+  static async findOneEvent(query) {
     try {
-      return await db.Events.findOne(query);
+      return db.Events.findOne(query);
     } catch (err) {
-      logger().error(`FINDONE Event error: ${err.message}`);
+      logger.error(`FINDONE Event error: ${err.message}`);
       throw err;
     }
   }
 
-  static async insertEvent(db, event) {
+  static async insertEvent(event) {
     try {
-      const existing = await DBHelper.findOneEvent(
-        db,
-        { txid: event.txid },
-      );
+      const existing = await DBHelper.findOneEvent({ txid: event.txid });
       if (isNull(existing)) {
         await db.Events.insert(event);
       } else {
         // Set non-blockchain vars from existing event
         event.language = existing.language;
-        await DBHelper.updateEvent(db, event);
+        await DBHelper.updateEvent(event.txid, event);
       }
     } catch (err) {
-      logger().error(`INSERT Event error: ${err.message}`);
+      logger.error(`INSERT Event error: ${err.message}`);
       throw err;
     }
   }
 
-  static async updateEvent(db, event) {
+  static async updateEvent(txid, fields) {
     try {
-      await db.Events.update(
-        { txid: event.txid },
-        { $set: event },
-        {},
-      );
+      await db.Events.update({ txid }, { $set: fields }, {});
     } catch (err) {
-      logger().error(`UPDATE Event error: ${err.message}`);
+      logger.error(`UPDATE Event error: ${err.message}`);
       throw err;
     }
   }
 
-  static async updateEventStatusBetting(db, currBlockTime) {
+  static async updateEventStatusBetting(currBlockTime) {
     try {
       await db.Events.update(
         {
@@ -132,12 +132,12 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      logger().error(`UPDATE Event Status Betting error: ${err.message}`);
+      logger.error(`UPDATE Event Status Betting error: ${err.message}`);
       throw err;
     }
   }
 
-  static async updateEventStatusOracleResultSetting(db, currBlockTime) {
+  static async updateEventStatusOracleResultSetting(currBlockTime) {
     try {
       await db.Events.update(
         {
@@ -150,12 +150,12 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      logger().error(`UPDATE Event Status Oracle Result Setting error: ${err.message}`);
+      logger.error(`UPDATE Event Status Oracle Result Setting error: ${err.message}`);
       throw err;
     }
   }
 
-  static async updateEventStatusOpenResultSetting(db, currBlockTime) {
+  static async updateEventStatusOpenResultSetting(currBlockTime) {
     try {
       await db.Events.update(
         {
@@ -167,12 +167,12 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      logger().error(`UPDATE Event Status Open Result Setting error: ${err.message}`);
+      logger.error(`UPDATE Event Status Open Result Setting error: ${err.message}`);
       throw err;
     }
   }
 
-  static async updateEventStatusArbitration(db, currBlockTime) {
+  static async updateEventStatusArbitration(currBlockTime) {
     try {
       await db.Events.update(
         {
@@ -184,12 +184,12 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      logger().error(`UPDATE Event Status Arbitration error: ${err.message}`);
+      logger.error(`UPDATE Event Status Arbitration error: ${err.message}`);
       throw err;
     }
   }
 
-  static async updateEventStatusWithdrawing(db, currBlockTime) {
+  static async updateEventStatusWithdrawing(currBlockTime) {
     try {
       await db.Events.update(
         {
@@ -201,178 +201,167 @@ module.exports = class DBHelper {
         { multi: true },
       );
     } catch (err) {
-      logger().error(`UPDATE Event Status Withdrawing error: ${err.message}`);
+      logger.error(`UPDATE Event Status Withdrawing error: ${err.message}`);
       throw err;
     }
   }
 
   /* Bets */
-  static async findBet(db, query) {
+  static async findBet(query, sort) {
     try {
-      return await db.Bets.find(query);
+      if (sort) return db.Bets.cfind(query).sort(sort).exec();
+      return db.Bets.find(query);
     } catch (err) {
-      logger().error(`FIND Bet error: ${err.message}`);
+      logger.error(`FIND Bet error: ${err.message}`);
       throw err;
     }
   }
 
-  static async findOneBet(db, query) {
+  static async findOneBet(query) {
     try {
-      return await db.Bets.findOne(query);
+      return db.Bets.findOne(query);
     } catch (err) {
-      logger().error(`FINDONE Bet error: ${err.message}`);
+      logger.error(`FINDONE Bet error: ${err.message}`);
       throw err;
     }
   }
 
-  static async countBet(db, query) {
+  static async countBet(query) {
     try {
-      return await db.Bets.count(query);
+      return db.Bets.count(query);
     } catch (err) {
-      logger().error(`COUNT Bet error: ${err.message}`);
+      logger.error(`COUNT Bet error: ${err.message}`);
       throw err;
     }
   }
 
-  static async insertBet(db, bet) {
+  static async insertBet(bet) {
     try {
-      const existing = await DBHelper.findOneBet(db, { txid: bet.txid });
+      const existing = await DBHelper.findOneBet({ txid: bet.txid });
       if (isNull(existing)) {
         await db.Bets.insert(bet);
       } else {
-        await DBHelper.updateBet(db, bet);
+        await DBHelper.updateBet(bet.txid, bet);
       }
     } catch (err) {
-      logger().error(`INSERT Bet error: ${err.message}`);
+      logger.error(`INSERT Bet error: ${err.message}`);
       throw err;
     }
   }
 
-  static async updateBet(db, bet) {
+  static async updateBet(txid, fields) {
     try {
-      await db.Bets.update(
-        { txid: bet.txid },
-        { $set: bet },
-        {},
-      );
+      await db.Bets.update({ txid }, { $set: fields }, {});
     } catch (err) {
-      logger().error(`UPDATE Bet error: ${err.message}`);
+      logger.error(`UPDATE Bet error: ${err.message}`);
       throw err;
     }
   }
 
   /* ResultSets */
-  static async findResultSet(db, query) {
+  static async findResultSet(query, sort) {
     try {
-      return await db.ResultSets.find(query);
+      if (sort) return db.ResultSets.cfind(query).sort(sort).exec();
+      return db.ResultSets.find(query);
     } catch (err) {
-      logger().error(`FIND ResultSet error: ${err.message}`);
+      logger.error(`FIND ResultSet error: ${err.message}`);
       throw err;
     }
   }
 
-  static async findOneResultSet(db, query) {
+  static async findOneResultSet(query) {
     try {
-      return await db.ResultSets.findOne(query);
+      return db.ResultSets.findOne(query);
     } catch (err) {
-      logger().error(`FINDONE ResultSet error: ${err.message}`);
+      logger.error(`FINDONE ResultSet error: ${err.message}`);
       throw err;
     }
   }
 
-  static async countResultSet(db, query) {
+  static async findLatestResultSet(query) {
+    return db.ResultSets.cfind(query).sort({ blockNum: -1 }).limit(1).exec();
+  }
+
+  static async countResultSet(query) {
     try {
-      return await db.ResultSets.count(query);
+      return db.ResultSets.count(query);
     } catch (err) {
-      logger().error(`COUNT ResultSet error: ${err.message}`);
+      logger.error(`COUNT ResultSet error: ${err.message}`);
       throw err;
     }
   }
 
-  static async insertResultSet(db, resultSet) {
+  static async insertResultSet(resultSet) {
     try {
-      const existing = await DBHelper.findOneResultSet(
-        db,
-        { txid: resultSet.txid },
-      );
+      const existing = await DBHelper.findOneResultSet({ txid: resultSet.txid });
       if (isNull(existing)) {
         await db.ResultSets.insert(resultSet);
       } else {
-        await DBHelper.updateResultSet(db, resultSet);
+        await DBHelper.updateResultSet(resultSet.txid, resultSet);
       }
     } catch (err) {
-      logger().error(`INSERT ResultSet error: ${err.message}`);
+      logger.error(`INSERT ResultSet error: ${err.message}`);
       throw err;
     }
   }
 
-  static async updateResultSet(db, resultSet) {
+  static async updateResultSet(txid, fields) {
     try {
-      await db.ResultSets.update(
-        { txid: resultSet.txid },
-        { $set: resultSet },
-        {},
-      );
+      await db.ResultSets.update({ txid }, { $set: fields }, {});
     } catch (err) {
-      logger().error(`UPDATE ResultSet error: ${err.message}`);
+      logger.error(`UPDATE ResultSet error: ${err.message}`);
       throw err;
     }
   }
 
   /* Withdraws */
-  static async findWithdraw(db, query) {
+  static async findWithdraw(query, sort) {
     try {
-      return await db.Withdraws.find(query);
+      if (sort) return db.Withdraws.cfind(query).sort(sort).exec();
+      return db.Withdraws.find(query);
     } catch (err) {
-      logger().error(`FIND Withdraw error: ${err.message}`);
+      logger.error(`FIND Withdraw error: ${err.message}`);
       throw err;
     }
   }
 
-  static async findOneWithdraw(db, query) {
+  static async findOneWithdraw(query) {
     try {
-      return await db.Withdraws.findOne(query);
+      return db.Withdraws.findOne(query);
     } catch (err) {
-      logger().error(`FINDONE Withdraw error: ${err.message}`);
+      logger.error(`FINDONE Withdraw error: ${err.message}`);
       throw err;
     }
   }
 
-  static async countWithdraw(db, query) {
+  static async countWithdraw(query) {
     try {
-      return await db.Withdraws.count(query);
+      return db.Withdraws.count(query);
     } catch (err) {
-      logger().error(`COUNT Withdraw error: ${err.message}`);
+      logger.error(`COUNT Withdraw error: ${err.message}`);
       throw err;
     }
   }
 
-  static async insertWithdraw(db, withdraw) {
+  static async insertWithdraw(withdraw) {
     try {
-      const existing = await DBHelper.findOneWithdraw(
-        db,
-        { txid: withdraw.txid },
-      );
+      const existing = await DBHelper.findOneWithdraw({ txid: withdraw.txid });
       if (isNull(existing)) {
         await db.Withdraws.insert(withdraw);
       } else {
-        await DBHelper.updateWithdraw(db, withdraw);
+        await DBHelper.updateWithdraw(withdraw.txid, withdraw);
       }
     } catch (err) {
-      logger().error(`INSERT Withdraw error: ${err.message}`);
+      logger.error(`INSERT Withdraw error: ${err.message}`);
       throw err;
     }
   }
 
-  static async updateWithdraw(db, withdraw) {
+  static async updateWithdraw(txid, fields) {
     try {
-      await db.Withdraws.update(
-        { txid: withdraw.txid },
-        { $set: withdraw },
-        {},
-      );
+      await db.Withdraws.update({ txid }, { $set: fields }, {});
     } catch (err) {
-      logger().error(`UPDATE Withdraw error: ${err.message}`);
+      logger.error(`UPDATE Withdraw error: ${err.message}`);
       throw err;
     }
   }

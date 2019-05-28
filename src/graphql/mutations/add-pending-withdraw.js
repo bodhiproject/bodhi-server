@@ -1,15 +1,11 @@
 const { isNull } = require('lodash');
 const Withdraw = require('../../models/withdraw');
-const { logger } = require('../../utils/logger');
+const logger = require('../../utils/logger');
 const { getTransaction } = require('../../utils/web3-utils');
 const DBHelper = require('../../db/db-helper');
 const { TX_STATUS } = require('../../constants');
 
-module.exports = async (
-  root,
-  data,
-  { db },
-) => {
+module.exports = async (root, data) => {
   const {
     txid,
     eventAddress,
@@ -19,12 +15,12 @@ module.exports = async (
   } = data;
 
   // Verify not already existing
-  const existing = await DBHelper.findOneWithdraw(db, { txid });
+  const existing = await DBHelper.findOneWithdraw({ txid });
   if (!isNull(existing)) throw Error('Withdraw already exists');
 
   // Fetch transaction info and insert
   const txReceipt = await getTransaction(txid);
-  await DBHelper.insertTransactionReceipt(db, txReceipt);
+  await DBHelper.insertTransactionReceipt(txReceipt);
 
   const withdraw = new Withdraw({
     txid,
@@ -35,8 +31,8 @@ module.exports = async (
     winningAmount,
     escrowWithdrawAmount: escrowAmount,
   });
-  await DBHelper.insertWithdraw(db, withdraw);
-  logger().debug(`Mutation addPendingWithdraw txid:${txid}`);
+  await DBHelper.insertWithdraw(withdraw);
+  logger.debug(`Mutation addPendingWithdraw txid:${txid}`);
 
   return withdraw;
 };

@@ -31,5 +31,7 @@ module.exports = class ResultSet {
     this.resultIndex = params.resultIndex;
     this.amount = params.amount;
     this.eventRound = params.eventRound;
+    this.nextConsensusThreshold = params.nextConsensusThreshold;
+    this.nextArbitrationEndTime = params.nextArbitrationEndTime;
   }
 };

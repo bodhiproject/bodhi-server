@@ -1,7 +1,7 @@
 const { isFinite, isString, map, filter } = require('lodash');
 const { TX_TYPE, INVALID_RESULT_INDEX, EVENT_STATUS } = require('../constants');
 const { toLowerCase } = require('../utils');
-const { web3 } = require('../web3');
+const web3 = require('../web3');
 
 module.exports = class MultipleResultsEvent {
   constructor(params) {
@@ -35,7 +35,16 @@ module.exports = class MultipleResultsEvent {
     this.version = params.version;
     this.name = params.name;
     this.results = filter(
-      map(params.results, item => web3().utils.hexToUtf8(item)),
+      map(params.results, (item) => {
+        try {
+          return web3.utils.hexToUtf8(item);
+        } catch (err) {
+          // UI was passing Chinese chars converted fromAscii so the hex is
+          // invalid. This will change the result names so it doesn't break
+          // the sync.
+          return '(parse error)';
+        }
+      }),
       item => !!item,
     );
     this.numOfResults = params.numOfResults;

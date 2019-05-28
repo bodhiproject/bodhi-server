@@ -1,15 +1,11 @@
 const { isNull } = require('lodash');
 const Bet = require('../../models/bet');
-const { logger } = require('../../utils/logger');
+const logger = require('../../utils/logger');
 const { getTransaction } = require('../../utils/web3-utils');
 const DBHelper = require('../../db/db-helper');
 const { TX_STATUS } = require('../../constants');
 
-module.exports = async (
-  root,
-  data,
-  { db },
-) => {
+module.exports = async (root, data) => {
   const {
     txid,
     eventAddress,
@@ -20,12 +16,12 @@ module.exports = async (
   } = data;
 
   // Verify not already existing
-  const existing = await DBHelper.findOneBet(db, { txid });
+  const existing = await DBHelper.findOneBet({ txid });
   if (!isNull(existing)) throw Error('Bet already exists');
 
   // Fetch transaction info and insert
   const txReceipt = await getTransaction(txid);
-  await DBHelper.insertTransactionReceipt(db, txReceipt);
+  await DBHelper.insertTransactionReceipt(txReceipt);
 
   const bet = new Bet({
     txid,
@@ -37,8 +33,8 @@ module.exports = async (
     amount,
     eventRound,
   });
-  await DBHelper.insertBet(db, bet);
-  logger().debug(`Mutation addPendingBet txid:${txid}`);
+  await DBHelper.insertBet(bet);
+  logger.debug(`Mutation addPendingBet txid:${txid}`);
 
   return bet;
 };

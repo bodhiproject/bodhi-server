@@ -1,15 +1,11 @@
 const { isNull } = require('lodash');
 const { TX_STATUS, EVENT_STATUS } = require('../../constants');
-const { logger } = require('../../utils/logger');
+const logger = require('../../utils/logger');
 const { getTransaction } = require('../../utils/web3-utils');
 const DBHelper = require('../../db/db-helper');
 const MultipleResultsEvent = require('../../models/multiple-results-event');
 
-module.exports = async (
-  root,
-  data,
-  { db },
-) => {
+module.exports = async (root, data) => {
   const {
     txid,
     ownerAddress,
@@ -25,12 +21,12 @@ module.exports = async (
   } = data;
 
   // Verify not already existing
-  const existing = await DBHelper.findOneEvent(db, { txid });
+  const existing = await DBHelper.findOneEvent({ txid });
   if (!isNull(existing)) throw Error('Event already exists');
 
   // Fetch transaction info and insert
   const txReceipt = await getTransaction(txid);
-  await DBHelper.insertTransactionReceipt(db, txReceipt);
+  await DBHelper.insertTransactionReceipt(txReceipt);
 
   const multipleResultsEvent = new MultipleResultsEvent({
     txid,
@@ -48,8 +44,8 @@ module.exports = async (
     status: EVENT_STATUS.CREATED,
     language,
   });
-  await DBHelper.insertEvent(db, multipleResultsEvent);
-  logger().debug(`Mutation addPendingEvent txid:${txid}`);
+  await DBHelper.insertEvent(multipleResultsEvent);
+  logger.debug(`Mutation addPendingEvent txid:${txid}`);
 
   return multipleResultsEvent;
 };

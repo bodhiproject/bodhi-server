@@ -1,4 +1,4 @@
-const { logger } = require('../../utils/logger');
+const logger = require('../../utils/logger');
 const { calculateSyncPercent } = require('./utils');
 
 module.exports = async (root, {}, { db: { Blocks } }) => { // eslint-disable-line no-empty-pattern
@@ -6,7 +6,7 @@ module.exports = async (root, {}, { db: { Blocks } }) => { // eslint-disable-lin
   try {
     blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
   } catch (err) {
-    logger().error(`Error querying latest block: ${err.message}`);
+    logger.error(`Error querying latest block: ${err.message}`);
   }
 
   const syncBlockNum = (blocks && blocks[0].blockNum) || 0;

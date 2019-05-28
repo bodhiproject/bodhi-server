@@ -1,17 +1,16 @@
 require('dotenv').config();
 const { initConfig } = require('./config');
-const { initLogger } = require('./utils/logger');
-const { initWeb3 } = require('./web3');
 const { initDB } = require('./db');
 const initApi = require('./route');
 const startSync = require('./sync');
 
+/* eslint-disable global-require */
 const start = async () => {
   try {
     initConfig();
-    initLogger();
+    require('./utils/logger');
     await initDB();
-    initWeb3();
+    require('./web3');
     initApi();
     startSync(true);
   } catch (err) {
@@ -19,3 +18,4 @@ const start = async () => {
   }
 };
 start();
+/* eslint-enable global-require */

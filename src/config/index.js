@@ -13,6 +13,7 @@ const CONFIG = {
   API_PORT_MAINNET: 8888,
   API_PORT_TESTNET: 9999,
   DEFAULT_LOG_LEVEL: 'debug',
+  FAILED_TX_BLOCK_THRESHOLD: 10,
 };
 
 let versionConfig;
@@ -123,6 +124,13 @@ const determineContractVersion = (blockNum) => {
 };
 
 /**
+ * Gets the end block of a given contract version.
+ * @param {number} version Contract version number
+ * @return {number} End block of the contract version
+ */
+const getContractVersionEndBlock = version => versionConfig[version].endBlock;
+
+/**
  * Gets the smart contract metadata based on version.
  * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
  * @return {Object} Contract metadata.
@@ -146,10 +154,12 @@ const getSSLCredentials = () => {
 module.exports = {
   CONFIG,
   initConfig,
+  getBaseDataDir,
   getDbDir,
   getLogsDir,
   isMainnet,
   determineContractVersion,
+  getContractVersionEndBlock,
   getContractMetadata,
   getSSLCredentials,
 };
