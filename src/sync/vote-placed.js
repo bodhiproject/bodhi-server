@@ -1,5 +1,6 @@
-const { each } = require('lodash');
+const { each, isNull } = require('lodash');
 const web3 = require('../web3');
+const { CONFIG } = require('../config');
 const { TX_STATUS } = require('../constants');
 const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
@@ -29,13 +30,13 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
           const txReceipt = await getTransactionReceipt(bet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
-          logger.error(`insert VotePlaced: ${insertErr.message}`);
-          throw Error(`insert VotePlaced: ${insertErr.message}`);
+          logger.error(`Error syncVotePlaced: ${insertErr.message}`);
+          throw Error(`Error syncVotePlaced: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    throw Error('Error syncVotePlaced:', err);
+    throw Error('Error syncVotePlaced getPastLogs:', err);
   }
 };
 
@@ -69,11 +70,40 @@ const pendingVotePlaced = async ({ startBlock, syncPromises, limit }) => {
       limit,
     });
   } catch (err) {
-    throw Error('Error pendingVotePlaced:', err);
+    throw Error('Error pendingVotePlaced findBet:', err);
+  }
+};
+
+const failedVotePlaced = async ({ startBlock, syncPromises, limit }) => {
+  try {
+    const pending = await DBHelper.findBet({
+      txStatus: TX_STATUS.PENDING,
+      blockNum: { $lt: startBlock - CONFIG.FAILED_TX_BLOCK_THRESHOLD },
+      eventRound: { $gte: 1 },
+    });
+    if (pending.length === 0) return;
+    logger.info(`Checking ${pending.length} failed VotePlaced`);
+
+    each(pending, (p) => {
+      syncPromises.push(limit(async () => {
+        try {
+          const txReceipt = await getTransactionReceipt(p.txid);
+          if (!isNull(txReceipt) && !txReceipt.status) {
+            await DBHelper.updateBet(p.txid, { txStatus: TX_STATUS.FAIL });
+            await DBHelper.insertTransactionReceipt(txReceipt);
+          }
+        } catch (insertErr) {
+          logger.error(`Error failedVotePlaced: ${insertErr.message}`);
+        }
+      }));
+    });
+  } catch (err) {
+    logger.error('Error failedVotePlaced findBet:', err);
   }
 };
 
 module.exports = {
   syncVotePlaced,
   pendingVotePlaced,
+  failedVotePlaced,
 };

@@ -11,6 +11,6 @@ module.exports = async (resultSet) => {
     event.currentResultIndex = resultSet.resultIndex;
     event.consensusThreshold = resultSet.nextConsensusThreshold;
     event.arbitrationEndTime = resultSet.nextArbitrationEndTime;
-    await DBHelper.updateEvent(event);
+    await DBHelper.updateEvent(event.txid, event);
   }
 };

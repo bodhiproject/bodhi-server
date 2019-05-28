@@ -1,5 +1,6 @@
-const { each } = require('lodash');
+const { each, isNull } = require('lodash');
 const web3 = require('../web3');
+const { CONFIG } = require('../config');
 const { TX_STATUS } = require('../constants');
 const EventSig = require('../config/event-sig');
 const { getTransactionReceipt } = require('../utils/web3-utils');
@@ -31,8 +32,8 @@ const syncMultipleResultsEventCreated = async (
           const txReceipt = await getTransactionReceipt(event.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
-          logger.error(`insert MultipleResultsEventCreated: ${insertErr.message}`);
-          throw Error(`insert MultipleResultsEventCreated: ${insertErr.message}`);
+          logger.error(`Error syncMultipleResultsEventCreated: ${insertErr.message}`);
+          throw Error(`Error syncMultipleResultsEventCreated: ${insertErr.message}`);
         }
       }));
     });
@@ -69,11 +70,39 @@ const pendingMultipleResultsEventCreated = async (
       limit,
     });
   } catch (err) {
-    throw Error('Error pendingMultipleResultsEventCreated:', err);
+    throw Error('Error pendingMultipleResultsEventCreated findEvent:', err);
+  }
+};
+
+const failedMultipleResultsEventCreated = async ({ startBlock, syncPromises, limit }) => {
+  try {
+    const pending = await DBHelper.findEvent({
+      txStatus: TX_STATUS.PENDING,
+      blockNum: { $lt: startBlock - CONFIG.FAILED_TX_BLOCK_THRESHOLD },
+    });
+    if (pending.length === 0) return;
+    logger.info(`Checking ${pending.length} failed MultipleResultsEventCreated`);
+
+    each(pending, (p) => {
+      syncPromises.push(limit(async () => {
+        try {
+          const txReceipt = await getTransactionReceipt(p.txid);
+          if (!isNull(txReceipt) && !txReceipt.status) {
+            await DBHelper.updateEvent(p.txid, { txStatus: TX_STATUS.FAIL });
+            await DBHelper.insertTransactionReceipt(txReceipt);
+          }
+        } catch (insertErr) {
+          logger.error(`Error failedMultipleResultsEventCreated: ${insertErr.message}`);
+        }
+      }));
+    });
+  } catch (err) {
+    logger.error('Error failedMultipleResultsEventCreated findEvent:', err);
   }
 };
 
 module.exports = {
   syncMultipleResultsEventCreated,
   pendingMultipleResultsEventCreated,
+  failedMultipleResultsEventCreated,
 };
