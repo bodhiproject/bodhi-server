@@ -353,7 +353,7 @@ module.exports = class DBHelper {
       if (isNull(existing)) {
         await db.Withdraws.insert(withdraw);
       } else {
-        await DBHelper.updateWithdraw(withdraw);
+        await DBHelper.updateWithdraw(withdraw.txid, withdraw);
       }
     } catch (err) {
       logger.error(`INSERT Withdraw error: ${err.message}`);
@@ -361,13 +361,9 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateWithdraw(withdraw) {
+  static async updateWithdraw(txid, fields) {
     try {
-      await db.Withdraws.update(
-        { txid: withdraw.txid },
-        { $set: withdraw },
-        {},
-      );
+      await db.Withdraws.update({ txid }, { $set: fields }, {});
     } catch (err) {
       logger.error(`UPDATE Withdraw error: ${err.message}`);
       throw err;
