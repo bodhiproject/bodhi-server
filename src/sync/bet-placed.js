@@ -10,7 +10,7 @@ const parseBet = require('./parsers/bet');
 
 const adjustStartBlock = async ({ startBlock }) => {
   try {
-    // Find pending bets
+    // Find pending items
     const pending = await DBHelper.findBet({
       txStatus: TX_STATUS.PENDING,
       eventRound: 0,
@@ -24,7 +24,7 @@ const adjustStartBlock = async ({ startBlock }) => {
     });
     return fromBlock;
   } catch (err) {
-    throw Error('Error BetPlaced adjustStartBlock:', err);
+    throw Error('Error syncBetPlaced adjustStartBlock:', err);
   }
 };
 
@@ -52,13 +52,12 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
           const txReceipt = await getTransactionReceipt(bet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
-          logger.error(`Error syncBetPlaced: ${insertErr.message}`);
-          throw Error(`Error syncBetPlaced: ${insertErr.message}`);
+          throw Error(`Error syncBetPlaced parseLog: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    throw Error('Error syncBetPlaced getPastLogs:', err);
+    throw Error('Error syncBetPlaced:', err);
   }
 };
 
