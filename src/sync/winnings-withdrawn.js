@@ -30,7 +30,7 @@ const syncWinningsWithdrawn = async (
 ) => {
   try {
     // Fetch logs
-    const fromBlock = adjustStartBlock({ startBlock });
+    const fromBlock = await adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
       fromBlock,
       toBlock: endBlock,

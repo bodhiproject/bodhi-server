@@ -31,7 +31,7 @@ const adjustStartBlock = async ({ startBlock }) => {
 const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
     // Fetch logs
-    const fromBlock = adjustStartBlock({ startBlock });
+    const fromBlock = await adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
       fromBlock,
       toBlock: endBlock,
