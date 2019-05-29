@@ -86,10 +86,10 @@ type MultipleResultsEvent implements Transaction {
   betEndTime: Int!
   resultSetStartTime: Int!
   resultSetEndTime: Int!
-  escrowAmount: String
   arbitrationLength: Int!
+  arbitrationRewardPercentage: Int!
+  escrowAmount: String
   thresholdPercentIncrease: String
-  arbitrationRewardPercentage: String
   currentRound: Int
   currentResultIndex: Int
   consensusThreshold: String
@@ -363,6 +363,7 @@ type Mutation {
     resultSetStartTime: Int!
     resultSetEndTime: Int!
     arbitrationLength: Int!
+    arbitrationRewardPercentage: Int!
     language: String!
   ): MultipleResultsEvent!
 

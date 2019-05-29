@@ -17,6 +17,8 @@ module.exports = async (root, data) => {
     betEndTime,
     resultSetStartTime,
     resultSetEndTime,
+    arbitrationLength,
+    arbitrationRewardPercentage,
     language,
   } = data;
 
@@ -41,6 +43,8 @@ module.exports = async (root, data) => {
     betEndTime,
     resultSetStartTime,
     resultSetEndTime,
+    arbitrationLength,
+    arbitrationRewardPercentage,
     status: EVENT_STATUS.CREATED,
     language,
   });
