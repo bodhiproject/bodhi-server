@@ -32,12 +32,6 @@ module.exports = class MultipleResultsEvent {
     if (!isFinite(params.resultSetEndTime)) {
       throw Error('resultSetEndTime must be a Number');
     }
-    if (!isFinite(params.arbitrationLength)) {
-      throw Error('arbitrationLength must be a Number');
-    }
-    if (!isFinite(params.arbitrationRewardPercentage)) {
-      throw Error('arbitrationRewardPercentage must be a Number');
-    }
   }
 
   format(params) {
