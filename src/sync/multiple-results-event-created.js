@@ -33,11 +33,13 @@ const syncMultipleResultsEventCreated = async (
   try {
     // Fetch logs
     const fromBlock = await adjustStartBlock({ startBlock });
+    logger.debug('past adjustStartBlock');
     const logs = await web3.eth.getPastLogs({
       fromBlock,
       toBlock: endBlock,
       topics: [EventSig.MultipleResultsEventCreated],
     });
+    logger.debug(logs);
     logger.info(`Search MultipleResultsEventCreated logs ${fromBlock} - ${endBlock}`);
     if (logs.length > 0) {
       logger.info(`Found ${logs.length} MultipleResultsEventCreated`);
