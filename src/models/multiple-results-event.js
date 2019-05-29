@@ -20,6 +20,7 @@ module.exports = class MultipleResultsEvent {
     if (!isFinite(params.betEndTime)) throw Error('betEndTime must be a Number');
     if (!isFinite(params.resultSetStartTime)) throw Error('resultSetStartTime must be a Number');
     if (!isFinite(params.resultSetEndTime)) throw Error('resultSetEndTime must be a Number');
+    if (!isFinite(params.arbitrationLength)) throw Error('arbitrationLength must be a Number');
   }
 
   format(params) {

@@ -55,7 +55,7 @@ module.exports = async ({ log }) => {
     resultSetStartTime: resultSetStartTime.toNumber(),
     resultSetEndTime: resultSetEndTime.toNumber(),
     escrowAmount: escrowAmount.toString(10),
-    arbitrationLength: arbitrationLength.toString(10),
+    arbitrationLength: arbitrationLength.toNumber(),
     thresholdPercentIncrease: thresholdPercentIncrease.toString(10),
     arbitrationRewardPercentage: arbitrationRewardPercentage.toString(10),
     consensusThreshold: consensusThreshold.toString(10),

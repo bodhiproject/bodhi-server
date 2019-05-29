@@ -43,7 +43,7 @@ module.exports = {
   async arbitrationLength() {
     try {
       const res = await getContract().methods.arbitrationLength().call();
-      return web3.utils.toBN(res).toString(10);
+      return web3.utils.toBN(res).toNumber();
     } catch (err) {
       logger.error(`Error ConfigManager.arbitrationLength(): ${err.message}`);
       throw err;
