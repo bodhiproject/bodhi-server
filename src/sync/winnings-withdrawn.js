@@ -12,7 +12,9 @@ const adjustStartBlock = async ({ startBlock }) => {
   try {
     // Find pending items
     const pending = await DBHelper.findWithdraw({ txStatus: TX_STATUS.PENDING });
-    logger.info(`Found ${pending.length} pending WinningsWithdrawn`);
+    if (pending.length > 0) {
+      logger.info(`Found ${pending.length} pending WinningsWithdrawn`);
+    }
 
     // Adjust startBlock if pending is earlier
     let fromBlock = startBlock;
@@ -37,7 +39,7 @@ const syncWinningsWithdrawn = async (
       topics: [EventSig.WinningsWithdrawn],
     });
     logger.info(`Search WinningsWithdrawn logs ${fromBlock} - ${endBlock}`);
-    logger.info(`Found ${logs.length} WinningsWithdrawn`);
+    if (logs.length > 0) logger.info(`Found ${logs.length} WinningsWithdrawn`);
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {

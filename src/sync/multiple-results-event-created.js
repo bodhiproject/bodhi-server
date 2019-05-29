@@ -12,7 +12,9 @@ const adjustStartBlock = async ({ startBlock }) => {
   try {
     // Find pending items
     const pending = await DBHelper.findEvent({ txStatus: TX_STATUS.PENDING });
-    logger.info(`Found ${pending.length} pending MultipleResultsEventCreated`);
+    if (pending.length > 0) {
+      logger.info(`Found ${pending.length} pending MultipleResultsEventCreated`);
+    }
 
     // Adjust startBlock if pending is earlier
     let fromBlock = startBlock;
@@ -37,7 +39,9 @@ const syncMultipleResultsEventCreated = async (
       topics: [EventSig.MultipleResultsEventCreated],
     });
     logger.info(`Search MultipleResultsEventCreated logs ${fromBlock} - ${endBlock}`);
-    logger.info(`Found ${logs.length} MultipleResultsEventCreated`);
+    if (logs.length > 0) {
+      logger.info(`Found ${logs.length} MultipleResultsEventCreated`);
+    }
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {

@@ -15,7 +15,9 @@ const adjustStartBlock = async ({ startBlock }) => {
       txStatus: TX_STATUS.PENDING,
       eventRound: { $gte: 1 },
     });
-    logger.info(`Found ${pending.length} pending VotePlaced`);
+    if (pending.length > 0) {
+      logger.info(`Found ${pending.length} pending VotePlaced`);
+    }
 
     // Adjust startBlock if pending is earlier
     let fromBlock = startBlock;
@@ -38,7 +40,7 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
       topics: [EventSig.VotePlaced],
     });
     logger.info(`Search VotePlaced logs ${fromBlock} - ${endBlock}`);
-    logger.info(`Found ${logs.length} VotePlaced`);
+    if (logs.length > 0) logger.info(`Found ${logs.length} VotePlaced`);
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
