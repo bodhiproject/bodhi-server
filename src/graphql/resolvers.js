@@ -1,4 +1,4 @@
-const { sum, fill, each } = require('lodash');
+const { sum, fill, each, isNull } = require('lodash');
 const Queries = require('./queries');
 const Mutations = require('./mutations');
 const { TX_TYPE, TX_STATUS } = require('../constants');
@@ -76,6 +76,20 @@ module.exports = {
           rounds[bet.resultIndex] = sumBN(rounds[bet.resultIndex], bet.amount)
             .toString(10);
         });
+
+        // Add result set amount if round 1
+        const resultSet = await DBHelper.findOneResultSet({
+          txStatus: TX_STATUS.SUCCESS,
+          eventAddress: address,
+          eventRound: 0,
+        });
+        if (!isNull(resultSet)) {
+          rounds[resultSet.resultIndex] = sumBN(
+            rounds[resultSet.resultIndex],
+            resultSet.amount,
+          ).toString(10);
+        }
+
         return rounds;
       }
       return null;
