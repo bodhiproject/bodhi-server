@@ -9,16 +9,38 @@ const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseResultSet = require('./parsers/result-set');
 
+const adjustStartBlock = async ({ startBlock }) => {
+  try {
+    // Find pending items
+    const pending = await DBHelper.findResultSet({
+      txStatus: TX_STATUS.PENDING,
+      eventRound: { $gte: 1 },
+    });
+    logger.info(`Found ${pending.length} pending VoteResultSet`);
+
+    // Adjust startBlock if pending is earlier
+    let fromBlock = startBlock;
+    each(pending, (p) => {
+      fromBlock = Math.min(fromBlock, p.blockNum);
+    });
+    return fromBlock;
+  } catch (err) {
+    throw Error('Error syncVoteResultSet adjustStartBlock:', err);
+  }
+};
+
 const syncVoteResultSet = async (
   { startBlock, endBlock, syncPromises, limit },
 ) => {
   try {
     // Fetch logs
+    const fromBlock = adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
-      fromBlock: startBlock,
+      fromBlock,
       toBlock: endBlock,
       topics: [EventSig.VoteResultSet],
     });
+    logger.info(`Search VoteResultSet logs ${fromBlock} - ${endBlock}`);
     logger.info(`Found ${logs.length} VoteResultSet`);
 
     // Add to syncPromises array to be executed in parallel
@@ -36,47 +58,12 @@ const syncVoteResultSet = async (
           // Update event
           await updateEvent(resultSet);
         } catch (insertErr) {
-          logger.error(`Error syncVoteResultSet: ${insertErr.message}`);
-          throw Error(`Error syncVoteResultSet: ${insertErr.message}`);
+          throw Error(`Error syncVoteResultSet parse: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    throw Error('Error syncVoteResultSet getPastLogs:', err);
-  }
-};
-
-const pendingVoteResultSet = async ({ startBlock, syncPromises, limit }) => {
-  try {
-    // Find pending vote result sets that have a block number less than the startBlock
-    const pending = await DBHelper.findResultSet(
-      {
-        txStatus: TX_STATUS.PENDING,
-        blockNum: { $lt: startBlock },
-        eventRound: { $gte: 1 },
-      },
-      { blockNum: 1 },
-    );
-    if (pending.length === 0) return;
-    logger.info(`Found ${pending.length} pending VoteResultSet`);
-
-    // Determine range to search logs
-    let fromBlock;
-    let toBlock;
-    each(pending, (p) => {
-      const pBlock = p.blockNum;
-      if (!fromBlock || pBlock < fromBlock) fromBlock = pBlock;
-      if (!toBlock || pBlock > toBlock) toBlock = pBlock;
-    });
-
-    await syncVoteResultSet({
-      startBlock: fromBlock,
-      endBlock: toBlock,
-      syncPromises,
-      limit,
-    });
-  } catch (err) {
-    throw Error('Error pendingVoteResultSet findResultSet:', err);
+    throw Error('Error syncVoteResultSet:', err);
   }
 };
 
@@ -110,6 +97,5 @@ const failedVoteResultSets = async ({ startBlock, syncPromises, limit }) => {
 
 module.exports = {
   syncVoteResultSet,
-  pendingVoteResultSet,
   failedVoteResultSets,
 };

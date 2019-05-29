@@ -37,7 +37,7 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
       toBlock: endBlock,
       topics: [EventSig.VotePlaced],
     });
-    logger.info(`Getting VotePlaced logs ${fromBlock} - ${endBlock}`);
+    logger.info(`Search VotePlaced logs ${fromBlock} - ${endBlock}`);
     logger.info(`Found ${logs.length} VotePlaced`);
 
     // Add to syncPromises array to be executed in parallel

@@ -12,11 +12,7 @@ const {
 const { syncBetPlaced, failedBets } = require('./bet-placed');
 const { syncResultSet, failedResultSets } = require('./result-set');
 const { syncVotePlaced, failedVotePlaced } = require('./vote-placed');
-const {
-  syncVoteResultSet,
-  pendingVoteResultSet,
-  failedVoteResultSets,
-} = require('./vote-result-set');
+const { syncVoteResultSet, failedVoteResultSets } = require('./vote-result-set');
 const {
   syncWinningsWithdrawn,
   pendingWinningsWithdrawn,
@@ -159,7 +155,6 @@ const startSync = async () => {
 
     // Add pending promises
     syncPromises = [];
-    await pendingVoteResultSet({ startBlock, syncPromises, limit });
     await pendingWinningsWithdrawn({ startBlock, syncPromises, limit });
     await Promise.all(syncPromises);
 
