@@ -103,6 +103,15 @@ module.exports = {
       });
       const amounts = [];
       each(bets, bet => amounts.push(bet.amount));
+
+      // Add result set amount
+      const resultSet = await DBHelper.findOneResultSet({
+        txStatus: TX_STATUS.SUCCESS,
+        eventAddress: address,
+        eventRound: 0,
+      });
+      if (!isNull(resultSet)) amounts.push(resultSet.amount);
+
       return sumArrayBN(amounts).toString(10);
     },
   },
