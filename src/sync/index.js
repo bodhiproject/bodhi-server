@@ -163,9 +163,10 @@ const startSync = async () => {
     await syncVoteResultSet({ startBlock, endBlock, syncPromises, limit });
     await syncWinningsWithdrawn({ startBlock, endBlock, syncPromises, limit });
     syncBlocks({ startBlock, endBlock, syncPromises, limit });
+    await Promise.all(syncPromises);
 
     // Add pending promises
-    await pendingBetPlaced({ startBlock, syncPromises, limit });
+    syncPromises = [];
     await pendingResultSet({ startBlock, syncPromises, limit });
     await pendingVotePlaced({ startBlock, syncPromises, limit });
     await pendingVoteResultSet({ startBlock, syncPromises, limit });
