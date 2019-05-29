@@ -19,6 +19,7 @@ const adjustStartBlock = async ({ startBlock }) => {
     // Adjust startBlock if pending is earlier
     let fromBlock = startBlock;
     each(pending, (p) => {
+      logger.debug(fromBlock, p.blockNum);
       fromBlock = Math.min(fromBlock, p.blockNum);
     });
     return fromBlock;
