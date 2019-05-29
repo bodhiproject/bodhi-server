@@ -8,14 +8,36 @@ const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseBet = require('./parsers/bet');
 
+const adjustStartBlock = async ({ startBlock }) => {
+  try {
+    // Find pending items
+    const pending = await DBHelper.findBet({
+      txStatus: TX_STATUS.PENDING,
+      eventRound: { $gte: 1 },
+    });
+    logger.info(`Found ${pending.length} pending VotePlaced`);
+
+    // Adjust startBlock if pending is earlier
+    let fromBlock = startBlock;
+    each(pending, (p) => {
+      fromBlock = Math.min(fromBlock, p.blockNum);
+    });
+    return fromBlock;
+  } catch (err) {
+    throw Error('Error syncVotePlaced adjustStartBlock:', err);
+  }
+};
+
 const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
     // Fetch logs
+    const fromBlock = adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
-      fromBlock: startBlock,
+      fromBlock,
       toBlock: endBlock,
       topics: [EventSig.VotePlaced],
     });
+    logger.info(`Getting VotePlaced logs ${fromBlock} - ${endBlock}`);
     logger.info(`Found ${logs.length} VotePlaced`);
 
     // Add to syncPromises array to be executed in parallel
@@ -30,47 +52,12 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
           const txReceipt = await getTransactionReceipt(bet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
-          logger.error(`Error syncVotePlaced: ${insertErr.message}`);
-          throw Error(`Error syncVotePlaced: ${insertErr.message}`);
+          throw Error(`Error syncVotePlaced parse: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    throw Error('Error syncVotePlaced getPastLogs:', err);
-  }
-};
-
-const pendingVotePlaced = async ({ startBlock, syncPromises, limit }) => {
-  try {
-    // Find pending votes that have a block number less than the startBlock
-    const pending = await DBHelper.findBet(
-      {
-        txStatus: TX_STATUS.PENDING,
-        blockNum: { $lt: startBlock },
-        eventRound: { $gte: 1 },
-      },
-      { blockNum: 1 },
-    );
-    if (pending.length === 0) return;
-    logger.info(`Found ${pending.length} pending VotePlaced`);
-
-    // Determine range to search logs
-    let fromBlock;
-    let toBlock;
-    each(pending, (p) => {
-      const pBlock = p.blockNum;
-      if (!fromBlock || pBlock < fromBlock) fromBlock = pBlock;
-      if (!toBlock || pBlock > toBlock) toBlock = pBlock;
-    });
-
-    await syncVotePlaced({
-      startBlock: fromBlock,
-      endBlock: toBlock,
-      syncPromises,
-      limit,
-    });
-  } catch (err) {
-    throw Error('Error pendingVotePlaced findBet:', err);
+    throw Error('Error syncVotePlaced:', err);
   }
 };
 
@@ -104,6 +91,5 @@ const failedVotePlaced = async ({ startBlock, syncPromises, limit }) => {
 
 module.exports = {
   syncVotePlaced,
-  pendingVotePlaced,
   failedVotePlaced,
 };
