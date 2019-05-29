@@ -78,16 +78,18 @@ module.exports = {
         });
 
         // Add result set amount if round 1
-        const resultSet = await DBHelper.findOneResultSet({
-          txStatus: TX_STATUS.SUCCESS,
-          eventAddress: address,
-          eventRound: 0,
-        });
-        if (!isNull(resultSet)) {
-          rounds[resultSet.resultIndex] = sumBN(
-            rounds[resultSet.resultIndex],
-            resultSet.amount,
-          ).toString(10);
+        if (currentRound === 1) {
+          const resultSet = await DBHelper.findOneResultSet({
+            txStatus: TX_STATUS.SUCCESS,
+            eventAddress: address,
+            eventRound: 0,
+          });
+          if (!isNull(resultSet)) {
+            rounds[resultSet.resultIndex] = sumBN(
+              rounds[resultSet.resultIndex],
+              resultSet.amount,
+            ).toString(10);
+          }
         }
 
         return rounds;
