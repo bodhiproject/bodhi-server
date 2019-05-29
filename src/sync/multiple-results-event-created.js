@@ -23,7 +23,7 @@ const adjustStartBlock = async ({ startBlock }) => {
     });
     return fromBlock;
   } catch (err) {
-    throw Error('Error syncMultipleResultsEventCreated adjustStartBlock:', err);
+    throw Error(`Error syncMultipleResultsEventCreated adjustStartBlock: ${err.message}`);
   }
 };
 
@@ -62,7 +62,7 @@ const syncMultipleResultsEventCreated = async (
       }));
     });
   } catch (err) {
-    throw Error('Error syncMultipleResultsEventCreated:', err);
+    throw Error(`Error syncMultipleResultsEventCreated: ${err.message}`);
   }
 };
 
@@ -89,7 +89,7 @@ const failedMultipleResultsEventCreated = async ({ startBlock, syncPromises, lim
       }));
     });
   } catch (err) {
-    logger.error('Error failedMultipleResultsEventCreated findEvent:', err);
+    logger.error(`Error failedMultipleResultsEventCreated findEvent: ${err.message}`);
   }
 };
 

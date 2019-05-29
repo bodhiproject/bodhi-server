@@ -26,7 +26,7 @@ const adjustStartBlock = async ({ startBlock }) => {
     });
     return fromBlock;
   } catch (err) {
-    throw Error('Error syncBetPlaced adjustStartBlock:', err);
+    throw Error(`Error syncBetPlaced adjustStartBlock: ${err.message}`);
   }
 };
 
@@ -59,7 +59,7 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
       }));
     });
   } catch (err) {
-    throw Error('Error syncBetPlaced:', err);
+    throw Error(`Error syncBetPlaced: ${err.message}`);
   }
 };
 
@@ -87,7 +87,7 @@ const failedBets = async ({ startBlock, syncPromises, limit }) => {
       }));
     });
   } catch (err) {
-    logger.error('Error failedBets findBet:', err);
+    logger.error(`Error failedBets findBet: ${err.message}`);
   }
 };
 

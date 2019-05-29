@@ -26,7 +26,7 @@ const adjustStartBlock = async ({ startBlock }) => {
     });
     return fromBlock;
   } catch (err) {
-    throw Error('Error syncVotePlaced adjustStartBlock:', err);
+    throw Error(`Error syncVotePlaced adjustStartBlock: ${err.message}`);
   }
 };
 
@@ -59,7 +59,7 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
       }));
     });
   } catch (err) {
-    throw Error('Error syncVotePlaced:', err);
+    throw Error(`Error syncVotePlaced: ${err.message}`);
   }
 };
 
@@ -87,7 +87,7 @@ const failedVotePlaced = async ({ startBlock, syncPromises, limit }) => {
       }));
     });
   } catch (err) {
-    logger.error('Error failedVotePlaced findBet:', err);
+    logger.error(`Error failedVotePlaced findBet: ${err.message}`);
   }
 };
 

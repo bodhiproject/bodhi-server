@@ -27,7 +27,7 @@ const adjustStartBlock = async ({ startBlock }) => {
     });
     return fromBlock;
   } catch (err) {
-    throw Error('Error syncResultSet adjustStartBlock:', err);
+    throw Error(`Error syncResultSet adjustStartBlock: ${err.message}`);
   }
 };
 
@@ -63,7 +63,7 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
       }));
     });
   } catch (err) {
-    throw Error('Error syncResultSet:', err);
+    throw Error(`Error syncResultSet: ${err.message}`);
   }
 };
 
@@ -91,7 +91,7 @@ const failedResultSets = async ({ startBlock, syncPromises, limit }) => {
       }));
     });
   } catch (err) {
-    logger.error('Error failedResultSets findResultSet:', err);
+    logger.error(`Error failedResultSets findResultSet: ${err.message}`);
   }
 };
 

@@ -23,7 +23,7 @@ const adjustStartBlock = async ({ startBlock }) => {
     });
     return fromBlock;
   } catch (err) {
-    throw Error('Error syncWinningsWithdrawn adjustStartBlock:', err);
+    throw Error(`Error syncWinningsWithdrawn adjustStartBlock: ${err.message}`);
   }
 };
 
@@ -58,7 +58,7 @@ const syncWinningsWithdrawn = async (
       }));
     });
   } catch (err) {
-    throw Error('Error syncWinningsWithdrawn:', err);
+    throw Error(`Error syncWinningsWithdrawn: ${err.message}`);
   }
 };
 
@@ -85,7 +85,7 @@ const failedWinningsWithdrawn = async ({ startBlock, syncPromises, limit }) => {
       }));
     });
   } catch (err) {
-    logger.error('Error failedWinningsWithdrawn findWithdraw:', err);
+    logger.error(`Error failedWinningsWithdrawn findWithdraw: ${err.message}`);
   }
 };
 
