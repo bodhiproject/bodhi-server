@@ -6,14 +6,16 @@ const { getContractMetadata, isMainnet, getBaseDataDir } = require('../config');
 const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
-  pendingMultipleResultsEventCreated,
   failedMultipleResultsEventCreated,
 } = require('./multiple-results-event-created');
 const { syncBetPlaced, failedBets } = require('./bet-placed');
 const { syncResultSet, failedResultSets } = require('./result-set');
 const { syncVotePlaced, failedVotePlaced } = require('./vote-placed');
 const { syncVoteResultSet, failedVoteResultSets } = require('./vote-result-set');
-const { syncWinningsWithdrawn, failedWinningsWithdrawn } = require('./winnings-withdrawn');
+const {
+  syncWinningsWithdrawn,
+  failedWinningsWithdrawn,
+} = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
 const DBHelper = require('../db/db-helper');
 const logger = require('../utils/logger');
@@ -136,7 +138,6 @@ const startSync = async () => {
       syncPromises,
       limit,
     });
-    await pendingMultipleResultsEventCreated({ startBlock, syncPromises, limit });
     await Promise.all(syncPromises);
 
     // Add sync promises
