@@ -35,9 +35,9 @@ const initConfig = () => {
 
   // Calculate start and end blocks for each version
   each(keys, (key, index) => {
-    const startBlock = EventFactory[`${key}`].EventFactory[blockKey];
+    const startBlock = EventFactory[`${key}`][blockKey];
     const endBlock = index + 1 < keys.length
-      ? EventFactory[`${key + 1}`].EventFactory[blockKey] - 1
+      ? EventFactory[`${key + 1}`][blockKey] - 1
       : -1;
     versionConfig[index] = {
       version: index,
