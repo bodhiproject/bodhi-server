@@ -50,10 +50,10 @@ module.exports = {
     }
   },
 
-  async startingOracleThreshold() {
+  async startingConsensusThreshold() {
     try {
-      const res = await getContract().methods.startingOracleThreshold().call();
-      return web3.utils.toBN(res).toString(10);
+      const res = await getContract().methods.startingConsensusThreshold().call();
+      return map(res, len => web3.utils.toBN(len).toString(10));
     } catch (err) {
       logger.error(`Error ConfigManager.startingOracleThreshold(): ${err.message}`);
       throw err;
