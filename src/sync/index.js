@@ -124,7 +124,7 @@ const startSync = async () => {
 
     // Determine start and end blocks
     const latestBlock = await web3.eth.getBlockNumber();
-    startBlock = await getStartBlock();
+    startBlock = startBlock || await getStartBlock();
     const endBlock = Math.min(startBlock + BLOCK_BATCH_COUNT, latestBlock);
 
     logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
