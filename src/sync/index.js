@@ -6,28 +6,14 @@ const { getContractMetadata, isMainnet, getBaseDataDir } = require('../config');
 const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
-  pendingMultipleResultsEventCreated,
   failedMultipleResultsEventCreated,
 } = require('./multiple-results-event-created');
-const { syncBetPlaced, pendingBetPlaced, failedBets } = require('./bet-placed');
-const {
-  syncResultSet,
-  pendingResultSet,
-  failedResultSets,
-} = require('./result-set');
-const {
-  syncVotePlaced,
-  pendingVotePlaced,
-  failedVotePlaced,
-} = require('./vote-placed');
-const {
-  syncVoteResultSet,
-  pendingVoteResultSet,
-  failedVoteResultSets,
-} = require('./vote-result-set');
+const { syncBetPlaced, failedBets } = require('./bet-placed');
+const { syncResultSet, failedResultSets } = require('./result-set');
+const { syncVotePlaced, failedVotePlaced } = require('./vote-placed');
+const { syncVoteResultSet, failedVoteResultSets } = require('./vote-result-set');
 const {
   syncWinningsWithdrawn,
-  pendingWinningsWithdrawn,
   failedWinningsWithdrawn,
 } = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
@@ -152,7 +138,6 @@ const startSync = async () => {
       syncPromises,
       limit,
     });
-    await pendingMultipleResultsEventCreated({ startBlock, syncPromises, limit });
     await Promise.all(syncPromises);
 
     // Add sync promises
@@ -163,13 +148,6 @@ const startSync = async () => {
     await syncVoteResultSet({ startBlock, endBlock, syncPromises, limit });
     await syncWinningsWithdrawn({ startBlock, endBlock, syncPromises, limit });
     syncBlocks({ startBlock, endBlock, syncPromises, limit });
-
-    // Add pending promises
-    await pendingBetPlaced({ startBlock, syncPromises, limit });
-    await pendingResultSet({ startBlock, syncPromises, limit });
-    await pendingVotePlaced({ startBlock, syncPromises, limit });
-    await pendingVoteResultSet({ startBlock, syncPromises, limit });
-    await pendingWinningsWithdrawn({ startBlock, syncPromises, limit });
     await Promise.all(syncPromises);
 
     // Update statuses

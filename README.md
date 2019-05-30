@@ -46,6 +46,30 @@ docker-compose stop
 npm start
 ```
 
+# Copying Server Data
+
+These instructions are for copying the data from the remote server to your local machine.
+
+1. Login to remote server
+
+2. `cd bodhi-server/scripts`
+
+3. I've been copying to `~/.bodhi`. The following example will copy the entire Docker volume's data to ~/.bodhi.
+
+        # Example: ./backup-volume.sh $DOCKER_VOL_NAME $DEST_PATH
+        $ ./backup-volume.sh testnet_bodhi-server-testnet ~/.bodhi
+
+4. In your local terminal instance, go to the path you want to copy the files to. This example is going to copy the `nedb` folder to my `bodhi-server/data/testnet/nedb`.
+
+        $ cd bodhi-server/data/testnet
+        $ rm -rf nedb
+
+        # The -i ~/.ssh/nakabase.pem should point to where you keep your server credentials key
+        $ scp -r -i ~/.ssh/nakabase.pem ubuntu@54.67.22.227:/home/ubuntu/.bodhi/_data/testnet/nedb .
+
+5. You should now have the copied files in your folder.
+
+
 # GraphQL
 
 To play around in the GraphQL playground, go to:

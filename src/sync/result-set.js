@@ -9,15 +9,39 @@ const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseResultSet = require('./parsers/result-set');
 
+const adjustStartBlock = async ({ startBlock }) => {
+  try {
+    // Find pending items
+    const pending = await DBHelper.findResultSet({
+      txStatus: TX_STATUS.PENDING,
+      eventRound: 0,
+    });
+    if (pending.length > 0) {
+      logger.info(`Found ${pending.length} pending ResultSet`);
+    }
+
+    // Adjust startBlock if pending is earlier
+    let fromBlock = startBlock;
+    each(pending, (p) => {
+      fromBlock = Math.min(fromBlock, p.blockNum);
+    });
+    return fromBlock;
+  } catch (err) {
+    throw Error(`Error syncResultSet adjustStartBlock: ${err.message}`);
+  }
+};
+
 const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
     // Fetch logs
+    const fromBlock = await adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
-      fromBlock: startBlock,
+      fromBlock,
       toBlock: endBlock,
       topics: [EventSig.ResultSet],
     });
-    logger.info(`Found ${logs.length} ResultSet`);
+    logger.info(`Search ResultSet logs ${fromBlock} - ${endBlock}`);
+    if (logs.length > 0) logger.info(`Found ${logs.length} ResultSet`);
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
@@ -34,43 +58,12 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
           // Update event
           await updateEvent(resultSet);
         } catch (insertErr) {
-          logger.error(`Error syncResultSet: ${insertErr.message}`);
-          throw Error(`Error syncResultSet: ${insertErr.message}`);
+          throw Error(`Error syncResultSet parse: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    throw Error('Error syncResultSet getPastLogs:', err);
-  }
-};
-
-const pendingResultSet = async ({ startBlock, syncPromises, limit }) => {
-  try {
-    // Find pending result sets that have a block number less than the startBlock
-    const pending = await DBHelper.findResultSet(
-      { txStatus: TX_STATUS.PENDING, blockNum: { $lt: startBlock }, eventRound: 0 },
-      { blockNum: 1 },
-    );
-    if (pending.length === 0) return;
-    logger.info(`Found ${pending.length} pending ResultSet`);
-
-    // Determine range to search logs
-    let fromBlock;
-    let toBlock;
-    each(pending, (p) => {
-      const pBlock = p.blockNum;
-      if (!fromBlock || pBlock < fromBlock) fromBlock = pBlock;
-      if (!toBlock || pBlock > toBlock) toBlock = pBlock;
-    });
-
-    await syncResultSet({
-      startBlock: fromBlock,
-      endBlock: toBlock,
-      syncPromises,
-      limit,
-    });
-  } catch (err) {
-    throw Error('Error pendingResultSet findResultSet:', err);
+    throw Error(`Error syncResultSet: ${err.message}`);
   }
 };
 
@@ -98,12 +91,11 @@ const failedResultSets = async ({ startBlock, syncPromises, limit }) => {
       }));
     });
   } catch (err) {
-    logger.error('Error failedResultSets findResultSet:', err);
+    logger.error(`Error failedResultSets findResultSet: ${err.message}`);
   }
 };
 
 module.exports = {
   syncResultSet,
-  pendingResultSet,
   failedResultSets,
 };

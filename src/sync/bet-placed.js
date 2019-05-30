@@ -8,15 +8,39 @@ const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseBet = require('./parsers/bet');
 
+const adjustStartBlock = async ({ startBlock }) => {
+  try {
+    // Find pending items
+    const pending = await DBHelper.findBet({
+      txStatus: TX_STATUS.PENDING,
+      eventRound: 0,
+    });
+    if (pending.length > 0) {
+      logger.info(`Found ${pending.length} pending BetPlaced`);
+    }
+
+    // Adjust startBlock if pending is earlier
+    let fromBlock = startBlock;
+    each(pending, (p) => {
+      fromBlock = Math.min(fromBlock, p.blockNum);
+    });
+    return fromBlock;
+  } catch (err) {
+    throw Error(`Error syncBetPlaced adjustStartBlock: ${err.message}`);
+  }
+};
+
 const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
     // Fetch logs
+    const fromBlock = await adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
-      fromBlock: startBlock,
+      fromBlock,
       toBlock: endBlock,
       topics: [EventSig.BetPlaced],
     });
-    logger.info(`Found ${logs.length} BetPlaced`);
+    logger.info(`Search BetPlaced logs ${fromBlock} - ${endBlock}`);
+    if (logs.length > 0) logger.info(`Found ${logs.length} BetPlaced`);
 
     // Add to syncPromises array to be executed in parallel
     each(logs, (log) => {
@@ -30,43 +54,12 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
           const txReceipt = await getTransactionReceipt(bet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
-          logger.error(`Error syncBetPlaced: ${insertErr.message}`);
-          throw Error(`Error syncBetPlaced: ${insertErr.message}`);
+          throw Error(`Error syncBetPlaced parse: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    throw Error('Error syncBetPlaced getPastLogs:', err);
-  }
-};
-
-const pendingBetPlaced = async ({ startBlock, syncPromises, limit }) => {
-  try {
-    // Find pending bets that have a block number less than the startBlock
-    const pending = await DBHelper.findBet(
-      { txStatus: TX_STATUS.PENDING, blockNum: { $lt: startBlock }, eventRound: 0 },
-      { blockNum: 1 },
-    );
-    if (pending.length === 0) return;
-    logger.info(`Found ${pending.length} pending BetPlaced`);
-
-    // Determine range to search logs
-    let fromBlock;
-    let toBlock;
-    each(pending, (p) => {
-      const pBlock = p.blockNum;
-      if (!fromBlock || pBlock < fromBlock) fromBlock = pBlock;
-      if (!toBlock || pBlock > toBlock) toBlock = pBlock;
-    });
-
-    await syncBetPlaced({
-      startBlock: fromBlock,
-      endBlock: toBlock,
-      syncPromises,
-      limit,
-    });
-  } catch (err) {
-    throw Error('Error pendingBetPlaced findBet:', err);
+    throw Error(`Error syncBetPlaced: ${err.message}`);
   }
 };
 
@@ -94,12 +87,11 @@ const failedBets = async ({ startBlock, syncPromises, limit }) => {
       }));
     });
   } catch (err) {
-    logger.error('Error failedBets findBet:', err);
+    logger.error(`Error failedBets findBet: ${err.message}`);
   }
 };
 
 module.exports = {
   syncBetPlaced,
-  pendingBetPlaced,
   failedBets,
 };

@@ -12,14 +12,26 @@ module.exports = class MultipleResultsEvent {
   validate(params) {
     if (!isString(params.txid)) throw Error('txid must be a String');
     if (!isString(params.txStatus)) throw Error('txStatus must be a String');
-    if (!isString(params.ownerAddress)) throw Error('ownerAddress must be a String');
+    if (!isString(params.ownerAddress)) {
+      throw Error('ownerAddress must be a String');
+    }
     if (!isString(params.name)) throw Error('name must be a String');
-    if (!isFinite(params.numOfResults)) throw Error('numOfResults must be a Number');
-    if (!isString(params.centralizedOracle)) throw Error('centralizedOracle must be a String');
-    if (!isFinite(params.betStartTime)) throw Error('betStartTime must be a Number');
+    if (!isFinite(params.numOfResults)) {
+      throw Error('numOfResults must be a Number');
+    }
+    if (!isString(params.centralizedOracle)) {
+      throw Error('centralizedOracle must be a String');
+    }
+    if (!isFinite(params.betStartTime)) {
+      throw Error('betStartTime must be a Number');
+    }
     if (!isFinite(params.betEndTime)) throw Error('betEndTime must be a Number');
-    if (!isFinite(params.resultSetStartTime)) throw Error('resultSetStartTime must be a Number');
-    if (!isFinite(params.resultSetEndTime)) throw Error('resultSetEndTime must be a Number');
+    if (!isFinite(params.resultSetStartTime)) {
+      throw Error('resultSetStartTime must be a Number');
+    }
+    if (!isFinite(params.resultSetEndTime)) {
+      throw Error('resultSetEndTime must be a Number');
+    }
   }
 
   format(params) {

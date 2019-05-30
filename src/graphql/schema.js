@@ -87,9 +87,9 @@ type MultipleResultsEvent implements Transaction {
   resultSetStartTime: Int!
   resultSetEndTime: Int!
   escrowAmount: String
-  arbitrationLength: String
+  arbitrationLength: Int
+  arbitrationRewardPercentage: Int
   thresholdPercentIncrease: String
-  arbitrationRewardPercentage: String
   currentRound: Int
   currentResultIndex: Int
   consensusThreshold: String
