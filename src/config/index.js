@@ -133,20 +133,20 @@ const determineContractVersion = (blockNum) => {
 const getContractVersionEndBlock = version => versionConfig[version].endBlock;
 
 /**
- * Gets the smart contract metadata based on version.
+ * Gets the ConfigManager smart contract metadata based on version.
  * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
  * @return {Object} Contract metadata.
  */
-const getContractMetadata = (version) => {
-  if (!isNumber(version)) throw Error('Must supply a version number');
-  return contractMetadata[version];
-};
-
 const configManagerMeta = (version) => {
   if (!isNumber(version)) throw Error('Must supply a version number');
   return ConfigManager[version];
 };
 
+/**
+ * Gets the EventFactory smart contract metadata based on version.
+ * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
+ * @return {Object} Contract metadata.
+ */
 const eventFactoryMeta = (version) => {
   if (!isNumber(version)) throw Error('Must supply a version number');
   return EventFactory[version];
@@ -172,7 +172,6 @@ module.exports = {
   isMainnet,
   determineContractVersion,
   getContractVersionEndBlock,
-  getContractMetadata,
   configManagerMeta,
   eventFactoryMeta,
   getSSLCredentials,
