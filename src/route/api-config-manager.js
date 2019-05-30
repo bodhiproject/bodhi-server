@@ -40,8 +40,8 @@ router.get('/arbitration-length', (req, res, next) => {
     });
 });
 
-router.get('/starting-oracle-threshold', (req, res, next) => {
-  ConfigManagerApi.startingOracleThreshold()
+router.get('/starting-consensus-threshold', (req, res, next) => {
+  ConfigManagerApi.startingConsensusThreshold()
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
