@@ -25,7 +25,7 @@ let versionConfig;
  */
 const initConfig = () => {
   // Get all version numbers and sort
-  let keys = Object.keys(contractMetadata);
+  let keys = Object.keys(EventFactory);
   keys = sortBy(map(keys, key => Number(key)));
 
   // Create new array
@@ -35,9 +35,9 @@ const initConfig = () => {
 
   // Calculate start and end blocks for each version
   each(keys, (key, index) => {
-    const startBlock = contractMetadata[`${key}`].EventFactory[blockKey];
+    const startBlock = EventFactory[`${key}`].EventFactory[blockKey];
     const endBlock = index + 1 < keys.length
-      ? contractMetadata[`${key + 1}`].EventFactory[blockKey] - 1
+      ? EventFactory[`${key + 1}`].EventFactory[blockKey] - 1
       : -1;
     versionConfig[index] = {
       version: index,
