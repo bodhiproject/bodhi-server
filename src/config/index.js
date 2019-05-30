@@ -4,6 +4,7 @@ const { map, sortBy, each, isUndefined, isEmpty, isNumber } = require('lodash');
 const { BLOCKCHAIN_ENV } = require('../constants');
 const contractMetadata = require('./contract-metadata');
 const ConfigManager = require('./contracts/config-manager');
+const EventFactory = require('./contracts/event-factory');
 
 const CONFIG = {
   NETWORK: process.env.NETWORK,
@@ -146,6 +147,11 @@ const configManagerMeta = (version) => {
   return ConfigManager[version];
 };
 
+const eventFactoryMeta = (version) => {
+  if (!isNumber(version)) throw Error('Must supply a version number');
+  return EventFactory[version];
+};
+
 const getSSLCredentials = () => {
   if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
     throw Error('SSL Key and Cert paths not found');
@@ -168,5 +174,6 @@ module.exports = {
   getContractVersionEndBlock,
   getContractMetadata,
   configManagerMeta,
+  eventFactoryMeta,
   getSSLCredentials,
 };
