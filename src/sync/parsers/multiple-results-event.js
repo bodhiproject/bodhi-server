@@ -1,20 +1,17 @@
 const web3 = require('../../web3');
 const MultipleResultsEvent = require('../../models/multiple-results-event');
 const { TX_STATUS } = require('../../constants');
-const { determineContractVersion, getContractMetadata } = require('../../config');
+const { determineContractVersion, multipleResultsEventMeta } = require('../../config');
 
 module.exports = async ({ log }) => {
   const address = web3.eth.abi.decodeParameter('address', log.topics[1]);
   const ownerAddress = web3.eth.abi.decodeParameter('address', log.topics[2]);
 
   const contractVersion = determineContractVersion(Number(log.blockNumber));
-  const contractMetadata = getContractMetadata(contractVersion);
+  const eventMeta = multipleResultsEventMeta(contractVersion);
 
   // Get event data
-  const contract = new web3.eth.Contract(
-    contractMetadata.MultipleResultsEvent.abi,
-    address,
-  );
+  const contract = new web3.eth.Contract(eventMeta.abi, address);
   let res = await contract.methods.eventMetadata().call();
   const version = res['0'];
   const eventName = res['1'];
