@@ -3,33 +3,10 @@ language: node_js
 node_js:
   - "9"
 
-env:
-  - CXX=g++-4.8
-
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - gcc-4.8
-    - g++-4.8
-
-cache:
-  directories:
-    - "node_modules"
-
-before_install:
-  - wget https://github.com/qtumproject/qtum/releases/download/mainnet-ignition-v0.16.1/qtum-0.16.1-x86_64-linux-gnu.tar.gz
+cache: npm
 
 install:
-  - tar -xvzf qtum-0.16.1-x86_64-linux-gnu.tar.gz
   - npm install
-  - mkdir -p test/data/.qtum
 
 script:
-  - ./qtum-0.16.1/bin/qtumd -testnet -logevents -rpcuser=bodhi -rpcpassword=bodhi -datadir=./test/data/.qtum & 
-  - sleep 10
-  - mocha --recursive src/**/*.tests.js --timeout 10000 --rpcpassword=bodhi --test --qtumpath=./qtum-0.16.1/bin
-  
-after_failure:
-  - cat test/data/.qtum/testnet3/debug.log
+  - npm run test
