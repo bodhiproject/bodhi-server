@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const pLimit = require('p-limit');
 const { isUndefined } = require('lodash');
 const moment = require('moment');
-const { getContractMetadata, isMainnet, getBaseDataDir } = require('../config');
+const { eventFactoryMeta, isMainnet, getBaseDataDir } = require('../config');
 const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
@@ -93,10 +93,10 @@ const getStartBlock = async () => {
     start = blocks[0].blockNum + 1;
   } else {
     // No blocks found in DB, use earliest version's deploy block
-    const contractMetadata = getContractMetadata(0);
+    const contractMeta = eventFactoryMeta(0);
     start = isMainnet()
-      ? contractMetadata.EventFactory.mainnetDeployBlock
-      : contractMetadata.EventFactory.testnetDeployBlock;
+      ? contractMeta.mainnetDeployBlock
+      : contractMeta.testnetDeployBlock;
   }
   return start;
 };
