@@ -184,6 +184,9 @@ const startSync = async () => {
     const execTimeMs = moment().valueOf() - execStartMs;
     logger.info(`Completed in ${execTimeMs} ms`);
 
+    // Set startBlock for next sync
+    startBlock = endBlock + 1;
+
     delayThenSync(SYNC_START_DELAY);
   } catch (err) {
     writeStartBlockFile();
