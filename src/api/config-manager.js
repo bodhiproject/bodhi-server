@@ -50,16 +50,6 @@ module.exports = {
     }
   },
 
-  async arbitrationRewardPercentage() {
-    try {
-      const res = await getContract().methods.arbitrationRewardPercentage().call();
-      return web3.utils.toBN(res).toNumber();
-    } catch (err) {
-      logger.error(`Error ConfigManager.arbitrationRewardPercentage(): ${err.message}`);
-      throw err;
-    }
-  },
-
   async startingOracleThreshold() {
     try {
       const res = await getContract().methods.startingOracleThreshold().call();
