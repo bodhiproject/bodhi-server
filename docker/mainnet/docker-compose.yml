@@ -9,8 +9,9 @@ services:
     build:
       context: ../../
       dockerfile: ./docker/mainnet/Dockerfile
+    network_mode: host
     ports:
-      - 8888:8888
+      - 8888
     environment:
       - NETWORK=mainnet
       - SSL=true

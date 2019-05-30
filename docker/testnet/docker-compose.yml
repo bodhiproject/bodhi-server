@@ -9,8 +9,9 @@ services:
     build:
       context: ../../
       dockerfile: ./docker/testnet/Dockerfile
+    network_mode: host
     ports:
-      - 9999:9999
+      - 9999
     environment:
       - NETWORK=testnet
       - SSL=true
