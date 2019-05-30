@@ -2,9 +2,9 @@ const fs = require('fs-extra');
 const path = require('path');
 const { map, sortBy, each, isUndefined, isEmpty, isNumber } = require('lodash');
 const { BLOCKCHAIN_ENV } = require('../constants');
-const contractMetadata = require('./contract-metadata');
 const ConfigManager = require('./contracts/config-manager');
 const EventFactory = require('./contracts/event-factory');
+const MultipleResultsEvent = require('./contracts/multiple-results-event');
 
 const CONFIG = {
   NETWORK: process.env.NETWORK,
@@ -152,6 +152,16 @@ const eventFactoryMeta = (version) => {
   return EventFactory[version];
 };
 
+/**
+ * Gets the MultipleResultsEvent smart contract metadata based on version.
+ * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
+ * @return {Object} Contract metadata.
+ */
+const multipleResultsEventMeta = (version) => {
+  if (!isNumber(version)) throw Error('Must supply a version number');
+  return MultipleResultsEvent[version];
+};
+
 const getSSLCredentials = () => {
   if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
     throw Error('SSL Key and Cert paths not found');
@@ -174,5 +184,6 @@ module.exports = {
   getContractVersionEndBlock,
   configManagerMeta,
   eventFactoryMeta,
+  multipleResultsEventMeta,
   getSSLCredentials,
 };
