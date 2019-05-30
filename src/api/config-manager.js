@@ -1,4 +1,4 @@
-const { isUndefined } = require('lodash');
+const { isUndefined, map } = require('lodash');
 const { CONFIG, configManagerMeta } = require('../config');
 const { BLOCKCHAIN_ENV } = require('../constants');
 const web3 = require('../web3');
@@ -43,7 +43,7 @@ module.exports = {
   async arbitrationLength() {
     try {
       const res = await getContract().methods.arbitrationLength().call();
-      return web3.utils.toBN(res).toNumber();
+      return map(res, len => web3.utils.toBN(len).toNumber());
     } catch (err) {
       logger.error(`Error ConfigManager.arbitrationLength(): ${err.message}`);
       throw err;
