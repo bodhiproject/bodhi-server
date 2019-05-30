@@ -3,6 +3,7 @@ const path = require('path');
 const { map, sortBy, each, isUndefined, isEmpty, isNumber } = require('lodash');
 const { BLOCKCHAIN_ENV } = require('../constants');
 const contractMetadata = require('./contract-metadata');
+const ConfigManager = require('./contracts/config-manager');
 
 const CONFIG = {
   NETWORK: process.env.NETWORK,
@@ -140,6 +141,11 @@ const getContractMetadata = (version) => {
   return contractMetadata[version];
 };
 
+const configManagerMeta = (version) => {
+  if (!isNumber(version)) throw Error('Must supply a version number');
+  return ConfigManager[version];
+};
+
 const getSSLCredentials = () => {
   if (!process.env.SSL_KEY_PATH || !process.env.SSL_CERT_PATH) {
     throw Error('SSL Key and Cert paths not found');
@@ -161,5 +167,6 @@ module.exports = {
   determineContractVersion,
   getContractVersionEndBlock,
   getContractMetadata,
+  configManagerMeta,
   getSSLCredentials,
 };

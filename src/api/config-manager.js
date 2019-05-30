@@ -1,11 +1,11 @@
 const { isUndefined } = require('lodash');
-const { getContractMetadata, CONFIG } = require('../config');
+const { CONFIG, configManagerMeta } = require('../config');
 const { BLOCKCHAIN_ENV } = require('../constants');
 const web3 = require('../web3');
 const logger = require('../utils/logger');
 
 const getContract = () => {
-  const metadata = getContractMetadata(0).ConfigManager;
+  const metadata = configManagerMeta(1);
   const address = CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET
     ? metadata.mainnet : metadata.testnet;
   return new web3.eth.Contract(metadata.abi, address);
