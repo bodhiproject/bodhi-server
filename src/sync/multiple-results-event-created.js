@@ -19,7 +19,6 @@ const adjustStartBlock = async ({ startBlock }) => {
     // Adjust startBlock if pending is earlier
     let fromBlock = startBlock;
     each(pending, (p) => {
-      logger.debug(fromBlock, p.blockNum);
       fromBlock = Math.min(fromBlock, p.blockNum);
     });
     return fromBlock;
@@ -34,14 +33,11 @@ const syncMultipleResultsEventCreated = async (
   try {
     // Fetch logs
     const fromBlock = await adjustStartBlock({ startBlock });
-    logger.debug(fromBlock);
-    logger.debug(endBlock);
     const logs = await web3.eth.getPastLogs({
       fromBlock,
       toBlock: endBlock,
       topics: [EventSig.MultipleResultsEventCreated],
     });
-    logger.debug(logs);
     logger.info(`Search MultipleResultsEventCreated logs ${fromBlock} - ${endBlock}`);
     if (logs.length > 0) {
       logger.info(`Found ${logs.length} MultipleResultsEventCreated`);
