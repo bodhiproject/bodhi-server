@@ -5,6 +5,7 @@ services:
     hostname: bodhi-server-testnet
     container_name: bodhi-server-testnet
     restart: unless-stopped
+    stop_signal: SIGINT
     build:
       context: ../../
       dockerfile: ./docker/testnet/Dockerfile
