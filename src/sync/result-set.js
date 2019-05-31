@@ -2,6 +2,7 @@ const { each, isNull, find } = require('lodash');
 const updateEvent = require('./update-event');
 const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
+const { toLowerCase } = require('../utils');
 const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
 const DBHelper = require('../db/db-helper');
@@ -68,7 +69,7 @@ const pendingResultSet = async ({ syncPromises, limit }) => {
             });
             const foundLog = find(
               logs,
-              log => log.transactionHash.toLowerCase() === txReceipt.transactionHash,
+              log => toLowerCase(log.transactionHash) === txReceipt.transactionHash,
             );
             if (foundLog) {
               const resultSet = parseResultSet({ log: foundLog });
