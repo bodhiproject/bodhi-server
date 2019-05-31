@@ -56,6 +56,11 @@ const buildWithdrawFilters = ({
   return filters;
 };
 
+const filterResultSets = (resultSets) => {
+  const res = resultSets.filter(resultSet => resultSet.eventRound === 0);
+  return res;
+};
+
 module.exports = async (
   root,
   { filter, limit = 500, skip = 0 },
@@ -77,8 +82,8 @@ module.exports = async (
   // Run ResultSets query
   cursor = ResultSets.cfind(buildResultSetFilters(txFilters));
   cursor = buildCursorOptions(cursor, orderBy, limit);
-  const resultSets = await cursor.exec();
-
+  let resultSets = await cursor.exec();
+  resultSets = filterResultSets(resultSets);
   // Run Withdraws query
   cursor = Withdraws.cfind(buildWithdrawFilters(txFilters));
   cursor = buildCursorOptions(cursor, orderBy, limit);
