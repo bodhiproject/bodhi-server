@@ -1,7 +1,6 @@
-const { each, isNull } = require('lodash');
+const { each, isNull, find } = require('lodash');
 const updateEvent = require('./update-event');
 const web3 = require('../web3');
-const { CONFIG } = require('../config');
 const { TX_STATUS } = require('../constants');
 const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
@@ -9,38 +8,14 @@ const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseResultSet = require('./parsers/result-set');
 
-const adjustStartBlock = async ({ startBlock }) => {
-  try {
-    // Find pending items
-    const pending = await DBHelper.findResultSet({
-      txStatus: TX_STATUS.PENDING,
-      eventRound: 0,
-    });
-    if (pending.length > 0) {
-      logger.info(`Found ${pending.length} pending ResultSet`);
-    }
-
-    // Adjust startBlock if pending is earlier
-    let fromBlock = startBlock;
-    each(pending, (p) => {
-      fromBlock = Math.min(fromBlock, p.blockNum);
-    });
-    return fromBlock;
-  } catch (err) {
-    throw Error(`Error syncResultSet adjustStartBlock: ${err.message}`);
-  }
-};
-
 const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
     // Fetch logs
-    const fromBlock = await adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
-      fromBlock,
+      fromBlock: startBlock,
       toBlock: endBlock,
       topics: [EventSig.ResultSet],
     });
-    logger.info(`Search ResultSet logs ${fromBlock} - ${endBlock}`);
     if (logs.length > 0) logger.info(`Found ${logs.length} ResultSet`);
 
     // Add to syncPromises array to be executed in parallel
@@ -67,35 +42,55 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
   }
 };
 
-const failedResultSets = async ({ startBlock, syncPromises, limit }) => {
+const pendingResultSets = async ({ syncPromises, limit }) => {
   try {
     const pending = await DBHelper.findResultSet({
       txStatus: TX_STATUS.PENDING,
-      blockNum: { $lt: startBlock - CONFIG.FAILED_TX_BLOCK_THRESHOLD },
       eventRound: 0,
     });
     if (pending.length === 0) return;
-    logger.info(`Checking ${pending.length} failed ResultSet`);
+    logger.info(`Checking ${pending.length} pending ResultSet`);
 
     each(pending, (p) => {
       syncPromises.push(limit(async () => {
         try {
           const txReceipt = await getTransactionReceipt(p.txid);
-          if (!isNull(txReceipt) && !txReceipt.status) {
+          if (isNull(txReceipt)) return;
+          await DBHelper.insertTransactionReceipt(txReceipt);
+
+          if (txReceipt.status) {
+            // Parse individual log with success status
+            const logs = await web3.eth.getPastLogs({
+              fromBlock: txReceipt.blockNum,
+              toBlock: txReceipt.blockNum,
+              topics: [EventSig.ResultSet],
+            });
+            const foundLog = find(
+              logs,
+              log => log.transactionHash.toLowerCase() === txReceipt.transactionHash,
+            );
+            if (foundLog) {
+              const resultSet = parseResultSet({ log: foundLog });
+              await DBHelper.insertResultSet(resultSet);
+
+              // Update event
+              await updateEvent(resultSet);
+            }
+          } else {
+            // Update result set with failed status
             await DBHelper.updateResultSet(p.txid, { txStatus: TX_STATUS.FAIL });
-            await DBHelper.insertTransactionReceipt(txReceipt);
           }
         } catch (insertErr) {
-          logger.error(`Error failedResultSets: ${insertErr.message}`);
+          logger.error(`Error pendingResultSets: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    logger.error(`Error failedResultSets findResultSet: ${err.message}`);
+    logger.error(`Error pendingResultSets findResultSet: ${err.message}`);
   }
 };
 
 module.exports = {
   syncResultSet,
-  failedResultSets,
+  pendingResultSets,
 };

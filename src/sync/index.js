@@ -9,7 +9,7 @@ const {
   failedMultipleResultsEventCreated,
 } = require('./multiple-results-event-created');
 const { syncBetPlaced, pendingBets } = require('./bet-placed');
-const { syncResultSet, failedResultSets } = require('./result-set');
+const { syncResultSet, pendingResultSets } = require('./result-set');
 const { syncVotePlaced, failedVotePlaced } = require('./vote-placed');
 const { syncVoteResultSet, failedVoteResultSets } = require('./vote-result-set');
 const {
@@ -152,6 +152,7 @@ const startSync = async () => {
 
     syncPromises = [];
     await pendingBets({ syncPromises, limit });
+    await pendingResultSets({ syncPromises, limit });
 
     // Update statuses
     const { blockTime } = await DBHelper.findOneBlock({ blockNum: endBlock });
@@ -172,7 +173,6 @@ const startSync = async () => {
     if (checkFailed) {
       syncPromises = [];
       await failedMultipleResultsEventCreated({ startBlock, syncPromises, limit });
-      await failedResultSets({ startBlock, syncPromises, limit });
       await failedVotePlaced({ startBlock, syncPromises, limit });
       await failedVoteResultSets({ startBlock, syncPromises, limit });
       await failedWinningsWithdrawn({ startBlock, syncPromises, limit });

@@ -52,6 +52,7 @@ const pendingBets = async ({ syncPromises, limit }) => {
         try {
           const txReceipt = await getTransactionReceipt(p.txid);
           if (isNull(txReceipt)) return;
+          await DBHelper.insertTransactionReceipt(txReceipt);
 
           if (txReceipt.status) {
             // Parse individual log with success status
@@ -72,7 +73,6 @@ const pendingBets = async ({ syncPromises, limit }) => {
             // Update bet with failed status
             await DBHelper.updateBet(p.txid, { txStatus: TX_STATUS.FAIL });
           }
-          await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
           logger.error(`Error pendingBets: ${insertErr.message}`);
         }
