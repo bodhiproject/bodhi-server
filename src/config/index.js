@@ -15,7 +15,6 @@ const CONFIG = {
   API_PORT_MAINNET: 8888,
   API_PORT_TESTNET: 9999,
   DEFAULT_LOG_LEVEL: 'debug',
-  FAILED_TX_BLOCK_THRESHOLD: 10,
 };
 
 let versionConfig;
