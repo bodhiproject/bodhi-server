@@ -3,10 +3,8 @@ const { lowercaseFilters, buildCursorOptions } = require('./utils');
 
 const buildFilters = ({
   OR,
-  txid,
-  address,
-  ownerAddress,
-  resultIndex,
+  txStatus,
+  version,
   status,
   language,
 } = {}) => {
@@ -22,20 +20,18 @@ const buildFilters = ({
 
   // Handle other fields
   const filter = {};
-  if (txid) filter.txid = txid;
-  if (address) filter.address = address;
-  if (ownerAddress) filter.ownerAddress = ownerAddress;
+  if (txStatus) filter.txStatus = txStatus;
+  if (version) filter.version = version;
   if (status) filter.status = status;
-  if (resultIndex) filter.resultIndex = resultIndex;
   if (language) filter.language = language;
   if (Object.keys(filter).length > 0) filters.push(filter);
   return filters;
 };
 
 const buildSearchPhrase = (searchPhrase) => {
-  const filterFields = ['_id', 'name', 'address', 'centralizedOracle'];
-  if (!searchPhrase) return [];
+  if (!searchPhrase) throw Error('Must include searchPhrase');
 
+  const filterFields = ['_id', 'name', 'address', 'centralizedOracle'];
   const filters = [];
   const searchRegex = new RegExp(`.*${searchPhrase}.*`, 'i');
   for (let i = 0; i < filterFields.length; i++) {
