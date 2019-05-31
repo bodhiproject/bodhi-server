@@ -43,6 +43,7 @@ const buildResultSetFilters = ({
   const filters = {};
   if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.centralizedOracleAddress = transactorAddress;
+  filters.eventRound = 0;
   return filters;
 };
 
@@ -54,11 +55,6 @@ const buildWithdrawFilters = ({
   if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.winnerAddress = transactorAddress;
   return filters;
-};
-
-const filterResultSets = (resultSets) => {
-  const res = resultSets.filter(resultSet => resultSet.eventRound === 0);
-  return res;
 };
 
 module.exports = async (
@@ -82,8 +78,8 @@ module.exports = async (
   // Run ResultSets query
   cursor = ResultSets.cfind(buildResultSetFilters(txFilters));
   cursor = buildCursorOptions(cursor, orderBy, limit);
-  let resultSets = await cursor.exec();
-  resultSets = filterResultSets(resultSets);
+  const resultSets = await cursor.exec();
+
   // Run Withdraws query
   cursor = Withdraws.cfind(buildWithdrawFilters(txFilters));
   cursor = buildCursorOptions(cursor, orderBy, limit);
