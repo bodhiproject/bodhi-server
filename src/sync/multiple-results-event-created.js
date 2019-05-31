@@ -19,7 +19,7 @@ const adjustStartBlock = async ({ startBlock }) => {
     // Adjust startBlock if pending is earlier
     let fromBlock = startBlock;
     each(pending, (p) => {
-      fromBlock = Math.min(fromBlock, p.blockNum);
+      fromBlock = Math.min(fromBlock, p.blockNum || startBlock);
     });
     return fromBlock;
   } catch (err) {
@@ -34,7 +34,7 @@ const syncMultipleResultsEventCreated = async (
     // Fetch logs
     const fromBlock = await adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
-      fromBlock,
+      fromBlock: web3.utils.numberToHex(fromBlock),
       toBlock: endBlock,
       topics: [EventSig.MultipleResultsEventCreated],
     });
@@ -50,7 +50,6 @@ const syncMultipleResultsEventCreated = async (
           // Parse and insert event
           const event = await parseEvent({ log });
           await DBHelper.insertEvent(event);
-
           // Fetch and insert tx receipt
           const txReceipt = await getTransactionReceipt(event.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
