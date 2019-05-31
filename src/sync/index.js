@@ -6,7 +6,7 @@ const { eventFactoryMeta, isMainnet, getBaseDataDir } = require('../config');
 const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
-  failedMultipleResultsEventCreated,
+  pendingMultipleResultsEventCreated,
 } = require('./multiple-results-event-created');
 const { syncBetPlaced, pendingBetPlaced } = require('./bet-placed');
 const { syncResultSet, pendingResultSet } = require('./result-set');
@@ -24,7 +24,6 @@ const { publishSyncInfo } = require('../graphql/subscriptions');
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
 const PROMISE_CONCURRENCY_LIMIT = 30;
-const FAILED_CHECK_INTERVAL = 1200;
 const START_BLOCK_FILENAME = 'start_block.dat';
 
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
@@ -139,6 +138,9 @@ const startSync = async () => {
       limit,
     });
     await Promise.all(syncPromises);
+    syncPromises = [];
+    await pendingMultipleResultsEventCreated({ syncPromises, limit });
+    await Promise.all(syncPromises);
 
     // Add sync promises
     syncPromises = [];
@@ -165,20 +167,6 @@ const startSync = async () => {
     await DBHelper.updateEventStatusOpenResultSetting(blockTime);
     await DBHelper.updateEventStatusArbitration(blockTime);
     await DBHelper.updateEventStatusWithdrawing(blockTime);
-
-    // Check for failed txs every x blocks
-    let checkFailed = false;
-    for (let i = startBlock; i <= endBlock; i++) {
-      if (i % FAILED_CHECK_INTERVAL === 0) {
-        checkFailed = true;
-        break;
-      }
-    }
-    if (checkFailed) {
-      syncPromises = [];
-      await failedMultipleResultsEventCreated({ startBlock, syncPromises, limit });
-      
-    }
 
     // Send syncInfo subscription message
     await publishSyncInfo(endBlock, blockTime);
