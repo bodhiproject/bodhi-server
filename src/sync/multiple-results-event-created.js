@@ -21,7 +21,7 @@ const adjustStartBlock = async ({ startBlock }) => {
     each(pending, (p) => {
       fromBlock = Math.min(fromBlock, p.blockNum || startBlock);
     });
-    return web3.utils.numberToHex(fromBlock);
+    return fromBlock;
   } catch (err) {
     throw Error(`Error syncMultipleResultsEventCreated adjustStartBlock: ${err.message}`);
   }
