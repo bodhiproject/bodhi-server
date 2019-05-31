@@ -16,9 +16,10 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
       toBlock: endBlock,
       topics: [EventSig.ResultSet],
     });
-    if (logs.length > 0) logger.info(`Found ${logs.length} ResultSet`);
+    if (logs.length === 0) return;
 
     // Add to syncPromises array to be executed in parallel
+    logger.info(`Found ${logs.length} ResultSet`);
     each(logs, (log) => {
       syncPromises.push(limit(async () => {
         try {

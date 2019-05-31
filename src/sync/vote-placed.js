@@ -15,9 +15,10 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
       toBlock: endBlock,
       topics: [EventSig.VotePlaced],
     });
-    if (logs.length > 0) logger.info(`Found ${logs.length} VotePlaced`);
+    if (logs.length === 0) return;
 
     // Add to syncPromises array to be executed in parallel
+    logger.info(`Found ${logs.length} VotePlaced`);
     each(logs, (log) => {
       syncPromises.push(limit(async () => {
         try {

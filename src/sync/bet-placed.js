@@ -15,9 +15,10 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
       toBlock: endBlock,
       topics: [EventSig.BetPlaced],
     });
-    if (logs.length > 0) logger.info(`Found ${logs.length} BetPlaced`);
+    if (logs.length === 0) return;
 
     // Add to syncPromises array to be executed in parallel
+    logger.info(`Found ${logs.length} BetPlaced`);
     each(logs, (log) => {
       syncPromises.push(limit(async () => {
         try {

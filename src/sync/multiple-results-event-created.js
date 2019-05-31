@@ -17,11 +17,10 @@ const syncMultipleResultsEventCreated = async (
       toBlock: endBlock,
       topics: [EventSig.MultipleResultsEventCreated],
     });
-    if (logs.length > 0) {
-      logger.info(`Found ${logs.length} MultipleResultsEventCreated`);
-    }
+    if (logs.length === 0) return;
 
     // Add to syncPromises array to be executed in parallel
+    logger.info(`Found ${logs.length} MultipleResultsEventCreated`);
     each(logs, (log) => {
       syncPromises.push(limit(async () => {
         try {
