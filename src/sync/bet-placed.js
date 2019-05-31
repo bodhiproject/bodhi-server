@@ -71,7 +71,10 @@ const pendingBetPlaced = async ({ syncPromises, limit }) => {
             }
           } else {
             // Update bet with failed status
-            await DBHelper.updateBet(p.txid, { txStatus: TX_STATUS.FAIL });
+            await DBHelper.updateBet(
+              txReceipt.transactionHash,
+              { txStatus: TX_STATUS.FAIL },
+            );
           }
         } catch (insertErr) {
           logger.error(`Error pendingBetPlaced: ${insertErr.message}`);

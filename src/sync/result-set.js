@@ -78,7 +78,10 @@ const pendingResultSet = async ({ syncPromises, limit }) => {
             }
           } else {
             // Update result set with failed status
-            await DBHelper.updateResultSet(p.txid, { txStatus: TX_STATUS.FAIL });
+            await DBHelper.updateResultSet(
+              txReceipt.transactionHash,
+              { txStatus: TX_STATUS.FAIL },
+            );
           }
         } catch (insertErr) {
           logger.error(`Error pendingResultSet: ${insertErr.message}`);
