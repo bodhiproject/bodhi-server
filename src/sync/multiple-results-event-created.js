@@ -21,7 +21,7 @@ const adjustStartBlock = async ({ startBlock }) => {
     each(pending, (p) => {
       fromBlock = Math.min(fromBlock, p.blockNum || startBlock);
     });
-    return fromBlock;
+    return web3.utils.numberToHex(fromBlock);
   } catch (err) {
     throw Error(`Error syncMultipleResultsEventCreated adjustStartBlock: ${err.message}`);
   }
@@ -34,7 +34,7 @@ const syncMultipleResultsEventCreated = async (
     // Fetch logs
     const fromBlock = await adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
-      fromBlock: web3.utils.numberToHex(fromBlock),
+      fromBlock,
       toBlock: endBlock,
       topics: [EventSig.MultipleResultsEventCreated],
     });
