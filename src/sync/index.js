@@ -8,8 +8,8 @@ const {
   syncMultipleResultsEventCreated,
   failedMultipleResultsEventCreated,
 } = require('./multiple-results-event-created');
-const { syncBetPlaced, pendingBets } = require('./bet-placed');
-const { syncResultSet, pendingResultSets } = require('./result-set');
+const { syncBetPlaced, pendingBetPlaced } = require('./bet-placed');
+const { syncResultSet, pendingResultSet } = require('./result-set');
 const { syncVotePlaced, pendingVotePlaced } = require('./vote-placed');
 const { syncVoteResultSet, failedVoteResultSets } = require('./vote-result-set');
 const {
@@ -151,8 +151,8 @@ const startSync = async () => {
     await Promise.all(syncPromises);
 
     syncPromises = [];
-    await pendingBets({ syncPromises, limit });
-    await pendingResultSets({ syncPromises, limit });
+    await pendingBetPlaced({ syncPromises, limit });
+    await pendingResultSet({ syncPromises, limit });
     await pendingVotePlaced({ syncPromises, limit });
 
     // Update statuses

@@ -38,14 +38,14 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
   }
 };
 
-const pendingBets = async ({ syncPromises, limit }) => {
+const pendingBetPlaced = async ({ syncPromises, limit }) => {
   try {
     const pending = await DBHelper.findBet({
       txStatus: TX_STATUS.PENDING,
       eventRound: 0,
     });
     if (pending.length === 0) return;
-    logger.info(`Checking ${pending.length} pending Bet`);
+    logger.info(`Checking ${pending.length} pending BetPlaced`);
 
     each(pending, (p) => {
       syncPromises.push(limit(async () => {
@@ -74,16 +74,16 @@ const pendingBets = async ({ syncPromises, limit }) => {
             await DBHelper.updateBet(p.txid, { txStatus: TX_STATUS.FAIL });
           }
         } catch (insertErr) {
-          logger.error(`Error pendingBets: ${insertErr.message}`);
+          logger.error(`Error pendingBetPlaced: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    logger.error(`Error pendingBets findBet: ${err.message}`);
+    logger.error(`Error pendingBetPlaced findBet: ${err.message}`);
   }
 };
 
 module.exports = {
   syncBetPlaced,
-  pendingBets,
+  pendingBetPlaced,
 };

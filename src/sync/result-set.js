@@ -42,7 +42,7 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
   }
 };
 
-const pendingResultSets = async ({ syncPromises, limit }) => {
+const pendingResultSet = async ({ syncPromises, limit }) => {
   try {
     const pending = await DBHelper.findResultSet({
       txStatus: TX_STATUS.PENDING,
@@ -81,16 +81,16 @@ const pendingResultSets = async ({ syncPromises, limit }) => {
             await DBHelper.updateResultSet(p.txid, { txStatus: TX_STATUS.FAIL });
           }
         } catch (insertErr) {
-          logger.error(`Error pendingResultSets: ${insertErr.message}`);
+          logger.error(`Error pendingResultSet: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    logger.error(`Error pendingResultSets findResultSet: ${err.message}`);
+    logger.error(`Error pendingResultSet findResultSet: ${err.message}`);
   }
 };
 
 module.exports = {
   syncResultSet,
-  pendingResultSets,
+  pendingResultSet,
 };
