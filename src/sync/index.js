@@ -14,7 +14,7 @@ const { syncVotePlaced, pendingVotePlaced } = require('./vote-placed');
 const { syncVoteResultSet, pendingVoteResultSet } = require('./vote-result-set');
 const {
   syncWinningsWithdrawn,
-  failedWinningsWithdrawn,
+  pendingWinningsWithdrawn,
 } = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
 const DBHelper = require('../db/db-helper');
@@ -155,6 +155,8 @@ const startSync = async () => {
     await pendingResultSet({ syncPromises, limit });
     await pendingVotePlaced({ syncPromises, limit });
     await pendingVoteResultSet({ syncPromises, limit });
+    await pendingWinningsWithdrawn({ syncPromises, limit });
+    await Promise.all(syncPromises);
 
     // Update statuses
     const { blockTime } = await DBHelper.findOneBlock({ blockNum: endBlock });
@@ -175,8 +177,7 @@ const startSync = async () => {
     if (checkFailed) {
       syncPromises = [];
       await failedMultipleResultsEventCreated({ startBlock, syncPromises, limit });
-      await failedWinningsWithdrawn({ startBlock, syncPromises, limit });
-      await Promise.all(syncPromises);
+      
     }
 
     // Send syncInfo subscription message

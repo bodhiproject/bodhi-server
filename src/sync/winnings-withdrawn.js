@@ -1,6 +1,5 @@
-const { each, isNull } = require('lodash');
+const { each, isNull, find } = require('lodash');
 const web3 = require('../web3');
-const { CONFIG } = require('../config');
 const { TX_STATUS } = require('../constants');
 const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
@@ -8,37 +7,16 @@ const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseWithdraw = require('./parsers/withdraw');
 
-const adjustStartBlock = async ({ startBlock }) => {
-  try {
-    // Find pending items
-    const pending = await DBHelper.findWithdraw({ txStatus: TX_STATUS.PENDING });
-    if (pending.length > 0) {
-      logger.info(`Found ${pending.length} pending WinningsWithdrawn`);
-    }
-
-    // Adjust startBlock if pending is earlier
-    let fromBlock = startBlock;
-    each(pending, (p) => {
-      fromBlock = Math.min(fromBlock, p.blockNum);
-    });
-    return fromBlock;
-  } catch (err) {
-    throw Error(`Error syncWinningsWithdrawn adjustStartBlock: ${err.message}`);
-  }
-};
-
 const syncWinningsWithdrawn = async (
   { startBlock, endBlock, syncPromises, limit },
 ) => {
   try {
     // Fetch logs
-    const fromBlock = await adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
-      fromBlock,
+      fromBlock: startBlock,
       toBlock: endBlock,
       topics: [EventSig.WinningsWithdrawn],
     });
-    logger.info(`Search WinningsWithdrawn logs ${fromBlock} - ${endBlock}`);
     if (logs.length > 0) logger.info(`Found ${logs.length} WinningsWithdrawn`);
 
     // Add to syncPromises array to be executed in parallel
@@ -62,34 +40,52 @@ const syncWinningsWithdrawn = async (
   }
 };
 
-const failedWinningsWithdrawn = async ({ startBlock, syncPromises, limit }) => {
+const pendingWinningsWithdrawn = async ({ syncPromises, limit }) => {
   try {
-    const pending = await DBHelper.findWithdraw({
-      txStatus: TX_STATUS.PENDING,
-      blockNum: { $lt: startBlock - CONFIG.FAILED_TX_BLOCK_THRESHOLD },
-    });
+    const pending = await DBHelper.findWithdraw({ txStatus: TX_STATUS.PENDING });
     if (pending.length === 0) return;
-    logger.info(`Checking ${pending.length} failed WinningsWithdrawn`);
+    logger.info(`Checking ${pending.length} pending WinningsWithdrawn`);
 
     each(pending, (p) => {
       syncPromises.push(limit(async () => {
         try {
           const txReceipt = await getTransactionReceipt(p.txid);
-          if (!isNull(txReceipt) && !txReceipt.status) {
-            await DBHelper.updateWithdraw(p.txid, { txStatus: TX_STATUS.FAIL });
-            await DBHelper.insertTransactionReceipt(txReceipt);
+          if (isNull(txReceipt)) return;
+          await DBHelper.insertTransactionReceipt(txReceipt);
+
+          if (txReceipt.status) {
+            // Parse individual log with success status
+            const logs = await web3.eth.getPastLogs({
+              fromBlock: txReceipt.blockNum,
+              toBlock: txReceipt.blockNum,
+              topics: [EventSig.WinningsWithdrawn],
+            });
+            const foundLog = find(
+              logs,
+              log => log.transactionHash.toLowerCase() === txReceipt.transactionHash,
+            );
+            if (foundLog) {
+              const withdraw = parseWithdraw({ log: foundLog });
+              await DBHelper.insertWithdraw(withdraw);
+            }
+          } else {
+            // Update withdraw with failed status
+            await DBHelper.updateWithdraw(
+              txReceipt.transactionHash,
+              { txStatus: TX_STATUS.FAIL },
+            );
           }
         } catch (insertErr) {
-          logger.error(`Error failedWinningsWithdrawn: ${insertErr.message}`);
+          logger.error(`Error pendingWinningsWithdrawn: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    logger.error(`Error failedWinningsWithdrawn findWithdraw: ${err.message}`);
+    logger.error(`Error pendingWinningsWithdrawn findWithdraw: ${err.message}`);
   }
 };
 
 module.exports = {
   syncWinningsWithdrawn,
-  failedWinningsWithdrawn,
+  pendingWinningsWithdrawn,
 };
