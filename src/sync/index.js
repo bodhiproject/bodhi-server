@@ -142,7 +142,7 @@ const startSync = async () => {
     await pendingMultipleResultsEventCreated({ syncPromises, limit });
     await Promise.all(syncPromises);
 
-    // Add sync promises
+    // Handle event actions and blocks
     syncPromises = [];
     await syncBetPlaced({ startBlock, endBlock, syncPromises, limit });
     await syncResultSet({ startBlock, endBlock, syncPromises, limit });
@@ -152,6 +152,7 @@ const startSync = async () => {
     syncBlocks({ startBlock, endBlock, syncPromises, limit });
     await Promise.all(syncPromises);
 
+    // Handle pending event actions
     syncPromises = [];
     await pendingBetPlaced({ syncPromises, limit });
     await pendingResultSet({ syncPromises, limit });
