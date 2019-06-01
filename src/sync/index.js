@@ -2,19 +2,19 @@ const fs = require('fs-extra');
 const pLimit = require('p-limit');
 const { isUndefined } = require('lodash');
 const moment = require('moment');
-const { getContractMetadata, isMainnet, getBaseDataDir } = require('../config');
+const { eventFactoryMeta, isMainnet, getBaseDataDir } = require('../config');
 const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
-  failedMultipleResultsEventCreated,
+  pendingMultipleResultsEventCreated,
 } = require('./multiple-results-event-created');
-const { syncBetPlaced, failedBets } = require('./bet-placed');
-const { syncResultSet, failedResultSets } = require('./result-set');
-const { syncVotePlaced, failedVotePlaced } = require('./vote-placed');
-const { syncVoteResultSet, failedVoteResultSets } = require('./vote-result-set');
+const { syncBetPlaced, pendingBetPlaced } = require('./bet-placed');
+const { syncResultSet, pendingResultSet } = require('./result-set');
+const { syncVotePlaced, pendingVotePlaced } = require('./vote-placed');
+const { syncVoteResultSet, pendingVoteResultSet } = require('./vote-result-set');
 const {
   syncWinningsWithdrawn,
-  failedWinningsWithdrawn,
+  pendingWinningsWithdrawn,
 } = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
 const DBHelper = require('../db/db-helper');
@@ -24,7 +24,6 @@ const { publishSyncInfo } = require('../graphql/subscriptions');
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
 const PROMISE_CONCURRENCY_LIMIT = 30;
-const FAILED_CHECK_INTERVAL = 1200;
 const START_BLOCK_FILENAME = 'start_block.dat';
 
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
@@ -93,10 +92,10 @@ const getStartBlock = async () => {
     start = blocks[0].blockNum + 1;
   } else {
     // No blocks found in DB, use earliest version's deploy block
-    const contractMetadata = getContractMetadata(0);
+    const contractMeta = eventFactoryMeta(3);
     start = isMainnet()
-      ? contractMetadata.EventFactory.mainnetDeployBlock
-      : contractMetadata.EventFactory.testnetDeployBlock;
+      ? contractMeta.mainnetDeployBlock
+      : contractMeta.testnetDeployBlock;
   }
   return start;
 };
@@ -124,7 +123,7 @@ const startSync = async () => {
 
     // Determine start and end blocks
     const latestBlock = await web3.eth.getBlockNumber();
-    startBlock = await getStartBlock();
+    startBlock = startBlock || await getStartBlock();
     const endBlock = Math.min(startBlock + BLOCK_BATCH_COUNT, latestBlock);
 
     logger.info(`Syncing blocks ${startBlock} - ${endBlock}`);
@@ -139,8 +138,11 @@ const startSync = async () => {
       limit,
     });
     await Promise.all(syncPromises);
+    syncPromises = [];
+    await pendingMultipleResultsEventCreated({ syncPromises, limit });
+    await Promise.all(syncPromises);
 
-    // Add sync promises
+    // Handle event actions and blocks
     syncPromises = [];
     await syncBetPlaced({ startBlock, endBlock, syncPromises, limit });
     await syncResultSet({ startBlock, endBlock, syncPromises, limit });
@@ -148,6 +150,15 @@ const startSync = async () => {
     await syncVoteResultSet({ startBlock, endBlock, syncPromises, limit });
     await syncWinningsWithdrawn({ startBlock, endBlock, syncPromises, limit });
     syncBlocks({ startBlock, endBlock, syncPromises, limit });
+    await Promise.all(syncPromises);
+
+    // Handle pending event actions
+    syncPromises = [];
+    await pendingBetPlaced({ syncPromises, limit });
+    await pendingResultSet({ syncPromises, limit });
+    await pendingVotePlaced({ syncPromises, limit });
+    await pendingVoteResultSet({ syncPromises, limit });
+    await pendingWinningsWithdrawn({ syncPromises, limit });
     await Promise.all(syncPromises);
 
     // Update statuses
@@ -158,31 +169,15 @@ const startSync = async () => {
     await DBHelper.updateEventStatusArbitration(blockTime);
     await DBHelper.updateEventStatusWithdrawing(blockTime);
 
-    // Check for failed txs every x blocks
-    let checkFailed = false;
-    for (let i = startBlock; i <= endBlock; i++) {
-      if (i % FAILED_CHECK_INTERVAL === 0) {
-        checkFailed = true;
-        break;
-      }
-    }
-    if (checkFailed) {
-      syncPromises = [];
-      await failedMultipleResultsEventCreated({ startBlock, syncPromises, limit });
-      await failedBets({ startBlock, syncPromises, limit });
-      await failedResultSets({ startBlock, syncPromises, limit });
-      await failedVotePlaced({ startBlock, syncPromises, limit });
-      await failedVoteResultSets({ startBlock, syncPromises, limit });
-      await failedWinningsWithdrawn({ startBlock, syncPromises, limit });
-      await Promise.all(syncPromises);
-    }
-
     // Send syncInfo subscription message
     await publishSyncInfo(endBlock, blockTime);
 
     // Display exec time
     const execTimeMs = moment().valueOf() - execStartMs;
     logger.info(`Completed in ${execTimeMs} ms`);
+
+    // Set startBlock for next sync
+    startBlock = endBlock + 1;
 
     delayThenSync(SYNC_START_DELAY);
   } catch (err) {

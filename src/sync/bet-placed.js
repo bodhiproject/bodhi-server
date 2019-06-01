@@ -1,48 +1,25 @@
-const { each, isNull } = require('lodash');
+const { each, isNull, find } = require('lodash');
 const web3 = require('../web3');
-const { CONFIG } = require('../config');
 const { TX_STATUS } = require('../constants');
+const { toLowerCase } = require('../utils');
 const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
 const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseBet = require('./parsers/bet');
 
-const adjustStartBlock = async ({ startBlock }) => {
-  try {
-    // Find pending items
-    const pending = await DBHelper.findBet({
-      txStatus: TX_STATUS.PENDING,
-      eventRound: 0,
-    });
-    if (pending.length > 0) {
-      logger.info(`Found ${pending.length} pending BetPlaced`);
-    }
-
-    // Adjust startBlock if pending is earlier
-    let fromBlock = startBlock;
-    each(pending, (p) => {
-      fromBlock = Math.min(fromBlock, p.blockNum);
-    });
-    return fromBlock;
-  } catch (err) {
-    throw Error(`Error syncBetPlaced adjustStartBlock: ${err.message}`);
-  }
-};
-
 const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
     // Fetch logs
-    const fromBlock = await adjustStartBlock({ startBlock });
     const logs = await web3.eth.getPastLogs({
-      fromBlock,
+      fromBlock: startBlock,
       toBlock: endBlock,
       topics: [EventSig.BetPlaced],
     });
-    logger.info(`Search BetPlaced logs ${fromBlock} - ${endBlock}`);
-    if (logs.length > 0) logger.info(`Found ${logs.length} BetPlaced`);
+    if (logs.length === 0) return;
 
     // Add to syncPromises array to be executed in parallel
+    logger.info(`Found ${logs.length} BetPlaced`);
     each(logs, (log) => {
       syncPromises.push(limit(async () => {
         try {
@@ -63,35 +40,55 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
   }
 };
 
-const failedBets = async ({ startBlock, syncPromises, limit }) => {
+const pendingBetPlaced = async ({ syncPromises, limit }) => {
   try {
     const pending = await DBHelper.findBet({
       txStatus: TX_STATUS.PENDING,
-      blockNum: { $lt: startBlock - CONFIG.FAILED_TX_BLOCK_THRESHOLD },
       eventRound: 0,
     });
     if (pending.length === 0) return;
-    logger.info(`Checking ${pending.length} failed BetPlaced`);
+    logger.info(`Checking ${pending.length} pending BetPlaced`);
 
     each(pending, (p) => {
       syncPromises.push(limit(async () => {
         try {
           const txReceipt = await getTransactionReceipt(p.txid);
-          if (!isNull(txReceipt) && !txReceipt.status) {
-            await DBHelper.updateBet(p.txid, { txStatus: TX_STATUS.FAIL });
-            await DBHelper.insertTransactionReceipt(txReceipt);
+          if (isNull(txReceipt)) return;
+          await DBHelper.insertTransactionReceipt(txReceipt);
+
+          if (txReceipt.status) {
+            // Parse individual log with success status
+            const logs = await web3.eth.getPastLogs({
+              fromBlock: txReceipt.blockNum,
+              toBlock: txReceipt.blockNum,
+              topics: [EventSig.BetPlaced],
+            });
+            const foundLog = find(
+              logs,
+              log => toLowerCase(log.transactionHash) === txReceipt.transactionHash,
+            );
+            if (foundLog) {
+              const bet = parseBet({ log: foundLog });
+              await DBHelper.insertBet(bet);
+            }
+          } else {
+            // Update bet with failed status
+            await DBHelper.updateBet(
+              txReceipt.transactionHash,
+              { txStatus: TX_STATUS.FAIL },
+            );
           }
         } catch (insertErr) {
-          logger.error(`Error failedBets: ${insertErr.message}`);
+          logger.error(`Error pendingBetPlaced: ${insertErr.message}`);
         }
       }));
     });
   } catch (err) {
-    logger.error(`Error failedBets findBet: ${err.message}`);
+    logger.error(`Error pendingBetPlaced findBet: ${err.message}`);
   }
 };
 
 module.exports = {
   syncBetPlaced,
-  failedBets,
+  pendingBetPlaced,
 };

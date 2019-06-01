@@ -231,6 +231,14 @@ input EventFilter {
   excludeCentralizedOracle: String
 }
 
+input SearchEventsFilter {
+  OR: [SearchEventsFilter!]
+  txStatus: TransactionStatus
+  version: Int
+  status: EventStatus
+  language: String
+}
+
 input WithdrawableEventFilter {
   version: Int
   language: String
@@ -286,7 +294,7 @@ type Query {
   ): PaginatedEvents!
 
   searchEvents(
-    filter: EventFilter
+    filter: SearchEventsFilter
     orderBy: [Order!]
     limit: Int
     skip: Int

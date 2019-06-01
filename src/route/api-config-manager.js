@@ -40,17 +40,8 @@ router.get('/arbitration-length', (req, res, next) => {
     });
 });
 
-router.get('/arbitration-reward-percentage', (req, res, next) => {
-  ConfigManagerApi.arbitrationRewardPercentage()
-    .then((result) => {
-      onRequestSuccess(res, result, next);
-    }, (err) => {
-      onRequestError(res, err, next);
-    });
-});
-
-router.get('/starting-oracle-threshold', (req, res, next) => {
-  ConfigManagerApi.startingOracleThreshold()
+router.get('/starting-consensus-threshold', (req, res, next) => {
+  ConfigManagerApi.startingConsensusThreshold()
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {

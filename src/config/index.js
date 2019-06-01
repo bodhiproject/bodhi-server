@@ -2,7 +2,9 @@ const fs = require('fs-extra');
 const path = require('path');
 const { map, sortBy, each, isUndefined, isEmpty, isNumber } = require('lodash');
 const { BLOCKCHAIN_ENV } = require('../constants');
-const contractMetadata = require('./contract-metadata');
+const ConfigManager = require('./contracts/config-manager');
+const EventFactory = require('./contracts/event-factory');
+const MultipleResultsEvent = require('./contracts/multiple-results-event');
 
 const CONFIG = {
   NETWORK: process.env.NETWORK,
@@ -13,7 +15,6 @@ const CONFIG = {
   API_PORT_MAINNET: 8888,
   API_PORT_TESTNET: 9999,
   DEFAULT_LOG_LEVEL: 'debug',
-  FAILED_TX_BLOCK_THRESHOLD: 10,
 };
 
 let versionConfig;
@@ -23,7 +24,7 @@ let versionConfig;
  */
 const initConfig = () => {
   // Get all version numbers and sort
-  let keys = Object.keys(contractMetadata);
+  let keys = Object.keys(EventFactory);
   keys = sortBy(map(keys, key => Number(key)));
 
   // Create new array
@@ -33,9 +34,9 @@ const initConfig = () => {
 
   // Calculate start and end blocks for each version
   each(keys, (key, index) => {
-    const startBlock = contractMetadata[`${key}`].EventFactory[blockKey];
+    const startBlock = EventFactory[`${key}`][blockKey];
     const endBlock = index + 1 < keys.length
-      ? contractMetadata[`${key + 1}`].EventFactory[blockKey] - 1
+      ? EventFactory[`${key + 1}`][blockKey] - 1
       : -1;
     versionConfig[index] = {
       version: index,
@@ -131,13 +132,33 @@ const determineContractVersion = (blockNum) => {
 const getContractVersionEndBlock = version => versionConfig[version].endBlock;
 
 /**
- * Gets the smart contract metadata based on version.
+ * Gets the ConfigManager smart contract metadata based on version.
  * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
  * @return {Object} Contract metadata.
  */
-const getContractMetadata = (version) => {
+const configManagerMeta = (version) => {
   if (!isNumber(version)) throw Error('Must supply a version number');
-  return contractMetadata[version];
+  return ConfigManager[version];
+};
+
+/**
+ * Gets the EventFactory smart contract metadata based on version.
+ * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
+ * @return {Object} Contract metadata.
+ */
+const eventFactoryMeta = (version) => {
+  if (!isNumber(version)) throw Error('Must supply a version number');
+  return EventFactory[version];
+};
+
+/**
+ * Gets the MultipleResultsEvent smart contract metadata based on version.
+ * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
+ * @return {Object} Contract metadata.
+ */
+const multipleResultsEventMeta = (version) => {
+  if (!isNumber(version)) throw Error('Must supply a version number');
+  return MultipleResultsEvent[version];
 };
 
 const getSSLCredentials = () => {
@@ -160,6 +181,8 @@ module.exports = {
   isMainnet,
   determineContractVersion,
   getContractVersionEndBlock,
-  getContractMetadata,
+  configManagerMeta,
+  eventFactoryMeta,
+  multipleResultsEventMeta,
   getSSLCredentials,
 };
