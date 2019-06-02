@@ -1,5 +1,5 @@
 const { isNull, isUndefined, map } = require('lodash');
-const { eventFactoryMeta } = require('../config');
+const { multipleResultsEventMeta } = require('../config');
 const web3 = require('../web3');
 const logger = require('../utils/logger');
 const DBHelper = require('../db/db-helper');
@@ -8,7 +8,7 @@ const getContract = async (eventAddress) => {
   const event = await DBHelper.findOneEvent({ address: eventAddress });
   if (isNull(event)) throw Error('Event not found');
 
-  const metadata = eventFactoryMeta(event.version);
+  const metadata = multipleResultsEventMeta(event.version);
   return new web3.eth.Contract(metadata.abi, eventAddress);
 };
 
