@@ -92,7 +92,7 @@ const getStartBlock = async () => {
     start = blocks[0].blockNum + 1;
   } else {
     // No blocks found in DB, use earliest version's deploy block
-    const contractMeta = eventFactoryMeta(3);
+    const contractMeta = eventFactoryMeta(4);
     start = isMainnet()
       ? contractMeta.mainnetDeployBlock
       : contractMeta.testnetDeployBlock;
