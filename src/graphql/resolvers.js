@@ -60,8 +60,8 @@ module.exports = {
     roundBets: async (
       { address, currentRound, numOfResults },
       args,
-      { includeRoundBets },
-    ) => {
+      { includeRoundBets, userAddress },
+      ) => {
       if (includeRoundBets) {
         // Fetch all bets for this round
         const bets = await DBHelper.findBet({
@@ -70,9 +70,17 @@ module.exports = {
           eventRound: currentRound,
         });
 
+
         // Sum all bets by index
         const rounds = fill(Array(numOfResults), '0');
+        const userRound = fill(Array(numOfResults), '0');
         each(bets, (bet) => {
+          console.log(bet.betterAddress)
+          console.log('TCL: userAddress', userAddress);
+          if (userAddress && userAddress.toLowerCase() === bet.betterAddress) {
+            userRound[bet.resultIndex] = sumBN(userRound[bet.resultIndex], bet.amount)
+            .toString(10);
+          }
           rounds[bet.resultIndex] = sumBN(rounds[bet.resultIndex], bet.amount)
             .toString(10);
         });
@@ -84,15 +92,19 @@ module.exports = {
             eventAddress: address,
             eventRound: 0,
           });
+          centralizedOracleAddress
           if (!isNull(resultSet)) {
+            if (userAddress && userAddress.toLowerCase()  === resultSet.centralizedOracleAddress) {
+              userRound[resultSet.resultIndex] = sumBN(userRound[resultSet.resultIndex], resultSet.amount)
+              .toString(10);
+            }
             rounds[resultSet.resultIndex] = sumBN(
               rounds[resultSet.resultIndex],
               resultSet.amount,
             ).toString(10);
           }
         }
-
-        return rounds;
+        return {totalRoundBets: rounds, userRoundBets: userRound};
       }
       return null;
     },
