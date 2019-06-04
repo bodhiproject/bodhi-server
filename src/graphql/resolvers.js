@@ -75,8 +75,6 @@ module.exports = {
         const rounds = fill(Array(numOfResults), '0');
         const userRound = fill(Array(numOfResults), '0');
         each(bets, (bet) => {
-          console.log(bet.betterAddress)
-          console.log('TCL: userAddress', userAddress);
           if (userAddress && userAddress.toLowerCase() === bet.betterAddress) {
             userRound[bet.resultIndex] = sumBN(userRound[bet.resultIndex], bet.amount)
             .toString(10);
@@ -92,7 +90,7 @@ module.exports = {
             eventAddress: address,
             eventRound: 0,
           });
-          centralizedOracleAddress
+
           if (!isNull(resultSet)) {
             if (userAddress && userAddress.toLowerCase()  === resultSet.centralizedOracleAddress) {
               userRound[resultSet.resultIndex] = sumBN(userRound[resultSet.resultIndex], resultSet.amount)
