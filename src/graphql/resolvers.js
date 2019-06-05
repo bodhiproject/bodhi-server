@@ -5,6 +5,7 @@ const { TX_TYPE, TX_STATUS } = require('../constants');
 const pubsub = require('../route/pubsub');
 const DBHelper = require('../db/db-helper');
 const { sumBN, sumArrayBN } = require('../utils/web3-utils');
+const { toLowerCase } = require('../utils/index');
 
 /* eslint-disable object-curly-newline */
 module.exports = {
@@ -60,7 +61,7 @@ module.exports = {
     roundBets: async (
       { address, currentRound, numOfResults },
       args,
-      { includeRoundBets, userAddress, includeBetRoundBets },
+      { includeRoundBets, roundBetsAddress, includeBetRoundBets },
       ) => {
       if (includeRoundBets) {
         // Fetch all bets for this round
@@ -75,7 +76,7 @@ module.exports = {
         const rounds = fill(Array(numOfResults), '0');
         const userRound = fill(Array(numOfResults), '0');
         each(bets, (bet) => {
-          if (userAddress && userAddress.toLowerCase() === bet.betterAddress) {
+          if (toLowerCase(roundBetsAddress) === bet.betterAddress) {
             userRound[bet.resultIndex] = sumBN(userRound[bet.resultIndex], bet.amount)
             .toString(10);
           }
@@ -93,7 +94,7 @@ module.exports = {
           });
 
           each(bets, (bet) => {
-            if (userAddress && userAddress.toLowerCase() === bet.betterAddress) {
+            if (toLowerCase(roundBetsAddress) === bet.betterAddress) {
               userBetRound[bet.resultIndex] = sumBN(userBetRound[bet.resultIndex], bet.amount)
               .toString(10);
             }
@@ -111,7 +112,7 @@ module.exports = {
           });
 
           if (!isNull(resultSet)) {
-            if (userAddress && userAddress.toLowerCase()  === resultSet.centralizedOracleAddress) {
+            if (toLowerCase(roundBetsAddress)  === resultSet.centralizedOracleAddress) {
               userRound[resultSet.resultIndex] = sumBN(userRound[resultSet.resultIndex], resultSet.amount)
               .toString(10);
             }

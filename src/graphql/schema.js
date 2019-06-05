@@ -298,7 +298,7 @@ type Query {
     skip: Int
     pendingTxsAddress: String
     includeRoundBets: Boolean
-    userAddress: String
+    roundBetsAddress: String
     includeBetRoundBets: Boolean
   ): PaginatedEvents!
 
