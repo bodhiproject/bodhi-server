@@ -66,6 +66,14 @@ type PageInfo {
   hasNextPage: Boolean!
   pageNumber: Int!
   count: Int!
+  nextSkips: NextSkips
+}
+
+type NextSkips {
+  nextEventSkip: Int!
+  nextBetSkip: Int!
+  nextResultSetSkip: Int!
+  nextWithdrawSkip: Int!
 }
 
 type MultipleResultsEvent implements Transaction {
@@ -290,6 +298,13 @@ input TotalResultBetsFilter {
   betterAddress: String
 }
 
+input TransactionSkip {
+  eventSkip: Int!
+  betSkip: Int!
+  resultSetSkip: Int!
+  withdrawSkip: Int!
+}
+
 type Query {
   events(
     filter: EventFilter
@@ -342,6 +357,7 @@ type Query {
     filter: TransactionFilter
     limit: Int
     skip: Int
+    skips: TransactionSkip
   ): PaginatedTransactions!
 
   syncInfo: SyncInfo!
