@@ -62,7 +62,7 @@ module.exports = {
       { address, currentRound, numOfResults },
       args,
       { includeRoundBets, roundBetsAddress, includeBetRoundBets },
-      ) => {
+    ) => {
       if (includeRoundBets) {
         // Fetch all bets for this round
         const bets = await DBHelper.findBet({
@@ -78,7 +78,7 @@ module.exports = {
         each(bets, (bet) => {
           if (toLowerCase(roundBetsAddress) === bet.betterAddress) {
             userRound[bet.resultIndex] = sumBN(userRound[bet.resultIndex], bet.amount)
-            .toString(10);
+              .toString(10);
           }
           rounds[bet.resultIndex] = sumBN(rounds[bet.resultIndex], bet.amount)
             .toString(10);
@@ -96,7 +96,7 @@ module.exports = {
           each(bets, (bet) => {
             if (toLowerCase(roundBetsAddress) === bet.betterAddress) {
               userBetRound[bet.resultIndex] = sumBN(userBetRound[bet.resultIndex], bet.amount)
-              .toString(10);
+                .toString(10);
             }
             betRound[bet.resultIndex] = sumBN(betRound[bet.resultIndex], bet.amount)
               .toString(10);
@@ -112,9 +112,9 @@ module.exports = {
           });
 
           if (!isNull(resultSet)) {
-            if (toLowerCase(roundBetsAddress)  === resultSet.centralizedOracleAddress) {
+            if (toLowerCase(roundBetsAddress) === resultSet.centralizedOracleAddress) {
               userRound[resultSet.resultIndex] = sumBN(userRound[resultSet.resultIndex], resultSet.amount)
-              .toString(10);
+                .toString(10);
             }
             rounds[resultSet.resultIndex] = sumBN(
               rounds[resultSet.resultIndex],
@@ -122,7 +122,12 @@ module.exports = {
             ).toString(10);
           }
         }
-        return {totalRoundBets: rounds, userRoundBets: userRound, totalBetRoundBets: betRound, userBetRoundBets: userBetRound};
+        return {
+          totalRoundBets: rounds,
+          userRoundBets: userRound,
+          totalBetRoundBets: betRound,
+          userBetRoundBets: userBetRound,
+        };
       }
       return null;
     },
