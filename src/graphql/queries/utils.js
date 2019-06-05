@@ -67,6 +67,9 @@ const buildCursorOptions = (cursor, orderBy, limit, skip) => {
 const constructPageInfo = (limit, skip, totalCount) => {
   if (!isNumber(limit) || !isNumber(skip)) return undefined;
 
+  console.log(limit);
+  console.log(skip);
+  console.log(totalCount);
   const end = skip + limit;
   const hasNextPage = end < totalCount;
   const pageNumber = toInteger(end / limit);

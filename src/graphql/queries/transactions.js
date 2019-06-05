@@ -64,30 +64,37 @@ module.exports = async (
 ) => {
   const txFilters = buildTxFilters(lowercaseFilters(filter));
   const orderBy = { blockNum: -1 };
-
+  let totalCount = 0;
   // Run Events query
-  let cursor = Events.cfind(buildEventFilters(txFilters));
+  const eventFilter = buildEventFilters(txFilters);
+  totalCount += await Events.count(eventFilter);
+  let cursor = Events.cfind(eventFilter);
   cursor = buildCursorOptions(cursor, orderBy, limit);
   const events = await cursor.exec();
 
   // Run Bets query
-  cursor = Bets.cfind(buildBetFilters(txFilters));
+  const betFilter = buildBetFilters(txFilters);
+  totalCount += await Bets.count(betFilter);
+  cursor = Bets.cfind(betFilter);
   cursor = buildCursorOptions(cursor, orderBy, limit);
   const bets = await cursor.exec();
 
   // Run ResultSets query
-  cursor = ResultSets.cfind(buildResultSetFilters(txFilters));
+  const resultSetFilter = buildResultSetFilters(txFilters);
+  totalCount += await ResultSets.count(resultSetFilter);
+  cursor = ResultSets.cfind(resultSetFilter);
   cursor = buildCursorOptions(cursor, orderBy, limit);
   const resultSets = await cursor.exec();
 
   // Run Withdraws query
-  cursor = Withdraws.cfind(buildWithdrawFilters(txFilters));
+  const withdrawFilter = buildWithdrawFilters(txFilters);
+  totalCount += await Withdraws.count(withdrawFilter);
+  cursor = Withdraws.cfind(withdrawFilter);
   cursor = buildCursorOptions(cursor, orderBy, limit);
   const withdraws = await cursor.exec();
 
   // Combine to single list
   let txs = concat(events, bets, resultSets, withdraws);
-  const totalCount = txs.length;
 
   // Order list by blockNum
   txs = order(txs, ['blockNum'], [ORDER_DIRECTION.DESCENDING.toLowerCase()]);
