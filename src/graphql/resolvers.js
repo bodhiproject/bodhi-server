@@ -60,7 +60,7 @@ module.exports = {
     roundBets: async (
       { address, currentRound, numOfResults },
       args,
-      { includeRoundBets, userAddress },
+      { includeRoundBets, userAddress, includeBetRoundBets },
       ) => {
       if (includeRoundBets) {
         // Fetch all bets for this round
@@ -83,6 +83,25 @@ module.exports = {
             .toString(10);
         });
 
+        const betRound = fill(Array(numOfResults), '0');
+        const userBetRound = fill(Array(numOfResults), '0');
+        if (includeBetRoundBets) {
+          const bets = await DBHelper.findBet({
+            txStatus: TX_STATUS.SUCCESS,
+            eventAddress: address,
+            eventRound: 0,
+          });
+
+          each(bets, (bet) => {
+            if (userAddress && userAddress.toLowerCase() === bet.betterAddress) {
+              userBetRound[bet.resultIndex] = sumBN(userBetRound[bet.resultIndex], bet.amount)
+              .toString(10);
+            }
+            betRound[bet.resultIndex] = sumBN(betRound[bet.resultIndex], bet.amount)
+              .toString(10);
+          });
+        }
+
         // Add result set amount if round 1
         if (currentRound === 1) {
           const resultSet = await DBHelper.findOneResultSet({
@@ -102,7 +121,7 @@ module.exports = {
             ).toString(10);
           }
         }
-        return {totalRoundBets: rounds, userRoundBets: userRound};
+        return {totalRoundBets: rounds, userRoundBets: userRound, totalBetRoundBets: betRound, userBetRoundBets: userBetRound};
       }
       return null;
     },

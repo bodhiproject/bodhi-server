@@ -104,6 +104,8 @@ type MultipleResultsEvent implements Transaction {
 type RoundBets {
   totalRoundBets: [String]
   userRoundBets: [String]
+  totalBetRoundBets: [String]
+  userBetRoundBets: [String]
 }
 
 type PaginatedEvents {
@@ -297,6 +299,7 @@ type Query {
     pendingTxsAddress: String
     includeRoundBets: Boolean
     userAddress: String
+    includeBetRoundBets: Boolean
   ): PaginatedEvents!
 
   searchEvents(

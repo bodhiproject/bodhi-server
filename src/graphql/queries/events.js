@@ -55,14 +55,14 @@ const buildFilters = ({
 
 module.exports = async (
   parent,
-  { filter, orderBy, limit, skip, pendingTxsAddress, includeRoundBets, userAddress },
+  { filter, orderBy, limit, skip, pendingTxsAddress, includeRoundBets, userAddress, includeBetRoundBets },
   context,
 ) => {
   const { db: { Events } } = context;
   context.pendingTxsAddress = pendingTxsAddress;
   context.includeRoundBets = includeRoundBets;
   context.userAddress = userAddress;
-
+  context.includeBetRoundBets = includeBetRoundBets;
   const query = filter ? { $or: buildFilters(lowercaseFilters(filter)) } : {};
   return runPaginatedQuery({
     db: Events,
