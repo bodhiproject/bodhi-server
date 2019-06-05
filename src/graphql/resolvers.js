@@ -5,6 +5,7 @@ const { TX_TYPE, TX_STATUS } = require('../constants');
 const pubsub = require('../route/pubsub');
 const DBHelper = require('../db/db-helper');
 const { sumBN, sumArrayBN } = require('../utils/web3-utils');
+const { toLowerCase } = require('../utils/index');
 
 /* eslint-disable object-curly-newline */
 module.exports = {
@@ -60,7 +61,7 @@ module.exports = {
     roundBets: async (
       { address, currentRound, numOfResults },
       args,
-      { includeRoundBets },
+      { includeRoundBets, roundBetsAddress, includeBetRoundBets },
     ) => {
       if (includeRoundBets) {
         // Fetch all bets for this round
@@ -70,12 +71,37 @@ module.exports = {
           eventRound: currentRound,
         });
 
+
         // Sum all bets by index
         const rounds = fill(Array(numOfResults), '0');
+        const userRound = fill(Array(numOfResults), '0');
         each(bets, (bet) => {
+          if (toLowerCase(roundBetsAddress) === bet.betterAddress) {
+            userRound[bet.resultIndex] = sumBN(userRound[bet.resultIndex], bet.amount)
+              .toString(10);
+          }
           rounds[bet.resultIndex] = sumBN(rounds[bet.resultIndex], bet.amount)
             .toString(10);
         });
+
+        const betRound = fill(Array(numOfResults), '0');
+        const userBetRound = fill(Array(numOfResults), '0');
+        if (includeBetRoundBets) {
+          const bets = await DBHelper.findBet({
+            txStatus: TX_STATUS.SUCCESS,
+            eventAddress: address,
+            eventRound: 0,
+          });
+
+          each(bets, (bet) => {
+            if (toLowerCase(roundBetsAddress) === bet.betterAddress) {
+              userBetRound[bet.resultIndex] = sumBN(userBetRound[bet.resultIndex], bet.amount)
+                .toString(10);
+            }
+            betRound[bet.resultIndex] = sumBN(betRound[bet.resultIndex], bet.amount)
+              .toString(10);
+          });
+        }
 
         // Add result set amount if round 1
         if (currentRound === 1) {
@@ -84,15 +110,24 @@ module.exports = {
             eventAddress: address,
             eventRound: 0,
           });
+
           if (!isNull(resultSet)) {
+            if (toLowerCase(roundBetsAddress) === resultSet.centralizedOracleAddress) {
+              userRound[resultSet.resultIndex] = sumBN(userRound[resultSet.resultIndex], resultSet.amount)
+                .toString(10);
+            }
             rounds[resultSet.resultIndex] = sumBN(
               rounds[resultSet.resultIndex],
               resultSet.amount,
             ).toString(10);
           }
         }
-
-        return rounds;
+        return {
+          totalRoundBets: rounds,
+          userRoundBets: userRound,
+          totalBetRoundBets: betRound,
+          userBetRoundBets: userBetRound,
+        };
       }
       return null;
     },
