@@ -27,19 +27,40 @@ module.exports = async (
   if (isNull(event)) throw Error('Event not found');
   const { numOfResults } = event;
 
+  // Accumulate all round 0 bets
+  let totalRound0 = await DBHelper.findBet({ eventAddress, eventRound: 0 });
+  const totalRound0Bets = accumulateBets(numOfResults, totalRound0);
+
+  // Accumulate better round 0 bets
+  let betterRound0Bets
+  if (betterAddress) {
+    betterRound0 = await DBHelper.findBet({ eventAddress, eventRound: 0, betterAddress });
+    betterRound0Bets = accumulateBets(numOfResults, betterRound0);
+  }
+
+  // Get result set
+  const resultSet = await DBHelper.findResultSet({ eventAddress, eventRound: 0 });
+  const { resultIndex, amount: resultSetAmount, centralizedOracleAddress } = resultSet;
+
   // Accumulate all result bets
   let bets = await DBHelper.findBet({ eventAddress });
   const resultBets = accumulateBets(numOfResults, bets);
+
+  // Add result set amount
+  resultBets[resultIndex] += resultSetAmount
 
   // Accumulate all better bets
   let betterBets;
   if (betterAddress) {
     bets = await DBHelper.findBet({ eventAddress, betterAddress });
     betterBets = accumulateBets(numOfResults, bets);
+    if (betterAddress === centralizedOracleAddress) betterBets[resultIndex] += resultSetAmount;
   }
 
   return {
     resultBets,
     betterBets,
+    totalRound0Bets,
+    betterRound0Bets,
   };
 };

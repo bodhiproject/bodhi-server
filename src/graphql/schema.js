@@ -203,6 +203,8 @@ type SyncInfo {
 type TotalResultBets {
   resultBets: [String]!
   betterBets: [String]
+  totalRound0Bets: [String]
+  betterRound0Bets: [String]
 }
 
 type AllStats {
