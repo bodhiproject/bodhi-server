@@ -28,14 +28,14 @@ module.exports = async (
   const { numOfResults } = event;
 
   // Accumulate all round 0 bets
-  let totalRound0 = await DBHelper.findBet({ eventAddress, eventRound: 0 });
-  const totalRound0Bets = accumulateBets(numOfResults, totalRound0);
+  let totalBetRound = await DBHelper.findBet({ eventAddress, eventRound: 0 });
+  const totalBets = accumulateBets(numOfResults, totalBetRound);
 
   // Accumulate better round 0 bets
-  let betterRound0Bets
+  let betterBets
   if (betterAddress) {
-    betterRound0 = await DBHelper.findBet({ eventAddress, eventRound: 0, betterAddress });
-    betterRound0Bets = accumulateBets(numOfResults, betterRound0);
+    betterBetRound = await DBHelper.findBet({ eventAddress, eventRound: 0, betterAddress });
+    betterBets = accumulateBets(numOfResults, betterBetRound);
   }
 
   // Get result set
@@ -43,24 +43,24 @@ module.exports = async (
   const { resultIndex, amount: resultSetAmount, centralizedOracleAddress } = resultSet;
 
   // Accumulate all result bets
-  let bets = await DBHelper.findBet({ eventAddress });
-  const resultBets = accumulateBets(numOfResults, bets);
+  let totalVoteRound = await DBHelper.findBet({ eventAddress, eventRound: { $gt: 0 } } );
+  const totalVotes = accumulateBets(numOfResults, totalVoteRound);
 
   // Add result set amount
-  resultBets[resultIndex] += resultSetAmount
+  totalVotes[resultIndex] += resultSetAmount
 
   // Accumulate all better bets
-  let betterBets;
+  let betterVotes;
   if (betterAddress) {
-    bets = await DBHelper.findBet({ eventAddress, betterAddress });
-    betterBets = accumulateBets(numOfResults, bets);
-    if (betterAddress === centralizedOracleAddress) betterBets[resultIndex] += resultSetAmount;
+    betterVoteRound = await DBHelper.findBet({ eventAddress, betterAddress, eventRound: { $gt: 0 } });
+    betterVotes = accumulateBets(numOfResults, betterVoteRound);
+    if (betterAddress === centralizedOracleAddress) betterVotes[resultIndex] += resultSetAmount;
   }
 
   return {
-    resultBets,
+    totalBets,
     betterBets,
-    totalRound0Bets,
-    betterRound0Bets,
+    totalVotes,
+    betterVotes,
   };
 };
