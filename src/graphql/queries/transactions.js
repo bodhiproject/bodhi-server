@@ -59,7 +59,7 @@ const buildWithdrawFilters = ({
 
 module.exports = async (
   root,
-  { filter, limit = 10, skip = 0, skips: { eventSkip, betSkip, resultSetSkip, withdrawSkip } },
+  { filter, limit = 10, skip = 0, transactionSkips: { eventSkip, betSkip, resultSetSkip, withdrawSkip } },
   { db: { Events, Bets, ResultSets, Withdraws } },
 ) => {
   const txFilters = buildTxFilters(lowercaseFilters(filter));
@@ -103,7 +103,7 @@ module.exports = async (
   txs = slice(txs, 0, limit);
 
   const pageInfo = constructPageInfo(limit, skip, totalCount);
-  pageInfo.nextSkips = {
+  pageInfo.nextTransactionSkips = {
     nextEventSkip: eventSkip + txs.filter(tx => tx.txType === TX_TYPE.CREATE_EVENT).length,
     nextBetSkip: betSkip + txs.filter(tx => tx.txType === TX_TYPE.BET
                                         || tx.txType === TX_TYPE.VOTE).length,
