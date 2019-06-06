@@ -63,7 +63,7 @@ module.exports = async (
   { db: { Events, Bets, ResultSets, Withdraws } },
 ) => {
   const txFilters = buildTxFilters(lowercaseFilters(filter));
-  const orderBy = { blockNum: -1 };
+  const orderBy = [{ field: 'blockNum', direction: ORDER_DIRECTION.DESCENDING }];
   let totalCount = 0;
   // Run Events query
   const eventFilter = buildEventFilters(txFilters);
@@ -100,8 +100,7 @@ module.exports = async (
   txs = order(txs, ['blockNum'], [ORDER_DIRECTION.DESCENDING.toLowerCase()]);
 
   // Slice list
-  const end = Math.min(skip + limit, txs.length);
-  txs = slice(txs, skip, end);
+  txs = slice(txs, 0, limit);
 
   const pageInfo = constructPageInfo(limit, skip, totalCount);
   pageInfo.nextSkips = {
