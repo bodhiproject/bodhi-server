@@ -135,6 +135,7 @@ type Bet implements Transaction {
   amount: String!
   eventRound: Int!
   resultName: String
+  eventName: String
 }
 
 type PaginatedBets {
@@ -158,6 +159,7 @@ type ResultSet implements Transaction {
   nextConsensusThreshold: String
   nextArbitrationEndTime: Int
   resultName: String
+  eventName: String
 }
 
 type PaginatedResultSets {
@@ -177,6 +179,7 @@ type Withdraw implements Transaction {
   winnerAddress: String!
   winningAmount: String!
   escrowWithdrawAmount: String!
+  eventName: String
 }
 
 type PaginatedWithdraws {

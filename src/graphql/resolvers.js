@@ -159,6 +159,10 @@ module.exports = {
       const event = await DBHelper.findOneEvent({ address: eventAddress });
       return event && event.results[resultIndex];
     },
+    eventName: async ({ eventAddress }) => {
+      const event = await DBHelper.findOneEvent({ address: eventAddress });
+      return event && event.name;
+    },
   },
 
   ResultSet: {
@@ -169,12 +173,20 @@ module.exports = {
       const event = await DBHelper.findOneEvent({ address: eventAddress });
       return event && event.results[resultIndex];
     },
+    eventName: async ({ eventAddress }) => {
+      const event = await DBHelper.findOneEvent({ address: eventAddress });
+      return event && event.name;
+    },
   },
 
   Withdraw: {
     txReceipt: async ({ txid }) =>
       DBHelper.findOneTransactionReceipt({ transactionHash: txid }),
     block: async ({ blockNum }) => DBHelper.findOneBlock({ blockNum }),
+    eventName: async ({ eventAddress }) => {
+      const event = await DBHelper.findOneEvent({ address: eventAddress });
+      return event && event.name;
+    },
   },
 };
 /* eslint-enable object-curly-newline */
