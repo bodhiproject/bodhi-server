@@ -131,6 +131,23 @@ module.exports = {
       }
       return null;
     },
+    previousConsensusThreshold: async (
+      { address, currentRound },
+      args,
+      {},
+    ) => {
+        // Add result set amount if round 1
+        if (currentRound >= 1) {
+          const resultSet = await DBHelper.findOneResultSet({
+            txStatus: TX_STATUS.SUCCESS,
+            eventAddress: address,
+            eventRound: currentRound - 1,
+          });
+          return resultSet.amount
+
+        }
+        return null
+    },
     totalBets: async ({ address }) => {
       const bets = await DBHelper.findBet({
         txStatus: TX_STATUS.SUCCESS,
