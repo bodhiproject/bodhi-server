@@ -136,7 +136,6 @@ module.exports = {
       args,
       {},
     ) => {
-        // Add result set amount if round 1
         if (currentRound >= 1) {
           const resultSet = await DBHelper.findOneResultSet({
             txStatus: TX_STATUS.SUCCESS,
