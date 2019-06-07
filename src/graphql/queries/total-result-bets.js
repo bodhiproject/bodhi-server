@@ -2,7 +2,6 @@ const { isNull, fill, each, map } = require('lodash');
 const { lowercaseFilters } = require('./utils');
 const DBHelper = require('../../db/db-helper');
 const web3 = require('../../web3');
-const { sumBN } = require('../../utils/web3-utils');
 const { toLowerCase } = require('../../utils/index');
 
 const accumulateBets = (numOfResults, bets) => {
@@ -41,13 +40,12 @@ module.exports = async (
   }
 
   // Get result set
-  const resultSet = await DBHelper.findResultSet({ eventAddress, eventRound: 0 });
-  // console.log('TCL: resultSet', resultSet);
+  const resultSet = await DBHelper.findOneResultSet({ eventAddress, eventRound: 0 });
   const { centralizedOracleAddress } = resultSet;
 
   // Accumulate all result bets
   let totalVoteRound = await DBHelper.findBet({ eventAddress, eventRound: { $gt: 0 } } );
-  totalVoteRound.concat(resultSet);
+  totalVoteRound = totalVoteRound.concat(resultSet);
 
   // Add result set amount
   const totalVotes = accumulateBets(numOfResults, totalVoteRound);
@@ -57,7 +55,7 @@ module.exports = async (
   if (betterAddress) {
     betterVoteRound = await DBHelper.findBet({ eventAddress, betterAddress, eventRound: { $gt: 0 } });
     if (toLowerCase(betterAddress) === centralizedOracleAddress) {
-      betterVoteRound.concat(resultSet);
+      betterVoteRound = betterVoteRound.concat(resultSet);
     }
     betterVotes = accumulateBets(numOfResults, betterVoteRound);
   }
