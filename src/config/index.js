@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { map, sortBy, each, isUndefined, isEmpty, isNumber } = require('lodash');
+const { map, sortBy, filter, each, isUndefined, isEmpty, isNumber } = require('lodash');
 const { BLOCKCHAIN_ENV } = require('../constants');
 const ConfigManager = require('./contracts/config-manager');
 const EventFactory = require('./contracts/event-factory');
@@ -15,6 +15,8 @@ const CONFIG = {
   API_PORT_MAINNET: 8888,
   API_PORT_TESTNET: 9999,
   DEFAULT_LOG_LEVEL: 'debug',
+  STARTING_CONTRACT_VERSION_MAINNET: 5,
+  STARTING_CONTRACT_VERSION_TESTNET: 0,
 };
 
 let versionConfig;
@@ -26,6 +28,12 @@ const initConfig = () => {
   // Get all version numbers and sort
   let keys = Object.keys(EventFactory);
   keys = sortBy(map(keys, key => Number(key)));
+
+  // Filter out keys less than starting version
+  const startVersion = process.env.NETWORK === BLOCKCHAIN_ENV.MAINNET
+    ? CONFIG.STARTING_CONTRACT_VERSION_MAINNET
+    : CONFIG.STARTING_CONTRACT_VERSION_TESTNET;
+  keys = filter(keys, key => key >= startVersion);
 
   // Create new array
   versionConfig = Array(keys.length);
