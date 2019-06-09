@@ -2,10 +2,16 @@ const web3 = require('../../web3');
 const MultipleResultsEvent = require('../../models/multiple-results-event');
 const { TX_STATUS } = require('../../constants');
 const { determineContractVersion, multipleResultsEventMeta } = require('../../config');
+const { parsePaddedAddress } = require('../../utils/web3-utils.js');
 
 module.exports = async ({ log }) => {
-  const address = web3.eth.abi.decodeParameter('address', log.topics[1]);
-  const ownerAddress = web3.eth.abi.decodeParameter('address', log.topics[2]);
+  // TODO: uncomment when web3 fixes this
+  // const address = web3.eth.abi.decodeParameter('address', log.topics[1]);
+  // const ownerAddress = web3.eth.abi.decodeParameter('address', log.topics[2]);
+
+  // TODO: delete when web3 fixes decodeParameter
+  const address = parsePaddedAddress(log.topics[1]);
+  const ownerAddress = parsePaddedAddress(log.topics[2]);
 
   const contractVersion = determineContractVersion(Number(log.blockNumber));
   const eventMeta = multipleResultsEventMeta(contractVersion);
