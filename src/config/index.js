@@ -39,7 +39,7 @@ const initConfig = () => {
   console.log('keys', keys);
 
   // Create new array
-  versionConfig = Array(keys.length);
+  versionConfig = [];
   console.log('verCfg1', versionConfig);
   const blockKey = process.env.NETWORK === BLOCKCHAIN_ENV.MAINNET
     ? 'mainnetDeployBlock' : 'testnetDeployBlock';
