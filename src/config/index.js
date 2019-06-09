@@ -33,21 +33,17 @@ const initConfig = () => {
   const startVersion = process.env.NETWORK === BLOCKCHAIN_ENV.MAINNET
     ? CONFIG.STARTING_CONTRACT_VERSION_MAINNET
     : CONFIG.STARTING_CONTRACT_VERSION_TESTNET;
-  console.log('startVersion', startVersion);
   keys = filter(keys, key => key >= startVersion);
   if (keys.length === 0) throw Error('No EventFactory versions found');
-  console.log('keys', keys);
 
   // Create new array
   versionConfig = [];
-  console.log('verCfg1', versionConfig);
   const blockKey = process.env.NETWORK === BLOCKCHAIN_ENV.MAINNET
     ? 'mainnetDeployBlock' : 'testnetDeployBlock';
 
   // Calculate start and end blocks for each version
   const maxVersion = keys[keys.length - 1];
   each(keys, (key) => {
-    console.log('iter for key', key);
     const startBlock = EventFactory[`${key}`][blockKey];
     const endBlock = key + 1 < maxVersion
       ? EventFactory[`${key + 1}`][blockKey] - 1
@@ -58,7 +54,6 @@ const initConfig = () => {
       endBlock,
     });
   });
-  console.log('verCfg2', versionConfig);
 
   if (!versionConfig) throw Error('Could not initialize versionConfig');
 };
@@ -115,8 +110,6 @@ const determineContractVersion = (blockNum) => {
   if (isUndefined(blockNum)) throw Error('blockNum is undefined');
   if (!versionConfig) throw Error('versionConfig was not initialized');
 
-  console.log('blockNum', blockNum);
-
   let contractVersion = -1;
   each(versionConfig, (cfg) => {
     // If block is in current version range, set version and break loop
@@ -131,7 +124,6 @@ const determineContractVersion = (blockNum) => {
     throw Error('Could not determine contract version');
   }
 
-  console.log('contractVersion', contractVersion);
   return contractVersion;
 };
 
