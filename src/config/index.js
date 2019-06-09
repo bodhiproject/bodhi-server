@@ -35,6 +35,7 @@ const initConfig = () => {
     : CONFIG.STARTING_CONTRACT_VERSION_TESTNET;
   console.log('startVersion', startVersion);
   keys = filter(keys, key => key >= startVersion);
+  if (keys.length === 0) throw Error('No EventFactory versions found');
   console.log('keys', keys);
 
   // Create new array
@@ -44,9 +45,11 @@ const initConfig = () => {
     ? 'mainnetDeployBlock' : 'testnetDeployBlock';
 
   // Calculate start and end blocks for each version
-  each(keys, (key, index) => {
+  const maxVersion = keys[keys.length - 1];
+  each(keys, (key) => {
+    console.log('iter for key', key);
     const startBlock = EventFactory[`${key}`][blockKey];
-    const endBlock = index + 1 < keys.length
+    const endBlock = key + 1 < maxVersion
       ? EventFactory[`${key + 1}`][blockKey] - 1
       : -1;
     versionConfig[key] = {
@@ -128,6 +131,7 @@ const determineContractVersion = (blockNum) => {
     throw Error('Could not determine contract version');
   }
 
+  console.log('contractVersion', contractVersion);
   return contractVersion;
 };
 
