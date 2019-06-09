@@ -12,6 +12,8 @@ module.exports = async ({ log }) => {
   // TODO: delete when web3 fixes decodeParameter
   const address = parsePaddedAddress(log.topics[1]);
   const ownerAddress = parsePaddedAddress(log.topics[2]);
+  console.log('address', address);
+  console.log('ownerAddress', ownerAddress);
 
   const contractVersion = determineContractVersion(Number(log.blockNumber));
   const eventMeta = multipleResultsEventMeta(contractVersion);
