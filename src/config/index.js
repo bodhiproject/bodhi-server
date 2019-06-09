@@ -33,10 +33,13 @@ const initConfig = () => {
   const startVersion = process.env.NETWORK === BLOCKCHAIN_ENV.MAINNET
     ? CONFIG.STARTING_CONTRACT_VERSION_MAINNET
     : CONFIG.STARTING_CONTRACT_VERSION_TESTNET;
+  console.log('startVersion', startVersion);
   keys = filter(keys, key => key >= startVersion);
+  console.log('keys', keys);
 
   // Create new array
   versionConfig = Array(keys.length);
+  console.log('verCfg1', versionConfig);
   const blockKey = process.env.NETWORK === BLOCKCHAIN_ENV.MAINNET
     ? 'mainnetDeployBlock' : 'testnetDeployBlock';
 
@@ -52,6 +55,7 @@ const initConfig = () => {
       endBlock,
     };
   });
+  console.log('verCfg2', versionConfig);
 
   if (!versionConfig) throw Error('Could not initialize versionConfig');
 };
@@ -109,7 +113,6 @@ const determineContractVersion = (blockNum) => {
   if (!versionConfig) throw Error('versionConfig was not initialized');
 
   console.log('blockNum', blockNum);
-  console.log(versionConfig);
 
   let contractVersion = -1;
   each(versionConfig, (cfg) => {
