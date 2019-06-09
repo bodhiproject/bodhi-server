@@ -46,8 +46,8 @@ const initConfig = () => {
     const endBlock = index + 1 < keys.length
       ? EventFactory[`${key + 1}`][blockKey] - 1
       : -1;
-    versionConfig[index] = {
-      version: index,
+    versionConfig[key] = {
+      version: key,
       startBlock,
       endBlock,
     };
