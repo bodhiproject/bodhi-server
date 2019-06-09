@@ -1,5 +1,5 @@
 const { assert } = require('chai');
-const { toLowerCase } = require('.');
+const { toLowerCase } = require('../../src/utils');
 
 describe('utils/index.js', () => {
   describe('toLowerCase', () => {
