@@ -52,11 +52,11 @@ const initConfig = () => {
     const endBlock = key + 1 < maxVersion
       ? EventFactory[`${key + 1}`][blockKey] - 1
       : -1;
-    versionConfig[key] = {
+    versionConfig.push({
       version: key,
       startBlock,
       endBlock,
-    };
+    });
   });
   console.log('verCfg2', versionConfig);
 
