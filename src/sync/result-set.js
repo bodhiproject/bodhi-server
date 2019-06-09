@@ -35,12 +35,14 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
           // Update event
           await updateEvent(resultSet);
         } catch (insertErr) {
-          throw Error(`Error syncResultSet parse: ${insertErr.message}`);
+          logger.error('Error syncResultSet parse');
+          throw insertErr;
         }
       }));
     });
   } catch (err) {
-    throw Error(`Error syncResultSet: ${err.message}`);
+    logger.error('Error syncResultSet');
+    throw err;
   }
 };
 

@@ -33,12 +33,14 @@ const syncMultipleResultsEventCreated = async (
           const txReceipt = await getTransactionReceipt(event.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
-          throw Error(`Error syncMultipleResultsEventCreated parse: ${insertErr.message}`);
+          logger.error('Error syncMultipleResultsEventCreated parse');
+          throw insertErr;
         }
       }));
     });
   } catch (err) {
-    throw Error(`Error syncMultipleResultsEventCreated: ${err.message}`);
+    logger.error('Error syncMultipleResultsEventCreated');
+    throw err;
   }
 };
 
@@ -78,7 +80,8 @@ const pendingMultipleResultsEventCreated = async ({ syncPromises, limit }) => {
             );
           }
         } catch (insertErr) {
-          logger.error(`Error pendingMultipleResultsEventCreated: ${insertErr.message}`);
+          logger.error('Error pendingMultipleResultsEventCreated');
+          throw insertErr;
         }
       }));
     });
