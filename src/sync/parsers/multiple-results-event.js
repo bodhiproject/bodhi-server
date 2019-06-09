@@ -18,11 +18,9 @@ module.exports = async ({ log }) => {
   const contractVersion = determineContractVersion(Number(log.blockNumber));
   console.log('contractVersion', contractVersion);
   const eventMeta = multipleResultsEventMeta(contractVersion);
-  console.log('eventMeta', eventMeta);
 
   // Get event data
   const contract = new web3.eth.Contract(eventMeta.abi, address);
-  console.log('contract', contract);
   let res = await contract.methods.eventMetadata().call();
   const version = res['0'];
   const eventName = res['1'];

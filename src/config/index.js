@@ -101,6 +101,9 @@ const determineContractVersion = (blockNum) => {
   if (!versionConfig) throw Error('versionConfig was not initialized');
   if (blockNum < versionConfig[0].startBlock) throw Error('blockNum out of range');
 
+  console.log('blockNum', blockNum);
+  console.log(versionConfig);
+
   let contractVersion;
   each(versionConfig, (cfg) => {
     // If endBlock is -1, we are in latest version so break loop
