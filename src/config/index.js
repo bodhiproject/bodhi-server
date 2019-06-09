@@ -107,28 +107,21 @@ const isMainnet = () => CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET;
 const determineContractVersion = (blockNum) => {
   if (isUndefined(blockNum)) throw Error('blockNum is undefined');
   if (!versionConfig) throw Error('versionConfig was not initialized');
-  if (blockNum < versionConfig[0].startBlock) throw Error('blockNum out of range');
 
   console.log('blockNum', blockNum);
   console.log(versionConfig);
 
-  let contractVersion;
+  let contractVersion = -1;
   each(versionConfig, (cfg) => {
-    // If endBlock is -1, we are in latest version so break loop
-    if (cfg.endBlock === -1) {
-      contractVersion = cfg.version;
-      return false;
-    }
-
     // If block is in current version range, set version and break loop
-    if (blockNum >= cfg.startBlock && blockNum <= cfg.endBlock) {
+    if ((blockNum >= cfg.startBlock && blockNum <= cfg.endBlock)
+      || (blockNum >= cfg.startBlock && cfg.endBlock === -1)) {
       contractVersion = cfg.version;
       return false;
     }
-
     return true;
   });
-  if (isUndefined(contractVersion)) {
+  if (contractVersion === -1) {
     throw Error('Could not determine contract version');
   }
 
