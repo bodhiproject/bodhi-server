@@ -57,9 +57,23 @@ const sumArrayBN = (arr) => {
   return total;
 };
 
+/**
+ * Manually parses a padded address to the 20 byte address.
+ * @param {string} addr Padded address
+ * @return {string} Non-padded address with hex prefix
+ */
+const parsePaddedAddress = (addr) => {
+  if (addr.length !== 66 || addr.length !== 64) return addr;
+
+  const { utils: { stripHexPrefix } } = web3;
+  const adjusted = stripHexPrefix(addr);
+  return `0x${adjusted.substr(24)}`;
+};
+
 module.exports = {
   getTransaction,
   getTransactionReceipt,
   sumBN,
   sumArrayBN,
+  parsePaddedAddress,
 };
