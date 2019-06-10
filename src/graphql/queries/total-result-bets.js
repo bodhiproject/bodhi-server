@@ -42,11 +42,11 @@ module.exports = async (
 
   // Get result set
   const resultSet = await DBHelper.findOneResultSet({ eventAddress, eventRound: 0, txStatus: TX_STATUS.SUCCESS });
-  const { centralizedOracleAddress } = resultSet;
+  const { centralizedOracleAddress } = resultSet || {};
 
   // Accumulate all result bets
   let totalVoteRound = await DBHelper.findBet({ eventAddress, eventRound: { $gt: 0 }, txStatus: TX_STATUS.SUCCESS } );
-  totalVoteRound = totalVoteRound.concat(resultSet);
+  if (resultSet) totalVoteRound = totalVoteRound.concat(resultSet);
 
   // Add result set amount
   const totalVotes = accumulateBets(numOfResults, totalVoteRound);
