@@ -31,7 +31,7 @@ const buildFilters = (bets, filter) => {
     const currFilter = {
       status: EVENT_STATUS.WITHDRAWING,
       address: bet.eventAddress,
-      currentResultIndex: bet.resultIndex,
+      $or: [{ currentResultIndex: bet.resultIndex, }, { currentResultIndex: 0, }],
     };
     if (version) currFilter.version = version;
     if (language) currFilter.language = language;
