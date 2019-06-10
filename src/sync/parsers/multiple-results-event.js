@@ -1,13 +1,17 @@
+const { AbiCoder } = require('web3-eth-abi');
 const web3 = require('../../web3');
 const MultipleResultsEvent = require('../../models/multiple-results-event');
 const { TX_STATUS } = require('../../constants');
 const { determineContractVersion, multipleResultsEventMeta } = require('../../config');
 
+const abiCoder = new AbiCoder();
+
 module.exports = async ({ log }) => {
-  const address = web3.eth.abi.decodeParameter('address', log.topics[1]);
-  const ownerAddress = web3.eth.abi.decodeParameter('address', log.topics[2]);
+  const address = abiCoder.decodeParameter('address', log.topics[1]);
+  const ownerAddress = abiCoder.decodeParameter('address', log.topics[2]);
 
   const contractVersion = determineContractVersion(Number(log.blockNumber));
+  console.log(contractVersion);
   const eventMeta = multipleResultsEventMeta(contractVersion);
 
   // Get event data
