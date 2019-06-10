@@ -24,15 +24,19 @@ const getUniqueBets = async (withdrawerAddress, db) => {
  * @return {array} Array of filters for the events query.
  */
 const buildFilters = (bets, filter) => {
-  const { version, language } = filter;
+  const { version, language, withdrawerAddress } = filter;
   const filters = [];
-
+  filters.push({ status: EVENT_STATUS.WITHDRAWING, ownerAddress: withdrawerAddress });
   each(bets, (bet) => {
     const currFilter = {
       status: EVENT_STATUS.WITHDRAWING,
       address: bet.eventAddress,
-      $or: [{ currentResultIndex: bet.resultIndex, }, { currentResultIndex: 0, }],
     };
+    if (bet.eventRound == 0) {
+      currFilter.$or = [{ currentResultIndex: bet.resultIndex, }, { currentResultIndex: 0, }];
+    } else {
+      currFilter.currentResultIndex = bet.resultIndex;
+    }
     if (version) currFilter.version = version;
     if (language) currFilter.language = language;
     filters.push(currFilter);
