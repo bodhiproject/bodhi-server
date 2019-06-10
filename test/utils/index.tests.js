@@ -1,7 +1,20 @@
 const { assert } = require('chai');
-const { toLowerCase } = require('../../src/utils');
+const { isDefined, toLowerCase } = require('../../src/utils');
 
 describe('utils/index.js', () => {
+  describe('isDefined', () => {
+    it('returns true if defined', () => {
+      assert.isTrue(isDefined(''));
+      assert.isTrue(isDefined(0));
+      assert.isTrue(isDefined([]));
+    });
+
+    it('returns false if undefined or null', () => {
+      assert.isFalse(isDefined(undefined));
+      assert.isFalse(isDefined(null));
+    });
+  });
+
   describe('toLowerCase', () => {
     it('lowercases the string', () => {
       assert.equal(toLowerCase('ABC'), 'abc');
