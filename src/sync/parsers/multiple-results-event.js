@@ -11,7 +11,6 @@ module.exports = async ({ log }) => {
   const ownerAddress = abiCoder.decodeParameter('address', log.topics[2]);
 
   const contractVersion = determineContractVersion(Number(log.blockNumber));
-  console.log(contractVersion);
   const eventMeta = multipleResultsEventMeta(contractVersion);
 
   // Get event data
