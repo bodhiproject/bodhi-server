@@ -131,11 +131,7 @@ module.exports = {
       }
       return null;
     },
-    previousConsensusThreshold: async (
-      { address, currentRound },
-      args,
-      {},
-    ) => {
+    previousConsensusThreshold: async ({ address, currentRound }) => {
         if (currentRound >= 1) {
           const resultSet = await DBHelper.findOneResultSet({
             txStatus: TX_STATUS.SUCCESS,
@@ -143,7 +139,6 @@ module.exports = {
             eventRound: currentRound - 1,
           });
           return resultSet.amount
-
         }
         return null
     },
