@@ -101,6 +101,7 @@ type MultipleResultsEvent implements Transaction {
   currentRound: Int
   currentResultIndex: Int
   consensusThreshold: String
+  previousConsensusThreshold: String
   arbitrationEndTime: Int
   status: EventStatus!
   language: String!
