@@ -39,6 +39,7 @@
     "portscanner": "^2.1.1",
     "subscriptions-transport-ws": "^0.9.9",
     "web3": "^1.0.0-beta.54",
+    "web3-eth-abi": "^1.0.0-beta.54",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^3.2.1"
   },
