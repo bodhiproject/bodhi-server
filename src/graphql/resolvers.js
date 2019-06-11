@@ -103,6 +103,8 @@ module.exports = {
           });
         }
 
+        const previousRoundUserBets = fill(Array(numOfResults), '0');
+        const previousRoundBets = fill(Array(numOfResults), '0');
         // Add result set amount if round 1
         if (currentRound === 1) {
           const resultSet = await DBHelper.findOneResultSet({
@@ -115,18 +117,41 @@ module.exports = {
             if (toLowerCase(roundBetsAddress) === resultSet.centralizedOracleAddress) {
               userRound[resultSet.resultIndex] = sumBN(userRound[resultSet.resultIndex], resultSet.amount)
                 .toString(10);
+                previousRoundUserBets[resultSet.resultIndex] = sumBN(previousRoundUserBets[resultSet.resultIndex], resultSet.amount)
+              .toString(10);
             }
             rounds[resultSet.resultIndex] = sumBN(
               rounds[resultSet.resultIndex],
               resultSet.amount,
             ).toString(10);
+            previousRoundBets[resultSet.resultIndex] = sumBN(
+              previousRoundBets[resultSet.resultIndex],
+              resultSet.amount,
+            ).toString(10);
           }
+        } else if (currentRound > 1) {
+          const bets = await DBHelper.findBet({
+            txStatus: TX_STATUS.SUCCESS,
+            eventAddress: address,
+            eventRound: currentRound - 1,
+          });
+
+          each(bets, (bet) => {
+            if (toLowerCase(roundBetsAddress) === bet.betterAddress) {
+              previousRoundUserBets[bet.resultIndex] = sumBN(previousRoundUserBets[bet.resultIndex], bet.amount)
+                .toString(10);
+            }
+            previousRoundBets[bet.resultIndex] = sumBN(previousRoundBets[bet.resultIndex], bet.amount)
+              .toString(10);
+          });
         }
         return {
           totalRoundBets: rounds,
           userRoundBets: userRound,
           totalBetRoundBets: betRound,
           userBetRoundBets: userBetRound,
+          previousRoundUserBets,
+          previousRoundBets,
         };
       }
       return null;

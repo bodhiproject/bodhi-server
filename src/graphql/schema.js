@@ -115,6 +115,8 @@ type RoundBets {
   userRoundBets: [String]
   totalBetRoundBets: [String]
   userBetRoundBets: [String]
+  previousRoundUserBets: [String]
+  previousRoundBets: [String]
 }
 
 type PaginatedEvents {
