@@ -15,7 +15,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "mocha test --recursive --timeout 10000",
+    "test": "NETWORK=testnet SSL=false mocha test --recursive --timeout 10000 --verbose=true",
     "lint:fix": "eslint --fix -- src/."
   },
   "dependencies": {
@@ -39,6 +39,7 @@
     "portscanner": "^2.1.1",
     "subscriptions-transport-ws": "^0.9.9",
     "web3": "^1.0.0-beta.54",
+    "web3-eth-abi": "^1.0.0-beta.54",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^3.2.1"
   },
@@ -47,7 +48,8 @@
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
     "mocha": "^5.2.0",
-    "nodemon": "^1.17.5"
+    "nodemon": "^1.17.5",
+    "sinon": "^7.3.2"
   },
   "authors": [
     {
