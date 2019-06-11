@@ -31,12 +31,14 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
           const txReceipt = await getTransactionReceipt(bet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
-          throw Error(`Error syncVotePlaced parse: ${insertErr.message}`);
+          logger.error('Error syncVotePlaced parse');
+          throw insertErr;
         }
       }));
     });
   } catch (err) {
-    throw Error(`Error syncVotePlaced: ${err.message}`);
+    logger.error('Error syncVotePlaced');
+    throw err;
   }
 };
 

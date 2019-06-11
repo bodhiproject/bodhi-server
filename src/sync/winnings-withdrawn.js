@@ -33,12 +33,14 @@ const syncWinningsWithdrawn = async (
           const txReceipt = await getTransactionReceipt(withdraw.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
         } catch (insertErr) {
-          throw Error(`Error syncWinningsWithdrawn parse: ${insertErr.message}`);
+          logger.error('Error syncWinningsWithdrawn parse');
+          throw insertErr;
         }
       }));
     });
   } catch (err) {
-    throw Error(`Error syncWinningsWithdrawn: ${err.message}`);
+    logger.error('Error syncWinningsWithdrawn');
+    throw err;
   }
 };
 

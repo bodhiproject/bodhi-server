@@ -37,12 +37,14 @@ const syncVoteResultSet = async (
           // Update event
           await updateEvent(resultSet);
         } catch (insertErr) {
-          throw Error(`Error syncVoteResultSet parse: ${insertErr.message}`);
+          logger.error('Error syncVoteResultSet parse');
+          throw insertErr;
         }
       }));
     });
   } catch (err) {
-    throw Error(`Error syncVoteResultSet: ${err.message}`);
+    logger.error('Error syncVoteResultSet');
+    throw err;
   }
 };
 

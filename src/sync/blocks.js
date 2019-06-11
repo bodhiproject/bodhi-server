@@ -23,13 +23,14 @@ module.exports = ({ startBlock, endBlock, syncPromises, limit }) => {
           const blockTime = await getBlockTime(blockNum);
           await DBHelper.insertBlock(blockNum, blockTime);
         } catch (insertErr) {
-          logger.error(`insert Block: ${insertErr.message}`);
-          throw Error(`insert Block: ${insertErr.message}`);
+          logger.error('Error insert Block');
+          throw insertErr;
         }
       }));
     };
     for (let i = startBlock; i <= endBlock; i++) addPromise(i);
   } catch (err) {
-    throw Error('Error insertBlocks:', err);
+    logger.error('Error insertBlocks');
+    throw err;
   }
 };

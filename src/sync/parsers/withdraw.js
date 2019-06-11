@@ -1,11 +1,13 @@
-const web3 = require('../../web3');
+const { AbiCoder } = require('web3-eth-abi');
 const Withdraw = require('../../models/withdraw');
 const { TX_STATUS } = require('../../constants');
 
+const abiCoder = new AbiCoder();
+
 module.exports = ({ log }) => {
-  const eventAddress = web3.eth.abi.decodeParameter('address', log.topics[1]);
-  const winnerAddress = web3.eth.abi.decodeParameter('address', log.topics[2]);
-  const decodedData = web3.eth.abi.decodeParameters(
+  const eventAddress = abiCoder.decodeParameter('address', log.topics[1]);
+  const winnerAddress = abiCoder.decodeParameter('address', log.topics[2]);
+  const decodedData = abiCoder.decodeParameters(
     ['uint256', 'uint256'],
     log.data,
   );

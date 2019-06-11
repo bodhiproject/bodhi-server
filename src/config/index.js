@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { map, sortBy, each, isUndefined, isEmpty, isNumber } = require('lodash');
+const { map, sortBy, filter, each, isUndefined, isEmpty, isNumber } = require('lodash');
 const { BLOCKCHAIN_ENV } = require('../constants');
 const ConfigManager = require('./contracts/config-manager');
 const EventFactory = require('./contracts/event-factory');
@@ -15,6 +15,8 @@ const CONFIG = {
   API_PORT_MAINNET: 8888,
   API_PORT_TESTNET: 9999,
   DEFAULT_LOG_LEVEL: 'debug',
+  STARTING_CONTRACT_VERSION_MAINNET: 5,
+  STARTING_CONTRACT_VERSION_TESTNET: 0,
 };
 
 let versionConfig;
@@ -27,22 +29,30 @@ const initConfig = () => {
   let keys = Object.keys(EventFactory);
   keys = sortBy(map(keys, key => Number(key)));
 
+  // Filter out keys less than starting version
+  const startVersion = process.env.NETWORK === BLOCKCHAIN_ENV.MAINNET
+    ? CONFIG.STARTING_CONTRACT_VERSION_MAINNET
+    : CONFIG.STARTING_CONTRACT_VERSION_TESTNET;
+  keys = filter(keys, key => key >= startVersion);
+  if (keys.length === 0) throw Error('No EventFactory versions found');
+
   // Create new array
-  versionConfig = Array(keys.length);
+  versionConfig = [];
   const blockKey = process.env.NETWORK === BLOCKCHAIN_ENV.MAINNET
     ? 'mainnetDeployBlock' : 'testnetDeployBlock';
 
   // Calculate start and end blocks for each version
-  each(keys, (key, index) => {
+  const maxVersion = keys[keys.length - 1];
+  each(keys, (key) => {
     const startBlock = EventFactory[`${key}`][blockKey];
-    const endBlock = index + 1 < keys.length
+    const endBlock = key + 1 < maxVersion
       ? EventFactory[`${key + 1}`][blockKey] - 1
       : -1;
-    versionConfig[index] = {
-      version: index,
+    versionConfig.push({
+      version: key,
       startBlock,
       endBlock,
-    };
+    });
   });
 
   if (!versionConfig) throw Error('Could not initialize versionConfig');
@@ -99,25 +109,18 @@ const isMainnet = () => CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET;
 const determineContractVersion = (blockNum) => {
   if (isUndefined(blockNum)) throw Error('blockNum is undefined');
   if (!versionConfig) throw Error('versionConfig was not initialized');
-  if (blockNum < versionConfig[0].startBlock) throw Error('blockNum out of range');
 
-  let contractVersion;
+  let contractVersion = -1;
   each(versionConfig, (cfg) => {
-    // If endBlock is -1, we are in latest version so break loop
-    if (cfg.endBlock === -1) {
-      contractVersion = cfg.version;
-      return false;
-    }
-
     // If block is in current version range, set version and break loop
-    if (blockNum >= cfg.startBlock && blockNum <= cfg.endBlock) {
+    if ((blockNum >= cfg.startBlock && blockNum <= cfg.endBlock)
+      || (blockNum >= cfg.startBlock && cfg.endBlock === -1)) {
       contractVersion = cfg.version;
       return false;
     }
-
     return true;
   });
-  if (isUndefined(contractVersion)) {
+  if (contractVersion === -1) {
     throw Error('Could not determine contract version');
   }
 
