@@ -111,12 +111,8 @@ type MultipleResultsEvent implements Transaction {
 }
 
 type RoundBets {
-  totalRoundBets: [String]
-  userRoundBets: [String]
-  totalBetRoundBets: [String]
-  userBetRoundBets: [String]
-  previousRoundUserBets: [String]
-  previousRoundBets: [String]
+  singleTotalRoundBets: [[String!]]
+  singleUserRoundBets: [[String!]]
 }
 
 type PaginatedEvents {
@@ -328,7 +324,6 @@ type Query {
     pendingTxsAddress: String
     includeRoundBets: Boolean
     roundBetsAddress: String
-    includeBetRoundBets: Boolean
   ): PaginatedEvents!
 
   searchEvents(

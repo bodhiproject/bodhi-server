@@ -61,97 +61,48 @@ module.exports = {
     roundBets: async (
       { address, currentRound, numOfResults },
       args,
-      { includeRoundBets, roundBetsAddress, includeBetRoundBets },
+      { includeRoundBets, roundBetsAddress },
     ) => {
       if (includeRoundBets) {
-        // Fetch all bets for this round
-        const bets = await DBHelper.findBet({
+        // Fetch all bets for this event
+        let bets = await DBHelper.findBet({
           txStatus: TX_STATUS.SUCCESS,
           eventAddress: address,
-          eventRound: currentRound,
         });
 
+        const singleTotalRoundBets = []
+        const singleUserRoundBets = []
+        for (let i = 0;i<=currentRound;i++){
+          singleTotalRoundBets.push(fill(Array(numOfResults), '0'));
+          singleUserRoundBets.push(fill(Array(numOfResults), '0'));
+        }
 
-        // Sum all bets by index
-        const rounds = fill(Array(numOfResults), '0');
-        const userRound = fill(Array(numOfResults), '0');
+        const resultSet = await DBHelper.findOneResultSet({
+          txStatus: TX_STATUS.SUCCESS,
+          eventAddress: address,
+          eventRound: 0,
+        });
+
+        if (resultSet && resultSet.length != 0) {
+          bets = bets.concat(resultSet);
+        }
+
         each(bets, (bet) => {
+          if (!bet.betterAddress) {
+            bet.betterAddress = bet.centralizedOracleAddress;
+            bet.eventRound = 1;
+          }
           if (toLowerCase(roundBetsAddress) === bet.betterAddress) {
-            userRound[bet.resultIndex] = sumBN(userRound[bet.resultIndex], bet.amount)
+            singleUserRoundBets[bet.eventRound][bet.resultIndex] = sumBN(singleUserRoundBets[bet.eventRound][bet.resultIndex], bet.amount)
               .toString(10);
           }
-          rounds[bet.resultIndex] = sumBN(rounds[bet.resultIndex], bet.amount)
+          singleTotalRoundBets[bet.eventRound][bet.resultIndex] = sumBN(singleTotalRoundBets[bet.eventRound][bet.resultIndex], bet.amount)
             .toString(10);
         });
 
-        const betRound = fill(Array(numOfResults), '0');
-        const userBetRound = fill(Array(numOfResults), '0');
-        if (includeBetRoundBets) {
-          const bets = await DBHelper.findBet({
-            txStatus: TX_STATUS.SUCCESS,
-            eventAddress: address,
-            eventRound: 0,
-          });
-
-          each(bets, (bet) => {
-            if (toLowerCase(roundBetsAddress) === bet.betterAddress) {
-              userBetRound[bet.resultIndex] = sumBN(userBetRound[bet.resultIndex], bet.amount)
-                .toString(10);
-            }
-            betRound[bet.resultIndex] = sumBN(betRound[bet.resultIndex], bet.amount)
-              .toString(10);
-          });
-        }
-
-        const previousRoundUserBets = fill(Array(numOfResults), '0');
-        const previousRoundBets = fill(Array(numOfResults), '0');
-        // Add result set amount if round 1
-        if (currentRound === 1) {
-          const resultSet = await DBHelper.findOneResultSet({
-            txStatus: TX_STATUS.SUCCESS,
-            eventAddress: address,
-            eventRound: 0,
-          });
-
-          if (!isNull(resultSet)) {
-            if (toLowerCase(roundBetsAddress) === resultSet.centralizedOracleAddress) {
-              userRound[resultSet.resultIndex] = sumBN(userRound[resultSet.resultIndex], resultSet.amount)
-                .toString(10);
-                previousRoundUserBets[resultSet.resultIndex] = sumBN(previousRoundUserBets[resultSet.resultIndex], resultSet.amount)
-              .toString(10);
-            }
-            rounds[resultSet.resultIndex] = sumBN(
-              rounds[resultSet.resultIndex],
-              resultSet.amount,
-            ).toString(10);
-            previousRoundBets[resultSet.resultIndex] = sumBN(
-              previousRoundBets[resultSet.resultIndex],
-              resultSet.amount,
-            ).toString(10);
-          }
-        } else if (currentRound > 1) {
-          const bets = await DBHelper.findBet({
-            txStatus: TX_STATUS.SUCCESS,
-            eventAddress: address,
-            eventRound: currentRound - 1,
-          });
-
-          each(bets, (bet) => {
-            if (toLowerCase(roundBetsAddress) === bet.betterAddress) {
-              previousRoundUserBets[bet.resultIndex] = sumBN(previousRoundUserBets[bet.resultIndex], bet.amount)
-                .toString(10);
-            }
-            previousRoundBets[bet.resultIndex] = sumBN(previousRoundBets[bet.resultIndex], bet.amount)
-              .toString(10);
-          });
-        }
         return {
-          totalRoundBets: rounds,
-          userRoundBets: userRound,
-          totalBetRoundBets: betRound,
-          userBetRoundBets: userBetRound,
-          previousRoundUserBets,
-          previousRoundBets,
+          singleUserRoundBets,
+          singleTotalRoundBets,
         };
       }
       return null;
