@@ -63,10 +63,8 @@ const MULTIPLE_RESULTS_EVENT = `
     total
   }
   roundBets {
-    totalRoundBets
-    userRoundBets
-    totalBetRoundBets
-    userBetRoundBets
+    singleTotalRoundBets
+    singleUserRoundBets
   }
   totalBets
 `;
