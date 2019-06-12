@@ -1,6 +1,8 @@
 const { each, isNumber, toInteger, isArray } = require('lodash');
 const { lowercaseFilters } = require('./utils');
 const web3 = require('../../web3');
+const DBHelper = require('../../db/db-helper');
+const { TX_STATUS } = require('../../constants');
 
 const buildFilters = ({
   OR,
@@ -30,10 +32,23 @@ module.exports = async (
   { db: { Bets } },
 ) => {
   const query = filter ? { $or: buildFilters(lowercaseFilters(filter)) } : {};
-  const result = await Bets.find(query);
+  let result = await Bets.find(query);
+  const { eventAddress } = filter || {};
+  const resultSetFilter = {
+    txStatus: TX_STATUS.SUCCESS,
+    eventRound: 0,
+  };
+  if (eventAddress) {
+    resultSetFilter.eventAddress = eventAddress;
+  }
+  const resultSet = await DBHelper.findResultSet(resultSetFilter)
+  if(resultSet && result.length != 0) {
+    result = result.concat(resultSet);
+  }
 
   const accumulated = result.reduce((acc, cur) => {
     const amount = web3.utils.toBN(cur.amount);
+    if (!cur.betterAddress) cur.betterAddress = cur.centralizedOracleAddress;
     if (Object.keys(acc).includes(cur.betterAddress)) {
       acc[cur.betterAddress] = web3.utils.toBN(acc[cur.betterAddress]).add(amount);
     } else {
