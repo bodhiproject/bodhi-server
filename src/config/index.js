@@ -74,7 +74,7 @@ const getBaseDataDir = () => {
 
   // DATA_DIR is defined in environment
   if (!isEmpty(process.env.DATA_DIR)) {
-    dataDir = process.env.DATA_DIR;
+    dataDir = path.resolve(process.env.DATA_DIR);
     fs.ensureDirSync(dataDir);
     return dataDir;
   }
