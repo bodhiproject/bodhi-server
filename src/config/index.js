@@ -63,18 +63,29 @@ const initConfig = () => {
  * @return {string} Path to the base data directory.
  */
 const getBaseDataDir = () => {
-  // DATA_DIR is defined in environment variables
-  if (!isEmpty(process.env.DATA_DIR)) {
-    return process.env.DATA_DIR;
+  let dataDir;
+
+  // TEST_ENV=true set in environment
+  if (process.env.TEST_ENV === 'true') {
+    dataDir = path.resolve('./data/test');
+    fs.ensureDirSync(dataDir);
+    return dataDir;
   }
 
+  // DATA_DIR is defined in environment
+  if (!isEmpty(process.env.DATA_DIR)) {
+    dataDir = path.resolve(process.env.DATA_DIR);
+    fs.ensureDirSync(dataDir);
+    return dataDir;
+  }
+
+  // Ensure network is defined
   const network = CONFIG.NETWORK;
   if (isEmpty(network)) throw Error('NETWORK not defined in environment');
 
-  const rootDir = path.resolve('./');
-  const dataDir = `${rootDir}/data/${network}`;
+  dataDir = path.resolve(`./data/${network}`);
   fs.ensureDirSync(dataDir);
-  return path.resolve(dataDir);
+  return dataDir;
 };
 
 /**

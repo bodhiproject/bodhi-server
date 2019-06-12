@@ -15,7 +15,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "NETWORK=testnet SSL=false mocha test --recursive --timeout 10000 --verbose=true",
+    "test": "TEST_ENV=true NETWORK=testnet SSL=false mocha test --recursive --timeout 10000 --verbose=true",
     "lint:fix": "eslint --fix -- src/."
   },
   "dependencies": {
@@ -44,6 +44,7 @@
     "winston-daily-rotate-file": "^3.2.1"
   },
   "devDependencies": {
+    "easygraphql-tester": "^5.1.3",
     "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
