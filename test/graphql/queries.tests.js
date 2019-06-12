@@ -168,7 +168,7 @@ describe('queries', () => {
     });
   });
 
-  describe.only('searchEvents', () => {
+  describe('searchEvents', () => {
     it('should return the query', async () => {
       const valid = `
         query {
