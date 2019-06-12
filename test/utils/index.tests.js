@@ -1,7 +1,7 @@
 const { assert } = require('chai');
 const { isDefined, toLowerCase } = require('../../src/utils');
 
-describe('utils/index.js', () => {
+describe('utils/index', () => {
   describe('isDefined', () => {
     it('returns true if defined', () => {
       assert.isTrue(isDefined(''));

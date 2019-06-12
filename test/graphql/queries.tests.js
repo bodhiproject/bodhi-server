@@ -10,7 +10,7 @@ const schema = require('../../src/graphql/schema');
 
 const tester = new EasyGraphQLTester(schema);
 
-describe('queries', () => {
+describe('graphql/queries', () => {
   describe('events', () => {
     it('should return the query', async () => {
       const valid = `
