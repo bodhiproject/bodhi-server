@@ -35,7 +35,7 @@ const buildFilters = (bets, filter) => {
     };
     // final result invalid, betting round user should be able to see the events for withdraw
     if (bet.eventRound == 0) {
-      currFilter.$or = [{ currentResultIndex: bet.resultIndex, }, { currentResultIndex: 0, }];
+      currFilter.$or = [{ currentResultIndex: bet.resultIndex }, { currentResultIndex: 0 }];
     } else {
       currFilter.currentResultIndex = bet.resultIndex;
     }
