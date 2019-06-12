@@ -30,11 +30,11 @@ module.exports = async (
   const { numOfResults } = event;
 
   // Accumulate all round 0 bets
-  let totalBetRound = await DBHelper.findBet({ eventAddress, eventRound: 0, txStatus: TX_STATUS.SUCCESS});
+  const totalBetRound = await DBHelper.findBet({ eventAddress, eventRound: 0, txStatus: TX_STATUS.SUCCESS });
   const totalBets = accumulateBets(numOfResults, totalBetRound);
 
   // Accumulate better round 0 bets
-  let betterBets
+  let betterBets;
   if (betterAddress) {
     betterBetRound = await DBHelper.findBet({ eventAddress, eventRound: 0, betterAddress, txStatus: TX_STATUS.SUCCESS });
     betterBets = accumulateBets(numOfResults, betterBetRound);
@@ -45,7 +45,7 @@ module.exports = async (
   const { centralizedOracleAddress } = resultSet || {};
 
   // Accumulate all result bets
-  let totalVoteRound = await DBHelper.findBet({ eventAddress, eventRound: { $gt: 0 }, txStatus: TX_STATUS.SUCCESS } );
+  let totalVoteRound = await DBHelper.findBet({ eventAddress, eventRound: { $gt: 0 }, txStatus: TX_STATUS.SUCCESS });
   if (resultSet) totalVoteRound = totalVoteRound.concat(resultSet);
 
   // Add result set amount
