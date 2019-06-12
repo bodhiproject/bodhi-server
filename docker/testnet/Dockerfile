@@ -8,5 +8,4 @@ COPY . .
 
 RUN npm install
 
-# Run server
-CMD ["npm", "start"]
+ENTRYPOINT ["node", "src/index.js"]
