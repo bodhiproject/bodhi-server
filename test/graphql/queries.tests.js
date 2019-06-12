@@ -12,7 +12,7 @@ const tester = new EasyGraphQLTester(schema);
 
 describe('graphql/queries', () => {
   describe('events', () => {
-    it('should return the query', async () => {
+    it.only('should return the query', async () => {
       const valid = `
         query {
           events {
