@@ -15,7 +15,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "NETWORK=testnet SSL=false mocha test --recursive --timeout 10000 --verbose=true --test",
+    "test": "TEST_ENV=true NETWORK=testnet SSL=false mocha test --recursive --timeout 10000 --verbose=true",
     "lint:fix": "eslint --fix -- src/."
   },
   "dependencies": {
