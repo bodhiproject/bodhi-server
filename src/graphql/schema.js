@@ -232,6 +232,12 @@ type BiggestWinner {
   amount: String!
 }
 
+type PaginatedBiggestWinner {
+  totalCount: Int!
+  pageInfo: PageInfo
+  items: [BiggestWinner]!
+}
+
 input Order {
   field: String!
   direction: OrderDirection!
@@ -386,7 +392,7 @@ type Query {
     orderBy: [Order!]
     limit: Int
     skip: Int
-  ): [BiggestWinner]!
+  ): PaginatedBiggestWinner!
 }
 
 type Mutation {
