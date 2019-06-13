@@ -67,6 +67,8 @@ module.exports = async (
     const amount = web3.utils.toBN(cur.amount);
     // centralizedOracleAddress is the better address in result set
     if (!cur.betterAddress) cur.betterAddress = cur.centralizedOracleAddress;
+    // null address could also enter acc, need to bypass
+    if (!cur.betterAddress) return acc;
     if (Object.keys(acc).includes(cur.betterAddress)) {
       acc[cur.betterAddress] = web3.utils.toBN(acc[cur.betterAddress]).add(amount);
     } else {
