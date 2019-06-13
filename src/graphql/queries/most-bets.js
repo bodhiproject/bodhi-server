@@ -91,7 +91,7 @@ module.exports = async (
     const end = skip + limit;
     hasNextPage = end < totalCount;
     pageNumber = toInteger(end / limit);
-    items = items.splice(skip, end);
+    items = items.slice(skip, end);
   }
 
   const pageInfo = isPaginated
