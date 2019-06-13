@@ -1,4 +1,4 @@
-const { each, find, orderBy: _orderBy, isArray, isNumber, toInteger } = require('lodash');
+const { each, find, isArray, isNumber, toInteger } = require('lodash');
 const { lowercaseFilters } = require('./utils');
 const MultipleResultsEventApi = require('../../api/multiple-results-event');
 
@@ -64,8 +64,8 @@ module.exports = async (
     }));
   });
   await Promise.all(promises);
-  let items = _orderBy(winnings, ['amount'], ['desc']);
-
+  let items = winnings;
+  items.sort((a, b) => b.amount - a.amount);
   const totalCount = items.length;
   let hasNextPage;
   let pageNumber;
@@ -76,7 +76,7 @@ module.exports = async (
     const end = skip + limit;
     hasNextPage = end < totalCount;
     pageNumber = toInteger(end / limit);
-    items = items.splice(skip, end);
+    items = items.slice(skip, end);
   }
 
   const pageInfo = isPaginated
