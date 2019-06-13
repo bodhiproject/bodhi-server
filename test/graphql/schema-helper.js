@@ -62,10 +62,6 @@ const MULTIPLE_RESULTS_EVENT = `
     withdraw
     total
   }
-  roundBets {
-    singleTotalRoundBets
-    singleUserRoundBets
-  }
   totalBets
 `;
 

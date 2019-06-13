@@ -70,9 +70,9 @@ module.exports = {
           eventAddress: address,
         });
 
-        const singleTotalRoundBets = []
-        const singleUserRoundBets = []
-        for (let i = 0;i<=currentRound;i++){
+        const singleTotalRoundBets = [];
+        const singleUserRoundBets = [];
+        for (let i = 0; i <= currentRound; i++) {
           singleTotalRoundBets.push(fill(Array(numOfResults), '0'));
           singleUserRoundBets.push(fill(Array(numOfResults), '0'));
         }
@@ -83,7 +83,7 @@ module.exports = {
           eventRound: 0,
         });
 
-        if (resultSet && resultSet.length != 0) {
+        if (resultSet && resultSet.length !== 0) {
           bets = bets.concat(resultSet);
         }
 
