@@ -43,7 +43,7 @@ module.exports = async (
   });
 
   const promises = [];
-  const winnings = [];
+  let winnings = [];
   each(filtered, (bet) => {
     promises.push(new Promise(async (resolve, reject) => {
       try {
@@ -64,9 +64,8 @@ module.exports = async (
     }));
   });
   await Promise.all(promises);
-  let items = winnings;
-  items.sort((a, b) => b.amount - a.amount);
-  const totalCount = items.length;
+  winnings.sort((a, b) => b.amount - a.amount);
+  const totalCount = winnings.length;
   let hasNextPage;
   let pageNumber;
   let isPaginated = false;
@@ -76,16 +75,16 @@ module.exports = async (
     const end = skip + limit;
     hasNextPage = end < totalCount;
     pageNumber = toInteger(end / limit);
-    items = items.slice(skip, end);
+    winnings = winnings.slice(skip, end);
   }
 
   const pageInfo = isPaginated
-    ? { hasNextPage, pageNumber, count: items.length }
+    ? { hasNextPage, pageNumber, count: winnings.length }
     : undefined;
 
   return {
     totalCount,
     pageInfo,
-    items,
+    items: winnings,
   };
 };
