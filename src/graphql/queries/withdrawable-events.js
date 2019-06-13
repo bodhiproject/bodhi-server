@@ -47,10 +47,14 @@ const buildFilters = (bets, filter) => {
   return filters;
 };
 
-module.exports = async (parent, { filter, orderBy, limit, skip }, { db }) => {
+module.exports = async (parent, { filter, orderBy, limit, skip, includeRoundBets, roundBetsAddress }, context) => {
+  const { db } = context;
   const filters = lowercaseFilters(filter);
   const bets = await getUniqueBets(filters.withdrawerAddress, db);
   const query = { $or: buildFilters(bets, filters) };
+  context.includeRoundBets = includeRoundBets;
+  context.roundBetsAddress = roundBetsAddress;
+
   return runPaginatedQuery({
     db: db.Events,
     filter: query,

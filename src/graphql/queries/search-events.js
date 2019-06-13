@@ -45,13 +45,15 @@ const buildSearchPhrase = (searchPhrase) => {
 
 module.exports = async (
   root,
-  { filter, orderBy, limit, skip, searchPhrase },
-  { db: { Events } },
+  { filter, orderBy, limit, skip, searchPhrase, includeRoundBets, roundBetsAddress },
+  context,
 ) => {
   const filters = [];
   if (filter) filters.push({ $or: buildFilters(lowercaseFilters(filter)) });
   if (searchPhrase) filters.push({ $or: buildSearchPhrase(searchPhrase) });
-
+  const { db: { Events } } = context;
+  context.includeRoundBets = includeRoundBets;
+  context.roundBetsAddress = roundBetsAddress;
   const query = { $and: filters };
   let cursor = Events.cfind(query);
   cursor = buildCursorOptions(cursor, orderBy, limit, skip);
