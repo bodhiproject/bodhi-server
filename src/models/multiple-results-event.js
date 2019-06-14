@@ -75,7 +75,7 @@ module.exports = class MultipleResultsEvent {
     this.arbitrationEndTime = params.arbitrationEndTime;
 
     // Backend params
-    this.status = params.status || EVENT_STATUS.BETTING;
+    this.status = params.status || EVENT_STATUS.PRE_BETTING;
     this.language = params.language || 'zh-Hans-CN';
   }
 };
