@@ -56,10 +56,9 @@ module.exports = async (
 ) => {
   const query = filter ? { $or: buildBetFilters(lowercaseFilters(filter)) } : {};
   let result = await DBHelper.findBet(query);
-  const resultSetFilter = filter ? { $or: buildResultSetFilters(lowercaseFilters(filter)) } : {};
-
+  const resultSetFilter = { $or: buildResultSetFilters(lowercaseFilters(filter)) };
   const resultSet = await DBHelper.findResultSet(resultSetFilter);
-  if (resultSet && result.length != 0) {
+  if (resultSet && result.length !== 0) {
     result = result.concat(resultSet);
   }
 
@@ -67,8 +66,6 @@ module.exports = async (
     const amount = web3.utils.toBN(cur.amount);
     // centralizedOracleAddress is the better address in result set
     if (!cur.betterAddress) cur.betterAddress = cur.centralizedOracleAddress;
-    // null address could also enter acc, need to bypass
-    if (!cur.betterAddress) return acc;
     if (Object.keys(acc).includes(cur.betterAddress)) {
       acc[cur.betterAddress] = web3.utils.toBN(acc[cur.betterAddress]).add(amount);
     } else {
