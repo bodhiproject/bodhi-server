@@ -181,7 +181,6 @@ module.exports = class DBHelper {
       );
     } catch (err) {
       logger.error(`UPDATE Event Status Pre Result Setting error: ${err.message}`);
-      throw err;
     }
   }
 
