@@ -150,16 +150,15 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
-          $not: { status: EVENT_STATUS.BETTING },
-          betStartTime: { $lte: currBlockTime },
-          betEndTime: { $gt: currBlockTime },
+          $not: { status: EVENT_STATUS.PRE_BETTING },
+          betStartTime: { $gt: currBlockTime },
           currentRound: 0,
         },
-        { $set: { status: EVENT_STATUS.BETTING } },
+        { $set: { status: EVENT_STATUS.PRE_BETTING } },
         { multi: true },
       );
     } catch (err) {
-      logger.error(`UPDATE Event Status Betting error: ${err.message}`);
+      logger.error(`UPDATE Event Status Pre Betting error: ${err.message}`);
       throw err;
     }
   }
