@@ -56,10 +56,9 @@ module.exports = async (
 ) => {
   const query = filter ? { $or: buildBetFilters(lowercaseFilters(filter)) } : {};
   let result = await DBHelper.findBet(query);
-  const resultSetFilter = filter ? { $or: buildResultSetFilters(lowercaseFilters(filter)) } : {};
-
+  const resultSetFilter = { $or: buildResultSetFilters(lowercaseFilters(filter)) };
   const resultSet = await DBHelper.findResultSet(resultSetFilter);
-  if (resultSet && result.length != 0) {
+  if (resultSet && result.length !== 0) {
     result = result.concat(resultSet);
   }
 
