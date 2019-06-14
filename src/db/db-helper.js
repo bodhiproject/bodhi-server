@@ -120,6 +120,15 @@ module.exports = class DBHelper {
     }
   }
 
+  static async updateEventByAddress(address, fields) {
+    try {
+      await db.Events.update({ address }, { $set: fields }, {});
+    } catch (err) {
+      logger.error(`UPDATE Event By Address error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async updateEventStatusPreBetting(currBlockTime) {
     try {
       await db.Events.update(
@@ -134,15 +143,6 @@ module.exports = class DBHelper {
       );
     } catch (err) {
       logger.error(`UPDATE Event Status Pre Betting error: ${err.message}`);
-      throw err;
-    }
-  }
-
-  static async updateEventByAddress(address, fields) {
-    try {
-      await db.Events.update({ address }, { $set: fields }, {});
-    } catch (err) {
-      logger.error(`UPDATE Event By Address error: ${err.message}`);
       throw err;
     }
   }
