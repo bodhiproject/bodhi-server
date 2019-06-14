@@ -7,6 +7,7 @@ enum OrderDirection {
 
 enum EventStatus {
   CREATED
+  PRE_BETTING
   BETTING
   ORACLE_RESULT_SETTING
   OPEN_RESULT_SETTING
