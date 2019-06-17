@@ -165,6 +165,7 @@ const startSync = async () => {
     const { blockTime } = await DBHelper.findOneBlock({ blockNum: endBlock });
     await DBHelper.updateEventStatusPreBetting(blockTime);
     await DBHelper.updateEventStatusBetting(blockTime);
+    await DBHelper.updateEventStatusPreResultSetting(blockTime);
     await DBHelper.updateEventStatusOracleResultSetting(blockTime);
     await DBHelper.updateEventStatusOpenResultSetting(blockTime);
     await DBHelper.updateEventStatusArbitration(blockTime);

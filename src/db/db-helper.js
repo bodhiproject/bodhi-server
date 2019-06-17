@@ -164,6 +164,24 @@ module.exports = class DBHelper {
     }
   }
 
+  static async updateEventStatusPreResultSetting(currBlockTime) {
+    try {
+      await db.Events.update(
+        {
+          $not: { status: EVENT_STATUS.PRE_RESULT_SETTING },
+          betEndTime: { $lte: currBlockTime },
+          resultSetStartTime: { $gt: currBlockTime },
+          currentRound: 0,
+        },
+        { $set: { status: EVENT_STATUS.PRE_RESULT_SETTING } },
+        { multi: true },
+      );
+    } catch (err) {
+      logger.error(`UPDATE Event Status Pre Result Setting error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async updateEventStatusOracleResultSetting(currBlockTime) {
     try {
       await db.Events.update(
