@@ -301,6 +301,7 @@ input WithdrawFilter {
 input TransactionFilter {
   eventAddress: String
   transactorAddress: String
+  txid: String
 }
 
 input TotalResultBetsFilter {

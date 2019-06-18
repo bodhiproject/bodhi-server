@@ -1,18 +1,20 @@
-const { concat, orderBy: order, slice } = require('lodash');
-const { lowercaseFilters, buildCursorOptions, constructPageInfo } = require('./utils');
-const { ORDER_DIRECTION, TX_TYPE, TX_STATUS } = require('../../constants');
+const { concat, orderBy: order } = require('lodash');
+const { lowercaseFilters, buildCursorOptions } = require('./utils');
+const { ORDER_DIRECTION, TX_STATUS } = require('../../constants');
 
 const buildTxFilters = ({
   eventAddress,
   transactorAddress,
+  txid,
 } = {}) => {
-  if (!eventAddress && !transactorAddress) {
-    throw Error('eventAddress or transactorAddress missing in filters');
+  if (!eventAddress && !transactorAddress && !txid) {
+    throw Error('eventAddress or transactorAddress or txid missing in filters');
   }
 
   const filter = {};
   if (eventAddress) filter.eventAddress = eventAddress;
   if (transactorAddress) filter.transactorAddress = transactorAddress;
+  if (txid) filter.txid = txid;
   filter.txStatus = TX_STATUS.PENDING;
   return filter;
 };
@@ -20,10 +22,12 @@ const buildTxFilters = ({
 const buildEventFilters = ({
   eventAddress,
   transactorAddress,
+  txid,
 }) => {
   const filters = {};
   if (eventAddress) filters.address = eventAddress;
   if (transactorAddress) filters.ownerAddress = transactorAddress;
+  if (txid) filters.txid = txid;
   filters.txStatus = TX_STATUS.PENDING;
   return filters;
 };
@@ -31,10 +35,12 @@ const buildEventFilters = ({
 const buildBetFilters = ({
   eventAddress,
   transactorAddress,
+  txid,
 }) => {
   const filters = {};
   if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.betterAddress = transactorAddress;
+  if (txid) filters.txid = txid;
   filters.txStatus = TX_STATUS.PENDING;
   return filters;
 };
@@ -42,10 +48,12 @@ const buildBetFilters = ({
 const buildResultSetFilters = ({
   eventAddress,
   transactorAddress,
+  txid,
 }) => {
   const filters = {};
   if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.centralizedOracleAddress = transactorAddress;
+  if (txid) filters.txid = txid;
   filters.eventRound = 0;
   filters.txStatus = TX_STATUS.PENDING;
   return filters;
@@ -54,10 +62,12 @@ const buildResultSetFilters = ({
 const buildWithdrawFilters = ({
   eventAddress,
   transactorAddress,
+  txid,
 }) => {
   const filters = {};
   if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.winnerAddress = transactorAddress;
+  if (txid) filters.txid = txid;
   filters.txStatus = TX_STATUS.PENDING;
   return filters;
 };
