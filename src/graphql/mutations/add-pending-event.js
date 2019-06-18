@@ -13,10 +13,8 @@ module.exports = async (root, data) => {
     results,
     numOfResults,
     centralizedOracle,
-    betStartTime,
     betEndTime,
     resultSetStartTime,
-    resultSetEndTime,
     language,
   } = data;
 
@@ -37,10 +35,8 @@ module.exports = async (root, data) => {
     results,
     numOfResults,
     centralizedOracle,
-    betStartTime,
     betEndTime,
     resultSetStartTime,
-    resultSetEndTime,
     status: EVENT_STATUS.CREATED,
     language,
   });

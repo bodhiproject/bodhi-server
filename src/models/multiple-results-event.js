@@ -1,4 +1,4 @@
-const { isFinite, isString, map, filter } = require('lodash');
+const { isUndefined, isFinite, isString, map, filter } = require('lodash');
 const { TX_TYPE, INVALID_RESULT_INDEX, EVENT_STATUS } = require('../constants');
 const { toLowerCase } = require('../utils');
 const web3 = require('../web3');
@@ -22,14 +22,14 @@ module.exports = class MultipleResultsEvent {
     if (!isString(params.centralizedOracle)) {
       throw Error('centralizedOracle must be a String');
     }
-    if (!isFinite(params.betStartTime)) {
+    if (!isUndefined(params.betStartTime) && !isFinite(params.betStartTime)) {
       throw Error('betStartTime must be a Number');
     }
     if (!isFinite(params.betEndTime)) throw Error('betEndTime must be a Number');
     if (!isFinite(params.resultSetStartTime)) {
       throw Error('resultSetStartTime must be a Number');
     }
-    if (!isFinite(params.resultSetEndTime)) {
+    if (!isUndefined(params.resultSetEndTime) && !isFinite(params.resultSetEndTime)) {
       throw Error('resultSetEndTime must be a Number');
     }
   }
