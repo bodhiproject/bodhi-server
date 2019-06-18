@@ -1,7 +1,7 @@
 const { isNull } = require('lodash');
 const logger = require('../utils/logger');
-const { EVENT_STATUS, TX_STATUS } = require('../constants');
 const { isDefined } = require('../utils');
+const { EVENT_STATUS, TX_STATUS } = require('../constants');
 const { db } = require('.');
 
 module.exports = class DBHelper {
