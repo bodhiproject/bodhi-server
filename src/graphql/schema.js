@@ -373,6 +373,12 @@ type Query {
     transactionSkips: TransactionSkips
   ): PaginatedTransactions!
 
+  pendingTransactions(
+    filter: TransactionFilter
+    limit: Int
+    skip: Int
+  ): [Transaction]!
+
   syncInfo: SyncInfo!
 
   totalResultBets(
