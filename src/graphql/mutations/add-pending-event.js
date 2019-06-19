@@ -43,6 +43,7 @@ module.exports = async (root, data) => {
     resultSetEndTime,
     status: EVENT_STATUS.CREATED,
     language,
+    withdrawnList: [],
   });
   await DBHelper.insertEvent(multipleResultsEvent);
   logger.debug(`Mutation addPendingEvent txid:${txid}`);
