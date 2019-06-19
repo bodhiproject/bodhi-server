@@ -110,6 +110,7 @@ type MultipleResultsEvent implements Transaction {
   pendingTxs: PendingTransactions
   roundBets: RoundBets
   totalBets: String
+  withdrawnList: [String]
 }
 
 type RoundBets {
