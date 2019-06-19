@@ -5,7 +5,7 @@ const LogApi = require('../api/log');
 const router = Router();
 
 router.post('/client-error', (req, res, next) => {
-  LogApi.logClientError(req.body)
+  LogApi.logClientErrors(req.body)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
