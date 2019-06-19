@@ -7,7 +7,7 @@ const logsDir = `${getLogsDir()}/client`;
 const winstonCfg = winston.config;
 const transports = [
   new (winston.transports.DailyRotateFile)({
-    filename: `${logsDir}/client_${moment().format('YYYYMMDD_HHmmss')}.log`,
+    filename: `${logsDir}/client.log`,
     timestamp() {
       return moment().format('YYYY-MM-DD HH:mm:ss');
     },
