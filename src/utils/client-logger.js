@@ -1,6 +1,6 @@
-require('winston-daily-rotate-file');
 const moment = require('moment');
 const winston = require('winston');
+require('winston-daily-rotate-file');
 const { getLogsDir } = require('../config');
 
 const logsDir = `${getLogsDir()}/client`;
