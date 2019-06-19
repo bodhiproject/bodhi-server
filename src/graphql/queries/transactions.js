@@ -5,6 +5,7 @@ const { ORDER_DIRECTION, TX_TYPE } = require('../../constants');
 const buildTxFilters = ({
   eventAddress,
   transactorAddress,
+  txStatus,
 } = {}) => {
   if (!eventAddress && !transactorAddress) {
     throw Error('eventAddress or transactorAddress missing in filters');
@@ -13,36 +14,43 @@ const buildTxFilters = ({
   const filter = {};
   if (eventAddress) filter.eventAddress = eventAddress;
   if (transactorAddress) filter.transactorAddress = transactorAddress;
+  if (txStatus) filter.txStatus = txStatus;
   return filter;
 };
 
 const buildEventFilters = ({
   eventAddress,
   transactorAddress,
+  txStatus,
 }) => {
   const filters = {};
   if (eventAddress) filters.address = eventAddress;
   if (transactorAddress) filters.ownerAddress = transactorAddress;
+  if (txStatus) filters.txStatus = txStatus;
   return filters;
 };
 
 const buildBetFilters = ({
   eventAddress,
   transactorAddress,
+  txStatus,
 }) => {
   const filters = {};
   if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.betterAddress = transactorAddress;
+  if (txStatus) filters.txStatus = txStatus;
   return filters;
 };
 
 const buildResultSetFilters = ({
   eventAddress,
   transactorAddress,
+  txStatus,
 }) => {
   const filters = {};
   if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.centralizedOracleAddress = transactorAddress;
+  if (txStatus) filters.txStatus = txStatus;
   filters.eventRound = 0;
   return filters;
 };
@@ -50,10 +58,12 @@ const buildResultSetFilters = ({
 const buildWithdrawFilters = ({
   eventAddress,
   transactorAddress,
+  txStatus,
 }) => {
   const filters = {};
   if (eventAddress) filters.eventAddress = eventAddress;
   if (transactorAddress) filters.winnerAddress = transactorAddress;
+  if (txStatus) filters.txStatus = txStatus;
   return filters;
 };
 
