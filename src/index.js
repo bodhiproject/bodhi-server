@@ -9,6 +9,7 @@ const start = async () => {
   try {
     initConfig();
     require('./utils/logger');
+    require('./utils/client-logger');
     await initDB();
     require('./web3');
     initApi();
