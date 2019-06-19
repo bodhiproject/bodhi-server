@@ -138,6 +138,15 @@ module.exports = class DBHelper {
     }
   }
 
+  static async updateEventByAddress(address, fields) {
+    try {
+      await db.Events.update({ address }, { $set: fields }, {});
+    } catch (err) {
+      logger.error(`UPDATE Event By Address error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async updateEventStatusBetting(currBlockTime) {
     try {
       await db.Events.update(
