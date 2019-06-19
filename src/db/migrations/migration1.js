@@ -18,7 +18,7 @@ async function migration1() {
     }
   } catch (err) {
     logger.error(`Migration 1 error: ${err.message}`);
-    throw Error(`Migration 1 error: ${err.message}`);
+    throw err;
   }
 }
 
