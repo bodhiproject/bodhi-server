@@ -1,4 +1,4 @@
-const { isNull } = require('lodash');
+const { isNull, isUndefined } = require('lodash');
 const Withdraw = require('../../models/withdraw');
 const logger = require('../../utils/logger');
 const { getTransaction } = require('../../utils/web3-utils');
@@ -22,6 +22,12 @@ module.exports = async (root, data) => {
   const txReceipt = await getTransaction(txid);
   await DBHelper.insertTransactionReceipt(txReceipt);
 
+  const event = await DBHelper.findOneEvent({ address: eventAddress });
+  if (isNull(event)) throw Error('Event does not exist');
+  if (isNull(event.withdrawnList) || isUndefined(event.withdrawnList)) event.withdrawnList = [];
+  if (event.withdrawnList.includes(winnerAddress)) throw Error('User already withdrawn');
+  event.withdrawnList.push(winnerAddress);
+
   const withdraw = new Withdraw({
     txid,
     txStatus: TX_STATUS.PENDING,
@@ -32,6 +38,10 @@ module.exports = async (root, data) => {
     escrowWithdrawAmount: escrowAmount,
   });
   await DBHelper.insertWithdraw(withdraw);
+  await DBHelper.updateEvent(
+    event.txid,
+    { withdrawnList: event.withdrawnList },
+  );
   logger.debug(`Mutation addPendingWithdraw txid:${txid}`);
 
   return withdraw;
