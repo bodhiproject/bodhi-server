@@ -1,4 +1,5 @@
 const datastore = require('nedb-promise');
+const async = require('async');
 const fs = require('fs-extra');
 const path = require('path');
 const { getDbDir } = require('../config');
@@ -113,27 +114,36 @@ async function applyMigrations() {
     throw err;
   }
 
-  // Run each migration and store the number
-  /* eslint-disable no-restricted-syntax, no-await-in-loop */
-  for (const migration of migrations) {
-    try {
-      if (Number(migration.number) === lastMigration + 1) {
-        // Run migration
-        logger.info(`Running migration ${migration.number}...`);
-        await migration.migrate(db);
-
-        // Track the last migration number
-        lastMigration = migration.number;
-        await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${migration.number}\n`);
+  let i = 0;
+  async.whilst(
+    condition => condition(null, i < migrations.length),
+    (callback) => {
+      const migration = migrations[i];
+      i++;
+      try {
+        if (Number(migration.number) === lastMigration + 1) {
+          // Run migration
+          logger.info(`Running migration ${migration.number}...`);
+          migration.migrate(db);
+          logger.info(`Migration ${migration.number} done`);
+          // Track the last migration number
+          lastMigration = migration.number;
+          fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${migration.number}\n`);
+          logger.info('Write file done');
+        }
+      } catch (err) {
+        callback(err, migration.number);
       }
-    } catch (err) {
-      logger.error(`Migration ${migration.number} error: ${err.message}`);
-      throw err;
-    }
-  }
-  /* eslint-enable no-restricted-syntax, no-await-in-loop */
-
-  logger.info('Migrations complete.');
+      callback(null, i);
+    },
+    (err, number) => {
+      if (err) {
+        logger.error(`Migration ${number} error: ${err.message}`);
+        return;
+      }
+      logger.info('Migrations complete.');
+    },
+  );
 }
 
 module.exports = {
