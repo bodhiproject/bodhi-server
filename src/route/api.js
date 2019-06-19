@@ -1,4 +1,4 @@
-const logRoutes = require('./api-config-manager');
+const logRoutes = require('./api-log');
 const configManagerRoutes = require('./api-config-manager');
 const multipleResultsEventRoutes = require('./api-multiple-results-event');
 

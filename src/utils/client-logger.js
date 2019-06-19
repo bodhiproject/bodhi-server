@@ -25,7 +25,4 @@ const transports = [
 const logger = new (winston.Logger)({ transports, exitOnError: false });
 logger.level = 'error';
 
-// Log env and paths
-logger.info(`Client logs dir: ${logsDir}`);
-
 module.exports = logger;
