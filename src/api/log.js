@@ -6,13 +6,8 @@ module.exports = {
    * @param {object} args Arguments including log level and log message.
    */
   async logClientError(args) {
-    const { level, message } = args;
-    if (!level) throw Error('level is not defined');
+    const { message } = args;
     if (!message) throw Error('message is not defined');
-
-    if (level !== 'error') {
-      throw Error('logClientError only accepts log level error');
-    }
 
     clientLogger.error(message);
   },
