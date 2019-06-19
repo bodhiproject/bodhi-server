@@ -42,7 +42,8 @@
     "web3": "^1.0.0-beta.54",
     "web3-eth-abi": "^1.0.0-beta.54",
     "winston": "^2.4.0",
-    "winston-daily-rotate-file": "^3.2.1"
+    "winston-daily-rotate-file": "^3.2.1",
+    "winstond": "0.0.2"
   },
   "devDependencies": {
     "easygraphql-tester": "^5.1.3",
