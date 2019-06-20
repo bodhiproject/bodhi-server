@@ -2,7 +2,7 @@ const logger = require('../../utils/logger');
 const DBHelper = require('../db-helper');
 const { TX_STATUS } = require('../../constants');
 
-async function migration1() {
+async function migration1(next) {
   try {
     const withdraws = await DBHelper.findWithdraw({ txStatus: TX_STATUS.SUCCESS });
     const withdrawnLists = new Map();
@@ -16,12 +16,24 @@ async function migration1() {
       withdrawnLists.set(withdraw.eventAddress, withdrawnList);
     }
 
-    withdrawnLists.forEach((value, key) => {
-      DBHelper.updateEventByAddress(
-        key,
-        { withdrawnList: value },
-      );
+    const promises = [];
+    withdrawnLists.forEach(async (value, key) => {
+      promises.push(new Promise(async (resolve, reject) => {
+        try {
+          await DBHelper.updateEventByAddress(
+            key,
+            { withdrawnList: value },
+          );
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      }));
     });
+
+    await Promise.all(promises);
+    logger.info('Migration 1 done');
+    next();
   } catch (err) {
     logger.error(`Migration 1 error: ${err.message}`);
     throw err;
