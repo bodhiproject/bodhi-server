@@ -116,31 +116,33 @@ async function applyMigrations() {
 
   let i = 0;
   async.whilst(
-    condition => condition(null, i < migrations.length),
-    (callback) => {
+    check => check(null, i < migrations.length),
+    (next) => {
       const migration = migrations[i];
       i++;
       try {
-        if (Number(migration.number) === lastMigration + 1) {
+        if (Number(migration.number) > lastMigration) {
           // Run migration
           logger.info(`Running migration ${migration.number}...`);
-          migration.migrate(db);
-          logger.info(`Migration ${migration.number} done`);
-          // Track the last migration number
-          lastMigration = migration.number;
-          fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${migration.number}\n`);
-          logger.info('Write file done');
+          migration.migrate(() => {
+            // Track the last migration number
+            lastMigration = migration.number;
+            fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${lastMigration}\n`);
+            next(null, i);
+          });
+        } else {
+          next(null, i);
         }
       } catch (err) {
-        callback(err, migration.number);
+        next(err, i);
       }
-      callback(null, i);
     },
     (err, number) => {
       if (err) {
         logger.error(`Migration ${number} error: ${err.message}`);
         return;
       }
+
       logger.info('Migrations complete.');
     },
   );

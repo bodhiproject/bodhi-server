@@ -261,9 +261,15 @@ module.exports = class DBHelper {
   static async updateEventWithdrawnList(withdraw) {
     try {
       const event = await DBHelper.findOneEvent({ address: withdraw.eventAddress });
-      if (isNull(event)) throw Error('Event does not exist');
+      if (isNull(event)) {
+        logger.error('UPDATE Event withdrawnList error: event does not exist');
+        return;
+      }
       if (!isDefined(event.withdrawnList)) event.withdrawnList = [];
-      if (event.withdrawnList.includes(withdraw.winnerAddress)) throw Error('User already withdrawn');
+      if (event.withdrawnList.includes(withdraw.winnerAddress)) {
+        logger.error('UPDATE Event withdrawnList error: user already withdrawn');
+        return;
+      }
       event.withdrawnList.push(withdraw.winnerAddress);
 
       await DBHelper.updateEvent(
