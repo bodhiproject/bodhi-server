@@ -1,4 +1,4 @@
-const { uniqBy, each, isArray } = require('lodash');
+const { uniqBy, each } = require('lodash');
 const { lowercaseFilters, runPaginatedQuery } = require('./utils');
 const DBHelper = require('../../db/db-helper');
 const { EVENT_STATUS } = require('../../constants');
@@ -30,7 +30,23 @@ const buildFilters = (bets, filter) => {
   // for user created events
   filters.push({ status: EVENT_STATUS.WITHDRAWING, ownerAddress: withdrawerAddress });
   each(bets, (bet) => {
-    each(versions, (version) => {
+    if (versions) {
+      each(versions, (version) => {
+        const currFilter = {
+          status: EVENT_STATUS.WITHDRAWING,
+          address: bet.eventAddress,
+        };
+        // final result invalid, betting round user should be able to see the events for withdraw
+        if (bet.eventRound === 0) {
+          currFilter.$or = [{ currentResultIndex: bet.resultIndex }, { currentResultIndex: 0 }];
+        } else {
+          currFilter.currentResultIndex = bet.resultIndex;
+        }
+        if (version) currFilter.version = version;
+        if (language) currFilter.language = language;
+        filters.push(currFilter);
+      });
+    } else {
       const currFilter = {
         status: EVENT_STATUS.WITHDRAWING,
         address: bet.eventAddress,
@@ -41,11 +57,11 @@ const buildFilters = (bets, filter) => {
       } else {
         currFilter.currentResultIndex = bet.resultIndex;
       }
-      if (version) currFilter.version = version;
       if (language) currFilter.language = language;
       filters.push(currFilter);
-    });
+    }
   });
+
 
   return filters;
 };
