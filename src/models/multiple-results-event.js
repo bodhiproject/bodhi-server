@@ -77,5 +77,6 @@ module.exports = class MultipleResultsEvent {
     // Backend params
     this.status = params.status || EVENT_STATUS.BETTING;
     this.language = params.language || 'zh-Hans-CN';
+    this.withdrawnList = [];
   }
 };

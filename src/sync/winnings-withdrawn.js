@@ -29,6 +29,9 @@ const syncWinningsWithdrawn = async (
           const withdraw = parseWithdraw({ log });
           await DBHelper.insertWithdraw(withdraw);
 
+          // Add withdrawer into event withdrawnList
+          await DBHelper.updateEventWithdrawnList(withdraw);
+
           // Fetch and insert tx receipt
           const txReceipt = await getTransactionReceipt(withdraw.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
@@ -71,6 +74,8 @@ const pendingWinningsWithdrawn = async ({ syncPromises, limit }) => {
             if (foundLog) {
               const withdraw = parseWithdraw({ log: foundLog });
               await DBHelper.insertWithdraw(withdraw);
+              // Add withdrawer into event withdrawnList
+              await DBHelper.updateEventWithdrawnList(withdraw);
             }
           } else {
             // Update withdraw with failed status

@@ -1,4 +1,5 @@
 const datastore = require('nedb-promise');
+const async = require('async');
 const fs = require('fs-extra');
 const path = require('path');
 const { getDbDir } = require('../config');
@@ -113,27 +114,48 @@ async function applyMigrations() {
     throw err;
   }
 
-  // Run each migration and store the number
-  /* eslint-disable no-restricted-syntax, no-await-in-loop */
-  for (const migration of migrations) {
-    try {
-      if (Number(migration.number) === lastMigration + 1) {
-        // Run migration
-        logger.info(`Running migration ${migration.number}...`);
-        await migration.migrate(db);
-
-        // Track the last migration number
-        lastMigration = migration.number;
-        await fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${migration.number}\n`);
+  /**
+   * whilst source code: https://caolan.github.io/async/v3/whilst.js.html
+   * check(err, truth) and next(err, res) are built-in funcs in the source code
+   * whilst(test, iter, callback):
+   *    1. test: take check(err, truth), if truth is true, then call iter(next), otherwise, call callback to end the loop
+   *    2. iter: take next(err, res), which triggers test if no err, otherwise trigger callback(err)
+   *    3. callback: will only be triggered if test fails, or err encountered, reaching callback means end of the loop
+   */
+  let i = 0;
+  async.whilst(
+    check => check(null, i < migrations.length), // trigger iter
+    (next) => {
+      const migration = migrations[i];
+      i++;
+      try {
+        if (Number(migration.number) > lastMigration) {
+          // Run migration
+          logger.info(`Running migration ${migration.number}...`);
+          // pass next() to migrate(), await not allowed, only callback func
+          migration.migrate(() => {
+            // Track the last migration number
+            lastMigration = migration.number;
+            fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${lastMigration}\n`);
+            next(null, i); // trigger the next test
+          });
+        } else {
+          next(null, i); // if no migration here, trigger the next test
+        }
+      } catch (err) {
+        next(err, i); // err met, trigger the callback to end this loop
       }
-    } catch (err) {
-      logger.error(`Migration ${migration.number} error: ${err.message}`);
-      throw err;
-    }
-  }
-  /* eslint-enable no-restricted-syntax, no-await-in-loop */
+    },
+    (err, number) => {
+      // will only be called if should end this loop
+      if (err) {
+        logger.error(`Migration ${number} error: ${err.message}`);
+        return;
+      }
 
-  logger.info('Migrations complete.');
+      logger.info('Migrations complete.');
+    },
+  );
 }
 
 module.exports = {

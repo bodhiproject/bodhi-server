@@ -1,5 +1,6 @@
 const { isNull } = require('lodash');
 const logger = require('../utils/logger');
+const { isDefined } = require('../utils');
 const { EVENT_STATUS } = require('../constants');
 const { db } = require('.');
 
@@ -119,6 +120,15 @@ module.exports = class DBHelper {
     }
   }
 
+  static async updateEventByAddress(address, fields) {
+    try {
+      await db.Events.update({ address }, { $set: fields }, {});
+    } catch (err) {
+      logger.error(`UPDATE Event By Address error: ${err.message}`);
+      throw err;
+    }
+  }
+
   static async updateEventStatusBetting(currBlockTime) {
     try {
       await db.Events.update(
@@ -202,6 +212,30 @@ module.exports = class DBHelper {
       );
     } catch (err) {
       logger.error(`UPDATE Event Status Withdrawing error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventWithdrawnList(withdraw) {
+    try {
+      const event = await DBHelper.findOneEvent({ address: withdraw.eventAddress });
+      if (isNull(event)) {
+        logger.error('UPDATE Event withdrawnList error: event does not exist');
+        return;
+      }
+      if (!isDefined(event.withdrawnList)) event.withdrawnList = [];
+      if (event.withdrawnList.includes(withdraw.winnerAddress)) {
+        logger.error('UPDATE Event withdrawnList error: user already withdrawn');
+        return;
+      }
+      event.withdrawnList.push(withdraw.winnerAddress);
+
+      await DBHelper.updateEvent(
+        event.txid,
+        { withdrawnList: event.withdrawnList },
+      );
+    } catch (err) {
+      logger.error(`UPDATE Event withdrawnList error: ${err.message}`);
       throw err;
     }
   }
