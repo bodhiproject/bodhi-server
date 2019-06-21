@@ -31,7 +31,7 @@ describe('graphql/queries', () => {
             { txStatus: SUCCESS }
             { address: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }
             { ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }
-            { version: 0 }
+            { versions: [0] }
             { centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }
             { currentRound: 0 }
             { currentResultIndex: 0 }
@@ -93,7 +93,7 @@ describe('graphql/queries', () => {
     it('should accept the version filter', async () => {
       const valid = `
         query {
-          events(filter: { version: 0 }) {
+          events(filter: { versions: [0] }) {
             ${PAGINATED_EVENTS}
           }
         }

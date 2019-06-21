@@ -4,20 +4,11 @@ const { lowercaseFilters, runPaginatedQuery } = require('./utils');
 const errCOracleFilterConflict =
   Error('Cannot have both centralizedOracle and excludeCentralizedOracle filters');
 
-const buildFilters = ({
-  OR,
-  txid,
-  txStatus,
-  address,
-  ownerAddress,
-  version,
-  centralizedOracle,
-  excludeCentralizedOracle,
-  currentRound,
-  currentResultIndex,
-  status,
-  language,
-} = {}) => {
+const buildFilters = (rawFilter = {}) => {
+  const {
+    OR,
+    versions,
+  } = rawFilter;
   let filters = [];
 
   // Handle OR array
@@ -29,6 +20,32 @@ const buildFilters = ({
   }
 
   // Handle other fields
+  if (versions) {
+    each(versions, (version) => {
+      const subfilter = buildFilter(rawFilter, version);
+      if (Object.keys(subfilter).length > 0) filters.push(subfilter);
+    });
+  } else {
+    const subfilter = buildFilter(rawFilter, undefined);
+    if (Object.keys(subfilter).length > 0) filters.push(subfilter);
+  }
+
+  return filters;
+};
+
+const buildFilter = (rawFilter, version) => {
+  const {
+    txid,
+    txStatus,
+    address,
+    ownerAddress,
+    centralizedOracle,
+    excludeCentralizedOracle,
+    currentRound,
+    currentResultIndex,
+    status,
+    language,
+  } = rawFilter;
   const filter = {};
   if (txid) filter.txid = txid;
   if (txStatus) filter.txStatus = txStatus;
@@ -49,9 +66,8 @@ const buildFilters = ({
   if (status) filter.status = status;
   if (language) filter.language = language;
 
-  if (Object.keys(filter).length > 0) filters.push(filter);
-  return filters;
-};
+  return filter;
+} 
 
 module.exports = async (
   parent,

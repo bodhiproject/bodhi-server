@@ -250,7 +250,7 @@ input EventFilter {
   txStatus: TransactionStatus
   address: String
   ownerAddress: String
-  version: Int
+  versions: [Int]
   centralizedOracle: String
   currentRound: Int
   currentResultIndex: Int
@@ -268,7 +268,7 @@ input SearchEventsFilter {
 }
 
 input WithdrawableEventFilter {
-  version: Int
+  versions: [Int]
   language: String
   withdrawerAddress: String!
 }
