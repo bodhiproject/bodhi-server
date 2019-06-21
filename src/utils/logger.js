@@ -18,7 +18,7 @@ const transports = [
     },
   }),
   new (winston.transports.DailyRotateFile)({
-    filename: `${logsDir}/bodhiapp_${moment().format('YYYYMMDD_HHmmss')}.log`,
+    filename: `${logsDir}/server.log`,
     timestamp() {
       return moment().format('YYYY-MM-DD HH:mm:ss');
     },
