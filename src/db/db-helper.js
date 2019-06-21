@@ -1,6 +1,6 @@
 const { isNull } = require('lodash');
 const logger = require('../utils/logger');
-const { EVENT_STATUS } = require('../constants');
+const { EVENT_STATUS, TX_STATUS } = require('../constants');
 const { db } = require('.');
 
 module.exports = class DBHelper {
@@ -123,6 +123,7 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
+          txStatus: TX_STATUS.SUCCESS,
           $not: { status: EVENT_STATUS.PRE_BETTING },
           betStartTime: { $gt: currBlockTime },
           currentRound: 0,
@@ -140,6 +141,7 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
+          txStatus: TX_STATUS.SUCCESS,
           $not: { status: EVENT_STATUS.BETTING },
           betStartTime: { $lte: currBlockTime },
           betEndTime: { $gt: currBlockTime },
@@ -158,6 +160,7 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
+          txStatus: TX_STATUS.SUCCESS,
           $not: { status: EVENT_STATUS.PRE_RESULT_SETTING },
           betEndTime: { $lte: currBlockTime },
           resultSetStartTime: { $gt: currBlockTime },
@@ -176,6 +179,7 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
+          txStatus: TX_STATUS.SUCCESS,
           $not: { status: EVENT_STATUS.ORACLE_RESULT_SETTING },
           resultSetStartTime: { $lte: currBlockTime },
           resultSetEndTime: { $gt: currBlockTime },
@@ -194,6 +198,7 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
+          txStatus: TX_STATUS.SUCCESS,
           $not: { status: EVENT_STATUS.OPEN_RESULT_SETTING },
           resultSetEndTime: { $lte: currBlockTime },
           currentRound: 0,
@@ -211,6 +216,7 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
+          txStatus: TX_STATUS.SUCCESS,
           $not: { status: EVENT_STATUS.ARBITRATION },
           arbitrationEndTime: { $gt: currBlockTime },
           currentRound: { $gt: 0 },
@@ -228,6 +234,7 @@ module.exports = class DBHelper {
     try {
       await db.Events.update(
         {
+          txStatus: TX_STATUS.SUCCESS,
           $not: { status: EVENT_STATUS.WITHDRAWING },
           arbitrationEndTime: { $lte: currBlockTime },
           currentRound: { $gt: 0 },

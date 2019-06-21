@@ -407,10 +407,8 @@ type Mutation {
     results: [String!]!
     numOfResults: Int!
     centralizedOracle: String!
-    betStartTime: Int!
     betEndTime: Int!
     resultSetStartTime: Int!
-    resultSetEndTime: Int!
     language: String!
   ): MultipleResultsEvent!
 
