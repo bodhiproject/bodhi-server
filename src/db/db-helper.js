@@ -1,11 +1,7 @@
 const { isNull } = require('lodash');
 const logger = require('../utils/logger');
-<<<<<<< HEAD
 const { isDefined } = require('../utils');
-const { EVENT_STATUS } = require('../constants');
-=======
 const { EVENT_STATUS, TX_STATUS } = require('../constants');
->>>>>>> Change all event status updating methods to include filter for tx status success
 const { db } = require('.');
 
 module.exports = class DBHelper {
