@@ -268,7 +268,7 @@ input SearchEventsFilter {
 }
 
 input WithdrawableEventFilter {
-  version: Int
+  versions: [Int]
   language: String
   withdrawerAddress: String!
 }

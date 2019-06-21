@@ -1,4 +1,4 @@
-const { uniqBy, each } = require('lodash');
+const { uniqBy, each, isArray } = require('lodash');
 const { lowercaseFilters, runPaginatedQuery } = require('./utils');
 const DBHelper = require('../../db/db-helper');
 const { EVENT_STATUS } = require('../../constants');
@@ -24,24 +24,27 @@ const getUniqueBets = async (withdrawerAddress, db) => {
  * @return {array} Array of filters for the events query.
  */
 const buildFilters = (bets, filter) => {
-  const { version, language, withdrawerAddress } = filter;
+  const { versions, language, withdrawerAddress } = filter;
   const filters = [];
+
   // for user created events
   filters.push({ status: EVENT_STATUS.WITHDRAWING, ownerAddress: withdrawerAddress });
   each(bets, (bet) => {
-    const currFilter = {
-      status: EVENT_STATUS.WITHDRAWING,
-      address: bet.eventAddress,
-    };
-    // final result invalid, betting round user should be able to see the events for withdraw
-    if (bet.eventRound == 0) {
-      currFilter.$or = [{ currentResultIndex: bet.resultIndex }, { currentResultIndex: 0 }];
-    } else {
-      currFilter.currentResultIndex = bet.resultIndex;
-    }
-    if (version) currFilter.version = version;
-    if (language) currFilter.language = language;
-    filters.push(currFilter);
+    each(versions, (version) => {
+      const currFilter = {
+        status: EVENT_STATUS.WITHDRAWING,
+        address: bet.eventAddress,
+      };
+      // final result invalid, betting round user should be able to see the events for withdraw
+      if (bet.eventRound === 0) {
+        currFilter.$or = [{ currentResultIndex: bet.resultIndex }, { currentResultIndex: 0 }];
+      } else {
+        currFilter.currentResultIndex = bet.resultIndex;
+      }
+      if (version) currFilter.version = version;
+      if (language) currFilter.language = language;
+      filters.push(currFilter);
+    });
   });
 
   return filters;
