@@ -92,10 +92,10 @@ type MultipleResultsEvent implements Transaction {
   results: [String!]!
   numOfResults: Int!
   centralizedOracle: String!
-  betStartTime: Int!
+  betStartTime: Int
   betEndTime: Int!
   resultSetStartTime: Int!
-  resultSetEndTime: Int!
+  resultSetEndTime: Int
   escrowAmount: String
   arbitrationLength: Int
   arbitrationRewardPercentage: Int
