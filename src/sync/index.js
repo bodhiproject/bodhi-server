@@ -25,7 +25,7 @@ const emitter = require('../event');
 
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
-const PROMISE_CONCURRENCY_LIMIT = 25;
+const PROMISE_CONCURRENCY_LIMIT = 100;
 const START_BLOCK_FILENAME = 'start_block.dat';
 
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
