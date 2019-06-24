@@ -7,6 +7,7 @@ const {
   PAGINATED_WITHDRAWS,
   BET,
   RESULT_SET,
+  WITHDRAW,
 } = require('./schema-helper');
 const schema = require('../../src/graphql/schema');
 
@@ -1807,28 +1808,442 @@ describe('graphql/mutations', () => {
     });
   });
 
-  // describe('add-pending-withdraw', () => {
-  //   it('Pass all arguments', async () => {
-  //     const valid = `
-  //       mutation {
-  //         addPendingEvent(
-  //           txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-  //           ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-  //           name: "General test"
-  //           results: ["1", "2"]
-  //           numOfResults: 2
-  //           centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-  //           betStartTime: 1560965704
-  //           betEndTime: 1560965704
-  //           resultSetStartTime: 1560965704
-  //           resultSetEndTime: 1560965704
-  //           language: "en-US"
-  //         ) {
-  //           ${MULTIPLE_RESULTS_EVENT}
-  //         }
-  //       }
-  //     `;
-  //     tester.test(true, valid, {});
-  //   });
-  // });
+  describe('add-pending-withdraw', () => {
+    it('It should pass if passing all arguments correctly', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(true, valid, {});
+    });
+
+    it('It should fail if txid is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is null', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: null
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is number', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: 1
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is array', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is object', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: {id: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is null', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: null
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is array', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is object', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is number', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: 1
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if winnerAddress is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if winnerAddress is null', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: null
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if winnerAddress is number', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: 1
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if winnerAddress is array', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if winnerAddress is object', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            winningAmount: "100000"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if winningAmount is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if winningAmount is null', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: null
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if winningAmount is number', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: 100000
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if winningAmount is array', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: ["100000"]
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if winningAmount is object', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: {id:"100000"}
+            escrowAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if escrowAmount is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winningAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if escrowAmount is null', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            escrowAmount: null
+            winningAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if escrowAmount is number', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            escrowAmount: 100000
+            winningAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if escrowAmount is array', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            escrowAmount: ["100000"]
+            winningAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if escrowAmount is object', async () => {
+      const valid = `
+        mutation {
+          addPendingWithdraw(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            escrowAmount: {id:"100000"}
+            winningAmount: "100000"
+          ) {
+            ${WITHDRAW}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+  });
 });
