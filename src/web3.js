@@ -4,8 +4,6 @@ const { BLOCKCHAIN_ENV, EVENT_MESSAGE } = require('./constants');
 const logger = require('./utils/logger');
 const emitter = require('./event');
 
-const web3 = new Web3(getProvider());
-
 /**
  * Returns the websocket provider with implemented event handlers.
  * Event handlers will create a new provider and set it to the existing web3
@@ -47,5 +45,7 @@ const getProvider = () => {
 
   return provider;
 };
+
+const web3 = new Web3(getProvider());
 
 module.exports = web3;
