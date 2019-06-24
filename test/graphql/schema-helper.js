@@ -73,22 +73,27 @@ const PAGINATED_EVENTS = `
   }
 `;
 
+const BET = `
+  txType
+  txid
+  txStatus
+  ${TX_RECEIPT}
+  blockNum
+  ${BLOCK}
+  eventAddress
+  betterAddress
+  resultIndex
+  amount
+  eventRound
+  resultName
+  eventName
+`;
+
 const PAGINATED_BETS = `
   totalCount
   ${PAGE_INFO}
   items {
-    txType
-    txid
-    txStatus
-    ${TX_RECEIPT}
-    blockNum
-    ${BLOCK}
-    eventAddress
-    betterAddress
-    resultIndex
-    amount
-    eventRound
-    resultName
+    ${BET}
   }
 `;
 
@@ -137,4 +142,5 @@ module.exports = {
   PAGINATED_BETS,
   PAGINATED_RESULT_SETS,
   PAGINATED_WITHDRAWS,
+  BET,
 };
