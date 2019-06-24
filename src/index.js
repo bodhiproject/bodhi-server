@@ -10,8 +10,8 @@ const start = async () => {
     initConfig();
     require('./utils/logger');
     require('./utils/client-logger');
-    await initDB();
     require('./event');
+    await initDB();
     initSync();
     require('./web3');
     initApi();

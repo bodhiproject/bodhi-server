@@ -26,10 +26,10 @@ provider.on('error', (err) => {
   emitter.emit(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED);
   throw err;
 });
-provider.on('end', () => {
+provider.on('end', (err) => {
   logger.error('Web3 WS disconnected');
   emitter.emit(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED);
-  throw Error('Web3 WS disconnected');
+  throw err;
 });
 
 module.exports = new Web3(provider);
