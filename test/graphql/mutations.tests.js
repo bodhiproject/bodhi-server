@@ -12,7 +12,7 @@ const tester = new EasyGraphQLTester(schema);
 
 describe('graphql/mutations', () => {
   describe('add-pending-event', () => {
-    it('Pass all arguments', async () => {
+    it('It passes all arguments', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -22,10 +22,8 @@ describe('graphql/mutations', () => {
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -35,7 +33,7 @@ describe('graphql/mutations', () => {
       tester.test(true, valid, {});
     });
 
-    it('Miss txid', async () => {
+    it('It should fail if txid missed', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -44,10 +42,8 @@ describe('graphql/mutations', () => {
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -57,7 +53,7 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Miss ownerAddress', async () => {
+    it('It should fail if ownerAddress missed', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -66,10 +62,8 @@ describe('graphql/mutations', () => {
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -79,7 +73,7 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Miss name', async () => {
+    it('It should fail if name missed', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -88,10 +82,8 @@ describe('graphql/mutations', () => {
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -101,7 +93,7 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Miss results', async () => {
+    it('It should fail if results missed', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -110,10 +102,8 @@ describe('graphql/mutations', () => {
             name: "General test"
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -123,7 +113,7 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Miss numOfResults', async () => {
+    it('It should fail if numOfResults missed', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -132,10 +122,8 @@ describe('graphql/mutations', () => {
             name: "General test"
             results: ["1", "2"]
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -145,7 +133,7 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Miss centralizedOracle', async () => {
+    it('It should fail if centralizedOracle missed', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -154,10 +142,8 @@ describe('graphql/mutations', () => {
             name: "General test"
             results: ["1", "2"]
             numOfResults: 2
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -167,7 +153,7 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Miss betStartTime', async () => {
+    it('It should fail if betEndTime missed', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -177,9 +163,7 @@ describe('graphql/mutations', () => {
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -189,7 +173,7 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Miss betEndTime', async () => {
+    it('It should fail if resultSetStartTime missed', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -199,9 +183,7 @@ describe('graphql/mutations', () => {
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
-            resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
+            betEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -211,7 +193,7 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Miss resultSetStartTime', async () => {
+    it('It should fail if language missed', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -221,10 +203,8 @@ describe('graphql/mutations', () => {
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
-            resultSetEndTime: 1560965704
-            language: "en-US"
+            resultSetStartTime: 1560965704
           ) {
             ${MULTIPLE_RESULTS_EVENT}
           }
@@ -233,17 +213,16 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Miss resultSetEndTime', async () => {
+    it('It should fail if txid is null', async () => {
       const valid = `
         mutation {
           addPendingEvent(
-            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            txid: null
             ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
             name: "General test"
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
             language: "en-US"
@@ -255,42 +234,18 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Miss language', async () => {
+    it('It should fail if txid is number', async () => {
       const valid = `
         mutation {
           addPendingEvent(
-            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            txid: 1
             ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
             name: "General test"
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
-          ) {
-            ${MULTIPLE_RESULTS_EVENT}
-          }
-        }
-      `;
-      tester.test(false, valid, {});
-    });
-
-    it('Txid should be string', async () => {
-      const valid = `
-        mutation {
-          addPendingEvent(
-            txid: 12
-            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            name: "General test"
-            results: ["1", "2"]
-            numOfResults: 2
-            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
-            betEndTime: 1560965704
-            resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -300,7 +255,49 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('ownerAddress should be string', async () => {
+    it('It should fail if txid is array', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: "General test"
+            results: ["1", "2"]
+            numOfResults: 2
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is an object', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: {id: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: "General test"
+            results: ["1", "2"]
+            numOfResults: 2
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if ownerAddress is null', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -310,10 +307,8 @@ describe('graphql/mutations', () => {
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -323,20 +318,81 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Name should be string', async () => {
+    it('It should fail if ownerAddress is number', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: 1
+            name: "General test"
+            results: ["1", "2"]
+            numOfResults: 2
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if ownerAddress is array', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            name: "General test"
+            results: ["1", "2"]
+            numOfResults: 2
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if ownerAddress is object', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: {id: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            name: "General test"
+            results: ["1", "2"]
+            numOfResults: 2
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if name is null', async () => {
       const valid = `
         mutation {
           addPendingEvent(
             txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
             ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            name: 11
+            name: null
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -346,7 +402,91 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('Results should be string array', async () => {
+    it('It should fail if name is number', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: 1
+            results: ["1", "2"]
+            numOfResults: 2
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if name is array', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: ["a"]
+            results: ["1", "2"]
+            numOfResults: 2
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if name is object', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: {id: "a"}
+            results: ["1", "2"]
+            numOfResults: 2
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if results is null', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: "General test"
+            results: null
+            numOfResults: 2
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if results is number array', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -356,10 +496,8 @@ describe('graphql/mutations', () => {
             results: [1, 2]
             numOfResults: 2
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -369,7 +507,49 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('numOfResults should be int', async () => {
+    it('It should fail if results is object', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: "General test"
+            results: {id: "1"}
+            numOfResults: 2
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if numOfResults is null', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: "General test"
+            results: ["1", "2"]
+            numOfResults: null
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if numOfResults is string', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -379,10 +559,8 @@ describe('graphql/mutations', () => {
             results: ["1", "2"]
             numOfResults: "2"
             centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -392,7 +570,70 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('centralizedOracle should be string', async () => {
+    it('It should fail if numOfResults is array', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: "General test"
+            results: ["1", "2"]
+            numOfResults: ["2"]
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if numOfResults is object', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: "General test"
+            results: ["1", "2"]
+            numOfResults: {id: "2"}
+            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if centralizedOracle is null', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: "General test"
+            results: ["1", "2"]
+            numOfResults: 2
+            centralizedOracle: null
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if centralizedOracle is number', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -402,10 +643,8 @@ describe('graphql/mutations', () => {
             results: ["1", "2"]
             numOfResults: 2
             centralizedOracle: 1
-            betStartTime: 1560965704
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -415,7 +654,7 @@ describe('graphql/mutations', () => {
       tester.test(false, valid, {});
     });
 
-    it('betStartTime should be int', async () => {
+    it('It should fail if centralizedOracle is array', async () => {
       const valid = `
         mutation {
           addPendingEvent(
@@ -424,11 +663,30 @@ describe('graphql/mutations', () => {
             name: "General test"
             results: ["1", "2"]
             numOfResults: 2
-            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: "1560965704"
+            centralizedOracle: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
             betEndTime: 1560965704
             resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
+            language: "en-US"
+          ) {
+            ${MULTIPLE_RESULTS_EVENT}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if centralizedOracle is object', async () => {
+      const valid = `
+        mutation {
+          addPendingEvent(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            name: "General test"
+            results: ["1", "2"]
+            numOfResults: 2
+            centralizedOracle: {id: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            betEndTime: 1560965704
+            resultSetStartTime: 1560965704
             language: "en-US"
           ) {
             ${MULTIPLE_RESULTS_EVENT}
@@ -439,78 +697,78 @@ describe('graphql/mutations', () => {
     });
   });
 
-  describe('add-pending-bet', () => {
-    it('Pass all arguments', async () => {
-      const valid = `
-        mutation {
-          addPendingEvent(
-            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            name: "General test"
-            results: ["1", "2"]
-            numOfResults: 2
-            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
-            betEndTime: 1560965704
-            resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
-            language: "en-US"
-          ) {
-            ${MULTIPLE_RESULTS_EVENT}
-          }
-        }
-      `;
-      tester.test(true, valid, {});
-    });
-  });
+  // describe('add-pending-bet', () => {
+  //   it('Pass all arguments', async () => {
+  //     const valid = `
+  //       mutation {
+  //         addPendingEvent(
+  //           txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+  //           ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+  //           name: "General test"
+  //           results: ["1", "2"]
+  //           numOfResults: 2
+  //           centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+  //           betStartTime: 1560965704
+  //           betEndTime: 1560965704
+  //           resultSetStartTime: 1560965704
+  //           resultSetEndTime: 1560965704
+  //           language: "en-US"
+  //         ) {
+  //           ${MULTIPLE_RESULTS_EVENT}
+  //         }
+  //       }
+  //     `;
+  //     tester.test(true, valid, {});
+  //   });
+  // });
 
-  describe('add-pending-result-set', () => {
-    it('Pass all arguments', async () => {
-      const valid = `
-        mutation {
-          addPendingEvent(
-            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            name: "General test"
-            results: ["1", "2"]
-            numOfResults: 2
-            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
-            betEndTime: 1560965704
-            resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
-            language: "en-US"
-          ) {
-            ${MULTIPLE_RESULTS_EVENT}
-          }
-        }
-      `;
-      tester.test(true, valid, {});
-    });
-  });
+  // describe('add-pending-result-set', () => {
+  //   it('Pass all arguments', async () => {
+  //     const valid = `
+  //       mutation {
+  //         addPendingEvent(
+  //           txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+  //           ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+  //           name: "General test"
+  //           results: ["1", "2"]
+  //           numOfResults: 2
+  //           centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+  //           betStartTime: 1560965704
+  //           betEndTime: 1560965704
+  //           resultSetStartTime: 1560965704
+  //           resultSetEndTime: 1560965704
+  //           language: "en-US"
+  //         ) {
+  //           ${MULTIPLE_RESULTS_EVENT}
+  //         }
+  //       }
+  //     `;
+  //     tester.test(true, valid, {});
+  //   });
+  // });
 
-  describe('add-pending-withdraw', () => {
-    it('Pass all arguments', async () => {
-      const valid = `
-        mutation {
-          addPendingEvent(
-            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            name: "General test"
-            results: ["1", "2"]
-            numOfResults: 2
-            centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-            betStartTime: 1560965704
-            betEndTime: 1560965704
-            resultSetStartTime: 1560965704
-            resultSetEndTime: 1560965704
-            language: "en-US"
-          ) {
-            ${MULTIPLE_RESULTS_EVENT}
-          }
-        }
-      `;
-      tester.test(true, valid, {});
-    });
-  });
+  // describe('add-pending-withdraw', () => {
+  //   it('Pass all arguments', async () => {
+  //     const valid = `
+  //       mutation {
+  //         addPendingEvent(
+  //           txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+  //           ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+  //           name: "General test"
+  //           results: ["1", "2"]
+  //           numOfResults: 2
+  //           centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+  //           betStartTime: 1560965704
+  //           betEndTime: 1560965704
+  //           resultSetStartTime: 1560965704
+  //           resultSetEndTime: 1560965704
+  //           language: "en-US"
+  //         ) {
+  //           ${MULTIPLE_RESULTS_EVENT}
+  //         }
+  //       }
+  //     `;
+  //     tester.test(true, valid, {});
+  //   });
+  // });
 });
