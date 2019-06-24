@@ -30,6 +30,9 @@ describe('sync/parsers/multiple-results-event', () => {
   afterEach(() => {
     stubDetermineContractVersion.restore();
     sinon.restore();
+
+    // Close the websocket connection for web3 so tests don't hang
+    require('../../../src/web3').currentProvider.connection.close(); // eslint-disable-line
   });
 
   it('parses the log and fetches other data', async () => {
