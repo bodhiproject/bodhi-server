@@ -5,6 +5,7 @@ const {
   PAGINATED_BETS,
   PAGINATED_RESULT_SETS,
   PAGINATED_WITHDRAWS,
+  BET,
 } = require('./schema-helper');
 const schema = require('../../src/graphql/schema');
 
@@ -697,30 +698,559 @@ describe('graphql/mutations', () => {
     });
   });
 
-  // describe('add-pending-bet', () => {
-  //   it('Pass all arguments', async () => {
-  //     const valid = `
-  //       mutation {
-  //         addPendingEvent(
-  //           txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-  //           ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-  //           name: "General test"
-  //           results: ["1", "2"]
-  //           numOfResults: 2
-  //           centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-  //           betStartTime: 1560965704
-  //           betEndTime: 1560965704
-  //           resultSetStartTime: 1560965704
-  //           resultSetEndTime: 1560965704
-  //           language: "en-US"
-  //         ) {
-  //           ${MULTIPLE_RESULTS_EVENT}
-  //         }
-  //       }
-  //     `;
-  //     tester.test(true, valid, {});
-  //   });
-  // });
+  describe('add-pending-bet', () => {
+    it('It should pass if passing all correct arguments', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(true, valid, {});
+    });
+
+    it('It should fail if txid is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is null', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: null
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is number', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: 1
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is array', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is object', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: {id: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is null', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: null
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is array', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is object', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is number', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: 1
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if betterAddress is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if betterAddress is null', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: null
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if betterAddress is number', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: 1
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if betterAddress is array', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if betterAddress is object', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if resultIndex is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if resultIndex is null', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: null
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if resultIndex is string', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: "2"
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if resultIndex is array', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: [2]
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if resultIndex is object', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: {id:2}
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if amount is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if amount is null', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: null
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if amount is number', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: 100000
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if amount is array', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: ["100000"]
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if amount is object', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: {id:"100000"}
+            eventRound: 2
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventRound is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventRound is null', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+            eventRound: null
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventRound is string', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+            eventRound: "2"
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventRound is array', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+            eventRound: [2]
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventRound is object', async () => {
+      const valid = `
+        mutation {
+          addPendingBet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+            eventRound: {id:2}
+          ) {
+            ${BET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+  });
 
   // describe('add-pending-result-set', () => {
   //   it('Pass all arguments', async () => {
