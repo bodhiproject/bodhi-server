@@ -30,24 +30,8 @@ const START_BLOCK_FILENAME = 'start_block.dat';
 
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
 let wsConnected = false;
-let listenersAdded = false;
 let syncPromises = [];
-let signalsHandled = false;
 let startBlock;
-
-// Event listeners
-const onWebsocketConnected = () => {
-  wsConnected = true;
-};
-const onWebsocketDisconnected = () => {
-  wsConnected = false;
-  writeStartBlockFile();
-};
-const registerListeners = () => {
-  emitter.addListener(EVENT_MESSAGE.WEBSOCKET_CONNECTED, onWebsocketConnected);
-  emitter.addListener(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED, onWebsocketDisconnected);
-  listenersAdded = true;
-};
 
 /**
  * Checks if the start block file exists, and returns the start block if so.
@@ -91,7 +75,37 @@ const setupSignalHandler = () => {
   process
     .on('SIGINT', () => onShutdown())
     .on('SIGTERM', () => onShutdown());
-  signalsHandled = true;
+};
+
+/**
+ * Event listener for websocket connected.
+ */
+const onWebsocketConnected = () => {
+  wsConnected = true;
+};
+
+/**
+ * Event listener for websocket disconnected.
+ */
+const onWebsocketDisconnected = () => {
+  wsConnected = false;
+  writeStartBlockFile();
+};
+
+/**
+ * Registers all event listeners.
+ */
+const registerListeners = () => {
+  emitter.addListener(EVENT_MESSAGE.WEBSOCKET_CONNECTED, onWebsocketConnected);
+  emitter.addListener(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED, onWebsocketDisconnected);
+};
+
+/**
+ * Initial setup before starting the sync.
+ */
+const initSync = () => {
+  setupSignalHandler();
+  registerListeners();
 };
 
 /**
@@ -134,9 +148,6 @@ const delayThenSync = (delay) => {
  */
 const startSync = async () => {
   try {
-    if (!signalsHandled) setupSignalHandler();
-    if (!listenersAdded) registerListeners();
-
     // Don't allow sync if websocket is not connected
     if (!wsConnected) {
       delayThenSync(SYNC_START_DELAY);
@@ -213,4 +224,7 @@ const startSync = async () => {
   }
 };
 
-module.exports = startSync;
+module.exports = {
+  initSync,
+  startSync,
+};
