@@ -8,8 +8,8 @@ const MultipleResultsEvent = require('./contracts/multiple-results-event');
 
 const CONFIG = {
   NETWORK: process.env.NETWORK,
-  RPC_MAINNET: 'https://api.nakachain.org',
-  RPC_TESTNET: 'https://testnet.api.nakachain.org',
+  RPC_MAINNET: 'wss://api.nakachain.org/ws',
+  RPC_TESTNET: 'wss://testnet.api.nakachain.org/ws',
   PROTOCOL: process.env.SSL === 'true' ? 'https' : 'http',
   HOSTNAME: 'localhost',
   API_PORT_MAINNET: 8888,
