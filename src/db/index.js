@@ -39,6 +39,7 @@ const initDB = async () => {
       db.TransactionReceipts.loadDatabase(),
     ]);
 
+    await db.Blocks.ensureIndex({ fieldName: 'blockNum', unique: true });
     await db.Events.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Bets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
