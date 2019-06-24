@@ -2,6 +2,7 @@ const Web3 = require('web3');
 const { CONFIG } = require('./config');
 const { BLOCKCHAIN_ENV } = require('./constants');
 const logger = require('./utils/logger');
+const emitter = require('./event');
 
 // Get endpoint per network
 let url;

@@ -3,6 +3,7 @@ const pLimit = require('p-limit');
 const { isUndefined } = require('lodash');
 const moment = require('moment');
 const { eventFactoryMeta, isMainnet, getBaseDataDir } = require('../config');
+const { EVENT_MESSAGE } = require('../constants');
 const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
@@ -20,6 +21,7 @@ const syncBlocks = require('./blocks');
 const DBHelper = require('../db/db-helper');
 const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
+const emitter = require('../event');
 
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
@@ -27,9 +29,25 @@ const PROMISE_CONCURRENCY_LIMIT = 25;
 const START_BLOCK_FILENAME = 'start_block.dat';
 
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
+let wsConnected = false;
+let listenersAdded = false;
 let syncPromises = [];
 let signalsHandled = false;
 let startBlock;
+
+// Event listeners
+const onWebsocketConnected = () => {
+  wsConnected = true;
+};
+const onWebsocketDisconnected = () => {
+  wsConnected = false;
+  writeStartBlockFile();
+};
+const registerListeners = () => {
+  emitter.addListener(EVENT_MESSAGE.WEBSOCKET_CONNECTED, onWebsocketConnected);
+  emitter.addListener(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED, onWebsocketDisconnected);
+  listenersAdded = true;
+};
 
 /**
  * Checks if the start block file exists, and returns the start block if so.
@@ -117,6 +135,13 @@ const delayThenSync = (delay) => {
 const startSync = async () => {
   try {
     if (!signalsHandled) setupSignalHandler();
+    if (!listenersAdded) registerListeners();
+
+    // Don't allow sync if websocket is not connected
+    if (!wsConnected) {
+      delayThenSync(SYNC_START_DELAY);
+      return;
+    }
 
     // Track exec time
     const execStartMs = moment().valueOf();
