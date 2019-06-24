@@ -32,14 +32,14 @@ const getProvider = () => {
     logger.error(`Web3 WS encountered an error: ${err.message}`);
     emitter.emit(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED);
 
-    // Handle ws disconnects and create new instance
+    // Handle ws disconnects and set new provider
     web3.setProvider(getProvider());
   });
   provider.on('end', (err) => {
     logger.error(`Web3 WS disconnected: ${err.message}`);
     emitter.emit(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED);
 
-    // Handle ws disconnects and create new instance
+    // Handle ws disconnects and set new provider
     web3.setProvider(getProvider());
   });
 
