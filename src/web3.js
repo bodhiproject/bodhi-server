@@ -1,6 +1,6 @@
 const Web3 = require('web3');
 const { CONFIG } = require('./config');
-const { BLOCKCHAIN_ENV } = require('./constants');
+const { BLOCKCHAIN_ENV, EVENT_MESSAGE } = require('./constants');
 const logger = require('./utils/logger');
 const emitter = require('./event');
 
@@ -17,13 +17,18 @@ if (CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET) {
 
 // Create provider and handle events
 const provider = new Web3.providers.WebsocketProvider(url);
-provider.on('connect', () => logger.info(msg));
+provider.on('connect', () => {
+  logger.info(msg);
+  emitter.emit(EVENT_MESSAGE.WEBSOCKET_CONNECTED);
+});
 provider.on('error', (err) => {
   logger.error(`Web3 WS encountered an error: ${err.message}`);
+  emitter.emit(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED);
   throw err;
 });
 provider.on('end', () => {
   logger.error('Web3 WS disconnected');
+  emitter.emit(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED);
   throw Error('Web3 WS disconnected');
 });
 
