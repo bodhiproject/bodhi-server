@@ -6,6 +6,7 @@ const {
   PAGINATED_RESULT_SETS,
   PAGINATED_WITHDRAWS,
   BET,
+  RESULT_SET,
 } = require('./schema-helper');
 const schema = require('../../src/graphql/schema');
 
@@ -1252,30 +1253,559 @@ describe('graphql/mutations', () => {
     });
   });
 
-  // describe('add-pending-result-set', () => {
-  //   it('Pass all arguments', async () => {
-  //     const valid = `
-  //       mutation {
-  //         addPendingEvent(
-  //           txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-  //           ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-  //           name: "General test"
-  //           results: ["1", "2"]
-  //           numOfResults: 2
-  //           centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
-  //           betStartTime: 1560965704
-  //           betEndTime: 1560965704
-  //           resultSetStartTime: 1560965704
-  //           resultSetEndTime: 1560965704
-  //           language: "en-US"
-  //         ) {
-  //           ${MULTIPLE_RESULTS_EVENT}
-  //         }
-  //       }
-  //     `;
-  //     tester.test(true, valid, {});
-  //   });
-  // });
+  describe('add-pending-result-set', () => {
+    it('It should pass if passing all arguments correctly', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+            eventRound: 0
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(true, valid, {});
+    });
+
+    it('It should fail if txid is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is null', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: null
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is number', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: 1
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is array', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if txid is object', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: {id: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is null', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: null
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is array', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is object', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventAddress is number', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: 1
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if centralizedOracleAddress is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if centralizedOracleAddress is null', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: null
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if centralizedOracleAddress is number', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: 1
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if centralizedOracleAddress is array', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"]
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if centralizedOracleAddress is object', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"}
+            resultIndex: 2
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if resultIndex is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if resultIndex is null', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: null
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if resultIndex is string', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: "2"
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if resultIndex is array', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: [2]
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if resultIndex is object', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: {id:2}
+            amount: "1000000"
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if amount is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if amount is null', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: null
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if amount is number', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: 100000
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if amount is array', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: ["100000"]
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if amount is object', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: {id:"100000"}
+            eventRound: 2
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventRound is missing', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventRound is null', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+            eventRound: null
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventRound is string', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+            eventRound: "2"
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventRound is array', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+            eventRound: [2]
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+
+    it('It should fail if eventRound is object', async () => {
+      const valid = `
+        mutation {
+          addPendingResultSet(
+            txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            centralizedOracleAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"
+            resultIndex: 2
+            amount: "100000"
+            eventRound: {id:2}
+          ) {
+            ${RESULT_SET}
+          }
+        }
+      `;
+      tester.test(false, valid, {});
+    });
+  });
 
   // describe('add-pending-withdraw', () => {
   //   it('Pass all arguments', async () => {
