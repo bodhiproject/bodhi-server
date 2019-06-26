@@ -25,7 +25,7 @@ const emitter = require('../event');
 
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
-const PROMISE_CONCURRENCY_LIMIT = 100;
+const PROMISE_CONCURRENCY_LIMIT = 20;
 const START_BLOCK_FILENAME = 'start_block.dat';
 
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
@@ -147,11 +147,12 @@ const delayThenSync = (delay) => {
  */
 const startSync = async () => {
   try {
+    // TODO: enable code when web3 websockets fixed
     // Don't allow sync if websocket is not connected
-    if (!wsConnected) {
-      delayThenSync(SYNC_START_DELAY);
-      return;
-    }
+    // if (!wsConnected) {
+    //   delayThenSync(SYNC_START_DELAY);
+    //   return;
+    // }
 
     // Track exec time
     const execStartMs = moment().valueOf();
