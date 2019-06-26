@@ -15,26 +15,29 @@ const getProvider = () => {
   let url;
   let msg;
   if (CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET) {
-    url = CONFIG.WS_PROVIDER_MAINNET;
+    url = CONFIG.HTTP_PROVIDER_MAINNET;
     msg = 'Web3 connected to Mainnet';
   } else {
-    url = CONFIG.WS_PROVIDER_TESTNET;
+    url = CONFIG.HTTP_PROVIDER_TESTNET;
     msg = 'Web3 connected to Testnet';
   }
+  const provider = new Web3.providers.HttpProvider(url);
+  logger.info(msg);
 
+  // TODO: use websockets again when web3 fixes it
   // Create provider and handle events
-  const provider = new Web3.providers.WebsocketProvider(url);
-  provider.on('connect', () => {
-    logger.info(msg);
-    emitter.emit(EVENT_MESSAGE.WEBSOCKET_CONNECTED);
-  });
-  provider.on('close', (err) => {
-    logger.error('Web3 WS closed', { error: err && err.message });
-    emitter.emit(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED);
-  });
-  provider.on('error', (err) => {
-    logger.error('Web3 WS error', { error: err && err.message });
-  });
+  // const provider = new Web3.providers.WebsocketProvider(url);
+  // provider.on('connect', () => {
+  //   logger.info(msg);
+  //   emitter.emit(EVENT_MESSAGE.WEBSOCKET_CONNECTED);
+  // });
+  // provider.on('close', (err) => {
+  //   logger.error('Web3 WS closed', { error: err && err.message });
+  //   emitter.emit(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED);
+  // });
+  // provider.on('error', (err) => {
+  //   logger.error('Web3 WS error', { error: err && err.message });
+  // });
 
   return provider;
 };
