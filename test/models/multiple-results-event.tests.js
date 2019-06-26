@@ -6,12 +6,15 @@ const { TX_STATUS } = require('../../src/constants');
 
 /**
 The following fields are not validating in model
+  address
+  version
   escrowAmount
   arbitrationLength
   thresholdPercentIncrease
   arbitrationRewardPercentage
   consensusThreshold
   arbitrationEndTime
+  results **
 */
 
 describe('models/multiple-results-event', () => {
@@ -28,7 +31,7 @@ describe('models/multiple-results-event', () => {
         ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
         version: 6,
         name: "Test",
-        numOfResults: 2,
+        numOfResults: 3,
         centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
         betStartTime: 1560965704,
         betEndTime: 1560965704,
@@ -219,7 +222,7 @@ describe('models/multiple-results-event', () => {
       assert.throws(() => new MultipleResultsEvent(input), Error, "numOfResults must be a Number");
     });
 
-    it('It should throw if numOfResults is number', () => {
+    it('It should throw if numOfResults is string', () => {
       input.numOfResults = "12";
       assert.throws(() => new MultipleResultsEvent(input), Error, "numOfResults must be a Number");
     });
@@ -249,7 +252,7 @@ describe('models/multiple-results-event', () => {
       assert.throws(() => new MultipleResultsEvent(input), Error, "betEndTime must be a Number");
     });
 
-    it('It should throw if betEndTime is number', () => {
+    it('It should throw if betEndTime is string', () => {
       input.betEndTime = "12";
       assert.throws(() => new MultipleResultsEvent(input), Error, "betEndTime must be a Number");
     });
@@ -279,7 +282,7 @@ describe('models/multiple-results-event', () => {
       assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetStartTime must be a Number");
     });
 
-    it('It should throw if resultSetStartTime is number', () => {
+    it('It should throw if resultSetStartTime is string', () => {
       input.resultSetStartTime = "12";
       assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetStartTime must be a Number");
     });
@@ -299,7 +302,7 @@ describe('models/multiple-results-event', () => {
       assert.throws(() => new MultipleResultsEvent(input), Error, "betStartTime must be a Number");
     });
 
-    it('It should throw if betStartTime is number', () => {
+    it('It should throw if betStartTime is string', () => {
       input.betStartTime = "12";
       assert.throws(() => new MultipleResultsEvent(input), Error, "betStartTime must be a Number");
     });
@@ -319,7 +322,7 @@ describe('models/multiple-results-event', () => {
       assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetEndTime must be a Number");
     });
 
-    it('It should throw if resultSetEndTime is number', () => {
+    it('It should throw if resultSetEndTime is string', () => {
       input.resultSetEndTime = "12";
       assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetEndTime must be a Number");
     });
@@ -337,6 +340,7 @@ describe('models/multiple-results-event', () => {
 
   describe('format', () => {
     let input;
+    let mutationInput;
     const results = ['Invalid', '1', 'y'];
 
     beforeEach(() => {
@@ -348,7 +352,7 @@ describe('models/multiple-results-event', () => {
         ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
         version: 6,
         name: "Test",
-        numOfResults: 2,
+        numOfResults: 3,
         centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
         betStartTime: 1560965704,
         betEndTime: 1560965704,
@@ -372,9 +376,30 @@ describe('models/multiple-results-event', () => {
         }),
         item => !!item,
       );
+
+      mutationInput = {
+        txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+        txStatus: TX_STATUS.SUCCESS,
+        blockNum: 5,
+        address: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+        ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+        version: 6,
+        name: "Test",
+        numOfResults: 3,
+        centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+        betEndTime: 1560965704,
+        resultSetStartTime: 1560965704,
+        escrowAmount: "1000000",
+        arbitrationLength: 172800,
+        thresholdPercentIncrease: "10",
+        arbitrationRewardPercentage: 10,
+        consensusThreshold: "100000000000",
+        arbitrationEndTime: 1560965704,
+      };
+      mutationInput.results = input.results;
     });
 
-    it('it should format all the fields', () => {
+    it('it should format synced input', () => {
       const event = new MultipleResultsEvent(input);
       assert.equal(event.txid, input.txid);
       assert.equal(event.txStatus, input.txStatus);
@@ -398,10 +423,8 @@ describe('models/multiple-results-event', () => {
       assert.isNumber(event.arbitrationEndTime);
     });
 
-    it('It should format if no betStartTime and resultSetEndTime', () => {
-      input.betStartTime = undefined;
-      input.resultSetEndTime = undefined;
-      const event = new MultipleResultsEvent(input);
+    it('It should format mutation input', () => {
+      const event = new MultipleResultsEvent(mutationInput);
       assert.equal(event.txid, input.txid);
       assert.equal(event.txStatus, input.txStatus);
       assert.equal(event.blockNum, input.blockNum);
