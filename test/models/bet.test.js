@@ -189,7 +189,7 @@ describe('models/bet', () => {
       assert.throws(() => new Bet(input), Error, "resultIndex must be a Number");
     });
 
-    it('It should throw if resultIndex is number', () => {
+    it('It should throw if resultIndex is string', () => {
       input.resultIndex = "12";
       assert.throws(() => new Bet(input), Error, "resultIndex must be a Number");
     });
@@ -219,7 +219,7 @@ describe('models/bet', () => {
       assert.throws(() => new Bet(input), Error, "eventRound must be a Number");
     });
 
-    it('It should throw if eventRound is number', () => {
+    it('It should throw if eventRound is string', () => {
       input.eventRound = "12";
       assert.throws(() => new Bet(input), Error, "eventRound must be a Number");
     });
