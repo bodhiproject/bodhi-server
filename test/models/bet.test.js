@@ -2,7 +2,7 @@ const { assert } = require('chai');
 const { isUndefined, isFinite, isString, map, filter } = require('lodash');
 const web3 = require('../../src/web3');
 const Bet = require('../../src/models/bet');
-const { TX_STATUS } = require('../../src/constants');
+const { TX_STATUS, TX_TYPE } = require('../../src/constants');
 
 describe('models/bet', () => {
   describe('validate', () => {
@@ -258,32 +258,21 @@ describe('models/bet', () => {
       assert.equal(bet.resultIndex, input.resultIndex);
       assert.equal(bet.amount, input.amount);
       assert.equal(bet.eventRound, input.eventRound);
+      assert.equal(bet.txType, TX_TYPE.BET);
     });
 
-    // it('It should pass if no betStartTime and resultSetEndTime', () => {
-    //   input.betStartTime = undefined;
-    //   input.resultSetEndTime = undefined;
-    //   const event = new MultipleResultsEvent(input);
-    //   assert.equal(event.txid, input.txid);
-    //   assert.equal(event.txStatus, input.txStatus);
-    //   assert.equal(event.blockNum, input.blockNum);
-    //   assert.equal(event.address, input.address);
-    //   assert.equal(event.ownerAddress, input.ownerAddress);
-    //   assert.equal(event.version, input.version);
-    //   assert.equal(event.name, input.name);
-    //   assert.deepEqual(event.results, results);
-    //   assert.equal(event.numOfResults, input.numOfResults);
-    //   assert.equal(event.centralizedOracle, input.centralizedOracle);
-    //   assert.isUndefined(event.betStartTime);
-    //   assert.equal(event.betEndTime, input.betEndTime);
-    //   assert.equal(event.resultSetStartTime, input.resultSetStartTime);
-    //   assert.isUndefined(event.resultSetEndTime);
-    //   assert.equal(event.escrowAmount, input.escrowAmount);
-    //   assert.equal(event.arbitrationLength, input.arbitrationLength);
-    //   assert.equal(event.thresholdPercentIncrease, input.thresholdPercentIncrease);
-    //   assert.equal(event.arbitrationRewardPercentage, input.arbitrationRewardPercentage);
-    //   assert.isString(event.consensusThreshold);
-    //   assert.isNumber(event.arbitrationEndTime);
-    // });
+    it('Type should be vote if eventRound is not 0', () => {
+      input.eventRound = 10;
+      const bet = new Bet(input);
+      assert.equal(bet.txid, input.txid);
+      assert.equal(bet.txStatus, input.txStatus);
+      assert.equal(bet.blockNum, input.blockNum);
+      assert.equal(bet.eventAddress, input.eventAddress);
+      assert.equal(bet.betterAddress, input.betterAddress);
+      assert.equal(bet.resultIndex, input.resultIndex);
+      assert.equal(bet.amount, input.amount);
+      assert.equal(bet.eventRound, input.eventRound);
+      assert.equal(bet.txType, TX_TYPE.VOTE);
+    });
   });
 });
