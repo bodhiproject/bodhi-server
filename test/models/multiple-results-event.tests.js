@@ -4,6 +4,16 @@ const web3 = require('../../src/web3');
 const MultipleResultsEvent = require('../../src/models/multiple-results-event');
 const { TX_STATUS } = require('../../src/constants');
 
+/**
+The following fields are not validating in model
+  escrowAmount
+  arbitrationLength
+  thresholdPercentIncrease
+  arbitrationRewardPercentage
+  consensusThreshold
+  arbitrationEndTime
+*/
+
 describe('models/multiple-results-event', () => {
   describe('validate', () => {
     let input;
