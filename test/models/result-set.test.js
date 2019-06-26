@@ -160,7 +160,7 @@ describe('models/result-set', () => {
       assert.throws(() => new ResultSet(input), Error, "resultIndex must be a Number");
     });
 
-    it('It should throw if resultIndex is number', () => {
+    it('It should throw if resultIndex is string', () => {
       input.resultIndex = "12";
       assert.throws(() => new ResultSet(input), Error, "resultIndex must be a Number");
     });
@@ -190,7 +190,7 @@ describe('models/result-set', () => {
       assert.throws(() => new ResultSet(input), Error, "eventRound must be a Number");
     });
 
-    it('It should throw if eventRound is number', () => {
+    it('It should throw if eventRound is string', () => {
       input.eventRound = "12";
       assert.throws(() => new ResultSet(input), Error, "eventRound must be a Number");
     });
@@ -221,16 +221,65 @@ describe('models/result-set', () => {
       };
     });
 
-    it('It should format all the fields', () => {
-      const bet = new ResultSet(input);
-      assert.equal(bet.txid, input.txid);
-      assert.equal(bet.txStatus, input.txStatus);
-      assert.equal(bet.blockNum, input.blockNum);
-      assert.equal(bet.eventAddress, input.eventAddress);
-      assert.equal(bet.resultIndex, input.resultIndex);
-      assert.equal(bet.amount, input.amount);
-      assert.equal(bet.eventRound, input.eventRound);
-      assert.equal(bet.txType, TX_TYPE.RESULT_SET);
+    it('It should format all the fields mimicing pending result-set', () => {
+      const resultSet = new ResultSet(input);
+      assert.equal(resultSet.txid, input.txid);
+      assert.equal(resultSet.txStatus, input.txStatus);
+      assert.equal(resultSet.blockNum, input.blockNum);
+      assert.equal(resultSet.eventAddress, input.eventAddress);
+      assert.equal(resultSet.resultIndex, input.resultIndex);
+      assert.equal(resultSet.amount, input.amount);
+      assert.equal(resultSet.eventRound, input.eventRound);
+      assert.equal(resultSet.txType, TX_TYPE.RESULT_SET);
+    });
+
+    it('It should format the eventAddress to lowercase mimicing pending result-set', () => {
+      input.eventAddress = input.eventAddress.toUpperCase();
+      const resultSet = new ResultSet(input);
+      assert.equal(resultSet.txid, input.txid);
+      assert.equal(resultSet.txStatus, input.txStatus);
+      assert.equal(resultSet.blockNum, input.blockNum);
+      assert.equal(resultSet.eventAddress, input.eventAddress.toLowerCase());
+      assert.equal(resultSet.resultIndex, input.resultIndex);
+      assert.equal(resultSet.amount, input.amount);
+      assert.equal(resultSet.eventRound, input.eventRound);
+      assert.equal(resultSet.txType, TX_TYPE.RESULT_SET);
+    });
+
+    it('It should format all the fields mimicing synced result-set', () => {
+      input.centralizedOracleAddress = "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428";
+      input.nextConsensusThreshold = "10";
+      input.nextArbitrationEndTime = 10;
+      const resultSet = new ResultSet(input);
+      assert.equal(resultSet.txid, input.txid);
+      assert.equal(resultSet.txStatus, input.txStatus);
+      assert.equal(resultSet.blockNum, input.blockNum);
+      assert.equal(resultSet.eventAddress, input.eventAddress);
+      assert.equal(resultSet.resultIndex, input.resultIndex);
+      assert.equal(resultSet.amount, input.amount);
+      assert.equal(resultSet.eventRound, input.eventRound);
+      assert.equal(resultSet.txType, TX_TYPE.RESULT_SET);
+      assert.equal(resultSet.centralizedOracleAddress, input.centralizedOracleAddress);
+      assert.equal(resultSet.nextConsensusThreshold, input.nextConsensusThreshold);
+      assert.equal(resultSet.nextArbitrationEndTime, input.nextArbitrationEndTime);
+    });
+
+    it('It should format centralizedOracleAddress to lowercase mimicing synced result-set', () => {
+      input.centralizedOracleAddress = "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428".toUpperCase();
+      input.nextConsensusThreshold = "10";
+      input.nextArbitrationEndTime = 10;
+      const resultSet = new ResultSet(input);
+      assert.equal(resultSet.txid, input.txid);
+      assert.equal(resultSet.txStatus, input.txStatus);
+      assert.equal(resultSet.blockNum, input.blockNum);
+      assert.equal(resultSet.eventAddress, input.eventAddress);
+      assert.equal(resultSet.resultIndex, input.resultIndex);
+      assert.equal(resultSet.amount, input.amount);
+      assert.equal(resultSet.eventRound, input.eventRound);
+      assert.equal(resultSet.txType, TX_TYPE.RESULT_SET);
+      assert.equal(resultSet.centralizedOracleAddress, input.centralizedOracleAddress.toLowerCase());
+      assert.equal(resultSet.nextConsensusThreshold, input.nextConsensusThreshold);
+      assert.equal(resultSet.nextArbitrationEndTime, input.nextArbitrationEndTime);
     });
   });
 });
