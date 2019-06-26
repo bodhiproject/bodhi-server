@@ -1,104 +1,37 @@
-const _ = require('lodash');
+const { isString } = require('lodash');
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
-const Oracle = require('../../api/oracle');
-const TestConfig = require('./config/test-config');
-const Mocks = require('./mock/oracle');
+const Event = require('../../src/api/multiple-results-event');
+const Mocks = require('./mock/multiple-results-event');
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;
 const expect = Chai.expect;
 
-const CENTRALIZED = 'centralized';
+const eventAddress = '0x8b2b1838efff78e5ed9e00d95d9ef071f2c27be6';
+const address = '0x939592864C0Bd3355B2D54e4fA2203E8343B6d6a';
 
-describe('Oracle', () => {
+describe('api/multiple-results-event', () => {
   const contractAddress = 'a5b27c03e76d4cf10928120439fa96181f07520c';
-  const oracleType = CENTRALIZED;
 
-  describe('eventAddress()', () => {
-    it('returns the eventAddress', () => {
-      const res = Mocks.eventAddress.result;
-      assert.isDefined(res[0]);
-      assert.isTrue(_.isString(res[0]));
+  describe('calculateWinnings()', () => {
+    it('Returns the calculateWinnings', () => {
+      const res = Mocks.calculateWinnings.result;
+      assert.isDefined(res);
+      assert.isTrue(isString(res));
+      assert.isFalse(isNaN(res));
     });
 
-    it('throws if contractAddress is undefined', () => {
-      expect(Oracle.eventAddress({
-        oracleType,
-        senderAddress: TestConfig.SENDER_ADDRESS,
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.calculateWinnings({
+        address,
       })).to.be.rejectedWith(Error);
     });
 
-    it('throws if oracleType is undefined', () => {
-      expect(Oracle.eventAddress({
-        contractAddress,
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
-    });
-
-    it('throws if senderAddress is undefined', () => {
-      expect(Oracle.eventAddress({
-        contractAddress,
-        oracleType,
-      })).to.be.rejectedWith(Error);
-    });
-  });
-
-  describe('consensusThreshold()', () => {
-    it('returns the consensusThreshold', () => {
-      const res = Mocks.consensusThreshold.result;
-      assert.isDefined(res[0]);
-      assert.isNotNaN(Number(res[0]));
-    });
-
-    it('throws if contractAddress is undefined', () => {
-      expect(Oracle.consensusThreshold({
-        oracleType,
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
-    });
-
-    it('throws if oracleType is undefined', () => {
-      expect(Oracle.consensusThreshold({
-        contractAddress,
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
-    });
-
-    it('throws if senderAddress is undefined', () => {
-      expect(Oracle.consensusThreshold({
-        contractAddress,
-        oracleType,
-      })).to.be.rejectedWith(Error);
-    });
-  });
-
-  describe('finished()', () => {
-    it('returns the finished flag', () => {
-      const res = Mocks.finished.result;
-      assert.isDefined(res[0]);
-      assert.isBoolean(res[0]);
-    });
-
-    it('throws if contractAddress is undefined', () => {
-      expect(Oracle.finished({
-        oracleType,
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
-    });
-
-    it('throws if oracleType is undefined', () => {
-      expect(Oracle.finished({
-        contractAddress,
-        senderAddress: TestConfig.SENDER_ADDRESS,
-      })).to.be.rejectedWith(Error);
-    });
-
-    it('throws if senderAddress is undefined', () => {
-      expect(Oracle.finished({
-        contractAddress,
-        oracleType,
+    it('It throws if address is undefined', () => {
+      expect(Event.calculateWinnings({
+        eventAddress,
       })).to.be.rejectedWith(Error);
     });
   });
