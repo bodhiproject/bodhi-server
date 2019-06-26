@@ -67,7 +67,7 @@ const buildFilter = (rawFilter, version) => {
   if (language) filter.language = language;
 
   return filter;
-} 
+};
 
 module.exports = async (
   parent,
