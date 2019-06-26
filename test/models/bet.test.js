@@ -4,21 +4,24 @@ const web3 = require('../../src/web3');
 const Bet = require('../../src/models/bet');
 const { TX_STATUS, TX_TYPE } = require('../../src/constants');
 
+const rawInput = {
+  txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  txStatus: TX_STATUS.SUCCESS,
+  blockNum: 5,
+  eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  resultIndex: 1,
+  amount: "1000000",
+  eventRound: 0,
+};
+
 describe('models/bet', () => {
   describe('validate', () => {
     let input;
 
     beforeEach(() => {
-      input = {
-        txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        txStatus: TX_STATUS.SUCCESS,
-        blockNum: 5,
-        eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        resultIndex: 1,
-        amount: "1000000",
-        eventRound: 0,
-      };
+      input = {};
+      Object.assign(input, rawInput);
     });
 
     it('It should throw if txid is missing', () => {
@@ -236,16 +239,8 @@ describe('models/bet', () => {
     let input;
 
     beforeEach(() => {
-      input = {
-        txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        txStatus: TX_STATUS.SUCCESS,
-        blockNum: 5,
-        eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        betterAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        resultIndex: 1,
-        amount: "1000000",
-        eventRound: 0,
-      };
+      input = {};
+      Object.assign(input, rawInput);
     });
 
     it('it should format all the fields', () => {

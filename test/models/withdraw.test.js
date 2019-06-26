@@ -4,20 +4,23 @@ const web3 = require('../../src/web3');
 const Withdraw = require('../../src/models/withdraw');
 const { TX_STATUS, TX_TYPE } = require('../../src/constants');
 
+const rawInput = {
+  txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  txStatus: TX_STATUS.SUCCESS,
+  blockNum: 5,
+  eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  winningAmount: "1000000",
+  escrowWithdrawAmount: "1000000",
+};
+
 describe('models/withdraw', () => {
   describe('validate', () => {
     let input;
 
     beforeEach(() => {
-      input = {
-        txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        txStatus: TX_STATUS.SUCCESS,
-        blockNum: 5,
-        eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        winningAmount: "1000000",
-        escrowWithdrawAmount: "1000000",
-      };
+      input = {};
+      Object.assign(input, rawInput);
     });
 
     it('It should throw if txid is missing', () => {
@@ -205,15 +208,8 @@ describe('models/withdraw', () => {
     let input;
 
     beforeEach(() => {
-      input = {
-        txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        txStatus: TX_STATUS.SUCCESS,
-        blockNum: 5,
-        eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        winningAmount: "1000000",
-        escrowWithdrawAmount: "1000000",
-      };
+      input = {};
+      Object.assign(input, rawInput);
     });
 
     it('It should format all the fields', () => {

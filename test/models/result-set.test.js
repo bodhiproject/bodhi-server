@@ -9,20 +9,23 @@ const { TX_STATUS, TX_TYPE } = require('../../src/constants');
 // 2. nextConsensusThreshold
 // 3. nextArbitrationEndTime
 
+const rawInput = {
+  txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  txStatus: TX_STATUS.SUCCESS,
+  blockNum: 5,
+  eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  resultIndex: 1,
+  amount: "1000000",
+  eventRound: 0,
+};
+
 describe('models/result-set', () => {
   describe('validate', () => {
     let input;
 
     beforeEach(() => {
-      input = {
-        txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        txStatus: TX_STATUS.SUCCESS,
-        blockNum: 5,
-        eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        resultIndex: 1,
-        amount: "1000000",
-        eventRound: 0,
-      };
+      input = {};
+      Object.assign(input, rawInput);
     });
 
     it('It should throw if txid is missing', () => {
@@ -210,15 +213,8 @@ describe('models/result-set', () => {
     let input;
 
     beforeEach(() => {
-      input = {
-        txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        txStatus: TX_STATUS.SUCCESS,
-        blockNum: 5,
-        eventAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        resultIndex: 1,
-        amount: "1000000",
-        eventRound: 0,
-      };
+      input = {};
+      Object.assign(input, rawInput);
     });
 
     it('It should format all the fields mimicing pending result-set', () => {

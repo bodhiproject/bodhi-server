@@ -17,33 +17,36 @@ The following fields are not validating in model
   results **
 */
 
+const rawInput = {
+  txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  txStatus: TX_STATUS.SUCCESS,
+  blockNum: 5,
+  address: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  version: 6,
+  name: "Test",
+  numOfResults: 3,
+  centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  betStartTime: 1560965704,
+  betEndTime: 1560965704,
+  resultSetStartTime: 1560965704,
+  resultSetEndTime: 1560965704,
+  escrowAmount: "1000000",
+  arbitrationLength: 172800,
+  thresholdPercentIncrease: "10",
+  arbitrationRewardPercentage: 10,
+  consensusThreshold: "100000000000",
+  arbitrationEndTime: 1560965704,
+};
+
 describe('models/multiple-results-event', () => {
   describe('validate', () => {
     let input;
     const results = ['Invalid', '1', 'y'];
 
     beforeEach(() => {
-      input = {
-        txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        txStatus: TX_STATUS.SUCCESS,
-        blockNum: 5,
-        address: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        version: 6,
-        name: "Test",
-        numOfResults: 3,
-        centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        betStartTime: 1560965704,
-        betEndTime: 1560965704,
-        resultSetStartTime: 1560965704,
-        resultSetEndTime: 1560965704,
-        escrowAmount: "1000000",
-        arbitrationLength: 172800,
-        thresholdPercentIncrease: "10",
-        arbitrationRewardPercentage: 10,
-        consensusThreshold: "100000000000",
-        arbitrationEndTime: 1560965704,
-      };
+      input = {};
+      Object.assign(input, rawInput);
 
       input.results = filter(
         map(results, (item) => {
@@ -55,11 +58,6 @@ describe('models/multiple-results-event', () => {
         }),
         item => !!item,
       );
-    });
-
-    it('It should throw if txid is missing', () => {
-      delete input.txid;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txid must be a String"); // must be double quotes
     });
 
     it('It should throw if txid is null', () => {
@@ -87,11 +85,6 @@ describe('models/multiple-results-event', () => {
       assert.throws(() => new MultipleResultsEvent(input), Error, "txid must be a String");
     });
 
-    it('It should throw if txStatus is missing', () => {
-      delete input.txStatus;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txStatus must be a String");
-    });
-
     it('It should throw if txStatus is null', () => {
       input.txStatus = null;
       assert.throws(() => new MultipleResultsEvent(input), Error, "txStatus must be a String");
@@ -115,11 +108,6 @@ describe('models/multiple-results-event', () => {
     it('It should throw if txStatus is object', () => {
       input.txStatus = {id:TX_STATUS.SUCCESS};
       assert.throws(() => new MultipleResultsEvent(input), Error, "txStatus must be a String");
-    });
-
-    it('It should throw if ownerAddress is missing', () => {
-      delete input.ownerAddress;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "ownerAddress must be a String");
     });
 
     it('It should throw if ownerAddress is null', () => {
@@ -147,11 +135,6 @@ describe('models/multiple-results-event', () => {
       assert.throws(() => new MultipleResultsEvent(input), Error, "ownerAddress must be a String");
     });
 
-    it('It should throw if name is missing', () => {
-      delete input.name;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "name must be a String");
-    });
-
     it('It should throw if name is null', () => {
       input.name = null;
       assert.throws(() => new MultipleResultsEvent(input), Error, "name must be a String");
@@ -175,11 +158,6 @@ describe('models/multiple-results-event', () => {
     it('It should throw if name is object', () => {
       input.name = {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"};
       assert.throws(() => new MultipleResultsEvent(input), Error, "name must be a String");
-    });
-
-    it('It should throw if centralizedOracle is missing', () => {
-      delete input.centralizedOracle;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "centralizedOracle must be a String");
     });
 
     it('It should throw if centralizedOracle is null', () => {
@@ -207,11 +185,6 @@ describe('models/multiple-results-event', () => {
       assert.throws(() => new MultipleResultsEvent(input), Error, "centralizedOracle must be a String");
     });
 
-    it('It should throw if numOfResults is missing', () => {
-      delete input.numOfResults;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "numOfResults must be a Number");
-    });
-
     it('It should throw if numOfResults is null', () => {
       input.numOfResults = null;
       assert.throws(() => new MultipleResultsEvent(input), Error, "numOfResults must be a Number");
@@ -237,11 +210,6 @@ describe('models/multiple-results-event', () => {
       assert.throws(() => new MultipleResultsEvent(input), Error, "numOfResults must be a Number");
     });
 
-    it('It should throw if betEndTime is missing', () => {
-      delete input.betEndTime;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "betEndTime must be a Number");
-    });
-
     it('It should throw if betEndTime is null', () => {
       input.betEndTime = null;
       assert.throws(() => new MultipleResultsEvent(input), Error, "betEndTime must be a Number");
@@ -265,11 +233,6 @@ describe('models/multiple-results-event', () => {
     it('It should throw if betEndTime is object', () => {
       input.betEndTime = {id:2};
       assert.throws(() => new MultipleResultsEvent(input), Error, "betEndTime must be a Number");
-    });
-
-    it('It should throw if resultSetStartTime is missing', () => {
-      delete input.resultSetStartTime;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetStartTime must be a Number");
     });
 
     it('It should throw if resultSetStartTime is null', () => {
@@ -344,27 +307,8 @@ describe('models/multiple-results-event', () => {
     const results = ['Invalid', '1', 'y'];
 
     beforeEach(() => {
-      input = {
-        txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        txStatus: TX_STATUS.SUCCESS,
-        blockNum: 5,
-        address: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        version: 6,
-        name: "Test",
-        numOfResults: 3,
-        centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        betStartTime: 1560965704,
-        betEndTime: 1560965704,
-        resultSetStartTime: 1560965704,
-        resultSetEndTime: 1560965704,
-        escrowAmount: "1000000",
-        arbitrationLength: 172800,
-        thresholdPercentIncrease: "10",
-        arbitrationRewardPercentage: 10,
-        consensusThreshold: "100000000000",
-        arbitrationEndTime: 1560965704,
-      };
+      input = {};
+      Object.assign(input, rawInput);
 
       input.results = filter(
         map(results, (item) => {
