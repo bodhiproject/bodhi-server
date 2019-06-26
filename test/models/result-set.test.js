@@ -232,18 +232,5 @@ describe('models/result-set', () => {
       assert.equal(bet.eventRound, input.eventRound);
       assert.equal(bet.txType, TX_TYPE.RESULT_SET);
     });
-
-    it('Type should be vote if eventRound is not 0', () => {
-      input.eventRound = 10;
-      const bet = new ResultSet(input);
-      assert.equal(bet.txid, input.txid);
-      assert.equal(bet.txStatus, input.txStatus);
-      assert.equal(bet.blockNum, input.blockNum);
-      assert.equal(bet.eventAddress, input.eventAddress);
-      assert.equal(bet.resultIndex, input.resultIndex);
-      assert.equal(bet.amount, input.amount);
-      assert.equal(bet.eventRound, input.eventRound);
-      assert.equal(bet.txType, TX_TYPE.RESULT_SET);
-    });
   });
 });
