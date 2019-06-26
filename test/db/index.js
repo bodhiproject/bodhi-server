@@ -8,6 +8,7 @@ const fs = require('fs-extra');
 const { initDB, db } = require('../../src/db');
 const { getDbDir } = require('../../src/config');
 const DBHelper = require('../../src/db/db-helper');
+const { EVENT_STATUS } = require('../../src/constants');
 
 describe('db', () => {
   before(async () => {
@@ -275,6 +276,81 @@ describe('db', () => {
         event = await DBHelper.findOneEvent({txid: mockEvent[2].txid});
         should.exist(event);
         expect(event).excluding(["_id"]).to.deep.equal(mockEvent[2]);
+      })
+    })
+
+    describe('event status update', () => {
+      let createdEvent = {"txType":"CREATE_EVENT","txid":"0x9628812210d8e7d071ee343ece4d79c248191fdf76938cecd572158c475cb7f5","txStatus":"SUCCESS","blockNum":4404133,"address":"0x0c97ba43149c6eee920ef1e9d410316905c1ce8a","ownerAddress":"0x47ba776b3ed5d514d3e206ffee72fa483baffa7e","version":6,"name":"TEST EVENT STATUS","results":["Invalid","1","2"],"numOfResults":3,"centralizedOracle":"0x47ba776b3ed5d514d3e206ffee72fa483baffa7e","betStartTime":1561585230,"betEndTime":1561671614,"resultSetStartTime":1561671714,"resultSetEndTime":1561844414,"escrowAmount":"100000000","arbitrationLength":86400,"thresholdPercentIncrease":"10","arbitrationRewardPercentage":10,"currentRound":0,"currentResultIndex":255,"consensusThreshold":"10000000000","arbitrationEndTime":0,"status":"CREATED","language":"en-US","withdrawnList":[]}
+      let event;
+      it('should update event status to PRE_BETTING', async () => {
+        await DBHelper.insertEvent(createdEvent);
+        await DBHelper.updateEventStatusPreBetting(createdEvent.betStartTime - 1);
+        event = await DBHelper.findEvent({address: createdEvent.address});
+        event.length.should.equal(1);
+        expect(event[0]).excluding(["_id", 'status']).to.deep.equal(createdEvent);
+        event[0].status.should.equal(EVENT_STATUS.PRE_BETTING)
+      })
+
+      it('should update event status to BETTING', async () => {
+        await DBHelper.updateEventStatusBetting(createdEvent.betStartTime + 1);
+        event = await DBHelper.findEvent({address: createdEvent.address});
+        event.length.should.equal(1);
+        expect(event[0]).excluding(["_id", 'status']).to.deep.equal(createdEvent);
+        event[0].status.should.equal(EVENT_STATUS.BETTING)
+      })
+
+      it('should update event status to PRE_RESULT_SETTING', async () => {
+        await DBHelper.updateEventStatusPreResultSetting(createdEvent.resultSetStartTime - 1);
+        event = await DBHelper.findEvent({address: createdEvent.address});
+        event.length.should.equal(1);
+        expect(event[0]).excluding(["_id", 'status']).to.deep.equal(createdEvent);
+        event[0].status.should.equal(EVENT_STATUS.PRE_RESULT_SETTING)
+      })
+
+      it('should update event status to ORACLE_RESULT_SETTING', async () => {
+        await DBHelper.updateEventStatusOracleResultSetting(createdEvent.resultSetStartTime);
+        event = await DBHelper.findEvent({address: createdEvent.address});
+        event.length.should.equal(1);
+        expect(event[0]).excluding(["_id", 'status']).to.deep.equal(createdEvent);
+        event[0].status.should.equal(EVENT_STATUS.ORACLE_RESULT_SETTING)
+      })
+
+      it('should update event status to OPEN_RESULT_SETTING', async () => {
+        await DBHelper.updateEventStatusOpenResultSetting(createdEvent.resultSetEndTime);
+        event = await DBHelper.findEvent({address: createdEvent.address});
+        event.length.should.equal(1);
+        expect(event[0]).excluding(["_id", 'status']).to.deep.equal(createdEvent);
+        event[0].status.should.equal(EVENT_STATUS.OPEN_RESULT_SETTING)
+      })
+
+      it('should update event status to ARBITRATION', async () => {
+        createdEvent = {"txType":"CREATE_EVENT","txid":"0xf0e68c3cfa4e77f0a5b46afd9f8c5efccd5d90f419053c6d452b021bc203c44f","txStatus":"SUCCESS","blockNum":3979339,"address":"0xfef4a675dba91b91608dc75c40deaca0333af514","ownerAddress":"0x47ba776b3ed5d514d3e206ffee72fa483baffa7e","version":5,"name":"QQQ","results":["Invalid","2","1"],"numOfResults":3,"centralizedOracle":"0x47ba776b3ed5d514d3e206ffee72fa483baffa7e","betStartTime":1560292822,"betEndTime":1560379222,"resultSetStartTime":1560379222,"resultSetEndTime":1560465622,"escrowAmount":"100000000","arbitrationLength":300,"thresholdPercentIncrease":"10","arbitrationRewardPercentage":10,"currentRound":1,"currentResultIndex":2,"consensusThreshold":"1100000000","arbitrationEndTime":1561586376,"status":"OPEN_RESULT_SETTING","language":"en-US"}
+        await DBHelper.insertEvent(createdEvent);
+        await DBHelper.updateEventStatusArbitration(createdEvent.arbitrationEndTime - 1);
+        event = await DBHelper.findEvent({address: createdEvent.address});
+        event.length.should.equal(1);
+        expect(event[0]).excluding(["_id", 'status']).to.deep.equal(createdEvent);
+        event[0].status.should.equal(EVENT_STATUS.ARBITRATION)
+      })
+
+      it('should update event status to WITHDRAWING', async () => {
+        await DBHelper.updateEventStatusWithdrawing(createdEvent.arbitrationEndTime);
+        event = await DBHelper.findEvent({address: createdEvent.address});
+        event.length.should.equal(1);
+        expect(event[0]).excluding(["_id", 'status']).to.deep.equal(createdEvent);
+        event[0].status.should.equal(EVENT_STATUS.WITHDRAWING)
+      })
+
+      describe('test event withdrawn list', () => {
+        const withdraw = {
+          eventAddress: "0xfef4a675dba91b91608dc75c40deaca0333af514",
+          winnerAddress: "0x47ba776b3ed5d514d3e206ffee72fa483baffa7e",
+        }
+        it('should update event withdrawnlist', async () => {
+          await DBHelper.updateEventWithdrawnList(withdraw);
+          event = await DBHelper.findOneEvent({address: withdraw.eventAddress});
+          event.withdrawnList[0].should.equal(withdraw.winnerAddress);
+        })
       })
     })
 
