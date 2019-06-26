@@ -1,6 +1,6 @@
 FROM node:10
 
-EXPOSE 9999
+RUN apt-get update && apt-get install -y vim
 
 WORKDIR /root/bodhi-server
 
@@ -9,3 +9,5 @@ COPY . .
 RUN npm install
 
 ENTRYPOINT ["node", "src/index.js"]
+
+EXPOSE 9999
