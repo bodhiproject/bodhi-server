@@ -23,7 +23,7 @@ services:
       driver: json-file
       options:
         max-size: "10m"
-        max-file: "10"
+        max-file: "5"
 
 volumes:
   bodhi-server-mainnet:
