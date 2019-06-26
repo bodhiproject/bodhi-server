@@ -221,7 +221,7 @@ describe('models/result-set', () => {
       };
     });
 
-    it('It should pass if passing all inputs correctly', () => {
+    it('It should format all the fields', () => {
       const bet = new ResultSet(input);
       assert.equal(bet.txid, input.txid);
       assert.equal(bet.txStatus, input.txStatus);

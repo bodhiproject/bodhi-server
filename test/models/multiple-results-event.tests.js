@@ -374,7 +374,7 @@ describe('models/multiple-results-event', () => {
       );
     });
 
-    it('It should pass if passing all inputs correctly', () => {
+    it('it should format all the fields', () => {
       const event = new MultipleResultsEvent(input);
       assert.equal(event.txid, input.txid);
       assert.equal(event.txStatus, input.txStatus);
@@ -398,7 +398,7 @@ describe('models/multiple-results-event', () => {
       assert.isNumber(event.arbitrationEndTime);
     });
 
-    it('It should pass if no betStartTime and resultSetEndTime', () => {
+    it('It should format if no betStartTime and resultSetEndTime', () => {
       input.betStartTime = undefined;
       input.resultSetEndTime = undefined;
       const event = new MultipleResultsEvent(input);
