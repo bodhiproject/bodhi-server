@@ -137,7 +137,6 @@ const getStartBlock = async () => {
  * @param {number} delay Number of milliseconds to delay.
  */
 const delayThenSync = (delay) => {
-  logger.debug('sleep');
   setTimeout(() => {
     startSync();
   }, delay);
