@@ -4,11 +4,6 @@ const web3 = require('../../src/web3');
 const Withdraw = require('../../src/models/withdraw');
 const { TX_STATUS, TX_TYPE } = require('../../src/constants');
 
-// result-set model not validating on
-// 1. centralizedOracleAddress
-// 2. nextConsensusThreshold
-// 3. nextArbitrationEndTime
-
 describe('models/withdraw', () => {
   describe('validate', () => {
     let input;
@@ -222,15 +217,54 @@ describe('models/withdraw', () => {
     });
 
     it('It should format all the fields', () => {
-      const bet = new Withdraw(input);
-      assert.equal(bet.txid, input.txid);
-      assert.equal(bet.txStatus, input.txStatus);
-      assert.equal(bet.blockNum, input.blockNum);
-      assert.equal(bet.eventAddress, input.eventAddress);
-      assert.equal(bet.winnerAddress, input.winnerAddress);
-      assert.equal(bet.winningAmount, input.winningAmount);
-      assert.equal(bet.escrowWithdrawAmount, input.escrowWithdrawAmount);
-      assert.equal(bet.txType, TX_TYPE.WITHDRAW);
+      const withdraw = new Withdraw(input);
+      assert.equal(withdraw.txid, input.txid);
+      assert.equal(withdraw.txStatus, input.txStatus);
+      assert.equal(withdraw.blockNum, input.blockNum);
+      assert.equal(withdraw.eventAddress, input.eventAddress);
+      assert.equal(withdraw.winnerAddress, input.winnerAddress);
+      assert.equal(withdraw.winningAmount, input.winningAmount);
+      assert.equal(withdraw.escrowWithdrawAmount, input.escrowWithdrawAmount);
+      assert.equal(withdraw.txType, TX_TYPE.WITHDRAW);
+    });
+
+    it('It should format the txid to lowercase', () => {
+      input.txid = input.txid.toUpperCase();
+      const withdraw = new Withdraw(input);
+      assert.equal(withdraw.txid, input.txid.toLowerCase());
+      assert.equal(withdraw.txStatus, input.txStatus);
+      assert.equal(withdraw.blockNum, input.blockNum);
+      assert.equal(withdraw.eventAddress, input.eventAddress);
+      assert.equal(withdraw.winnerAddress, input.winnerAddress);
+      assert.equal(withdraw.winningAmount, input.winningAmount);
+      assert.equal(withdraw.escrowWithdrawAmount, input.escrowWithdrawAmount);
+      assert.equal(withdraw.txType, TX_TYPE.WITHDRAW);
+    });
+
+    it('It should format the eventAddress to lowercase', () => {
+      input.eventAddress = input.eventAddress.toUpperCase();
+      const withdraw = new Withdraw(input);
+      assert.equal(withdraw.txid, input.txid);
+      assert.equal(withdraw.txStatus, input.txStatus);
+      assert.equal(withdraw.blockNum, input.blockNum);
+      assert.equal(withdraw.eventAddress, input.eventAddress.toLowerCase());
+      assert.equal(withdraw.winnerAddress, input.winnerAddress);
+      assert.equal(withdraw.winningAmount, input.winningAmount);
+      assert.equal(withdraw.escrowWithdrawAmount, input.escrowWithdrawAmount);
+      assert.equal(withdraw.txType, TX_TYPE.WITHDRAW);
+    });
+
+    it('It should format the eventAddress to lowercase', () => {
+      input.winnerAddress = input.winnerAddress.toUpperCase();
+      const withdraw = new Withdraw(input);
+      assert.equal(withdraw.txid, input.txid);
+      assert.equal(withdraw.txStatus, input.txStatus);
+      assert.equal(withdraw.blockNum, input.blockNum);
+      assert.equal(withdraw.eventAddress, input.eventAddress);
+      assert.equal(withdraw.winnerAddress, input.winnerAddress.toLowerCase());
+      assert.equal(withdraw.winningAmount, input.winningAmount);
+      assert.equal(withdraw.escrowWithdrawAmount, input.escrowWithdrawAmount);
+      assert.equal(withdraw.txType, TX_TYPE.WITHDRAW);
     });
   });
 });
