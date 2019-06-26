@@ -23,7 +23,7 @@ const getProvider = () => {
   }
 
   // Create provider and handle events
-  const provider = new Web3.providers.WebsocketProvider(url, { timeout: 30000 });
+  const provider = new Web3.providers.WebsocketProvider(url);
   provider.on('connect', () => {
     logger.info(msg);
     emitter.emit(EVENT_MESSAGE.WEBSOCKET_CONNECTED);
