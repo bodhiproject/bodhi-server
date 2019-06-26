@@ -356,6 +356,92 @@ describe('db', () => {
 
   })
 
+  /* Bets */
+  describe('test bets db', () => {
+    const mockBets = [
+      {"txType":"BET","txid":"0x445ffdcfb4b3e30c3c8d73a7583230b60eff51054035389df7cf187f5d3f75b6","txStatus":"SUCCESS","blockNum":4154205,"eventAddress":"0xbeaa4358aa4434227c4545544e50c1b1a52a51c6","betterAddress":"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a","resultIndex":2,"amount":"1100000000","eventRound":0},
+      {"txType":"BET","txid":"0xe314e29163785d1361880588f252c039016943bf4de494b7ae0869fc9897fe13","txStatus":"SUCCESS","blockNum":3810125,"eventAddress":"0xbbdfec793ef800769898795f469fc3951dc21eea","betterAddress":"0x7937a1e86f2cb43d6c91d27ca7a4f93c7f7189c3","resultIndex":1,"amount":"10000000","eventRound":0},
+      {"txType":"BET","txid":"0xccd0af2cb0299880101ff6558c3000a719e485677a9792bc24c4366ac78d1bf4","txStatus":"FAIL","blockNum":null,"eventAddress":"0xeaf92b5aabe6028fdbe5889a6705fbc0e2e2da8d","betterAddress":"0x47ba776b3ed5d514d3e206ffee72fa483baffa7e","resultIndex":1,"amount":"300000000","eventRound":0}
+    ]
+    let bet;
+    let betCount;
+    describe('find bet', () => {
+      it('find empty bets db', async () => {
+        betCount = await db.Bets.count({});
+        betCount.should.equal(0);
+        bet =  await DBHelper.findBet({});
+        bet.length.should.equal(0);
+      })
+
+      it('find on non-empty bets db', async () => {
+        await DBHelper.insertBet(mockBets[0]);
+        await DBHelper.insertBet(mockBets[1]);
+        const foundBets = await DBHelper.findBet({}, { blockNum: -1});
+        foundBets.length.should.equal(2);
+        expect(foundBets[0]).excluding("_id").to.deep.equal(mockBets[0]);
+        expect(foundBets[1]).excluding("_id").to.deep.equal(mockBets[1]);
+      })
+    })
+
+    describe('find one bet', () => {
+      it('find existed bet', async () => {
+        bet = await DBHelper.findOneBet({ txid: mockBets[0].txid });
+        should.exist(bet);
+        expect(bet).excluding("_id").to.deep.equal(mockBets[0]);
+      });
+
+      it('find non-existed bet', async () => {
+        bet = await DBHelper.findOneBet({txid: '0x12333'});
+        should.not.exist(bet);
+      });
+    });
+
+    describe('count bet', () => {
+      it('bet counts should right', async () => {
+        betCount = await DBHelper.countBet({});
+        betCount.should.equal(2);
+      })
+    })
+
+    describe('insert bet', () => {
+      it('should insert new bet', async () => {
+        betCount = await db.Bets.count({});
+        betCount.should.equal(2);
+        await DBHelper.insertBet(mockBets[2]);
+        betCount = await db.Bets.count({});
+        betCount.should.equal(3);
+        bet = await DBHelper.findOneBet({txid: mockBets[2].txid});
+        should.exist(bet);
+        expect(bet).excluding("_id").to.deep.equal(mockBets[2]);
+      })
+
+      it('insert existed txid bet', async () => {
+        const newBetWithExistedTxid =       {"txType":"BET","txid":"0xccd0af2cb0299880101ff6558c3000a719e485677a9792bc24c4366ac78d1bf4","txStatus":"SUCCESS","blockNum":1233242,"eventAddress":"0xeaf92b5aabe6028fdbe5889a6705f322e2da8d","betterAddress":"0x47ba776b3ed5d5325345fee72fa483baffa7e","resultIndex":1,"amount":"300000000","eventRound":0}
+        await DBHelper.insertBet(newBetWithExistedTxid);
+        betCount = await db.Bets.count({});
+        betCount.should.equal(3);
+        bet = await DBHelper.findOneBet({txid: newBetWithExistedTxid.txid});
+        should.exist(bet);
+        expect(bet).excluding(["_id"]).to.deep.equal(newBetWithExistedTxid);
+      })
+    })
+
+
+    describe('update bet', () => {
+      it('update bet', async () => {
+        const updateNewBet =  {"txType":"BET","txid":"0xccd0af2cb0299880101ff6558c3000a719e485677a9792bc24c4366ac78d1bf4","txStatus":"FAIL","blockNum":null,"eventAddress":"0xeaf92b5aabe6028fdbe5889a6705fbc0e2e2da8d","betterAddress":"0x47ba776b3ed5d514d3e206ffee72fa483baffa7e","resultIndex":1,"amount":"300000000","eventRound":0}
+        bet = await DBHelper.findOneBet({txid: mockBets[2].txid});
+        expect(bet).excluding(["_id"]).to.deep.not.equal(updateNewBet);
+        await DBHelper.updateBet(mockBets[2].txid, updateNewBet);
+        betCount = await db.Bets.count({});
+        betCount.should.equal(3);
+        bet = await DBHelper.findOneBet({txid: updateNewBet.txid});
+        should.exist(bet);
+        expect(bet).excluding(["_id"]).to.deep.equal(updateNewBet);
+      })
+    })
+  })
+
   after(async () => {
     fs.removeSync(getDbDir());
   });
