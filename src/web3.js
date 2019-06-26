@@ -8,7 +8,7 @@ const emitter = require('./event');
  * Returns the websocket provider with implemented event handlers.
  * Event handlers will create a new provider and set it to the existing web3
  * instance when a disconnect occurs.
- * @return {Web3.providers.WebsocketProvider} Web3 WS Provider.
+ * @return {WebsocketProvider} Web3 WS Provider
  */
 const getProvider = () => {
   // Get endpoint per network
@@ -23,24 +23,17 @@ const getProvider = () => {
   }
 
   // Create provider and handle events
-  const provider = new Web3.providers.WebsocketProvider(url);
+  const provider = new Web3.providers.WebsocketProvider(url, { timeout: 30000 });
   provider.on('connect', () => {
     logger.info(msg);
     emitter.emit(EVENT_MESSAGE.WEBSOCKET_CONNECTED);
   });
-  provider.on('error', (err) => {
-    logger.error(`Web3 WS encountered an error: ${err.message}`);
+  provider.on('close', (err) => {
+    logger.error('Web3 WS closed', { error: err && err.message });
     emitter.emit(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED);
-
-    // Handle ws disconnects and set new provider
-    web3.setProvider(getProvider());
   });
-  provider.on('end', (err) => {
-    logger.error(`Web3 WS disconnected: ${err.message}`);
-    emitter.emit(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED);
-
-    // Handle ws disconnects and set new provider
-    web3.setProvider(getProvider());
+  provider.on('error', (err) => {
+    logger.error('Web3 WS error', { error: err && err.message });
   });
 
   return provider;
