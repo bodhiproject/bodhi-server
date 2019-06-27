@@ -13,13 +13,21 @@ const getContract = async (eventAddress) => {
 };
 
 module.exports = {
+  async getContract(eventAddress) {
+    const event = await DBHelper.findOneEvent({ address: eventAddress });
+    if (isNull(event)) throw Error('Event not found');
+
+    const metadata = multipleResultsEventMeta(event.version);
+    return new web3.eth.Contract(metadata.abi, eventAddress);
+  },
+
   async calculateWinnings(args) {
     try {
       const { eventAddress, address } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
       if (isUndefined(address)) throw TypeError('address is not defined');
 
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.calculateWinnings(address).call();
       return web3.utils.toBN(res).toString(10);
     } catch (err) {
