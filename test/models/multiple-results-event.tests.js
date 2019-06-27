@@ -17,6 +17,7 @@ The following fields are not validating in model
   results **
 */
 
+const results = ['Invalid', '1', 'y'];
 const rawInput = {
   txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
   txStatus: TX_STATUS.SUCCESS,
@@ -25,6 +26,7 @@ const rawInput = {
   ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
   version: 6,
   name: "Test",
+  results: map(results, (item) => web3.utils.utf8ToHex(item)),
   numOfResults: 3,
   centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
   betStartTime: 1560965704,
@@ -39,25 +41,15 @@ const rawInput = {
   arbitrationEndTime: 1560965704,
 };
 
+console.log(rawInput);
+
 describe('models/multiple-results-event', () => {
   describe('validate', () => {
     let input;
-    const results = ['Invalid', '1', 'y'];
 
     beforeEach(() => {
       input = {};
       Object.assign(input, rawInput);
-
-      input.results = filter(
-        map(results, (item) => {
-          try {
-            return web3.utils.utf8ToHex(item);
-          } catch (err) {
-            return '(parse error)';
-          }
-        }),
-        item => !!item,
-      );
     });
 
     it('It should throw if txid is null', () => {
@@ -304,22 +296,10 @@ describe('models/multiple-results-event', () => {
   describe('format', () => {
     let input;
     let mutationInput;
-    const results = ['Invalid', '1', 'y'];
 
     beforeEach(() => {
       input = {};
       Object.assign(input, rawInput);
-
-      input.results = filter(
-        map(results, (item) => {
-          try {
-            return web3.utils.utf8ToHex(item);
-          } catch (err) {
-            return '(parse error)';
-          }
-        }),
-        item => !!item,
-      );
 
       mutationInput = {
         txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
@@ -389,6 +369,30 @@ describe('models/multiple-results-event', () => {
       assert.equal(event.arbitrationRewardPercentage, input.arbitrationRewardPercentage);
       assert.isString(event.consensusThreshold);
       assert.isNumber(event.arbitrationEndTime);
+    });
+
+    it('It should format the txid to be lowercase', () => {
+      input.txid = input.txid.toUpperCase();
+      const event = new MultipleResultsEvent(input);
+      assert.equal(event.txid, input.txid.toLowerCase());
+    });
+
+    it('It should format the address to be lowercase', () => {
+      input.address = input.address.toUpperCase();
+      const event = new MultipleResultsEvent(input);
+      assert.equal(event.address, input.address.toLowerCase());
+    });
+
+    it('It should format the ownerAddress to be lowercase', () => {
+      input.ownerAddress = input.ownerAddress.toUpperCase();
+      const event = new MultipleResultsEvent(input);
+      assert.equal(event.ownerAddress, input.ownerAddress.toLowerCase());
+    });
+
+    it('It should format the centralizedOracle to be lowercase', () => {
+      input.centralizedOracle = input.centralizedOracle.toUpperCase();
+      const event = new MultipleResultsEvent(input);
+      assert.equal(event.centralizedOracle, input.centralizedOracle.toLowerCase());
     });
   });
 });

@@ -228,39 +228,18 @@ describe('models/withdraw', () => {
       input.txid = input.txid.toUpperCase();
       const withdraw = new Withdraw(input);
       assert.equal(withdraw.txid, input.txid.toLowerCase());
-      assert.equal(withdraw.txStatus, input.txStatus);
-      assert.equal(withdraw.blockNum, input.blockNum);
-      assert.equal(withdraw.eventAddress, input.eventAddress);
-      assert.equal(withdraw.winnerAddress, input.winnerAddress);
-      assert.equal(withdraw.winningAmount, input.winningAmount);
-      assert.equal(withdraw.escrowWithdrawAmount, input.escrowWithdrawAmount);
-      assert.equal(withdraw.txType, TX_TYPE.WITHDRAW);
     });
 
     it('It should format the eventAddress to lowercase', () => {
       input.eventAddress = input.eventAddress.toUpperCase();
       const withdraw = new Withdraw(input);
-      assert.equal(withdraw.txid, input.txid);
-      assert.equal(withdraw.txStatus, input.txStatus);
-      assert.equal(withdraw.blockNum, input.blockNum);
       assert.equal(withdraw.eventAddress, input.eventAddress.toLowerCase());
-      assert.equal(withdraw.winnerAddress, input.winnerAddress);
-      assert.equal(withdraw.winningAmount, input.winningAmount);
-      assert.equal(withdraw.escrowWithdrawAmount, input.escrowWithdrawAmount);
-      assert.equal(withdraw.txType, TX_TYPE.WITHDRAW);
     });
 
     it('It should format the eventAddress to lowercase', () => {
       input.winnerAddress = input.winnerAddress.toUpperCase();
       const withdraw = new Withdraw(input);
-      assert.equal(withdraw.txid, input.txid);
-      assert.equal(withdraw.txStatus, input.txStatus);
-      assert.equal(withdraw.blockNum, input.blockNum);
-      assert.equal(withdraw.eventAddress, input.eventAddress);
       assert.equal(withdraw.winnerAddress, input.winnerAddress.toLowerCase());
-      assert.equal(withdraw.winningAmount, input.winningAmount);
-      assert.equal(withdraw.escrowWithdrawAmount, input.escrowWithdrawAmount);
-      assert.equal(withdraw.txType, TX_TYPE.WITHDRAW);
     });
   });
 });

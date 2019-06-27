@@ -259,14 +259,6 @@ describe('models/bet', () => {
     it('It should format the type to be vote', () => {
       input.eventRound = 1;
       const bet = new Bet(input);
-      assert.equal(bet.txid, input.txid);
-      assert.equal(bet.txStatus, input.txStatus);
-      assert.equal(bet.blockNum, input.blockNum);
-      assert.equal(bet.eventAddress, input.eventAddress);
-      assert.equal(bet.betterAddress, input.betterAddress);
-      assert.equal(bet.resultIndex, input.resultIndex);
-      assert.equal(bet.amount, input.amount);
-      assert.equal(bet.eventRound, input.eventRound);
       assert.equal(bet.txType, TX_TYPE.VOTE);
     });
 
@@ -274,42 +266,18 @@ describe('models/bet', () => {
       input.txid = input.txid.toUpperCase();
       const bet = new Bet(input);
       assert.equal(bet.txid, input.txid.toLowerCase());
-      assert.equal(bet.txStatus, input.txStatus);
-      assert.equal(bet.blockNum, input.blockNum);
-      assert.equal(bet.eventAddress, input.eventAddress);
-      assert.equal(bet.betterAddress, input.betterAddress);
-      assert.equal(bet.resultIndex, input.resultIndex);
-      assert.equal(bet.amount, input.amount);
-      assert.equal(bet.eventRound, input.eventRound);
-      assert.equal(bet.txType, TX_TYPE.BET);
     });
 
     it('It should format the eventAddress to be lowercase', () => {
       input.eventAddress = input.eventAddress.toUpperCase();
       const bet = new Bet(input);
-      assert.equal(bet.txid, input.txid);
-      assert.equal(bet.txStatus, input.txStatus);
-      assert.equal(bet.blockNum, input.blockNum);
       assert.equal(bet.eventAddress, input.eventAddress.toLowerCase());
-      assert.equal(bet.betterAddress, input.betterAddress);
-      assert.equal(bet.resultIndex, input.resultIndex);
-      assert.equal(bet.amount, input.amount);
-      assert.equal(bet.eventRound, input.eventRound);
-      assert.equal(bet.txType, TX_TYPE.BET);
     });
 
     it('It should format the eventAddress to be lowercase', () => {
       input.betterAddress = input.betterAddress.toUpperCase();
       const bet = new Bet(input);
-      assert.equal(bet.txid, input.txid);
-      assert.equal(bet.txStatus, input.txStatus);
-      assert.equal(bet.blockNum, input.blockNum);
-      assert.equal(bet.eventAddress, input.eventAddress);
       assert.equal(bet.betterAddress, input.betterAddress.toLowerCase());
-      assert.equal(bet.resultIndex, input.resultIndex);
-      assert.equal(bet.amount, input.amount);
-      assert.equal(bet.eventRound, input.eventRound);
-      assert.equal(bet.txType, TX_TYPE.BET);
     });
   });
 });

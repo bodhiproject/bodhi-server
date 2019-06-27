@@ -227,76 +227,31 @@ describe('models/tx-receipt', () => {
     it('It should format the blockHash to be lowercase', () => {
       input.blockHash = input.blockHash.toUpperCase();
       const txReceipt = new TxReceipt(input);
-      assert.equal(txReceipt.status, input.status);
       assert.equal(txReceipt.blockHash, input.blockHash.toLowerCase());
-      assert.equal(txReceipt.blockNum, input.blockNumber);
-      assert.equal(txReceipt.transactionHash, input.transactionHash);
-      assert.equal(txReceipt.from, input.from);
-      assert.equal(txReceipt.to, input.to);
-      assert.equal(txReceipt.contractAddress, input.contractAddress);
-      assert.equal(txReceipt.cumulativeGasUsed, input.cumulativeGasUsed);
-      assert.equal(txReceipt.gasUsed, input.gasUsed);
-      assert.equal(txReceipt.gasPrice, input.gasPrice);
     });
 
     it('It should format the transactionHash to be lowercase', () => {
       input.transactionHash = input.transactionHash.toUpperCase();
       const txReceipt = new TxReceipt(input);
-      assert.equal(txReceipt.status, input.status);
-      assert.equal(txReceipt.blockHash, input.blockHash);
-      assert.equal(txReceipt.blockNum, input.blockNumber);
       assert.equal(txReceipt.transactionHash, input.transactionHash.toLowerCase());
-      assert.equal(txReceipt.from, input.from);
-      assert.equal(txReceipt.to, input.to);
-      assert.equal(txReceipt.contractAddress, input.contractAddress);
-      assert.equal(txReceipt.cumulativeGasUsed, input.cumulativeGasUsed);
-      assert.equal(txReceipt.gasUsed, input.gasUsed);
-      assert.equal(txReceipt.gasPrice, input.gasPrice);
     });
 
     it('It should format the from to be lowercase', () => {
       input.from = input.from.toUpperCase();
       const txReceipt = new TxReceipt(input);
-      assert.equal(txReceipt.status, input.status);
-      assert.equal(txReceipt.blockHash, input.blockHash);
-      assert.equal(txReceipt.blockNum, input.blockNumber);
-      assert.equal(txReceipt.transactionHash, input.transactionHash);
       assert.equal(txReceipt.from, input.from.toLowerCase());
-      assert.equal(txReceipt.to, input.to);
-      assert.equal(txReceipt.contractAddress, input.contractAddress);
-      assert.equal(txReceipt.cumulativeGasUsed, input.cumulativeGasUsed);
-      assert.equal(txReceipt.gasUsed, input.gasUsed);
-      assert.equal(txReceipt.gasPrice, input.gasPrice);
     });
 
     it('It should format the to to be lowercase', () => {
       input.to = input.to.toUpperCase();
       const txReceipt = new TxReceipt(input);
-      assert.equal(txReceipt.status, input.status);
-      assert.equal(txReceipt.blockHash, input.blockHash);
-      assert.equal(txReceipt.blockNum, input.blockNumber);
-      assert.equal(txReceipt.transactionHash, input.transactionHash);
-      assert.equal(txReceipt.from, input.from);
       assert.equal(txReceipt.to, input.to.toLowerCase());
-      assert.equal(txReceipt.contractAddress, input.contractAddress);
-      assert.equal(txReceipt.cumulativeGasUsed, input.cumulativeGasUsed);
-      assert.equal(txReceipt.gasUsed, input.gasUsed);
-      assert.equal(txReceipt.gasPrice, input.gasPrice);
     });
 
     it('It should format the contractAddress to be lowercase', () => {
       input.contractAddress = input.contractAddress.toUpperCase();
       const txReceipt = new TxReceipt(input);
-      assert.equal(txReceipt.status, input.status);
-      assert.equal(txReceipt.blockHash, input.blockHash);
-      assert.equal(txReceipt.blockNum, input.blockNumber);
-      assert.equal(txReceipt.transactionHash, input.transactionHash);
-      assert.equal(txReceipt.from, input.from);
-      assert.equal(txReceipt.to, input.to);
       assert.equal(txReceipt.contractAddress, input.contractAddress.toLowerCase());
-      assert.equal(txReceipt.cumulativeGasUsed, input.cumulativeGasUsed);
-      assert.equal(txReceipt.gasUsed, input.gasUsed);
-      assert.equal(txReceipt.gasPrice, input.gasPrice);
     });
   });
 });

@@ -232,14 +232,7 @@ describe('models/result-set', () => {
     it('It should format the eventAddress to lowercase mimicing pending result-set', () => {
       input.eventAddress = input.eventAddress.toUpperCase();
       const resultSet = new ResultSet(input);
-      assert.equal(resultSet.txid, input.txid);
-      assert.equal(resultSet.txStatus, input.txStatus);
-      assert.equal(resultSet.blockNum, input.blockNum);
       assert.equal(resultSet.eventAddress, input.eventAddress.toLowerCase());
-      assert.equal(resultSet.resultIndex, input.resultIndex);
-      assert.equal(resultSet.amount, input.amount);
-      assert.equal(resultSet.eventRound, input.eventRound);
-      assert.equal(resultSet.txType, TX_TYPE.RESULT_SET);
     });
 
     it('It should format all the fields mimicing synced result-set', () => {
@@ -247,14 +240,6 @@ describe('models/result-set', () => {
       input.nextConsensusThreshold = "10";
       input.nextArbitrationEndTime = 10;
       const resultSet = new ResultSet(input);
-      assert.equal(resultSet.txid, input.txid);
-      assert.equal(resultSet.txStatus, input.txStatus);
-      assert.equal(resultSet.blockNum, input.blockNum);
-      assert.equal(resultSet.eventAddress, input.eventAddress);
-      assert.equal(resultSet.resultIndex, input.resultIndex);
-      assert.equal(resultSet.amount, input.amount);
-      assert.equal(resultSet.eventRound, input.eventRound);
-      assert.equal(resultSet.txType, TX_TYPE.RESULT_SET);
       assert.equal(resultSet.centralizedOracleAddress, input.centralizedOracleAddress);
       assert.equal(resultSet.nextConsensusThreshold, input.nextConsensusThreshold);
       assert.equal(resultSet.nextArbitrationEndTime, input.nextArbitrationEndTime);
@@ -265,17 +250,7 @@ describe('models/result-set', () => {
       input.nextConsensusThreshold = "10";
       input.nextArbitrationEndTime = 10;
       const resultSet = new ResultSet(input);
-      assert.equal(resultSet.txid, input.txid);
-      assert.equal(resultSet.txStatus, input.txStatus);
-      assert.equal(resultSet.blockNum, input.blockNum);
-      assert.equal(resultSet.eventAddress, input.eventAddress);
-      assert.equal(resultSet.resultIndex, input.resultIndex);
-      assert.equal(resultSet.amount, input.amount);
-      assert.equal(resultSet.eventRound, input.eventRound);
-      assert.equal(resultSet.txType, TX_TYPE.RESULT_SET);
       assert.equal(resultSet.centralizedOracleAddress, input.centralizedOracleAddress.toLowerCase());
-      assert.equal(resultSet.nextConsensusThreshold, input.nextConsensusThreshold);
-      assert.equal(resultSet.nextArbitrationEndTime, input.nextArbitrationEndTime);
     });
   });
 });
