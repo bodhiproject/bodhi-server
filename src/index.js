@@ -2,7 +2,7 @@ require('dotenv').config();
 const { initConfig } = require('./config');
 const { initDB } = require('./db');
 const initApi = require('./route');
-const startSync = require('./sync');
+const { initSync, startSync } = require('./sync');
 
 /* eslint-disable global-require */
 const start = async () => {
@@ -10,7 +10,9 @@ const start = async () => {
     initConfig();
     require('./utils/logger');
     require('./utils/client-logger');
+    require('./event');
     await initDB();
+    initSync();
     require('./web3');
     initApi();
     startSync(true);

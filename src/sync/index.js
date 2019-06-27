@@ -3,6 +3,7 @@ const pLimit = require('p-limit');
 const { isUndefined } = require('lodash');
 const moment = require('moment');
 const { eventFactoryMeta, isMainnet, getBaseDataDir } = require('../config');
+const { EVENT_MESSAGE } = require('../constants');
 const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
@@ -20,15 +21,16 @@ const syncBlocks = require('./blocks');
 const DBHelper = require('../db/db-helper');
 const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
+const emitter = require('../event');
 
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
-const PROMISE_CONCURRENCY_LIMIT = 25;
+const PROMISE_CONCURRENCY_LIMIT = 15;
 const START_BLOCK_FILENAME = 'start_block.dat';
 
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
+let wsConnected = false;
 let syncPromises = [];
-let signalsHandled = false;
 let startBlock;
 
 /**
@@ -73,7 +75,37 @@ const setupSignalHandler = () => {
   process
     .on('SIGINT', () => onShutdown())
     .on('SIGTERM', () => onShutdown());
-  signalsHandled = true;
+};
+
+/**
+ * Event listener for websocket connected.
+ */
+const onWebsocketConnected = () => {
+  wsConnected = true;
+};
+
+/**
+ * Event listener for websocket disconnected.
+ */
+const onWebsocketDisconnected = () => {
+  wsConnected = false;
+  writeStartBlockFile();
+};
+
+/**
+ * Registers all event listeners.
+ */
+const registerListeners = () => {
+  emitter.addListener(EVENT_MESSAGE.WEBSOCKET_CONNECTED, onWebsocketConnected);
+  emitter.addListener(EVENT_MESSAGE.WEBSOCKET_DISCONNECTED, onWebsocketDisconnected);
+};
+
+/**
+ * Initial setup before starting the sync.
+ */
+const initSync = () => {
+  setupSignalHandler();
+  registerListeners();
 };
 
 /**
@@ -105,7 +137,6 @@ const getStartBlock = async () => {
  * @param {number} delay Number of milliseconds to delay.
  */
 const delayThenSync = (delay) => {
-  logger.debug('sleep');
   setTimeout(() => {
     startSync();
   }, delay);
@@ -116,7 +147,12 @@ const delayThenSync = (delay) => {
  */
 const startSync = async () => {
   try {
-    if (!signalsHandled) setupSignalHandler();
+    // TODO: enable code when web3 websockets fixed
+    // Don't allow sync if websocket is not connected
+    // if (!wsConnected) {
+    //   delayThenSync(SYNC_START_DELAY);
+    //   return;
+    // }
 
     // Track exec time
     const execStartMs = moment().valueOf();
@@ -188,4 +224,7 @@ const startSync = async () => {
   }
 };
 
-module.exports = startSync;
+module.exports = {
+  initSync,
+  startSync,
+};
