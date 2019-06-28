@@ -487,22 +487,29 @@ describe('db', () => {
         };
         it('should not update event status to PRE_BETTING if txStatus is FAIL', async () => {
           const createdEvent = {};
-          Object.assign(createdEvent, mockCreatedStatusEvent, { txStatus: TX_STATUS.FAIL, address: padHex(40), txid: padHex(64) });
+          Object.assign(createdEvent, mockCreatedStatusEvent, { txStatus: TX_STATUS.FAIL, txid: padHex(64) });
+          // FAIL tx doesn't have address
+          delete createdEvent.address;
+
           await DBHelper.insertEvent(createdEvent);
           await DBHelper.updateEventStatusPreBetting(createdEvent.betStartTime - 1);
-          event = await DBHelper.findEvent({ address: createdEvent.address });
+          event = await DBHelper.findEvent({ txid: createdEvent.txid });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(createdEvent);
+          event[0].txid.should.equal(createdEvent.txid);
+          event[0].status.should.equal(createdEvent.status);
         });
 
         it('should not update event status to PRE_BETTING if txStatus is PENDING', async () => {
           const createdEvent = {};
-          Object.assign(createdEvent, mockCreatedStatusEvent, { txStatus: TX_STATUS.PENDING, address: padHex(40), txid: padHex(64) });
+          Object.assign(createdEvent, mockCreatedStatusEvent, { txStatus: TX_STATUS.PENDING, txid: padHex(64) });
+          // PENDING tx doesn't have address
+          delete createdEvent.address;
           await DBHelper.insertEvent(createdEvent);
           await DBHelper.updateEventStatusPreBetting(createdEvent.betStartTime - 1);
-          event = await DBHelper.findEvent({ address: createdEvent.address });
+          event = await DBHelper.findEvent({ txid: createdEvent.txid });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(createdEvent);
+          event[0].txid.should.equal(createdEvent.txid);
+          event[0].status.should.equal(createdEvent.status);
         });
 
         it('should not update event already in PRE_BETTING to PRE_BETTING', async () => {
@@ -512,7 +519,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreBetting(createdEvent.betStartTime - 1);
           event = await DBHelper.findEvent({ address: createdEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(createdEvent);
+          event[0].txid.should.equal(createdEvent.txid);
+          event[0].status.should.equal(createdEvent.status);
         });
 
         it('should update event status to PRE_BETTING if currBlockTime < betStartTime', async () => {
@@ -522,7 +530,7 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreBetting(createdEvent.betStartTime - 1);
           event = await DBHelper.findEvent({ address: createdEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id', 'status']).to.deep.equal(createdEvent);
+          event[0].address.should.equal(createdEvent.address);
           event[0].status.should.equal(EVENT_STATUS.PRE_BETTING);
         });
 
@@ -533,7 +541,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreBetting(createdEvent.betStartTime);
           event = await DBHelper.findEvent({ address: createdEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(createdEvent);
+          event[0].address.should.equal(createdEvent.address);
+          event[0].status.should.equal(createdEvent.status);
         });
 
         it('should not update event status to PRE_BETTING if currentRound > 0', async () => {
@@ -543,7 +552,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreBetting(createdEvent.betStartTime - 1);
           event = await DBHelper.findEvent({ address: createdEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(createdEvent);
+          event[0].address.should.equal(createdEvent.address);
+          event[0].status.should.equal(createdEvent.status);
         });
       });
 
@@ -591,7 +601,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusBetting(preBetEvent.betStartTime);
           event = await DBHelper.findEvent({ address: preBetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preBetEvent);
+          event[0].address.should.equal(preBetEvent.address);
+          event[0].status.should.equal(preBetEvent.status);
         });
 
         it('should not update event status to BETTING if txStatus is PENDING', async () => {
@@ -601,7 +612,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusBetting(preBetEvent.betStartTime);
           event = await DBHelper.findEvent({ address: preBetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preBetEvent);
+          event[0].address.should.equal(preBetEvent.address);
+          event[0].status.should.equal(preBetEvent.status);
         });
 
         it('should not update event status to BETTING if status is already BETTING', async () => {
@@ -611,7 +623,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusBetting(preBetEvent.betStartTime);
           event = await DBHelper.findEvent({ address: preBetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preBetEvent);
+          event[0].address.should.equal(preBetEvent.address);
+          event[0].status.should.equal(preBetEvent.status);
         });
 
         it('should not update event status to BETTING if currBlockTime < betStartTime', async () => {
@@ -621,7 +634,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusBetting(preBetEvent.betStartTime - 1);
           event = await DBHelper.findEvent({ address: preBetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preBetEvent);
+          event[0].address.should.equal(preBetEvent.address);
+          event[0].status.should.equal(preBetEvent.status);
         });
 
         it('should update event status to BETTING if currBlockTime = betStartTime', async () => {
@@ -631,7 +645,7 @@ describe('db', () => {
           await DBHelper.updateEventStatusBetting(preBetEvent.betStartTime);
           event = await DBHelper.findEvent({ address: preBetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id', 'status']).to.deep.equal(preBetEvent);
+          event[0].address.should.equal(preBetEvent.address);
           event[0].status.should.equal(EVENT_STATUS.BETTING);
         });
 
@@ -642,7 +656,7 @@ describe('db', () => {
           await DBHelper.updateEventStatusBetting(preBetEvent.betEndTime - 1);
           event = await DBHelper.findEvent({ address: preBetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id', 'status']).to.deep.equal(preBetEvent);
+          event[0].address.should.equal(preBetEvent.address);
           event[0].status.should.equal(EVENT_STATUS.BETTING);
         });
 
@@ -653,7 +667,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusBetting(preBetEvent.betEndTime);
           event = await DBHelper.findEvent({ address: preBetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preBetEvent);
+          event[0].address.should.equal(preBetEvent.address);
+          event[0].status.should.equal(preBetEvent.status);
         });
       });
 
@@ -700,7 +715,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreResultSetting(betEvent.betEndTime);
           event = await DBHelper.findEvent({ address: betEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(betEvent);
+          event[0].address.should.equal(betEvent.address);
+          event[0].status.should.equal(betEvent.status);
         });
 
         it('should not update event status to PRE_RESULT_SETTING if txStatus is PENDING', async () => {
@@ -710,7 +726,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreResultSetting(betEvent.betEndTime);
           event = await DBHelper.findEvent({ address: betEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(betEvent);
+          event[0].address.should.equal(betEvent.address);
+          event[0].status.should.equal(betEvent.status);
         });
 
         it('should not update event status to PRE_RESULT_SETTING if status is already PRE_RESULT_SETTING', async () => {
@@ -720,7 +737,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreResultSetting(betEvent.betEndTime);
           event = await DBHelper.findEvent({ address: betEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(betEvent);
+          event[0].address.should.equal(betEvent.address);
+          event[0].status.should.equal(betEvent.status);
         });
 
         it('should not update event status to PRE_RESULT_SETTING if currBlockTime < betEndTime', async () => {
@@ -730,7 +748,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreResultSetting(betEvent.betEndTime - 1);
           event = await DBHelper.findEvent({ address: betEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(betEvent);
+          event[0].address.should.equal(betEvent.address);
+          event[0].status.should.equal(betEvent.status);
         });
 
         it('should update event status to PRE_RESULT_SETTING if currBlockTime = betEndTime', async () => {
@@ -740,7 +759,7 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreResultSetting(betEvent.betEndTime);
           event = await DBHelper.findEvent({ address: betEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id', 'status']).to.deep.equal(betEvent);
+          event[0].address.should.equal(betEvent.address);
           event[0].status.should.equal(EVENT_STATUS.PRE_RESULT_SETTING);
         });
 
@@ -751,7 +770,7 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreResultSetting(betEvent.resultSetStartTime - 1);
           event = await DBHelper.findEvent({ address: betEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id', 'status']).to.deep.equal(betEvent);
+          event[0].address.should.equal(betEvent.address);
           event[0].status.should.equal(EVENT_STATUS.PRE_RESULT_SETTING);
         });
 
@@ -762,7 +781,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreResultSetting(betEvent.resultSetStartTime);
           event = await DBHelper.findEvent({ address: betEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(betEvent);
+          event[0].address.should.equal(betEvent.address);
+          event[0].status.should.equal(betEvent.status);
         });
 
         it('should not update event status to PRE_RESULT_SETTING if currentRound > 0', async () => {
@@ -772,7 +792,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusPreResultSetting(betEvent.resultSetStartTime - 1);
           event = await DBHelper.findEvent({ address: betEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(betEvent);
+          event[0].address.should.equal(betEvent.address);
+          event[0].status.should.equal(betEvent.status);
         });
       });
 
@@ -819,7 +840,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOracleResultSetting(preResultSetEvent.resultSetStartTime);
           event = await DBHelper.findEvent({ address: preResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preResultSetEvent);
+          event[0].address.should.equal(preResultSetEvent.address);
+          event[0].status.should.equal(preResultSetEvent.status);
         });
 
         it('should not update event status to ORACLE_RESULT_SETTING if txStatus is PENDING', async () => {
@@ -829,7 +851,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOracleResultSetting(preResultSetEvent.resultSetStartTime);
           event = await DBHelper.findEvent({ address: preResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preResultSetEvent);
+          event[0].address.should.equal(preResultSetEvent.address);
+          event[0].status.should.equal(preResultSetEvent.status);
         });
 
         it('should not update event status to ORACLE_RESULT_SETTING if status is already ORACLE_RESULT_SETTING', async () => {
@@ -839,7 +862,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOracleResultSetting(preResultSetEvent.resultSetStartTime);
           event = await DBHelper.findEvent({ address: preResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preResultSetEvent);
+          event[0].address.should.equal(preResultSetEvent.address);
+          event[0].status.should.equal(preResultSetEvent.status);
         });
 
         it('should not update event status to ORACLE_RESULT_SETTING if currBlockTime < resultSetStartTime', async () => {
@@ -849,7 +873,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOracleResultSetting(preResultSetEvent.resultSetStartTime - 1);
           event = await DBHelper.findEvent({ address: preResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preResultSetEvent);
+          event[0].address.should.equal(preResultSetEvent.address);
+          event[0].status.should.equal(preResultSetEvent.status);
         });
 
         it('should update event status to ORACLE_RESULT_SETTING if currBlockTime = resultSetStartTime', async () => {
@@ -859,7 +884,7 @@ describe('db', () => {
           await DBHelper.updateEventStatusOracleResultSetting(preResultSetEvent.resultSetStartTime);
           event = await DBHelper.findEvent({ address: preResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id', 'status']).to.deep.equal(preResultSetEvent);
+          event[0].address.should.equal(preResultSetEvent.address);
           event[0].status.should.equal(EVENT_STATUS.ORACLE_RESULT_SETTING);
         });
 
@@ -870,7 +895,7 @@ describe('db', () => {
           await DBHelper.updateEventStatusOracleResultSetting(preResultSetEvent.resultSetEndTime - 1);
           event = await DBHelper.findEvent({ address: preResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id', 'status']).to.deep.equal(preResultSetEvent);
+          event[0].address.should.equal(preResultSetEvent.address);
           event[0].status.should.equal(EVENT_STATUS.ORACLE_RESULT_SETTING);
         });
 
@@ -881,7 +906,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOracleResultSetting(preResultSetEvent.resultSetEndTime);
           event = await DBHelper.findEvent({ address: preResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preResultSetEvent);
+          event[0].address.should.equal(preResultSetEvent.address);
+          event[0].status.should.equal(preResultSetEvent.status);
         });
 
         it('should not update event status to ORACLE_RESULT_SETTING if currentRound > 0', async () => {
@@ -891,7 +917,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOracleResultSetting(preResultSetEvent.resultSetEndTime - 1);
           event = await DBHelper.findEvent({ address: preResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(preResultSetEvent);
+          event[0].address.should.equal(preResultSetEvent.address);
+          event[0].status.should.equal(preResultSetEvent.status);
         });
       });
 
@@ -938,7 +965,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOpenResultSetting(oracleResultSetEvent.resultSetEndTime);
           event = await DBHelper.findEvent({ address: oracleResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(oracleResultSetEvent);
+          event[0].address.should.equal(oracleResultSetEvent.address);
+          event[0].status.should.equal(oracleResultSetEvent.status);
         });
 
         it('should not update event status to OPEN_RESULT_SETTING if txStatus is PENDING', async () => {
@@ -948,7 +976,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOpenResultSetting(oracleResultSetEvent.resultSetEndTime);
           event = await DBHelper.findEvent({ address: oracleResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(oracleResultSetEvent);
+          event[0].address.should.equal(oracleResultSetEvent.address);
+          event[0].status.should.equal(oracleResultSetEvent.status);
         });
 
         it('should not update event status to OPEN_RESULT_SETTING if status is already OPEN_RESULT_SETTING', async () => {
@@ -958,7 +987,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOpenResultSetting(oracleResultSetEvent.resultSetEndTime);
           event = await DBHelper.findEvent({ address: oracleResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(oracleResultSetEvent);
+          event[0].address.should.equal(oracleResultSetEvent.address);
+          event[0].status.should.equal(oracleResultSetEvent.status);
         });
 
         it('should not update event status to OPEN_RESULT_SETTING if currBlockTime < resultSetEndTime', async () => {
@@ -968,7 +998,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOpenResultSetting(oracleResultSetEvent.resultSetEndTime - 1);
           event = await DBHelper.findEvent({ address: oracleResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(oracleResultSetEvent);
+          event[0].address.should.equal(oracleResultSetEvent.address);
+          event[0].status.should.equal(oracleResultSetEvent.status);
         });
 
         it('should update event status to OPEN_RESULT_SETTING if currBlockTime = resultSetEndTime', async () => {
@@ -978,7 +1009,7 @@ describe('db', () => {
           await DBHelper.updateEventStatusOpenResultSetting(oracleResultSetEvent.resultSetEndTime);
           event = await DBHelper.findEvent({ address: oracleResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id', 'status']).to.deep.equal(oracleResultSetEvent);
+          event[0].address.should.equal(oracleResultSetEvent.address);
           event[0].status.should.equal(EVENT_STATUS.OPEN_RESULT_SETTING);
         });
 
@@ -989,7 +1020,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusOpenResultSetting(oracleResultSetEvent.resultSetEndTime);
           event = await DBHelper.findEvent({ address: oracleResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(oracleResultSetEvent);
+          event[0].address.should.equal(oracleResultSetEvent.address);
+          event[0].status.should.equal(oracleResultSetEvent.status);
         });
       });
 
@@ -1034,7 +1066,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusArbitration(openResultSetEvent.arbitrationEndTime - 1);
           event = await DBHelper.findEvent({ address: openResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(openResultSetEvent);
+          event[0].address.should.equal(openResultSetEvent.address);
+          event[0].status.should.equal(openResultSetEvent.status);
         });
 
         it('should not update event status to ARBITRATION if txStatus is PENDING', async () => {
@@ -1044,7 +1077,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusArbitration(openResultSetEvent.arbitrationEndTime - 1);
           event = await DBHelper.findEvent({ address: openResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(openResultSetEvent);
+          event[0].address.should.equal(openResultSetEvent.address);
+          event[0].status.should.equal(openResultSetEvent.status);
         });
 
         it('should not update event status to ARBITRATION if status is already ARBITRATION', async () => {
@@ -1054,7 +1088,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusArbitration(openResultSetEvent.arbitrationEndTime - 1);
           event = await DBHelper.findEvent({ address: openResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(openResultSetEvent);
+          event[0].address.should.equal(openResultSetEvent.address);
+          event[0].status.should.equal(openResultSetEvent.status);
         });
 
         it('should update event status to ARBITRATION if currBlockTime < arbitrationEndTime', async () => {
@@ -1064,7 +1099,7 @@ describe('db', () => {
           await DBHelper.updateEventStatusArbitration(openResultSetEvent.arbitrationEndTime - 1);
           event = await DBHelper.findEvent({ address: openResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id', 'status']).to.deep.equal(openResultSetEvent);
+          event[0].address.should.equal(openResultSetEvent.address);
           event[0].status.should.equal(EVENT_STATUS.ARBITRATION);
         });
 
@@ -1075,7 +1110,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusArbitration(openResultSetEvent.arbitrationEndTime);
           event = await DBHelper.findEvent({ address: openResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(openResultSetEvent);
+          event[0].address.should.equal(openResultSetEvent.address);
+          event[0].status.should.equal(openResultSetEvent.status);
         });
 
         it('should not update event status to ARBITRATION if currentRound = 0', async () => {
@@ -1085,7 +1121,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusArbitration(openResultSetEvent.arbitrationEndTime - 1);
           event = await DBHelper.findEvent({ address: openResultSetEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(openResultSetEvent);
+          event[0].address.should.equal(openResultSetEvent.address);
+          event[0].status.should.equal(openResultSetEvent.status);
         });
       });
 
@@ -1130,7 +1167,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusWithdrawing(arbitrationEvent.arbitrationEndTime);
           event = await DBHelper.findEvent({ address: arbitrationEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(arbitrationEvent);
+          event[0].address.should.equal(arbitrationEvent.address);
+          event[0].status.should.equal(arbitrationEvent.status);
         });
 
         it('should not update event status to WITHDRAWING if txStatus is PENDING', async () => {
@@ -1140,7 +1178,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusWithdrawing(arbitrationEvent.arbitrationEndTime);
           event = await DBHelper.findEvent({ address: arbitrationEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(arbitrationEvent);
+          event[0].address.should.equal(arbitrationEvent.address);
+          event[0].status.should.equal(arbitrationEvent.status);
         });
 
         it('should not update event status to WITHDRAWING if status is already WITHDRAWING', async () => {
@@ -1150,7 +1189,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusWithdrawing(arbitrationEvent.arbitrationEndTime);
           event = await DBHelper.findEvent({ address: arbitrationEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(arbitrationEvent);
+          event[0].address.should.equal(arbitrationEvent.address);
+          event[0].status.should.equal(arbitrationEvent.status);
         });
 
         it('should not update event status to WITHDRAWING if currBlockTime < arbitrationEndTime', async () => {
@@ -1160,7 +1200,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusWithdrawing(arbitrationEvent.arbitrationEndTime - 1);
           event = await DBHelper.findEvent({ address: arbitrationEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(arbitrationEvent);
+          event[0].address.should.equal(arbitrationEvent.address);
+          event[0].status.should.equal(arbitrationEvent.status);
         });
 
         it('should update event status to WITHDRAWING if currBlockTime = arbitrationEndTime', async () => {
@@ -1170,7 +1211,7 @@ describe('db', () => {
           await DBHelper.updateEventStatusWithdrawing(arbitrationEvent.arbitrationEndTime);
           event = await DBHelper.findEvent({ address: arbitrationEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id', 'status']).to.deep.equal(arbitrationEvent);
+          event[0].address.should.equal(arbitrationEvent.address);
           event[0].status.should.equal(EVENT_STATUS.WITHDRAWING);
         });
 
@@ -1181,7 +1222,8 @@ describe('db', () => {
           await DBHelper.updateEventStatusWithdrawing(arbitrationEvent.arbitrationEndTime - 1);
           event = await DBHelper.findEvent({ address: arbitrationEvent.address });
           event.length.should.equal(1);
-          expect(event[0]).excluding(['_id']).to.deep.equal(arbitrationEvent);
+          event[0].address.should.equal(arbitrationEvent.address);
+          event[0].status.should.equal(arbitrationEvent.status);
         });
       });
 
@@ -1263,7 +1305,7 @@ describe('db', () => {
       });
 
       it('should return existing events if not passing sort', async () => {
-        const foundBets = await DBHelper.findBet({txid: mockBets[0].txid});
+        const foundBets = await DBHelper.findBet({ txid: mockBets[0].txid });
         foundBets.length.should.equal(1);
         expect(foundBets[0]).excluding('_id').to.deep.equal(mockBets[0]);
       });
@@ -1430,7 +1472,7 @@ describe('db', () => {
       });
 
       it('should return existing resultSets if not passing sort', async () => {
-        const foundResultSets = await DBHelper.findResultSet({txid: mockResultSets[0].txid});
+        const foundResultSets = await DBHelper.findResultSet({ txid: mockResultSets[0].txid });
         foundResultSets.length.should.equal(1);
         expect(foundResultSets[0]).excluding('_id').to.deep.equal(mockResultSets[0]);
       });
