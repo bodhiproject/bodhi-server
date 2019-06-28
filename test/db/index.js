@@ -1244,6 +1244,7 @@ describe('db', () => {
     ];
     let bet;
     let betCount;
+
     describe('find bet', () => {
       it('find empty bets db', async () => {
         betCount = await db.Bets.count({});
