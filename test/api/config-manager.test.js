@@ -3,7 +3,7 @@ const Chai = require('chai');
 const sinon = require('sinon');
 const ChaiAsPromised = require('chai-as-promised');
 
-const Event = require('../../src/api/multiple-results-event');
+const ConfigManager = require('../../src/api/config-manager');
 const { getContract } = require('./mock/contract');
 
 Chai.use(ChaiAsPromised);
@@ -16,7 +16,7 @@ const address = '0x939592864C0Bd3355B2D54e4fA2203E8343B6d6a';
 describe('api/multiple-results-event', () => {
   let stubGetContract;
   beforeEach(() => {
-      stubGetContract = sinon.stub(Event, 'getContract').callsFake(getContract);
+      stubGetContract = sinon.stub(ConfigManager, 'getContract').callsFake(getContract);
   });
 
   afterEach(() => {
@@ -25,20 +25,20 @@ describe('api/multiple-results-event', () => {
 
   describe('calculateWinnings()', () => {
     it('It returns the calculateWinnings', async () => {
-      const res = await Event.calculateWinnings({ eventAddress, address });
+      const res = await ConfigManager.calculateWinnings({ eventAddress, address });
       assert.isDefined(res);
       assert.isTrue(isString(res));
       assert.isFalse(isNaN(res));
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.calculateWinnings({
+      expect(ConfigManager.calculateWinnings({
         address,
       })).to.be.rejectedWith(Error);
     });
 
     it('It throws if address is undefined', () => {
-      expect(Event.calculateWinnings({
+      expect(ConfigManager.calculateWinnings({
         eventAddress,
       })).to.be.rejectedWith(Error);
     });
@@ -46,69 +46,69 @@ describe('api/multiple-results-event', () => {
 
   describe('version()', () => {
     it('It returns the version', async () => {
-      const res = await Event.version({ eventAddress });
+      const res = await ConfigManager.version({ eventAddress });
       assert.isDefined(res);
       assert.isTrue(isNumber(res));
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.version({})).to.be.rejectedWith(Error);
+      expect(ConfigManager.version({})).to.be.rejectedWith(Error);
     });
   });
 
   describe('currentRound()', () => {
     it('It returns the currentRound', async () => {
-      const res = await Event.currentRound({ eventAddress });
+      const res = await ConfigManager.currentRound({ eventAddress });
       assert.isDefined(res);
       assert.isTrue(isNumber(res));
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.currentRound({})).to.be.rejectedWith(Error);
+      expect(ConfigManager.currentRound({})).to.be.rejectedWith(Error);
     });
   });
 
   describe('currentResultIndex()', () => {
     it('It returns the currentResultIndex', async () => {
-      const res = await Event.currentResultIndex({ eventAddress });
+      const res = await ConfigManager.currentResultIndex({ eventAddress });
       assert.isDefined(res);
       assert.isTrue(isNumber(res));
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.currentResultIndex({})).to.be.rejectedWith(Error);
+      expect(ConfigManager.currentResultIndex({})).to.be.rejectedWith(Error);
     });
   });
 
   describe('currentConsensusThreshold()', () => {
     it('It returns the currentConsensusThreshold', async () => {
-      const res = await Event.currentConsensusThreshold({ eventAddress });
+      const res = await ConfigManager.currentConsensusThreshold({ eventAddress });
       assert.isDefined(res);
       assert.isTrue(isString(res));
       assert.isFalse(isNaN(res));
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.currentConsensusThreshold({})).to.be.rejectedWith(Error);
+      expect(ConfigManager.currentConsensusThreshold({})).to.be.rejectedWith(Error);
     });
   });
 
   describe('currentArbitrationEndTime()', () => {
     it('It returns the currentArbitrationEndTime', async () => {
-      const res = await Event.currentArbitrationEndTime({ eventAddress });
+      const res = await ConfigManager.currentArbitrationEndTime({ eventAddress });
       assert.isDefined(res);
       assert.isTrue(isString(res));
       assert.isFalse(isNaN(res));
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.currentArbitrationEndTime({})).to.be.rejectedWith(Error);
+      expect(ConfigManager.currentArbitrationEndTime({})).to.be.rejectedWith(Error);
     });
   });
 
   describe('eventMetadata()', () => {
     it('It returns the eventMetadata', async () => {
-      const res = await Event.eventMetadata({ eventAddress });
+      const res = await ConfigManager.eventMetadata({ eventAddress });
       assert.isDefined(res);
       assert.isTrue(isArray(res));
       assert.isTrue(res.length === 4);
@@ -121,13 +121,13 @@ describe('api/multiple-results-event', () => {
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.eventMetadata({})).to.be.rejectedWith(Error);
+      expect(ConfigManager.eventMetadata({})).to.be.rejectedWith(Error);
     });
   });
 
   describe('centralizedMetadata()', () => {
     it('It returns the centralizedMetadata', async () => {
-      const res = await Event.centralizedMetadata({ eventAddress });
+      const res = await ConfigManager.centralizedMetadata({ eventAddress });
       assert.isDefined(res);
       assert.isTrue(isArray(res));
       assert.isTrue(res.length === 5);
@@ -144,13 +144,13 @@ describe('api/multiple-results-event', () => {
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.centralizedMetadata({})).to.be.rejectedWith(Error);
+      expect(ConfigManager.centralizedMetadata({})).to.be.rejectedWith(Error);
     });
   });
 
   describe('configMetadata()', () => {
     it('It returns the configMetadata', async () => {
-      const res = await Event.configMetadata({ eventAddress });
+      const res = await ConfigManager.configMetadata({ eventAddress });
       assert.isDefined(res);
       assert.isTrue(isArray(res));
       assert.isTrue(res.length === 4);
@@ -166,38 +166,38 @@ describe('api/multiple-results-event', () => {
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.configMetadata({})).to.be.rejectedWith(Error);
+      expect(ConfigManager.configMetadata({})).to.be.rejectedWith(Error);
     });
   });
 
   describe('totalBets()', () => {
     it('It returns the totalBets', async () => {
-      const res = await Event.totalBets({ eventAddress, address });
+      const res = await ConfigManager.totalBets({ eventAddress, address });
       assert.isDefined(res);
       assert.isTrue(isString(res));
       assert.isFalse(isNaN(res));
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.totalBets({})).to.be.rejectedWith(Error);
+      expect(ConfigManager.totalBets({})).to.be.rejectedWith(Error);
     });
   });
 
   describe('didWithdraw()', () => {
     it('It returns the didWithdraw', async () => {
-      const res = await Event.didWithdraw({ eventAddress, address });
+      const res = await ConfigManager.didWithdraw({ eventAddress, address });
       assert.isDefined(res);
       assert.isTrue(isBoolean(res));
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.didWithdraw({
+      expect(ConfigManager.didWithdraw({
         address,
       })).to.be.rejectedWith(Error);
     });
 
     it('It throws if address is undefined', () => {
-      expect(Event.didWithdraw({
+      expect(ConfigManager.didWithdraw({
         eventAddress,
       })).to.be.rejectedWith(Error);
     });
@@ -205,13 +205,13 @@ describe('api/multiple-results-event', () => {
 
   describe('didWithdrawEscrow()', () => {
     it('It returns the didWithdrawEscrow', async () => {
-      const res = await Event.didWithdrawEscrow({ eventAddress, address });
+      const res = await ConfigManager.didWithdrawEscrow({ eventAddress, address });
       assert.isDefined(res);
       assert.isTrue(isBoolean(res));
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.didWithdrawEscrow({})).to.be.rejectedWith(Error);
+      expect(ConfigManager.didWithdrawEscrow({})).to.be.rejectedWith(Error);
     });
   });
 });
