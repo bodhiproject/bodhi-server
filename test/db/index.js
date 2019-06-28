@@ -485,6 +485,7 @@ describe('db', () => {
           withdrawnList: [
           ],
         };
+
         it('should not update event status to PRE_BETTING if txStatus is FAIL', async () => {
           const createdEvent = {};
           Object.assign(createdEvent, mockCreatedStatusEvent, { txStatus: TX_STATUS.FAIL, txid: padHex(64) });
@@ -592,7 +593,6 @@ describe('db', () => {
           withdrawnList: [
           ],
         };
-
 
         it('should not update event status to BETTING if txStatus is FAIL', async () => {
           const preBetEvent = {};
@@ -1775,4 +1775,3 @@ describe('db', () => {
     fs.removeSync(getDbDir());
   });
 });
-
