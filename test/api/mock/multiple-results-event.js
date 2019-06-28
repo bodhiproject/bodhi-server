@@ -1,4 +1,5 @@
 const sinon = require('sinon');
+const { map } = require('lodash');
 const web3 = require('../../../src/web3');
 
 const results = ['Invalid', '1', 'y'];
