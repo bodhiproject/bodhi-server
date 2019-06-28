@@ -4,13 +4,13 @@ const web3 = require('../web3');
 const logger = require('../utils/logger');
 const DBHelper = require('../db/db-helper');
 
-const getContract = async (eventAddress) => {
-  const event = await DBHelper.findOneEvent({ address: eventAddress });
-  if (isNull(event)) throw Error('Event not found');
+// const getContract = async (eventAddress) => {
+//   const event = await DBHelper.findOneEvent({ address: eventAddress });
+//   if (isNull(event)) throw Error('Event not found');
 
-  const metadata = multipleResultsEventMeta(event.version);
-  return new web3.eth.Contract(metadata.abi, eventAddress);
-};
+//   const metadata = multipleResultsEventMeta(event.version);
+//   return new web3.eth.Contract(metadata.abi, eventAddress);
+// };
 
 module.exports = {
   async getContract(eventAddress) {
