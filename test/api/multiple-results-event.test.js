@@ -56,4 +56,78 @@ describe('api/multiple-results-event', () => {
       })).to.be.rejectedWith(Error);
     });
   });
+
+  describe('version()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.version({})).to.be.rejectedWith(Error);
+    });
+  });
+
+  describe('currentRound()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.currentRound({})).to.be.rejectedWith(Error);
+    });
+  });
+
+  describe('currentResultIndex()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.currentResultIndex({})).to.be.rejectedWith(Error);
+    });
+  });
+
+  describe('currentConsensusThreshold()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.currentConsensusThreshold({})).to.be.rejectedWith(Error);
+    });
+  });
+
+  describe('currentArbitrationEndTime()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.currentArbitrationEndTime({})).to.be.rejectedWith(Error);
+    });
+  });
+
+  describe('eventMetadata()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.eventMetadata({})).to.be.rejectedWith(Error);
+    });
+  });
+
+  describe('centralizedMetadata()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.centralizedMetadata({})).to.be.rejectedWith(Error);
+    });
+  });
+
+  describe('configMetadata()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.configMetadata({})).to.be.rejectedWith(Error);
+    });
+  });
+
+  describe('totalBets()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.totalBets({})).to.be.rejectedWith(Error);
+    });
+  });
+
+  describe('didWithdraw()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.didWithdraw({
+        address,
+      })).to.be.rejectedWith(Error);
+    });
+
+    it('It throws if address is undefined', () => {
+      expect(Event.didWithdraw({
+        eventAddress,
+      })).to.be.rejectedWith(Error);
+    });
+  });
+
+  describe('didWithdrawEscrow()', () => {
+    it('It throws if eventAddress is undefined', () => {
+      expect(Event.didWithdrawEscrow({})).to.be.rejectedWith(Error);
+    });
+  });
 });
