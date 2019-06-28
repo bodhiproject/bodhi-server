@@ -1253,13 +1253,19 @@ describe('db', () => {
         bet.length.should.equal(0);
       });
 
-      it('find on non-empty bets db', async () => {
+      it('should return existing bets if passing sort', async () => {
         await DBHelper.insertBet(mockBets[0]);
         await DBHelper.insertBet(mockBets[1]);
         const foundBets = await DBHelper.findBet({}, { blockNum: -1 });
         foundBets.length.should.equal(2);
         expect(foundBets[0]).excluding('_id').to.deep.equal(mockBets[0]);
         expect(foundBets[1]).excluding('_id').to.deep.equal(mockBets[1]);
+      });
+
+      it('should return existing events if not passing sort', async () => {
+        const foundBets = await DBHelper.findBet({txid: mockBets[0].txid});
+        foundBets.length.should.equal(1);
+        expect(foundBets[0]).excluding('_id').to.deep.equal(mockBets[0]);
       });
     });
 
@@ -1414,13 +1420,19 @@ describe('db', () => {
         resultSetCount.length.should.equal(0);
       });
 
-      it('find on non-empty resultSets db', async () => {
+      it('should return existing resultSets if passing sort', async () => {
         await DBHelper.insertResultSet(mockResultSets[0]);
         await DBHelper.insertResultSet(mockResultSets[1]);
         const foundResultSets = await DBHelper.findResultSet({}, { blockNum: -1 });
         foundResultSets.length.should.equal(2);
         expect(foundResultSets[0]).excluding('_id').to.deep.equal(mockResultSets[0]);
         expect(foundResultSets[1]).excluding('_id').to.deep.equal(mockResultSets[1]);
+      });
+
+      it('should return existing resultSets if not passing sort', async () => {
+        const foundResultSets = await DBHelper.findResultSet({txid: mockResultSets[0].txid});
+        foundResultSets.length.should.equal(1);
+        expect(foundResultSets[0]).excluding('_id').to.deep.equal(mockResultSets[0]);
       });
     });
 
