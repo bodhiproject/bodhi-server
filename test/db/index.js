@@ -1406,7 +1406,6 @@ describe('db', () => {
         eventRound: 0,
         nextConsensusThreshold: '1100000000',
         nextArbitrationEndTime: 1560808386,
-        _id: '9vUiWlt9b123XCHv',
       },
       {
         txType: 'RESULT_SET',
@@ -1420,7 +1419,6 @@ describe('db', () => {
         eventRound: 2,
         nextConsensusThreshold: '13310000000',
         nextArbitrationEndTime: 1559777920,
-        _id: 'A4I2nTKSnxfL3exe',
       },
       {
         txType: 'RESULT_SET',
@@ -1434,7 +1432,6 @@ describe('db', () => {
         eventRound: 0,
         nextConsensusThreshold: '1100000000',
         nextArbitrationEndTime: 1560206636,
-        _id: 'Fkp4Ev3JpZHBaef6',
       },
       {
         txType: 'RESULT_SET',
@@ -1448,7 +1445,6 @@ describe('db', () => {
         eventRound: 0,
         nextConsensusThreshold: '11000000000',
         nextArbitrationEndTime: 1559945430,
-        _id: 'An4xD8aSDrDuu7Yy',
       },
     ];
     let resultSet;
@@ -1535,7 +1531,6 @@ describe('db', () => {
           eventRound: 0,
           nextConsensusThreshold: '11000000000',
           nextArbitrationEndTime: 1559945430,
-          _id: 'An4xD8aSDrDuu7Yy',
         };
         await DBHelper.insertResultSet(newResultSetWithExistedTxid);
         resultSetCount = await db.ResultSets.count({});
@@ -1560,7 +1555,6 @@ describe('db', () => {
           eventRound: 0,
           nextConsensusThreshold: '11000000000',
           nextArbitrationEndTime: 1559945430,
-          _id: 'An4xD8aSDrDuu7Yy',
         };
         resultSet = await DBHelper.findOneResultSet({ txid: mockResultSets[3].txid });
         expect(resultSet).excluding(['_id']).to.deep.not.equal(updateNewResultSet);
@@ -1573,6 +1567,9 @@ describe('db', () => {
       });
     });
   });
+
+
+
 
   after(async () => {
     fs.removeSync(getDbDir());
