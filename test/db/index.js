@@ -1288,7 +1288,7 @@ describe('db', () => {
     let betCount;
 
     describe('find bet', () => {
-      it('find empty bets db', async () => {
+      it('should return empty when find in empty bets db', async () => {
         betCount = await db.Bets.count({});
         betCount.should.equal(0);
         bet = await DBHelper.findBet({});
@@ -1304,7 +1304,7 @@ describe('db', () => {
         expect(foundBets[1]).excluding('_id').to.deep.equal(mockBets[1]);
       });
 
-      it('should return existing events if not passing sort', async () => {
+      it('should return existing bets if not passing sort', async () => {
         const foundBets = await DBHelper.findBet({ txid: mockBets[0].txid });
         foundBets.length.should.equal(1);
         expect(foundBets[0]).excluding('_id').to.deep.equal(mockBets[0]);
@@ -1318,7 +1318,7 @@ describe('db', () => {
         expect(bet).excluding('_id').to.deep.equal(mockBets[0]);
       });
 
-      it('find non-existed bet', async () => {
+      it('should return null when find non-existing bet', async () => {
         bet = await DBHelper.findOneBet({ txid: '0x12333' });
         should.not.exist(bet);
       });
@@ -1343,7 +1343,7 @@ describe('db', () => {
         expect(bet).excluding('_id').to.deep.equal(mockBets[2]);
       });
 
-      it('should not insert existed txid bet', async () => {
+      it('should not insert existing txid bet', async () => {
         const newBetWithExistedTxid = {
           txType: 'BET',
           txid: '0xccd0af2cb0299880101ff6558c3000a719e485677a9792bc24c4366ac78d1bf4',
@@ -1367,7 +1367,7 @@ describe('db', () => {
     });
 
     describe('update bet', () => {
-      it('update bet', async () => {
+      it('should update bet when txid exists', async () => {
         const updateNewBet = {
           txType: 'BET',
           txid: '0xccd0af2cb0299880101ff6558c3000a719e485677a9792bc24c4366ac78d1bf4',
@@ -1387,6 +1387,27 @@ describe('db', () => {
         bet = await DBHelper.findOneBet({ txid: updateNewBet.txid });
         should.exist(bet);
         expect(bet).excluding(['_id']).to.deep.equal(updateNewBet);
+      });
+
+      it('should not update bet when txid not exists', async () => {
+        const updateNewBet = {
+          txType: 'BET',
+          txid: '0xccd0af2cb0299880101ff0abfc3000a719e485677a9792bc24c4366ac78d1bf4',
+          txStatus: 'FAIL',
+          blockNum: null,
+          eventAddress: '0xeaf92b5aabe6028fdbe5889a6705fbc0e2e2da8d',
+          betterAddress: '0x47ba776b3ed5d514d3e206ffee72fa483baffa7e',
+          resultIndex: 1,
+          amount: '300000000',
+          eventRound: 0,
+        };
+        betCount = await db.Bets.count({});
+        betCount.should.equal(3);
+        await DBHelper.updateBet(updateNewBet.txid, updateNewBet);
+        betCount = await db.Bets.count({});
+        betCount.should.equal(3);
+        bet = await DBHelper.findOneBet({ txid: updateNewBet.txid });
+        should.not.exist(bet);
       });
     });
   });
@@ -1518,7 +1539,7 @@ describe('db', () => {
         expect(resultSet).excluding('_id').to.deep.equal(mockResultSets[3]);
       });
 
-      it('insert existed txid result set', async () => {
+      it('should not insert exisiting txid result set', async () => {
         const newResultSetWithExistedTxid = {
           txType: 'RESULT_SET',
           txid: '0x61e87de9febbbee5a6ed8aea010a59c18ad917962fed0060e44c97d1a51c7e7c',
@@ -1542,7 +1563,7 @@ describe('db', () => {
     });
 
     describe('update result set', () => {
-      it('update result set', async () => {
+      it('should update result set when txid exists', async () => {
         const updateNewResultSet = {
           txType: 'RESULT_SET',
           txid: '0x61e87de9febbbee5a6ed8aea010a59c18ad917962fed0060e44c97d1a51c7e7c',
@@ -1565,11 +1586,190 @@ describe('db', () => {
         should.exist(resultSet);
         expect(resultSet).excluding(['_id']).to.deep.equal(updateNewResultSet);
       });
+
+      it('should not update result set when txid not exists', async () => {
+        const updateNewResultSet = {
+          txType: 'RESULT_SET',
+          txid: '0x61e87de9febbbee123458aea010a59c18ad917962fed0060e44c97d1a51c7e7c',
+          txStatus: 'SUCCESS',
+          blockNum: 2324243,
+          eventAddress: '0x405c53142452e96e9c8cfcfd81d7db8326b8c6ce',
+          centralizedOracleAddress: '0x8732763715473274928',
+          resultIndex: 0,
+          amount: '10000000000',
+          eventRound: 0,
+          nextConsensusThreshold: '11000000000',
+          nextArbitrationEndTime: 1559945430,
+        };
+        resultSetCount = await db.ResultSets.count({});
+        resultSetCount.should.equal(4);
+        await DBHelper.updateResultSet(updateNewResultSet.txid, updateNewResultSet);
+        resultSetCount = await db.ResultSets.count({});
+        resultSetCount.should.equal(4);
+        resultSet = await DBHelper.findOneResultSet({ txid: updateNewResultSet.txid });
+        should.not.exist(resultSet);
+      });
     });
   });
 
+  /* Withdraws */
+  describe('test Withdraws db', () => {
+    const mockWithdraws = [
+      {
+        txType: 'WITHDRAW',
+        txid: '0xa941da0b9d465ec5a394dbfe73032e25181e6f9eb5452e8313899a9f6b05e128',
+        txStatus: 'SUCCESS',
+        blockNum: 4153179,
+        eventAddress: '0x97c4810cbec1c767110f8aaaa6e1d400768f598c',
+        winnerAddress: '0x939592864c0bd3355b2d54e4fa2203e8343b6d6a',
+        winningAmount: '3310000000',
+        escrowWithdrawAmount: '100000000',
+      },
+      {
+        txType: 'WITHDRAW',
+        txid: '0x46c8a1608bf4fe59295c50d50efbbc3ea47eff7d4d4079fb82165d7907b96d87',
+        txStatus: 'SUCCESS',
+        blockNum: 4185772,
+        eventAddress: '0x9376770714fe52bd43d7dab70bb7eec5773079f1',
+        winnerAddress: '0x939592864c0bd3355b2d54e4fa2203e8343b6d6a',
+        winningAmount: '46910000000',
+        escrowWithdrawAmount: '0',
+      },
+      {
+        txType: 'WITHDRAW',
+        txid: '0x0b120d7a5417da6be968f24542d8f0b105228ee1c2d5e1aebd02c412c1b46950',
+        txStatus: 'SUCCESS',
+        blockNum: 4147411,
+        eventAddress: '0x3d18e57929f42fb58ddc242ca4a2904f5cf834a3',
+        winnerAddress: '0x47ba776b3ed5d514d3e206ffee72fa483baffa7e',
+        winningAmount: '21000000000',
+        escrowWithdrawAmount: '0',
+      },
+    ];
+    let withdraw;
+    let withdrawCount;
 
+    describe('find withdraw', () => {
+      it('find empty withdraw db', async () => {
+        withdrawCount = await db.Withdraws.count({});
+        withdrawCount.should.equal(0);
+        withdraw = await DBHelper.findWithdraw({});
+        withdraw.length.should.equal(0);
+      });
 
+      it('should return existing withdraws if passing sort', async () => {
+        await DBHelper.insertWithdraw(mockWithdraws[0]);
+        await DBHelper.insertWithdraw(mockWithdraws[1]);
+        const foundWithdraws = await DBHelper.findWithdraw({}, { blockNum: -1 });
+        foundWithdraws.length.should.equal(2);
+        expect(foundWithdraws[0]).excluding('_id').to.deep.equal(mockWithdraws[1]);
+        expect(foundWithdraws[1]).excluding('_id').to.deep.equal(mockWithdraws[0]);
+      });
+
+      it('should return existing withdraws if not passing sort', async () => {
+        const foundWithdraws = await DBHelper.findWithdraw({ txid: mockWithdraws[0].txid });
+        foundWithdraws.length.should.equal(1);
+        expect(foundWithdraws[0]).excluding('_id').to.deep.equal(mockWithdraws[0]);
+      });
+    });
+
+    describe('find one withdraw', () => {
+      it('find existed withdraw', async () => {
+        withdraw = await DBHelper.findOneWithdraw({ txid: mockWithdraws[0].txid });
+        should.exist(withdraw);
+        expect(withdraw).excluding('_id').to.deep.equal(mockWithdraws[0]);
+      });
+
+      it('should find null when txid is not existed', async () => {
+        withdraw = await DBHelper.findOneWithdraw({ txid: '0x12333' });
+        should.not.exist(withdraw);
+      });
+    });
+
+    describe('count withdraw', () => {
+      it('withdraw counts should right', async () => {
+        withdrawCount = await DBHelper.countWithdraw({});
+        withdrawCount.should.equal(2);
+      });
+    });
+
+    describe('insert withdraw', () => {
+      it('should insert new withdraw', async () => {
+        withdrawCount = await db.Withdraws.count({});
+        withdrawCount.should.equal(2);
+        await DBHelper.insertWithdraw(mockWithdraws[2]);
+        withdrawCount = await db.Withdraws.count({});
+        withdrawCount.should.equal(3);
+        withdraw = await DBHelper.findOneWithdraw({ txid: mockWithdraws[2].txid });
+        should.exist(withdraw);
+        expect(withdraw).excluding('_id').to.deep.equal(mockWithdraws[2]);
+      });
+
+      it('should not insert existed txid withdraw', async () => {
+        const newWithdrawWithExistedTxid = {
+          txType: 'WITHDRAW',
+          txid: '0x0b120d7a5417da6be968f24542d8f0b105228ee1c2d5e1aebd02c412c1b46950',
+          txStatus: 'SUCCESS',
+          blockNum: 435611,
+          eventAddress: '0x3d18e53519f42fb58ddc242ca4a2904f5cf834a3',
+          winnerAddress: '0x47ba77123ed5d514d3e206ffee72fa483baffa7e',
+          winningAmount: '21000000000',
+          escrowWithdrawAmount: '0',
+        };
+        withdrawCount = await db.Withdraws.count({});
+        withdrawCount.should.equal(3);
+        await DBHelper.insertWithdraw(newWithdrawWithExistedTxid);
+        withdrawCount = await db.Withdraws.count({});
+        withdrawCount.should.equal(3);
+        withdraw = await DBHelper.findOneWithdraw({ txid: newWithdrawWithExistedTxid.txid });
+        should.exist(withdraw);
+        expect(withdraw).excluding(['_id']).to.deep.equal(newWithdrawWithExistedTxid);
+      });
+    });
+
+    describe('update withdraw', () => {
+      it('should update withdraw when txid is existed', async () => {
+        const updateNewWithdraw = {
+          txType: 'WITHDRAW',
+          txid: '0x00000d7a5417da6be968f24542d8f0b105228ee1c2d5e1aebd02c412c1b46950',
+          txStatus: 'SUCCESS',
+          blockNum: 4147411,
+          eventAddress: '0x3d18e57929f42fb58ddc242ca4a2904f5cf834a3',
+          winnerAddress: '0x47ba776b35555514d3e206ffee72fa483baffa7e',
+          winningAmount: '21000000000',
+          escrowWithdrawAmount: '0',
+        };
+        withdraw = await DBHelper.findOneWithdraw({ txid: mockWithdraws[2].txid });
+        expect(withdraw).excluding(['_id']).to.deep.not.equal(updateNewWithdraw);
+        await DBHelper.updateWithdraw(mockWithdraws[2].txid, updateNewWithdraw);
+        withdrawCount = await db.Withdraws.count({});
+        withdrawCount.should.equal(3);
+        withdraw = await DBHelper.findOneWithdraw({ txid: updateNewWithdraw.txid });
+        should.exist(withdraw);
+        expect(withdraw).excluding(['_id']).to.deep.equal(updateNewWithdraw);
+      });
+
+      it('should not update withdraw when txid is not existed', async () => {
+        const updateNewWithdraw = {
+          txType: 'WITHDRAW',
+          txid: '0x00000d7a5417da6be123424542d8f0b105228ee1c2d5e1aebd02c412c1b46950',
+          txStatus: 'SUCCESS',
+          blockNum: 4147411,
+          eventAddress: '0x3d18e57929f42fb58ddc242ca4a2904f5cf834a3',
+          winnerAddress: '0x47ba776b35555514d3e206ffee72fa483baffa7e',
+          winningAmount: '21000000000',
+          escrowWithdrawAmount: '0',
+        };
+        withdrawCount = await db.Withdraws.count({});
+        withdrawCount.should.equal(3);
+        await DBHelper.updateWithdraw(updateNewWithdraw.txid, updateNewWithdraw);
+        withdrawCount = await db.Withdraws.count({});
+        withdrawCount.should.equal(3);
+        withdraw = await DBHelper.findOneWithdraw({ txid: updateNewWithdraw.txid });
+        should.not.exist(withdraw);
+      });
+    });
+  });
 
   after(async () => {
     fs.removeSync(getDbDir());
