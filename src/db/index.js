@@ -46,7 +46,9 @@ const initDB = async () => {
     await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
     await db.TransactionReceipts.ensureIndex({ fieldName: 'transactionHash', unique: true });
 
-    await applyMigrations();
+    if (process.env.TEST_ENV !== 'true') {
+      await applyMigrations();
+    }
   } catch (err) {
     logger.error(`DB load Error: ${err.message}`);
     throw err;

@@ -152,5 +152,5 @@ module.exports = {
   PAGINATED_WITHDRAWS,
   BET,
   RESULT_SET,
-  WITHDRAW
+  WITHDRAW,
 };
