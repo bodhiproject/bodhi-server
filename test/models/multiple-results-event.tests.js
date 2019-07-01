@@ -41,8 +41,6 @@ const rawInput = {
   arbitrationEndTime: 1560965704,
 };
 
-console.log(rawInput);
-
 describe('models/multiple-results-event', () => {
   describe('validate', () => {
     let input;

@@ -12,9 +12,11 @@ const getContract = () => {
 };
 
 module.exports = {
+  getContract,
+
   async bodhiTokenAddress() {
     try {
-      return getContract().methods.bodhiTokenAddress().call();
+      return this.getContract().methods.bodhiTokenAddress().call();
     } catch (err) {
       logger.error(`Error ConfigManager.bodhiTokenAddress(): ${err.message}`);
       throw err;
@@ -23,7 +25,7 @@ module.exports = {
 
   async eventFactoryAddress() {
     try {
-      return getContract().methods.eventFactoryAddress().call();
+      return this.getContract().methods.eventFactoryAddress().call();
     } catch (err) {
       logger.error(`Error ConfigManager.eventFactoryAddress(): ${err.message}`);
       throw err;
@@ -32,7 +34,7 @@ module.exports = {
 
   async eventEscrowAmount() {
     try {
-      const res = await getContract().methods.eventEscrowAmount().call();
+      const res = await this.getContract().methods.eventEscrowAmount().call();
       return web3.utils.toBN(res).toString(10);
     } catch (err) {
       logger.error(`Error ConfigManager.eventEscrowAmount(): ${err.message}`);
@@ -42,7 +44,7 @@ module.exports = {
 
   async arbitrationLength() {
     try {
-      const res = await getContract().methods.arbitrationLength().call();
+      const res = await this.getContract().methods.arbitrationLength().call();
       return map(res, len => web3.utils.toBN(len).toNumber());
     } catch (err) {
       logger.error(`Error ConfigManager.arbitrationLength(): ${err.message}`);
@@ -52,7 +54,7 @@ module.exports = {
 
   async startingConsensusThreshold() {
     try {
-      const res = await getContract().methods.startingConsensusThreshold().call();
+      const res = await this.getContract().methods.startingConsensusThreshold().call();
       return map(res, len => web3.utils.toBN(len).toString(10));
     } catch (err) {
       logger.error(`Error ConfigManager.startingOracleThreshold(): ${err.message}`);
@@ -62,7 +64,7 @@ module.exports = {
 
   async thresholdPercentIncrease() {
     try {
-      const res = await getContract().methods.thresholdPercentIncrease().call();
+      const res = await this.getContract().methods.thresholdPercentIncrease().call();
       return web3.utils.toBN(res).toString(10);
     } catch (err) {
       logger.error(`Error ConfigManager.thresholdPercentIncrease(): ${err.message}`);
@@ -75,7 +77,7 @@ module.exports = {
       const { address } = args;
       if (isUndefined(address)) throw TypeError('address is not defined');
 
-      return getContract().methods.isWhitelisted(address).call();
+      return this.getContract().methods.isWhitelisted(address).call();
     } catch (err) {
       logger.error(`Error ConfigManager.isWhitelisted(): ${err.message}`);
       throw err;
