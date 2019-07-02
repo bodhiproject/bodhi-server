@@ -509,4 +509,67 @@ module.exports = class DBHelper {
       throw err;
     }
   }
+
+  /* GlobalLeaderboard */
+  static async findGlobalLeaderboard(query, sort) {
+    try {
+      if (sort) return db.GlobalLeaderboard.cfind(query).sort(sort).exec();
+      return db.GlobalLeaderboard.find(query);
+    } catch (err) {
+      logger.error(`FIND GlobalLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async findOneGlobalLeaderboard(query) {
+    try {
+      return db.GlobalLeaderboard.findOne(query);
+    } catch (err) {
+      logger.error(`FINDONE GlobalLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async countGlobalLeaderboard(query) {
+    try {
+      return db.GlobalLeaderboard.count(query);
+    } catch (err) {
+      logger.error(`COUNT GlobalLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertGlobalLeaderboard(entry) {
+    try {
+      const existing = await DBHelper.findOneGlobalLeaderboard({ userAddress: entry.userAddress });
+      if (isNull(existing)) {
+        await db.GlobalLeaderboard.insert(entry);
+      } else {
+        await DBHelper.updateGlobalLeaderboard(existing, entry);
+      }
+    } catch (err) {
+      logger.error(`INSERT GlobalLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateGlobalLeaderboard(existing, entry) {
+    const investments = existing.investments + entry.investments;
+    const winnings = existing.winnings + entry.winnings;
+    try {
+      await db.GlobalLeaderboard.update(
+        { userAddress: entry.userAddress },
+        {
+          $set: {
+            investments,
+            winnings,
+            returnRatio: winnings / investments,
+          },
+        },
+      );
+    } catch (err) {
+      logger.error(`UPDATE GlobalLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
 };
