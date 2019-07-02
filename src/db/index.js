@@ -51,6 +51,8 @@ const initDB = async () => {
     await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
     await db.TransactionReceipts.ensureIndex({ fieldName: 'transactionHash' });
+    await db.GlobalLeaderboard.ensureIndex({ fieldName: 'userAddress', unique: true });
+    await db.EventLeaderboard.ensureIndex({ fieldName: 'eventAddress' });
 
     if (process.env.TEST_ENV !== 'true') {
       await applyMigrations();
