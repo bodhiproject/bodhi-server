@@ -440,4 +440,73 @@ module.exports = class DBHelper {
       throw err;
     }
   }
+
+  /* EventLeaderboard */
+  static async findEventLeaderboard(query, sort) {
+    try {
+      if (sort) return db.EventLeaderboard.cfind(query).sort(sort).exec();
+      return db.EventLeaderboard.find(query);
+    } catch (err) {
+      logger.error(`FIND EventLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async findOneEventLeaderboard(query) {
+    try {
+      return db.EventLeaderboard.findOne(query);
+    } catch (err) {
+      logger.error(`FINDONE EventLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async countEventLeaderboard(query) {
+    try {
+      return db.EventLeaderboard.count(query);
+    } catch (err) {
+      logger.error(`COUNT EventLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertEventLeaderboard(entry) {
+    try {
+      const existing = await DBHelper.findOneEventLeaderboard({
+        userAddress: entry.userAddress,
+        eventAddress: entry.eventAddress,
+      });
+      if (isNull(existing)) {
+        await db.EventLeaderboard.insert(entry);
+      } else {
+        await DBHelper.updateEventLeaderboard(existing, entry);
+      }
+    } catch (err) {
+      logger.error(`INSERT EventLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventLeaderboard(existing, entry) {
+    const investments = existing.investments + entry.investments;
+    const winnings = existing.winnings + entry.winnings;
+    try {
+      await db.EventLeaderboard.update(
+        {
+          userAddress: entry.userAddress,
+          eventAddress: entry.eventAddress,
+        },
+        {
+          $set: {
+            investments,
+            winnings,
+            returnRatio: winnings / investments,
+          },
+        },
+      );
+    } catch (err) {
+      logger.error(`UPDATE EventLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
 };
