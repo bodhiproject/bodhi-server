@@ -3,6 +3,7 @@ const logger = require('../utils/logger');
 const { isDefined } = require('../utils');
 const { EVENT_STATUS, TX_STATUS } = require('../constants');
 const { db } = require('.');
+const web3 = require('../web3');
 
 module.exports = class DBHelper {
   /* Blocks */
@@ -488,8 +489,10 @@ module.exports = class DBHelper {
   }
 
   static async updateEventLeaderboard(existing, entry) {
-    const investments = existing.investments + entry.investments;
-    const winnings = existing.winnings + entry.winnings;
+    const existingInvest = web3.utils.toBN(existing.investments);
+    const investments = existingInvest.add(web3.utils.toBN(entry.investments)).toString(10);
+    const existingWin = web3.utils.toBN(existing.winnings);
+    const winnings = existingWin.add(web3.utils.toBN(entry.winnings)).toString(10);
     try {
       await db.EventLeaderboard.update(
         {
@@ -554,8 +557,10 @@ module.exports = class DBHelper {
   }
 
   static async updateGlobalLeaderboard(existing, entry) {
-    const investments = existing.investments + entry.investments;
-    const winnings = existing.winnings + entry.winnings;
+    const existingInvest = web3.utils.toBN(existing.investments);
+    const investments = existingInvest.add(web3.utils.toBN(entry.investments)).toString(10);
+    const existingWin = web3.utils.toBN(existing.winnings);
+    const winnings = existingWin.add(web3.utils.toBN(entry.winnings)).toString(10);
     try {
       await db.GlobalLeaderboard.update(
         { userAddress: entry.userAddress },
