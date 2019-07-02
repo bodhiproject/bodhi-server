@@ -13,6 +13,8 @@ const db = {
   Withdraws: undefined,
   Blocks: undefined,
   TransactionReceipts: undefined,
+  GlobalLeaderboard: undefined,
+  EventLeaderboard: undefined,
 };
 
 /**
@@ -28,6 +30,8 @@ const initDB = async () => {
   db.Withdraws = datastore({ filename: `${dbDir}/withdraws.db` });
   db.Blocks = datastore({ filename: `${dbDir}/blocks.db` });
   db.TransactionReceipts = datastore({ filename: `${dbDir}/transactionreceipts.db` });
+  db.GlobalLeaderboard = datastore({ filename: `${dbDir}/globalleaderboard.db` });
+  db.EventLeaderboard = datastore({ filename: `${dbDir}/eventleaderboard.db` });
 
   try {
     await Promise.all([
@@ -37,6 +41,8 @@ const initDB = async () => {
       db.Withdraws.loadDatabase(),
       db.Blocks.loadDatabase(),
       db.TransactionReceipts.loadDatabase(),
+      db.GlobalLeaderboard.loadDatabase(),
+      db.EventLeaderboard.loadDatabase(),
     ]);
 
     await db.Blocks.ensureIndex({ fieldName: 'blockNum', unique: true });
@@ -44,7 +50,7 @@ const initDB = async () => {
     await db.Bets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
-    await db.TransactionReceipts.ensureIndex({ fieldName: 'transactionHash', unique: true });
+    // await db.TransactionReceipts.ensureIndex({ fieldName: 'transactionHash', unique: true });
 
     if (process.env.TEST_ENV !== 'true') {
       await applyMigrations();
