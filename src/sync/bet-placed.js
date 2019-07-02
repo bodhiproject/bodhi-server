@@ -8,6 +8,7 @@ const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseBet = require('./parsers/bet');
 const MultipleResultsEventApi = require('../api/multiple-results-event');
+const EventLeaderboard = require('../models/event-leaderboard');
 
 const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
@@ -31,6 +32,15 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
           // Fetch and insert tx receipt
           const txReceipt = await getTransactionReceipt(bet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);
+
+          // Update event leaderboard investments
+          const leaderboardEntry = new EventLeaderboard({
+            eventAddress: bet.eventAddress,
+            userAddress: bet.betterAddress,
+            investments: bet.amount,
+            winnings: 0,
+          });
+          await DBHelper.insertEventLeaderboard(leaderboardEntry);
         } catch (insertErr) {
           logger.error('Error syncBetPlaced parse');
           throw insertErr;
@@ -73,6 +83,14 @@ const pendingBetPlaced = async ({ syncPromises, limit }) => {
             if (foundLog) {
               const bet = parseBet({ log: foundLog });
               await DBHelper.insertBet(bet);
+              // Update event leaderboard investments
+              const leaderboardEntry = new EventLeaderboard({
+                eventAddress: bet.eventAddress,
+                userAddress: bet.betterAddress,
+                investments: bet.amount,
+                winnings: 0,
+              });
+              await DBHelper.insertEventLeaderboard(leaderboardEntry);
             }
           } else {
             // Update bet with failed status
