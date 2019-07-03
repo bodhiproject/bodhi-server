@@ -23,10 +23,10 @@ const syncWinningsWithdrawn = async (
     // Add to syncPromises array to be executed in parallel
     logger.info(`Found ${logs.length} WinningsWithdrawn`);
     each(logs, (log) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (logObj) => {
         try {
           // Parse and insert withdraw
-          const withdraw = parseWithdraw({ log });
+          const withdraw = parseWithdraw({ log: logObj });
           await DBHelper.insertWithdraw(withdraw);
 
           // Add withdrawer into event withdrawnList
@@ -39,7 +39,7 @@ const syncWinningsWithdrawn = async (
           logger.error('Error syncWinningsWithdrawn parse');
           throw insertErr;
         }
-      }));
+      }, log));
     });
   } catch (err) {
     logger.error('Error syncWinningsWithdrawn');
@@ -54,9 +54,9 @@ const pendingWinningsWithdrawn = async ({ syncPromises, limit }) => {
     logger.info(`Checking ${pending.length} pending WinningsWithdrawn`);
 
     each(pending, (p) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (pendingWithdraw) => {
         try {
-          const txReceipt = await getTransactionReceipt(p.txid);
+          const txReceipt = await getTransactionReceipt(pendingWithdraw.txid);
           if (isNull(txReceipt)) return;
           await DBHelper.insertTransactionReceipt(txReceipt);
 
@@ -87,7 +87,7 @@ const pendingWinningsWithdrawn = async ({ syncPromises, limit }) => {
         } catch (insertErr) {
           logger.error(`Error pendingWinningsWithdrawn: ${insertErr.message}`);
         }
-      }));
+      }, p));
     });
   } catch (err) {
     logger.error(`Error pendingWinningsWithdrawn findWithdraw: ${err.message}`);
