@@ -41,7 +41,7 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
             eventAddress: resultSet.eventAddress,
             userAddress: resultSet.centralizedOracleAddress,
             investments: resultSet.amount,
-            winnings: 0,
+            winnings: '0',
           });
           await DBHelper.insertEventLeaderboard(leaderboardEntry);
         } catch (insertErr) {
@@ -95,7 +95,7 @@ const pendingResultSet = async ({ syncPromises, limit }) => {
                 eventAddress: resultSet.eventAddress,
                 userAddress: resultSet.centralizedOracleAddress,
                 investments: resultSet.amount,
-                winnings: 0,
+                winnings: '0',
               });
               await DBHelper.insertEventLeaderboard(leaderboardEntry);
             }
