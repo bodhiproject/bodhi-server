@@ -1,9 +1,12 @@
-const { isNull } = require('lodash');
+const { isNull, each, find } = require('lodash');
 const logger = require('../utils/logger');
 const { isDefined } = require('../utils');
 const { EVENT_STATUS, TX_STATUS } = require('../constants');
 const { db } = require('.');
 const web3 = require('../web3');
+const MultipleResultsEventApi = require('../api/multiple-results-event');
+const EventLeaderboard = require('../models/event-leaderboard');
+const GlobalLeaderboard = require('../models/global-leaderboard');
 
 module.exports = class DBHelper {
   /* Blocks */
@@ -242,7 +245,7 @@ module.exports = class DBHelper {
 
   static async updateEventStatusWithdrawing(currBlockTime) {
     try {
-      await db.Events.update(
+      const updatedEvents = await db.Events.update(
         {
           txStatus: TX_STATUS.SUCCESS,
           $not: { status: EVENT_STATUS.WITHDRAWING },
@@ -250,10 +253,80 @@ module.exports = class DBHelper {
           currentRound: { $gt: 0 },
         },
         { $set: { status: EVENT_STATUS.WITHDRAWING } },
-        { multi: true },
+        {
+          multi: true,
+          returnUpdatedDocs: true,
+        },
       );
+      await DBHelper.updateLeaderboardWithdrawing(updatedEvents);
     } catch (err) {
       logger.error(`UPDATE Event Status Withdrawing error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateLeaderboardWithdrawing(events) {
+    try {
+      each(events, async (event) => {
+        // get all the participants
+        const bets = await DBHelper.findBet({ eventAddress: event.address });
+        const filtered = [];
+        each(bets, (bet) => {
+          if (!find(filtered, {
+            eventAddress: bet.eventAddress,
+            betterAddress: bet.betterAddress,
+          })) {
+            filtered.push(bet);
+          }
+        });
+        // calculate winnings for all participants
+        const promises = [];
+        const winnings = [];
+        each(filtered, (bet) => {
+          promises.push(new Promise(async (resolve, reject) => {
+            try {
+              const { eventAddress, betterAddress } = bet;
+              const res = await MultipleResultsEventApi.calculateWinnings({
+                eventAddress,
+                address: betterAddress,
+              });
+              winnings.push({
+                eventAddress,
+                betterAddress,
+                amount: res.toString(10),
+              });
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          }));
+        });
+        await Promise.all(promises);
+        // update leaderboard
+        each(winnings, async (winning) => {
+          // update event leaderboard winnings
+          const eventLeaderboardEntry = new EventLeaderboard({
+            eventAddress: winning.eventAddress,
+            userAddress: winning.betterAddress,
+            investments: 0,
+            winnings: winning.amount,
+          });
+          await DBHelper.insertEventLeaderboard(eventLeaderboardEntry);
+          // update global leaderboard investments, winnings
+          const userAmountInEvent = await DBHelper.findOneEventLeaderboard({
+            eventAddress: winning.eventAddress,
+            userAddress: winning.betterAddress,
+          });
+          const globalLeaderboard = new GlobalLeaderboard({
+            userAddress: winning.betterAddress,
+            investments: userAmountInEvent.investments,
+            winnings: winning.amount,
+          });
+          await DBHelper.insertGlobalLeaderboard(globalLeaderboard);
+        });
+      });
+    } catch (err) {
+      logger.error(`UPDATE leaderboard when withdrawing status changed error: ${err.message}`);
       throw err;
     }
   }
