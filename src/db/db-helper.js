@@ -1,6 +1,7 @@
 const { isNull, each, find } = require('lodash');
 const logger = require('../utils/logger');
 const { isDefined } = require('../utils');
+const { sumBN } = require('../utils/web3-utils');
 const { EVENT_STATUS, TX_STATUS } = require('../constants');
 const { db } = require('.');
 const web3 = require('../web3');
@@ -553,7 +554,15 @@ module.exports = class DBHelper {
       if (isNull(existing)) {
         await db.EventLeaderboard.insert(entry);
       } else {
-        await DBHelper.updateEventLeaderboard(existing, entry);
+        const investments = sumBN(existing.investments, entry.investments).toString(10);
+        const winnings = sumBN(existing.winnings, entry.winnings).toString(10);
+        const newEntry = new EventLeaderboard({
+          userAddress: entry.userAddress,
+          eventAddress: entry.eventAddress,
+          investments,
+          winnings,
+        }); // make a new instance, ratio will be calculated in the model
+        await DBHelper.updateEventLeaderboard(newEntry);
       }
     } catch (err) {
       logger.error(`INSERT EventLeaderboard error: ${err.message}`);
@@ -561,24 +570,14 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateEventLeaderboard(existing, entry) {
-    const existingInvest = web3.utils.toBN(existing.investments);
-    const investments = existingInvest.add(web3.utils.toBN(entry.investments)).toString(10);
-    const existingWin = web3.utils.toBN(existing.winnings);
-    const winnings = existingWin.add(web3.utils.toBN(entry.winnings)).toString(10);
+  static async updateEventLeaderboard(entry) {
     try {
       await db.EventLeaderboard.update(
         {
           userAddress: entry.userAddress,
           eventAddress: entry.eventAddress,
         },
-        {
-          $set: {
-            investments,
-            winnings,
-            returnRatio: winnings / investments,
-          },
-        },
+        { $set: entry },
       );
     } catch (err) {
       logger.error(`UPDATE EventLeaderboard error: ${err.message}`);
@@ -621,7 +620,14 @@ module.exports = class DBHelper {
       if (isNull(existing)) {
         await db.GlobalLeaderboard.insert(entry);
       } else {
-        await DBHelper.updateGlobalLeaderboard(existing, entry);
+        const investments = sumBN(existing.investments, entry.investments).toString(10);
+        const winnings = sumBN(existing.winnings, entry.winnings).toString(10);
+        const newEntry = new GlobalLeaderboard({
+          userAddress: entry.userAddress,
+          investments,
+          winnings,
+        }); // make a new instance, ratio will be calculated in the model
+        await DBHelper.updateGlobalLeaderboard(newEntry);
       }
     } catch (err) {
       logger.error(`INSERT GlobalLeaderboard error: ${err.message}`);
@@ -629,21 +635,11 @@ module.exports = class DBHelper {
     }
   }
 
-  static async updateGlobalLeaderboard(existing, entry) {
-    const existingInvest = web3.utils.toBN(existing.investments);
-    const investments = existingInvest.add(web3.utils.toBN(entry.investments)).toString(10);
-    const existingWin = web3.utils.toBN(existing.winnings);
-    const winnings = existingWin.add(web3.utils.toBN(entry.winnings)).toString(10);
+  static async updateGlobalLeaderboard(entry) {
     try {
       await db.GlobalLeaderboard.update(
         { userAddress: entry.userAddress },
-        {
-          $set: {
-            investments,
-            winnings,
-            returnRatio: winnings / investments,
-          },
-        },
+        { $set: entry },
       );
     } catch (err) {
       logger.error(`UPDATE GlobalLeaderboard error: ${err.message}`);

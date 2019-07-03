@@ -37,7 +37,7 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
             eventAddress: bet.eventAddress,
             userAddress: bet.betterAddress,
             investments: bet.amount,
-            winnings: 0,
+            winnings: '0',
           });
           await DBHelper.insertEventLeaderboard(leaderboardEntry);
         } catch (insertErr) {
@@ -88,7 +88,7 @@ const pendingVotePlaced = async ({ syncPromises, limit }) => {
                 eventAddress: bet.eventAddress,
                 userAddress: bet.betterAddress,
                 investments: bet.amount,
-                winnings: 0,
+                winnings: '0',
               });
               await DBHelper.insertEventLeaderboard(leaderboardEntry);
             }
