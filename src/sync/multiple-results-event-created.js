@@ -23,10 +23,10 @@ const syncMultipleResultsEventCreated = async (
     // Add to syncPromises array to be executed in parallel
     logger.info(`Found ${logs.length} MultipleResultsEventCreated`);
     each(logs, (log) => {
-      syncPromises.push(limit(async (logEntry) => {
+      syncPromises.push(limit(async (logObj) => {
         try {
           // Parse and insert event
-          const event = await parseEvent({ log: logEntry });
+          const event = await parseEvent({ log: logObj });
           await DBHelper.insertEvent(event);
 
           // Fetch and insert tx receipt
