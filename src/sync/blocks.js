@@ -17,16 +17,16 @@ const getBlockTime = async (blockNum) => {
 module.exports = ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
     const addPromise = (blockNum) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (bNum) => {
         try {
           // Get block time and insert
-          const blockTime = await getBlockTime(blockNum);
-          await DBHelper.insertBlock(blockNum, blockTime);
+          const blockTime = await getBlockTime(bNum);
+          await DBHelper.insertBlock(bNum, blockTime);
         } catch (insertErr) {
           logger.error('Error insert Block');
           throw insertErr;
         }
-      }));
+      }, blockNum));
     };
     for (let i = startBlock; i <= endBlock; i++) addPromise(i);
   } catch (err) {
