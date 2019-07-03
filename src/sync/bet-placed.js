@@ -7,7 +7,6 @@ const { getTransactionReceipt } = require('../utils/web3-utils');
 const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseBet = require('./parsers/bet');
-const MultipleResultsEventApi = require('../api/multiple-results-event');
 const EventLeaderboard = require('../models/event-leaderboard');
 
 const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
