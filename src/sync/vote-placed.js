@@ -21,10 +21,10 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
     // Add to syncPromises array to be executed in parallel
     logger.info(`Found ${logs.length} VotePlaced`);
     each(logs, (log) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (logObj) => {
         try {
           // Parse and insert vote
-          const bet = parseBet({ log });
+          const bet = parseBet({ log: logObj });
           await DBHelper.insertBet(bet);
 
           // Fetch and insert tx receipt
@@ -34,7 +34,7 @@ const syncVotePlaced = async ({ startBlock, endBlock, syncPromises, limit }) => 
           logger.error('Error syncVotePlaced parse');
           throw insertErr;
         }
-      }));
+      }, log));
     });
   } catch (err) {
     logger.error('Error syncVotePlaced');
@@ -52,9 +52,9 @@ const pendingVotePlaced = async ({ syncPromises, limit }) => {
     logger.info(`Checking ${pending.length} pending VotePlaced`);
 
     each(pending, (p) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (pendingVote) => {
         try {
-          const txReceipt = await getTransactionReceipt(p.txid);
+          const txReceipt = await getTransactionReceipt(pendingVote.txid);
           if (isNull(txReceipt)) return;
           await DBHelper.insertTransactionReceipt(txReceipt);
 
@@ -83,7 +83,7 @@ const pendingVotePlaced = async ({ syncPromises, limit }) => {
         } catch (insertErr) {
           logger.error(`Error pendingVotePlaced: ${insertErr.message}`);
         }
-      }));
+      }, p));
     });
   } catch (err) {
     logger.error(`Error pendingVotePlaced findBet: ${err.message}`);
