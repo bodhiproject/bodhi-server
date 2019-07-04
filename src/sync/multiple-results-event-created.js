@@ -23,10 +23,10 @@ const syncMultipleResultsEventCreated = async (
     // Add to syncPromises array to be executed in parallel
     logger.info(`Found ${logs.length} MultipleResultsEventCreated`);
     each(logs, (log) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (logObj) => {
         try {
           // Parse and insert event
-          const event = await parseEvent({ log });
+          const event = await parseEvent({ log: logObj });
           await DBHelper.insertEvent(event);
 
           // Fetch and insert tx receipt
@@ -36,7 +36,7 @@ const syncMultipleResultsEventCreated = async (
           logger.error('Error syncMultipleResultsEventCreated parse');
           throw insertErr;
         }
-      }));
+      }, log));
     });
   } catch (err) {
     logger.error('Error syncMultipleResultsEventCreated');
@@ -51,9 +51,9 @@ const pendingMultipleResultsEventCreated = async ({ syncPromises, limit }) => {
     logger.info(`Checking ${pending.length} pending MultipleResultsEventCreated`);
 
     each(pending, (p) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (pendingEvent) => {
         try {
-          const txReceipt = await getTransactionReceipt(p.txid);
+          const txReceipt = await getTransactionReceipt(pendingEvent.txid);
           if (isNull(txReceipt)) return;
           await DBHelper.insertTransactionReceipt(txReceipt);
 
@@ -83,7 +83,7 @@ const pendingMultipleResultsEventCreated = async ({ syncPromises, limit }) => {
           logger.error('Error pendingMultipleResultsEventCreated');
           throw insertErr;
         }
-      }));
+      }, p));
     });
   } catch (err) {
     logger.error(`Error pendingMultipleResultsEventCreated findEvent: ${err.message}`);

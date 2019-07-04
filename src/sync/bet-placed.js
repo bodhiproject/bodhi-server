@@ -21,10 +21,10 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
     // Add to syncPromises array to be executed in parallel
     logger.info(`Found ${logs.length} BetPlaced`);
     each(logs, (log) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (logObj) => {
         try {
           // Parse and insert bet
-          const bet = parseBet({ log });
+          const bet = parseBet({ log: logObj });
           await DBHelper.insertBet(bet);
 
           // Fetch and insert tx receipt
@@ -34,7 +34,7 @@ const syncBetPlaced = async ({ startBlock, endBlock, syncPromises, limit }) => {
           logger.error('Error syncBetPlaced parse');
           throw insertErr;
         }
-      }));
+      }, log));
     });
   } catch (err) {
     logger.error('Error syncBetPlaced');
@@ -52,9 +52,9 @@ const pendingBetPlaced = async ({ syncPromises, limit }) => {
     logger.info(`Checking ${pending.length} pending BetPlaced`);
 
     each(pending, (p) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (pendingBet) => {
         try {
-          const txReceipt = await getTransactionReceipt(p.txid);
+          const txReceipt = await getTransactionReceipt(pendingBet.txid);
           if (isNull(txReceipt)) return;
           await DBHelper.insertTransactionReceipt(txReceipt);
 
@@ -83,7 +83,7 @@ const pendingBetPlaced = async ({ syncPromises, limit }) => {
         } catch (insertErr) {
           logger.error(`Error pendingBetPlaced: ${insertErr.message}`);
         }
-      }));
+      }, p));
     });
   } catch (err) {
     logger.error(`Error pendingBetPlaced findBet: ${err.message}`);
