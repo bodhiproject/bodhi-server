@@ -22,10 +22,10 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
     // Add to syncPromises array to be executed in parallel
     logger.info(`Found ${logs.length} ResultSet`);
     each(logs, (log) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (logObj) => {
         try {
           // Parse and insert result set
-          const resultSet = parseResultSet({ log });
+          const resultSet = parseResultSet({ log: logObj });
           await DBHelper.insertResultSet(resultSet);
 
           // Fetch and insert tx receipt
@@ -38,7 +38,7 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
           logger.error('Error syncResultSet parse');
           throw insertErr;
         }
-      }));
+      }, log));
     });
   } catch (err) {
     logger.error('Error syncResultSet');
@@ -56,9 +56,9 @@ const pendingResultSet = async ({ syncPromises, limit }) => {
     logger.info(`Checking ${pending.length} pending ResultSet`);
 
     each(pending, (p) => {
-      syncPromises.push(limit(async () => {
+      syncPromises.push(limit(async (pendingSet) => {
         try {
-          const txReceipt = await getTransactionReceipt(p.txid);
+          const txReceipt = await getTransactionReceipt(pendingSet.txid);
           if (isNull(txReceipt)) return;
           await DBHelper.insertTransactionReceipt(txReceipt);
 
@@ -90,7 +90,7 @@ const pendingResultSet = async ({ syncPromises, limit }) => {
         } catch (insertErr) {
           logger.error(`Error pendingResultSet: ${insertErr.message}`);
         }
-      }));
+      }, p));
     });
   } catch (err) {
     logger.error(`Error pendingResultSet findResultSet: ${err.message}`);

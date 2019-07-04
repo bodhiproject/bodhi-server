@@ -73,58 +73,71 @@ const PAGINATED_EVENTS = `
   }
 `;
 
+const BET = `
+  txType
+  txid
+  txStatus
+  ${TX_RECEIPT}
+  blockNum
+  ${BLOCK}
+  eventAddress
+  betterAddress
+  resultIndex
+  amount
+  eventRound
+  resultName
+  eventName
+`;
+
 const PAGINATED_BETS = `
   totalCount
   ${PAGE_INFO}
   items {
-    txType
-    txid
-    txStatus
-    ${TX_RECEIPT}
-    blockNum
-    ${BLOCK}
-    eventAddress
-    betterAddress
-    resultIndex
-    amount
-    eventRound
-    resultName
+    ${BET}
   }
+`;
+
+const RESULT_SET = `
+  txType
+  txid
+  txStatus
+  ${TX_RECEIPT}
+  blockNum
+  ${BLOCK}
+  eventAddress
+  centralizedOracleAddress
+  resultIndex
+  amount
+  eventRound
+  resultName
 `;
 
 const PAGINATED_RESULT_SETS = `
   totalCount
   ${PAGE_INFO}
   items {
-    txType
-    txid
-    txStatus
-    ${TX_RECEIPT}
-    blockNum
-    ${BLOCK}
-    eventAddress
-    centralizedOracleAddress
-    resultIndex
-    amount
-    eventRound
-    resultName
+    ${RESULT_SET}
   }
+`;
+
+const WITHDRAW = `
+  txType
+  txid
+  txStatus
+  ${TX_RECEIPT}
+  blockNum
+  ${BLOCK}
+  eventAddress
+  winnerAddress
+  winningAmount
+  escrowWithdrawAmount
 `;
 
 const PAGINATED_WITHDRAWS = `
   totalCount
   ${PAGE_INFO}
   items {
-    txType
-    txid
-    txStatus
-    ${TX_RECEIPT}
-    blockNum
-    ${BLOCK}
-    eventAddress
-    winnerAddress
-    winningAmount
-    escrowWithdrawAmount
+    ${WITHDRAW}
   }
 `;
 
@@ -137,4 +150,7 @@ module.exports = {
   PAGINATED_BETS,
   PAGINATED_RESULT_SETS,
   PAGINATED_WITHDRAWS,
+  BET,
+  RESULT_SET,
+  WITHDRAW,
 };

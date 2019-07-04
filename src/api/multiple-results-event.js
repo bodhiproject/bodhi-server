@@ -13,13 +13,15 @@ const getContract = async (eventAddress) => {
 };
 
 module.exports = {
+  getContract,
+
   async calculateWinnings(args) {
     try {
       const { eventAddress, address } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
       if (isUndefined(address)) throw TypeError('address is not defined');
 
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.calculateWinnings(address).call();
       return web3.utils.toBN(res).toString(10);
     } catch (err) {
@@ -33,7 +35,7 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.version().call();
       return web3.utils.toBN(res).toNumber();
     } catch (err) {
@@ -47,7 +49,7 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.currentRound().call();
       return web3.utils.toBN(res).toNumber();
     } catch (err) {
@@ -61,7 +63,7 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.currentResultIndex().call();
       return web3.utils.toBN(res).toNumber();
     } catch (err) {
@@ -75,7 +77,7 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.currentConsensusThreshold().call();
       return web3.utils.toBN(res).toString(10);
     } catch (err) {
@@ -89,7 +91,7 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.currentArbitrationEndTime().call();
       return web3.utils.toBN(res).toString(10);
     } catch (err) {
@@ -104,7 +106,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const { utils: { toBN, hexToUtf8 } } = web3;
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.eventMetadata().call();
       return [
         toBN(res[0]).toNumber(),
@@ -124,7 +126,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const { utils: { toBN } } = web3;
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.centralizedMetadata().call();
       return [
         res[0],
@@ -145,7 +147,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
       const { utils: { toBN } } = web3;
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.configMetadata().call();
       return [
         toBN(res[0]).toString(10),
@@ -164,7 +166,7 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       const res = await contract.methods.totalBets().call();
       return web3.utils.toBN(res).toString(10);
     } catch (err) {
@@ -179,7 +181,7 @@ module.exports = {
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
       if (isUndefined(address)) throw TypeError('address is not defined');
 
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       return contract.methods.didWithdraw(address).call();
     } catch (err) {
       logger.error(`Error MultipleResultsEvent.didWithdraw(): ${err.message}`);
@@ -192,7 +194,7 @@ module.exports = {
       const { eventAddress } = args;
       if (isUndefined(eventAddress)) throw TypeError('eventAddress is not defined');
 
-      const contract = await getContract(eventAddress);
+      const contract = await this.getContract(eventAddress);
       return contract.methods.didWithdrawEscrow().call();
     } catch (err) {
       logger.error(`Error MultipleResultsEvent.didWithdrawEscrow(): ${err.message}`);

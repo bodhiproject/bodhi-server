@@ -44,8 +44,11 @@ const initDB = async () => {
     await db.Bets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.ResultSets.ensureIndex({ fieldName: 'txid', unique: true });
     await db.Withdraws.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.TransactionReceipts.ensureIndex({ fieldName: 'transactionHash' });
 
-    await applyMigrations();
+    if (process.env.TEST_ENV !== 'true') {
+      await applyMigrations();
+    }
   } catch (err) {
     logger.error(`DB load Error: ${err.message}`);
     throw err;
@@ -114,7 +117,6 @@ async function applyMigrations() {
     logger.error(`Migration scripts load error: ${err.message}`);
     throw err;
   }
-
   /**
    * whilst source code: https://caolan.github.io/async/v3/whilst.js.html
    * check(err, truth) and next(err, res) are built-in funcs in the source code
@@ -122,41 +124,39 @@ async function applyMigrations() {
    *    1. test: take check(err, truth), if truth is true, then call iter(next), otherwise, call callback to end the loop
    *    2. iter: take next(err, res), which triggers test if no err, otherwise trigger callback(err)
    *    3. callback: will only be triggered if test fails, or err encountered, reaching callback means end of the loop
-   */
-  let i = 0;
-  async.whilst(
-    check => check(null, i < migrations.length), // trigger iter
-    (next) => {
-      const migration = migrations[i];
-      i++;
-      try {
-        if (Number(migration.number) > lastMigration) {
-          // Run migration
-          logger.info(`Running migration ${migration.number}...`);
-          // pass next() to migrate(), await not allowed, only callback func
-          migration.migrate(() => {
-            // Track the last migration number
-            lastMigration = migration.number;
-            fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${lastMigration}\n`);
-            next(null, i); // trigger the next test
-          });
-        } else {
-          next(null, i); // if no migration here, trigger the next test
+  */
+  try {
+    let i = 0;
+    await async.whilst(
+      check => check(null, i < migrations.length), // trigger iter
+      (next) => {
+        const migration = migrations[i];
+        i++;
+        try {
+          if (Number(migration.number) > lastMigration) {
+            // Run migration
+            logger.info(`Running migration ${migration.number}...`);
+            // pass next() to migrate(), await not allowed, only callback func
+            migration.migrate(() => {
+              // Track the last migration number
+              lastMigration = migration.number;
+              fs.outputFileSync(migrationTrackPath, `LAST_MIGRATION=${lastMigration}\n`);
+              next(null, i); // trigger the next test
+            });
+          } else {
+            next(null, i); // if no migration here, trigger the next test
+          }
+        } catch (err) {
+          next(err, i); // err met, trigger the callback to end this loop
         }
-      } catch (err) {
-        next(err, i); // err met, trigger the callback to end this loop
-      }
-    },
-    (err, number) => {
-      // will only be called if should end this loop
-      if (err) {
-        logger.error(`Migration ${number} error: ${err.message}`);
-        return;
-      }
-
-      logger.info('Migrations complete.');
-    },
-  );
+      },
+    );
+  } catch (err) {
+    // will only be called if should end this loop
+    logger.error(err);
+    throw err;
+  }
+  logger.info('Migrations complete.');
 }
 
 module.exports = {
