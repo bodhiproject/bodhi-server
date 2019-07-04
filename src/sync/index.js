@@ -18,6 +18,7 @@ const {
   pendingWinningsWithdrawn,
 } = require('./winnings-withdrawn');
 const syncBlocks = require('./blocks');
+const updateEventStatusWithdrawingAndLeaderboard = require('./event-status-withdrawing-changed');
 const DBHelper = require('../db/db-helper');
 const logger = require('../utils/logger');
 const { publishSyncInfo } = require('../graphql/subscriptions');
@@ -205,7 +206,10 @@ const startSync = async () => {
     await DBHelper.updateEventStatusOracleResultSetting(blockTime);
     await DBHelper.updateEventStatusOpenResultSetting(blockTime);
     await DBHelper.updateEventStatusArbitration(blockTime);
-    await DBHelper.updateEventStatusWithdrawing(blockTime);
+    // await DBHelper.updateEventStatusWithdrawing(blockTime);
+    syncPromises = [];
+    await updateEventStatusWithdrawingAndLeaderboard({ blockTime, syncPromises, limit });
+    await Promise.all(syncPromises);
 
     // Send syncInfo subscription message
     await publishSyncInfo(endBlock, blockTime);
