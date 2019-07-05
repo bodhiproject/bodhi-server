@@ -82,6 +82,7 @@ const pendingBetPlaced = async ({ syncPromises, limit }) => {
             if (foundLog) {
               const bet = parseBet({ log: foundLog });
               await DBHelper.insertBet(bet);
+
               // Update event leaderboard investments
               const leaderboardEntry = new EventLeaderboard({
                 eventAddress: bet.eventAddress,

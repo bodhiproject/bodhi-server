@@ -28,15 +28,15 @@ const getInvestments = async (txs) => {
 
 const updateLeaderboardWithdrawing = async (syncPromises, events, limit) => {
   each(events, async (event) => {
-    syncPromises.push(limit(async () => {
+    syncPromises.push(limit(async (eventObj) => {
       try {
         // get all the participants
         const bets = await DBHelper.findBet({
-          eventAddress: event.address,
+          eventAddress: eventObj.address,
           txStatus: TX_STATUS.SUCCESS,
         });
         const resultSets = await DBHelper.findResultSet({
-          eventAddress: event.address,
+          eventAddress: eventObj.address,
           txStatus: TX_STATUS.SUCCESS,
           eventRound: 0,
         });
@@ -59,27 +59,27 @@ const updateLeaderboardWithdrawing = async (syncPromises, events, limit) => {
               const { eventAddress, betterAddress, resultIndex, centralizedOracleAddress } = tx;
               const userAddress = betterAddress || centralizedOracleAddress;
               // calculate winning for this user in this event
-              let winning = '0';
-              if (resultIndex === event.currentResultIndex) {
+              let winnings = '0';
+              if (resultIndex === eventObj.currentResultIndex) {
                 const res = await MultipleResultsEventApi.calculateWinnings({
                   eventAddress,
                   address: userAddress,
                 });
-                winning = res.toString(10);
+                winnings = res.toString(10);
               }
               // update event leaderboard winnings
               const eventLeaderboardEntry = new EventLeaderboard({
                 eventAddress,
                 userAddress,
                 investments: '0', // event leaderboard entry already has user's investments
-                winnings: winning,
+                winnings,
               });
               await DBHelper.insertEventLeaderboard(eventLeaderboardEntry);
               // update global leaderboard investments, winnings
               const globalLeaderboard = new GlobalLeaderboard({
                 userAddress,
                 investments: investments[userAddress],
-                winnings: winning,
+                winnings,
               });
               await DBHelper.insertGlobalLeaderboard(globalLeaderboard);
               resolve();
@@ -93,20 +93,19 @@ const updateLeaderboardWithdrawing = async (syncPromises, events, limit) => {
         logger.error(`UPDATE leaderboard when withdrawing status changed error: ${err.message}`);
         throw err;
       }
-    }));
+    }, event));
   });
 };
 
-const updateEventStatusWithdrawingAndLeaderboard = async (
-  { blockTime, syncPromises, limit },
+const updateLeaderboard = async (
+  { events, syncPromises, limit },
 ) => {
   try {
-    const updatedEvents = await DBHelper.updateEventStatusWithdrawing(blockTime);
-    await updateLeaderboardWithdrawing(syncPromises, updatedEvents[1], limit);
+    await updateLeaderboardWithdrawing(syncPromises, events[1], limit);
   } catch (err) {
     logger.error('Error event status withdrawing changed');
     throw err;
   }
 };
 
-module.exports = updateEventStatusWithdrawingAndLeaderboard;
+module.exports = updateLeaderboard;
