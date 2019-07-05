@@ -239,9 +239,28 @@ type PaginatedBiggestWinner {
   items: [BiggestWinner]!
 }
 
+type Leaderboard {
+  eventAddress: String
+  userAddress: String!
+  investments: String!
+  winnings: String!
+  returnRatio: String!
+}
+
+type PaginatedLeaderboard {
+  totalCount: Int!
+  pageInfo: PageInfo
+  items: [Leaderboard]!
+}
+
 input Order {
   field: String!
   direction: OrderDirection!
+}
+
+input LeaderboardFilter {
+  userAddress: String
+  eventAddress: String
 }
 
 input EventFilter {
@@ -398,6 +417,20 @@ type Query {
     limit: Int
     skip: Int
   ): PaginatedBiggestWinner!
+
+  eventLeaderboard(
+    filter: LeaderboardFilter
+    orderBy: [Order!]
+    limit: Int
+    skip: Int
+  ): PaginatedLeaderboard!
+
+  globalLeaderboard(
+    filter: LeaderboardFilter
+    orderBy: [Order!]
+    limit: Int
+    skip: Int
+  ): PaginatedLeaderboard!
 }
 
 type Mutation {
