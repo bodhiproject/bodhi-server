@@ -98,10 +98,10 @@ const updateLeaderboardWithdrawing = async (syncPromises, events, limit) => {
 };
 
 const updateLeaderboard = async (
-  { events, syncPromises, limit },
+  { newWithdrawEvents, syncPromises, limit },
 ) => {
   try {
-    await updateLeaderboardWithdrawing(syncPromises, events[1], limit);
+    await updateLeaderboardWithdrawing(syncPromises, newWithdrawEvents[1], limit);
   } catch (err) {
     logger.error('Error event status withdrawing changed');
     throw err;
