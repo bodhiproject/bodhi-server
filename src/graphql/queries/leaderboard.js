@@ -11,7 +11,7 @@ const buildFilters = ({
   const filters = [];
   const filter = {};
   if (eventAddress) filter.eventAddress = eventAddress;
-  if (userAddress) filter.betterAddress = userAddress;
+  if (userAddress) filter.userAddress = userAddress;
 
   filters.push(filter);
   return filters;
