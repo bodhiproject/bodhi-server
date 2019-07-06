@@ -5,6 +5,7 @@ const {
   PAGINATED_BETS,
   PAGINATED_RESULT_SETS,
   PAGINATED_WITHDRAWS,
+  PAGINATED_LEADERBOARD,
 } = require('./schema-helper');
 const schema = require('../../src/graphql/schema');
 
@@ -441,6 +442,82 @@ describe('graphql/queries', () => {
         query {
           withdraws(filter: { winnerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428" }) {
             ${PAGINATED_WITHDRAWS}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+  });
+
+  describe('eventLeaderboard', () => {
+    it('should return the query', async () => {
+      const valid = `
+        query {
+          eventLeaderboard(filter: {
+            userAddress:"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a",
+            eventAddress:"0x09645ea6e4e1f5375f7596b73b3b597e6507201a"
+          }) {
+            ${PAGINATED_LEADERBOARD}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the eventAddress filter', async () => {
+      const valid = `
+        query {
+          eventLeaderboard(filter: { eventAddress: "0x09645ea6e4e1f5375f7596b73b3b597e6507201a" }) {
+            ${PAGINATED_LEADERBOARD}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the userAddress filter', async () => {
+      const valid = `
+        query {
+          eventLeaderboard(filter: { userAddress:"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a" }) {
+            ${PAGINATED_LEADERBOARD}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+  });
+
+  describe('globalLeaderboard', () => {
+    it('should return the query', async () => {
+      const valid = `
+        query {
+          globalLeaderboard(filter: {
+            userAddress:"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a",
+            eventAddress:"0x09645ea6e4e1f5375f7596b73b3b597e6507201a"
+          }) {
+            ${PAGINATED_LEADERBOARD}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the eventAddress filter', async () => {
+      const valid = `
+        query {
+          globalLeaderboard(filter: { eventAddress: "0x09645ea6e4e1f5375f7596b73b3b597e6507201a" }) {
+            ${PAGINATED_LEADERBOARD}
+          }
+        }
+      `;
+      tester.test(true, valid);
+    });
+
+    it('should accept the userAddress filter', async () => {
+      const valid = `
+        query {
+          globalLeaderboard(filter: { userAddress:"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a" }) {
+            ${PAGINATED_LEADERBOARD}
           }
         }
       `;

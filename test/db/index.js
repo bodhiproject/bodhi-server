@@ -1771,6 +1771,384 @@ describe('db', () => {
     });
   });
 
+  /* EventLeaderboard */
+  describe('test EventLeaderboard db', () => {
+    const mockEventLeaderboard = [
+      {
+        eventAddress: '0x09645ea6e4e1f5375f7596b73b3b597e6507201a',
+        userAddress: '0x939592864c0bd3355b2d54e4fa2203e8343b6d6a',
+        investments: '1000000000',
+        winnings: '1000000000',
+        returnRatio: '1',
+      },
+      {
+        eventAddress: '0x09645ea6e4e1f5375f7596b73b3b597e6507201a',
+        userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
+        investments: '5000000',
+        winnings: '5000000',
+        returnRatio: '1',
+      },
+      {
+        eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
+        userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
+        investments: '2000000',
+        winnings: '0',
+        returnRatio: '0',
+      },
+    ];
+    let eventLeaderboardEntry;
+    let eventLeaderboardEntryCount;
+
+    describe('findEventLeaderboard', () => {
+      it('find empty withdraw db', async () => {
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(0);
+        eventLeaderboardEntry = await DBHelper.findEventLeaderboard({});
+        eventLeaderboardEntry.length.should.equal(0);
+      });
+
+      it('should return existing entries if passing sort', async () => {
+        await DBHelper.insertEventLeaderboard(mockEventLeaderboard[0]);
+        await DBHelper.insertEventLeaderboard(mockEventLeaderboard[1]);
+        const foundEventLeaderboardEntry = await DBHelper.findEventLeaderboard({}, { investments: -1 });
+        foundEventLeaderboardEntry.length.should.equal(2);
+        expect(foundEventLeaderboardEntry[0]).excluding('_id').to.deep.equal(mockEventLeaderboard[1]);
+        expect(foundEventLeaderboardEntry[1]).excluding('_id').to.deep.equal(mockEventLeaderboard[0]);
+      });
+
+      it('should return existing entries if not passing sort', async () => {
+        const foundEventLeaderboardEntry = await DBHelper.findEventLeaderboard({ userAddress: mockEventLeaderboard[0].userAddress });
+        foundEventLeaderboardEntry.length.should.equal(1);
+        expect(foundEventLeaderboardEntry[0]).excluding('_id').to.deep.equal(mockEventLeaderboard[0]);
+      });
+    });
+
+    describe('find one entry', () => {
+      it('find existed entry', async () => {
+        eventLeaderboardEntry = await DBHelper.findOneEventLeaderboard({
+          userAddress: mockEventLeaderboard[0].userAddress,
+          eventAddress: mockEventLeaderboard[0].eventAddress,
+        });
+        should.exist(eventLeaderboardEntry);
+        expect(eventLeaderboardEntry).excluding('_id').to.deep.equal(mockEventLeaderboard[0]);
+      });
+
+      it('should find null when txid is not existed', async () => {
+        eventLeaderboardEntry = await DBHelper.findOneEventLeaderboard({ eventAddress: '0x12333' });
+        should.not.exist(eventLeaderboardEntry);
+      });
+    });
+
+    describe('count eventLeaderboard', () => {
+      it('eventLeaderboard counts should be right', async () => {
+        eventLeaderboardEntryCount = await DBHelper.countEventLeaderboard({});
+        eventLeaderboardEntryCount.should.equal(2);
+      });
+    });
+
+    describe('insert eventLeaderboard', () => {
+      it('should insert new eventLeaderboard', async () => {
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(2);
+        await DBHelper.insertEventLeaderboard(mockEventLeaderboard[2]);
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(3);
+        eventLeaderboardEntry = await DBHelper.findOneEventLeaderboard({
+          userAddress: mockEventLeaderboard[2].userAddress,
+          eventAddress: mockEventLeaderboard[2].eventAddress,
+        });
+        should.exist(eventLeaderboardEntry);
+        expect(eventLeaderboardEntry).excluding('_id').to.deep.equal(mockEventLeaderboard[2]);
+      });
+
+      it('should update investment if insert existed entry', async () => {
+        const newEntry = {
+          eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
+          investments: '2000000',
+          winnings: '0',
+          returnRatio: '0',
+        };
+        const expectedEntry = {
+          eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
+          investments: '4000000',
+          winnings: '0',
+          returnRatio: '0',
+        };
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(3);
+        await DBHelper.insertEventLeaderboard(newEntry);
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(3);
+        eventLeaderboardEntry = await DBHelper.findOneEventLeaderboard({
+          userAddress: newEntry.userAddress,
+          eventAddress: newEntry.eventAddress,
+        });
+        should.exist(eventLeaderboardEntry);
+        expect(eventLeaderboardEntry).excluding(['_id']).to.deep.equal(expectedEntry);
+      });
+
+      it('should update winnings if insert existed entry', async () => {
+        const newEntry = {
+          eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
+          investments: '0',
+          winnings: '2000000',
+          returnRatio: '0',
+        };
+        const expectedEntry = {
+          eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
+          investments: '4000000',
+          winnings: '2000000',
+          returnRatio: '0.5',
+        };
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(3);
+        await DBHelper.insertEventLeaderboard(newEntry);
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(3);
+        eventLeaderboardEntry = await DBHelper.findOneEventLeaderboard({
+          userAddress: newEntry.userAddress,
+          eventAddress: newEntry.eventAddress,
+        });
+        should.exist(eventLeaderboardEntry);
+        expect(eventLeaderboardEntry).excluding(['_id']).to.deep.equal(expectedEntry);
+      });
+    });
+
+    describe('update eventLeaderboard', () => {
+      it('should update eventLeaderboard when txid is existed', async () => {
+        const newEntry = {
+          eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
+          investments: '0',
+          winnings: '2000000',
+          returnRatio: '0',
+        };
+        eventLeaderboardEntry = await DBHelper.findOneEventLeaderboard({
+          userAddress: mockEventLeaderboard[2].userAddress,
+          eventAddress: mockEventLeaderboard[2].eventAddress,
+        });
+        expect(eventLeaderboardEntry).excluding(['_id']).to.deep.not.equal(newEntry);
+        await DBHelper.updateEventLeaderboard(newEntry);
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(3);
+        eventLeaderboardEntry = await DBHelper.findOneEventLeaderboard({
+          userAddress: mockEventLeaderboard[2].userAddress,
+          eventAddress: mockEventLeaderboard[2].eventAddress,
+        });
+        should.exist(eventLeaderboardEntry);
+        expect(eventLeaderboardEntry).excluding(['_id']).to.deep.equal(newEntry);
+      });
+
+      it('should not update withdraw when eventAddress is not existed', async () => {
+        const newEntry = {
+          eventAddress: '0x12345',
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
+          investments: '0',
+          winnings: '2000000',
+          returnRatio: '0',
+        };
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(3);
+        await DBHelper.updateEventLeaderboard(newEntry);
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(3);
+        eventLeaderboardEntry = await DBHelper.findOneEventLeaderboard({
+          userAddress: newEntry.userAddress,
+          eventAddress: newEntry.eventAddress,
+        });
+        should.not.exist(eventLeaderboardEntry);
+      });
+
+      it('should not update withdraw when userAddress is not existed', async () => {
+        const newEntry = {
+          eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
+          userAddress: '0x12345',
+          investments: '0',
+          winnings: '2000000',
+          returnRatio: '0',
+        };
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(3);
+        await DBHelper.updateEventLeaderboard(newEntry);
+        eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
+        eventLeaderboardEntryCount.should.equal(3);
+        eventLeaderboardEntry = await DBHelper.findOneEventLeaderboard({
+          userAddress: newEntry.userAddress,
+          eventAddress: newEntry.eventAddress,
+        });
+        should.not.exist(eventLeaderboardEntry);
+      });
+    });
+  });
+
+  /* GlobalLeaderboard */
+  describe('test GlobalLeaderboard db', () => {
+    const mockGlobalLeaderboard = [
+      {
+        userAddress: '0x939592864c0bd3355b2d54e4fa2203e8343b6d6a',
+        investments: '1000000000',
+        winnings: '1000000000',
+        returnRatio: '1',
+      },
+      {
+        userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
+        investments: '5000000',
+        winnings: '5000000',
+        returnRatio: '1',
+      },
+      {
+        userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
+        investments: '2000000',
+        winnings: '0',
+        returnRatio: '0',
+      },
+    ];
+    let globalLeaderboardEntry;
+    let globalLeaderboardEntryCount;
+
+    describe('findGlobalLeaderboard', () => {
+      it('find empty globalLeaderboard db', async () => {
+        globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
+        globalLeaderboardEntryCount.should.equal(0);
+        globalLeaderboardEntry = await DBHelper.findGlobalLeaderboard({});
+        globalLeaderboardEntry.length.should.equal(0);
+      });
+
+      it('should return existing entries if passing sort', async () => {
+        await DBHelper.insertGlobalLeaderboard(mockGlobalLeaderboard[0]);
+        await DBHelper.insertGlobalLeaderboard(mockGlobalLeaderboard[1]);
+        const foundGlobalLeaderboardEntry = await DBHelper.findGlobalLeaderboard({}, { investments: -1 });
+        foundGlobalLeaderboardEntry.length.should.equal(2);
+        expect(foundGlobalLeaderboardEntry[0]).excluding('_id').to.deep.equal(mockGlobalLeaderboard[1]);
+        expect(foundGlobalLeaderboardEntry[1]).excluding('_id').to.deep.equal(mockGlobalLeaderboard[0]);
+      });
+
+      it('should return existing entries if not passing sort', async () => {
+        const foundGlobalLeaderboardEntry = await DBHelper.findGlobalLeaderboard({ userAddress: mockGlobalLeaderboard[0].userAddress });
+        foundGlobalLeaderboardEntry.length.should.equal(1);
+        expect(foundGlobalLeaderboardEntry[0]).excluding('_id').to.deep.equal(mockGlobalLeaderboard[0]);
+      });
+    });
+
+    describe('find one entry', () => {
+      it('find existed entry', async () => {
+        globalLeaderboardEntry = await DBHelper.findOneGlobalLeaderboard({ userAddress: mockGlobalLeaderboard[0].userAddress });
+        should.exist(globalLeaderboardEntry);
+        expect(globalLeaderboardEntry).excluding('_id').to.deep.equal(mockGlobalLeaderboard[0]);
+      });
+
+      it('should find null when txid is not existed', async () => {
+        globalLeaderboardEntry = await DBHelper.findOneGlobalLeaderboard({ userAddress: '0x123' });
+        should.not.exist(globalLeaderboardEntry);
+      });
+    });
+
+    describe('count globalLeaderboard', () => {
+      it('globalLeaderboard counts should be right', async () => {
+        globalLeaderboardEntryCount = await DBHelper.countGlobalLeaderboard({});
+        globalLeaderboardEntryCount.should.equal(2);
+      });
+    });
+
+    describe('insert globalLeaderboard', () => {
+      it('should insert new globalLeaderboard', async () => {
+        globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
+        globalLeaderboardEntryCount.should.equal(2);
+        await DBHelper.insertGlobalLeaderboard(mockGlobalLeaderboard[2]);
+        globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
+        globalLeaderboardEntryCount.should.equal(3);
+        globalLeaderboardEntry = await DBHelper.findOneGlobalLeaderboard({ userAddress: mockGlobalLeaderboard[2].userAddress });
+        should.exist(globalLeaderboardEntry);
+        expect(globalLeaderboardEntry).excluding('_id').to.deep.equal(mockGlobalLeaderboard[2]);
+      });
+
+      it('should update investment if insert existed entry', async () => {
+        const newEntry = {
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
+          investments: '2000000',
+          winnings: '0',
+          returnRatio: '0',
+        };
+        const expectedEntry = {
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
+          investments: '4000000',
+          winnings: '0',
+          returnRatio: '0',
+        };
+        globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
+        globalLeaderboardEntryCount.should.equal(3);
+        await DBHelper.insertGlobalLeaderboard(newEntry);
+        globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
+        globalLeaderboardEntryCount.should.equal(3);
+        globalLeaderboardEntry = await DBHelper.findOneGlobalLeaderboard({ userAddress: newEntry.userAddress });
+        should.exist(globalLeaderboardEntry);
+        expect(globalLeaderboardEntry).excluding(['_id']).to.deep.equal(expectedEntry);
+      });
+
+      it('should update winnings if insert existed entry', async () => {
+        const newEntry = {
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
+          investments: '0',
+          winnings: '2000000',
+          returnRatio: '0',
+        };
+        const expectedEntry = {
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
+          investments: '4000000',
+          winnings: '2000000',
+          returnRatio: '0.5',
+        };
+        globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
+        globalLeaderboardEntryCount.should.equal(3);
+        await DBHelper.insertGlobalLeaderboard(newEntry);
+        globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
+        globalLeaderboardEntryCount.should.equal(3);
+        globalLeaderboardEntry = await DBHelper.findOneGlobalLeaderboard({ userAddress: newEntry.userAddress });
+        should.exist(globalLeaderboardEntry);
+        expect(globalLeaderboardEntry).excluding(['_id']).to.deep.equal(expectedEntry);
+      });
+    });
+
+    describe('update globalLeaderboard', () => {
+      it('should update globalLeaderboard when userAddress is existed', async () => {
+        const newEntry = {
+          userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
+          investments: '0',
+          winnings: '2000000',
+          returnRatio: '0',
+        };
+        globalLeaderboardEntry = await DBHelper.findOneGlobalLeaderboard({ userAddress: mockGlobalLeaderboard[2].userAddress });
+        expect(globalLeaderboardEntry).excluding(['_id']).to.deep.not.equal(newEntry);
+        await DBHelper.updateGlobalLeaderboard(newEntry);
+        globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
+        globalLeaderboardEntryCount.should.equal(3);
+        globalLeaderboardEntry = await DBHelper.findOneGlobalLeaderboard({ userAddress: mockGlobalLeaderboard[2].userAddress });
+        should.exist(globalLeaderboardEntry);
+        expect(globalLeaderboardEntry).excluding(['_id']).to.deep.equal(newEntry);
+      });
+
+      it('should not update withdraw when userAddress is not existed', async () => {
+        const newEntry = {
+          userAddress: '0x12345',
+          investments: '0',
+          winnings: '2000000',
+          returnRatio: '0',
+        };
+        globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
+        globalLeaderboardEntryCount.should.equal(3);
+        await DBHelper.updateGlobalLeaderboard(newEntry);
+        globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
+        globalLeaderboardEntryCount.should.equal(3);
+        globalLeaderboardEntry = await DBHelper.findOneGlobalLeaderboard({ userAddress: newEntry.userAddress });
+        should.not.exist(globalLeaderboardEntry);
+      });
+    });
+  });
+
   after(async () => {
     fs.removeSync(getDbDir());
   });
