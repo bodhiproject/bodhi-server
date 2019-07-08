@@ -19,6 +19,6 @@ module.exports = class GlobalLeaderboard {
     this.investments = params.investments;
     this.winnings = params.winnings;
     const ratio = new BigNumber(this.winnings).dividedBy(new BigNumber(this.investments));
-    this.returnRatio = ratio.toString();
+    this.returnRatio = ratio.toNumber();
   }
 };

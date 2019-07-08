@@ -6,7 +6,7 @@ const buildFilters = ({
   eventAddress,
 } = {}) => {
   if (!eventAddress && !userAddress) {
-    throw Error('eventAddress or userAddress missing in filters');
+    throw Error('eventAddress and/or userAddress missing in filters');
   }
   const filters = [];
   const filter = {};
@@ -17,7 +17,7 @@ const buildFilters = ({
   return filters;
 };
 
-const eventLeaderboard = async (
+const eventLeaderboardEntries = async (
   root,
   { filter, orderBy, limit, skip },
   { db: { EventLeaderboard } },
@@ -32,7 +32,7 @@ const eventLeaderboard = async (
   });
 };
 
-const globalLeaderboard = async (
+const globalLeaderboardEntries = async (
   root,
   { filter, orderBy, limit, skip },
   { db: { GlobalLeaderboard } },
@@ -48,6 +48,6 @@ const globalLeaderboard = async (
 };
 
 module.exports = {
-  eventLeaderboard,
-  globalLeaderboard,
+  eventLeaderboardEntries,
+  globalLeaderboardEntries,
 };

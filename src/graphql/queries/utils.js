@@ -27,6 +27,7 @@ const lowercaseFilters = (filters) => {
     'centralizedOracleAddress',
     'winnerAddress',
     'transactorAddress',
+    'userAddress',
   ];
 
   // Loop through each filter
