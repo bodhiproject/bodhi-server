@@ -1779,21 +1779,21 @@ describe('db', () => {
         userAddress: '0x939592864c0bd3355b2d54e4fa2203e8343b6d6a',
         investments: '1000000000',
         winnings: '1000000000',
-        returnRatio: '1',
+        returnRatio: 1,
       },
       {
         eventAddress: '0x09645ea6e4e1f5375f7596b73b3b597e6507201a',
         userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
         investments: '5000000',
         winnings: '5000000',
-        returnRatio: '1',
+        returnRatio: 1,
       },
       {
         eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
         userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
         investments: '2000000',
         winnings: '0',
-        returnRatio: '0',
+        returnRatio: 0,
       },
     ];
     let eventLeaderboardEntry;
@@ -1867,14 +1867,14 @@ describe('db', () => {
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
           investments: '2000000',
           winnings: '0',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         const expectedEntry = {
           eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
           investments: '4000000',
           winnings: '0',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
         eventLeaderboardEntryCount.should.equal(3);
@@ -1895,14 +1895,14 @@ describe('db', () => {
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
           investments: '0',
           winnings: '2000000',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         const expectedEntry = {
           eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
           investments: '4000000',
           winnings: '2000000',
-          returnRatio: '0.5',
+          returnRatio: 0.5,
         };
         eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
         eventLeaderboardEntryCount.should.equal(3);
@@ -1925,7 +1925,7 @@ describe('db', () => {
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
           investments: '0',
           winnings: '2000000',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         eventLeaderboardEntry = await DBHelper.findOneEventLeaderboard({
           userAddress: mockEventLeaderboard[2].userAddress,
@@ -1949,7 +1949,7 @@ describe('db', () => {
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
           investments: '0',
           winnings: '2000000',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
         eventLeaderboardEntryCount.should.equal(3);
@@ -1969,7 +1969,7 @@ describe('db', () => {
           userAddress: '0x12345',
           investments: '0',
           winnings: '2000000',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
         eventLeaderboardEntryCount.should.equal(3);
@@ -1992,19 +1992,19 @@ describe('db', () => {
         userAddress: '0x939592864c0bd3355b2d54e4fa2203e8343b6d6a',
         investments: '1000000000',
         winnings: '1000000000',
-        returnRatio: '1',
+        returnRatio: 1,
       },
       {
         userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
         investments: '5000000',
         winnings: '5000000',
-        returnRatio: '1',
+        returnRatio: 1,
       },
       {
         userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
         investments: '2000000',
         winnings: '0',
-        returnRatio: '0',
+        returnRatio: 0,
       },
     ];
     let globalLeaderboardEntry;
@@ -2071,13 +2071,13 @@ describe('db', () => {
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
           investments: '2000000',
           winnings: '0',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         const expectedEntry = {
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
           investments: '4000000',
           winnings: '0',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
         globalLeaderboardEntryCount.should.equal(3);
@@ -2094,13 +2094,13 @@ describe('db', () => {
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
           investments: '0',
           winnings: '2000000',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         const expectedEntry = {
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
           investments: '4000000',
           winnings: '2000000',
-          returnRatio: '0.5',
+          returnRatio: 0.5,
         };
         globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
         globalLeaderboardEntryCount.should.equal(3);
@@ -2119,7 +2119,7 @@ describe('db', () => {
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e834111111',
           investments: '0',
           winnings: '2000000',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         globalLeaderboardEntry = await DBHelper.findOneGlobalLeaderboard({ userAddress: mockGlobalLeaderboard[2].userAddress });
         expect(globalLeaderboardEntry).excluding(['_id']).to.deep.not.equal(newEntry);
@@ -2136,7 +2136,7 @@ describe('db', () => {
           userAddress: '0x12345',
           investments: '0',
           winnings: '2000000',
-          returnRatio: '0',
+          returnRatio: 0,
         };
         globalLeaderboardEntryCount = await db.GlobalLeaderboard.count({});
         globalLeaderboardEntryCount.should.equal(3);

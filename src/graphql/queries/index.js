@@ -10,7 +10,7 @@ const allStats = require('./all-stats');
 const mostBets = require('./most-bets');
 const biggestWinners = require('./biggest-winners');
 const withdrawableEvents = require('./withdrawable-events');
-const { eventLeaderboard, globalLeaderboard } = require('./leaderboard');
+const { eventLeaderboardEntries, globalLeaderboardEntries } = require('./leaderboard');
 
 module.exports = {
   events,
@@ -25,6 +25,6 @@ module.exports = {
   mostBets,
   biggestWinners,
   withdrawableEvents,
-  eventLeaderboard,
-  globalLeaderboard,
+  eventLeaderboardEntries,
+  globalLeaderboardEntries,
 };
