@@ -1,4 +1,3 @@
-const { uniqBy } = require('lodash');
 const pLimit = require('p-limit');
 const async = require('async');
 const logger = require('../../utils/logger');
@@ -6,10 +5,11 @@ const DBHelper = require('../db-helper');
 const { TX_STATUS, EVENT_STATUS } = require('../../constants');
 const MultipleResultsEventApi = require('../../api/multiple-results-event');
 const EventLeaderboard = require('../../models/event-leaderboard');
+const GlobalLeaderboard = require('../../models/global-leaderboard');
 
 const PROMISE_CONCURRENCY_LIMIT = 15;
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
-async function helper (dbMethod, callback) {
+async function wrapper (dbMethod, callback) {
   await dbMethod();
   callback();
 }
@@ -35,7 +35,6 @@ async function migration2(next) {
           (next) => {
             const tx = txs[i];
             i++;
-
             try {
               const userAddress = tx.betterAddress || tx.centralizedOracleAddress;
               const eventLeaderboardEntry = new EventLeaderboard({
@@ -44,7 +43,18 @@ async function migration2(next) {
                 investments: tx.amount, // event leaderboard entry already has user's investments
                 winnings: '0',
               });
-              helper(() => DBHelper.insertEventLeaderboard(eventLeaderboardEntry),()=>next(null, i))
+              wrapper(async () => {
+                  await DBHelper.insertEventLeaderboard(eventLeaderboardEntry)
+                  if(event.status === EVENT_STATUS.WITHDRAWING) {
+                    const globalLeaderboardEntry = new GlobalLeaderboard({
+                      userAddress,
+                      investments: tx.amount,
+                      winnings: '0',
+                    })
+                    await DBHelper.insertGlobalLeaderboard(globalLeaderboardEntry)
+                  }
+                },
+                ()=>next(null, i))
             } catch (err) {
               next(err, i); // err met, trigger the callback to end this loop
             }
@@ -80,6 +90,12 @@ async function migration2(next) {
                 winnings,
               });
               await DBHelper.insertEventLeaderboard(eventLeaderboardEntry);
+              const globalLeaderboardEntry = new GlobalLeaderboard({
+                userAddress: address,
+                investments: '0',
+                winnings,
+              })
+              await DBHelper.insertGlobalLeaderboard(globalLeaderboardEntry)
             } catch (err) {
               logger.error('Migrate event leaderboard error:', err);
             }
