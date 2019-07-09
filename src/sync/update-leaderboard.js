@@ -88,7 +88,7 @@ const updateLeaderboardWithdrawing = async (syncPromises, events, limit) => {
             filtered.push(tx);
           }
         });
-        async.forEachOf(filtered, (value, key, callback) => {
+        async.eachOfSeries(filtered, (value, key, callback) => {
           try {
             const { eventAddress, betterAddress, centralizedOracleAddress } = value;
             const userAddress = betterAddress || centralizedOracleAddress;
