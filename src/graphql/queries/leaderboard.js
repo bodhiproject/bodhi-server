@@ -1,4 +1,5 @@
 const { isArray, each } = require('lodash');
+const BigNumber = require('bignumber.js');
 const { lowercaseFilters, runPaginatedQuery } = require('./utils');
 
 const buildFilters = ({
@@ -23,13 +24,20 @@ const eventLeaderboardEntries = async (
   { db: { EventLeaderboard } },
 ) => {
   const query = filter ? { $or: buildFilters(lowercaseFilters(filter)) } : {};
-  return runPaginatedQuery({
+  const res = await runPaginatedQuery({
     db: EventLeaderboard,
     filter: query,
     orderBy,
     limit,
     skip,
   });
+
+  if (orderBy && orderBy.length > 0) {
+    const { field } = orderBy[0];
+    res.items.sort((a, b) => new BigNumber(b[field]).comparedTo(new BigNumber(a[field]))); // all descending
+  }
+
+  return res;
 };
 
 const globalLeaderboardEntries = async (
@@ -38,13 +46,20 @@ const globalLeaderboardEntries = async (
   { db: { GlobalLeaderboard } },
 ) => {
   const query = filter ? { $or: buildFilters(lowercaseFilters(filter)) } : {};
-  return runPaginatedQuery({
+  const res = await runPaginatedQuery({
     db: GlobalLeaderboard,
     filter: query,
     orderBy,
     limit,
     skip,
   });
+
+  if (orderBy && orderBy.length > 0) {
+    const { field } = orderBy[0];
+    res.items.sort((a, b) => new BigNumber(b[field]).comparedTo(new BigNumber(a[field]))); // all descending
+  }
+
+  return res;
 };
 
 module.exports = {
