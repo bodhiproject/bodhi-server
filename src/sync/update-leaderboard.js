@@ -1,4 +1,5 @@
 const { each, isNull, find } = require('lodash');
+const async = require('async');
 const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
 const EventSig = require('../config/event-sig');
@@ -26,6 +27,42 @@ const getInvestments = async (txs) => {
   return accumulated;
 };
 
+const getWinnings = async (eventAddress, address, investments, callback) => {
+  try {
+    const res = await MultipleResultsEventApi.calculateWinnings({
+      eventAddress,
+      address,
+    });
+    const winnings = res.toString(10);
+    await insertLeaderboards(eventAddress, address, winnings, investments, callback);
+  } catch (err) {
+    throw err;
+  }
+};
+
+const insertLeaderboards = async (eventAddress, userAddress, winnings, investments, callback) => {
+  try {
+    // update event leaderboard winnings
+    const eventLeaderboardEntry = new EventLeaderboard({
+      eventAddress,
+      userAddress,
+      investments: '0', // event leaderboard entry already has user's investments
+      winnings,
+    });
+    await DBHelper.insertEventLeaderboard(eventLeaderboardEntry);
+    // update global leaderboard investments, winnings
+    const globalLeaderboard = new GlobalLeaderboard({
+      userAddress,
+      investments,
+      winnings,
+    });
+    await DBHelper.insertGlobalLeaderboard(globalLeaderboard);
+    callback();
+  } catch (err) {
+    throw err;
+  }
+};
+
 const updateLeaderboardWithdrawing = async (syncPromises, events, limit) => {
   each(events, async (event) => {
     syncPromises.push(limit(async (eventObj) => {
@@ -51,44 +88,21 @@ const updateLeaderboardWithdrawing = async (syncPromises, events, limit) => {
             filtered.push(tx);
           }
         });
-        // calculate winnings for all participants
-        const promises = [];
-        each(filtered, (tx) => {
-          promises.push(new Promise(async (resolve, reject) => {
-            try {
-              const { eventAddress, betterAddress, resultIndex, centralizedOracleAddress } = tx;
-              const userAddress = betterAddress || centralizedOracleAddress;
-              // calculate winning for this user in this event
-              let winnings = '0';
-              if (resultIndex === eventObj.currentResultIndex) {
-                const res = await MultipleResultsEventApi.calculateWinnings({
-                  eventAddress,
-                  address: userAddress,
-                });
-                winnings = res.toString(10);
-              }
-              // update event leaderboard winnings
-              const eventLeaderboardEntry = new EventLeaderboard({
-                eventAddress,
-                userAddress,
-                investments: '0', // event leaderboard entry already has user's investments
-                winnings,
-              });
-              await DBHelper.insertEventLeaderboard(eventLeaderboardEntry);
-              // update global leaderboard investments, winnings
-              const globalLeaderboard = new GlobalLeaderboard({
-                userAddress,
-                investments: investments[userAddress],
-                winnings,
-              });
-              await DBHelper.insertGlobalLeaderboard(globalLeaderboard);
-              resolve();
-            } catch (err) {
-              reject(err);
-            }
-          }));
+        async.forEachOf(filtered, (value, key, callback) => {
+          try {
+            const { eventAddress, betterAddress, centralizedOracleAddress } = value;
+            const userAddress = betterAddress || centralizedOracleAddress;
+            // calculate winning for this user in this event
+            getWinnings(eventAddress, userAddress, investments[userAddress], callback);
+          } catch (err) {
+            callback(err);
+          }
+        }, (err) => {
+          if (err) {
+            logger.error(err.message);
+            throw err;
+          }
         });
-        await Promise.all(promises);
       } catch (err) {
         logger.error(`UPDATE leaderboard when withdrawing status changed error: ${err.message}`);
         throw err;
