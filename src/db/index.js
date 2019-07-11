@@ -15,6 +15,7 @@ const db = {
   TransactionReceipts: undefined,
   GlobalLeaderboard: undefined,
   EventLeaderboard: undefined,
+  Names: undefined,
 };
 
 /**
@@ -32,6 +33,7 @@ const initDB = async () => {
   db.TransactionReceipts = datastore({ filename: `${dbDir}/transactionreceipts.db` });
   db.GlobalLeaderboard = datastore({ filename: `${dbDir}/globalleaderboard.db` });
   db.EventLeaderboard = datastore({ filename: `${dbDir}/eventleaderboard.db` });
+  db.Names = datastore({ filename: `${dbDir}/names.db` });
 
   try {
     await Promise.all([
@@ -43,6 +45,7 @@ const initDB = async () => {
       db.TransactionReceipts.loadDatabase(),
       db.GlobalLeaderboard.loadDatabase(),
       db.EventLeaderboard.loadDatabase(),
+      db.Names.loadDatabase(),
     ]);
 
     await db.Blocks.ensureIndex({ fieldName: 'blockNum', unique: true });
@@ -53,6 +56,7 @@ const initDB = async () => {
     await db.TransactionReceipts.ensureIndex({ fieldName: 'transactionHash' });
     await db.GlobalLeaderboard.ensureIndex({ fieldName: 'userAddress', unique: true });
     await db.EventLeaderboard.ensureIndex({ fieldName: 'eventAddress' });
+    await db.Names.ensureIndex({ fieldName: 'address', unique: true });
 
     if (process.env.TEST_ENV !== 'true') {
       await applyMigrations();

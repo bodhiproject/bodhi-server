@@ -21,9 +21,9 @@ module.exports = {
   getContract,
   async resolveAddress(args) {
     try {
-      let { addresses } = args;
-      if (isUndefined(addresses)) throw TypeError('addresses is not defined');
-      if(!isArray(addresses)) addresses = [addresses]
+      let addresses;
+      if (isUndefined(args)) throw TypeError('addresses is not defined');
+      if(!isArray(args)) addresses = [args]
       const ret = {};
       try {
         let i = 0;

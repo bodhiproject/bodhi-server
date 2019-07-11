@@ -87,6 +87,7 @@ type MultipleResultsEvent implements Transaction {
   block: Block
   address: String
   ownerAddress: String!
+  ownerName: String!
   version: Int
   name: String!
   results: [String!]!
@@ -133,6 +134,7 @@ type Bet implements Transaction {
   block: Block
   eventAddress: String!
   betterAddress: String!
+  betterName: String!
   resultIndex: Int!
   amount: String!
   eventRound: Int!
@@ -155,6 +157,7 @@ type ResultSet implements Transaction {
   block: Block
   eventAddress: String!
   centralizedOracleAddress: String
+  centralizedOracleName: String
   resultIndex: Int!
   amount: String!
   eventRound: Int!
@@ -179,6 +182,7 @@ type Withdraw implements Transaction {
   block: Block
   eventAddress: String!
   winnerAddress: String!
+  winnerName: String!
   winningAmount: String!
   escrowWithdrawAmount: String!
   eventName: String
