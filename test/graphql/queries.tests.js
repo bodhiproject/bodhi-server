@@ -453,7 +453,7 @@ describe('graphql/queries', () => {
     it('should return the query', async () => {
       const valid = `
         query {
-          eventLeaderboard(filter: {
+          eventLeaderboardEntries(filter: {
             userAddress:"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a",
             eventAddress:"0x09645ea6e4e1f5375f7596b73b3b597e6507201a"
           }) {
@@ -467,7 +467,7 @@ describe('graphql/queries', () => {
     it('should accept the eventAddress filter', async () => {
       const valid = `
         query {
-          eventLeaderboard(filter: { eventAddress: "0x09645ea6e4e1f5375f7596b73b3b597e6507201a" }) {
+          eventLeaderboardEntries(filter: { eventAddress: "0x09645ea6e4e1f5375f7596b73b3b597e6507201a" }) {
             ${PAGINATED_LEADERBOARD}
           }
         }
@@ -478,7 +478,7 @@ describe('graphql/queries', () => {
     it('should accept the userAddress filter', async () => {
       const valid = `
         query {
-          eventLeaderboard(filter: { userAddress:"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a" }) {
+          eventLeaderboardEntries(filter: { userAddress:"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a" }) {
             ${PAGINATED_LEADERBOARD}
           }
         }
@@ -491,7 +491,7 @@ describe('graphql/queries', () => {
     it('should return the query', async () => {
       const valid = `
         query {
-          globalLeaderboard(filter: {
+          globalLeaderboardEntries(filter: {
             userAddress:"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a",
             eventAddress:"0x09645ea6e4e1f5375f7596b73b3b597e6507201a"
           }) {
@@ -505,7 +505,7 @@ describe('graphql/queries', () => {
     it('should accept the eventAddress filter', async () => {
       const valid = `
         query {
-          globalLeaderboard(filter: { eventAddress: "0x09645ea6e4e1f5375f7596b73b3b597e6507201a" }) {
+          globalLeaderboardEntries(filter: { eventAddress: "0x09645ea6e4e1f5375f7596b73b3b597e6507201a" }) {
             ${PAGINATED_LEADERBOARD}
           }
         }
@@ -516,7 +516,7 @@ describe('graphql/queries', () => {
     it('should accept the userAddress filter', async () => {
       const valid = `
         query {
-          globalLeaderboard(filter: { userAddress:"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a" }) {
+          globalLeaderboardEntries(filter: { userAddress:"0x939592864c0bd3355b2d54e4fa2203e8343b6d6a" }) {
             ${PAGINATED_LEADERBOARD}
           }
         }
