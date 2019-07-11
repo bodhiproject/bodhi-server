@@ -10,11 +10,6 @@ const GlobalLeaderboard = require('../../models/global-leaderboard');
 const PROMISE_CONCURRENCY_LIMIT = 15;
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
 
-async function wrapper(dbMethod, callback) {
-  await dbMethod();
-  callback();
-}
-
 async function migration2(next) {
   try {
     // migrate event leaderboard
@@ -35,33 +30,24 @@ async function migration2(next) {
           let i = 0;
           await async.whilst(
             check => check(null, i < txs.length), // trigger iter
-            (next) => {
+            async () => {
               const tx = txs[i];
               i++;
-              try {
-                const userAddress = tx.betterAddress || tx.centralizedOracleAddress;
-                const eventLeaderboardEntry = new EventLeaderboard({
-                  eventAddress,
+              const userAddress = tx.betterAddress || tx.centralizedOracleAddress;
+              const eventLeaderboardEntry = new EventLeaderboard({
+                eventAddress,
+                userAddress,
+                investments: tx.amount,
+                winnings: '0',
+              });
+              await DBHelper.insertEventLeaderboard(eventLeaderboardEntry);
+              if (event.status === EVENT_STATUS.WITHDRAWING) {
+                const globalLeaderboardEntry = new GlobalLeaderboard({
                   userAddress,
                   investments: tx.amount,
                   winnings: '0',
                 });
-                wrapper(
-                  async () => {
-                    await DBHelper.insertEventLeaderboard(eventLeaderboardEntry);
-                    if (event.status === EVENT_STATUS.WITHDRAWING) {
-                      const globalLeaderboardEntry = new GlobalLeaderboard({
-                        userAddress,
-                        investments: tx.amount,
-                        winnings: '0',
-                      });
-                      await DBHelper.insertGlobalLeaderboard(globalLeaderboardEntry);
-                    }
-                  },
-                  () => next(null, i),
-                );
-              } catch (err) {
-                next(err, i); // err met, trigger the callback to end this loop
+                await DBHelper.insertGlobalLeaderboard(globalLeaderboardEntry);
               }
             },
           );
