@@ -5,6 +5,7 @@ const { BLOCKCHAIN_ENV } = require('../constants');
 const ConfigManager = require('./contracts/config-manager');
 const EventFactory = require('./contracts/event-factory');
 const MultipleResultsEvent = require('./contracts/multiple-results-event');
+const AddressNameSerive = require('./contracts/address-name-service');
 
 const CONFIG = {
   NETWORK: process.env.NETWORK,
@@ -148,6 +149,16 @@ const determineContractVersion = (blockNum) => {
 const getContractVersionEndBlock = version => versionConfig[version].endBlock;
 
 /**
+ * Gets the AddressNameService smart contract metadata based on version.
+ * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
+ * @return {Object} Contract metadata.
+ */
+const addressNameServiceMeta = (version) => {
+  if (!isNumber(version)) throw Error('Must supply a version number');
+  return AddressNameSerive[version];
+};
+
+/**
  * Gets the ConfigManager smart contract metadata based on version.
  * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
  * @return {Object} Contract metadata.
@@ -197,6 +208,7 @@ module.exports = {
   isMainnet,
   determineContractVersion,
   getContractVersionEndBlock,
+  addressNameServiceMeta,
   configManagerMeta,
   eventFactoryMeta,
   multipleResultsEventMeta,
