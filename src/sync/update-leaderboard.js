@@ -1,13 +1,9 @@
-const { each, isNull, find } = require('lodash');
+const { each, find } = require('lodash');
 const async = require('async');
 const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
-const EventSig = require('../config/event-sig');
-const { toLowerCase } = require('../utils');
-const { getTransactionReceipt } = require('../utils/web3-utils');
 const logger = require('../utils/logger');
 const DBHelper = require('../db/db-helper');
-const parseEvent = require('./parsers/multiple-results-event');
 const MultipleResultsEventApi = require('../api/multiple-results-event');
 const EventLeaderboard = require('../models/event-leaderboard');
 const GlobalLeaderboard = require('../models/global-leaderboard');
@@ -88,7 +84,7 @@ const updateLeaderboardWithdrawing = async (syncPromises, events, limit) => {
             filtered.push(tx);
           }
         });
-        async.eachOfSeries(filtered, (value, key, callback) => {
+        await async.eachOfSeries(filtered, (value, key, callback) => {
           try {
             const { eventAddress, betterAddress, centralizedOracleAddress } = value;
             const userAddress = betterAddress || centralizedOracleAddress;

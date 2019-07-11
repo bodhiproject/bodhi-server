@@ -1800,7 +1800,7 @@ describe('db', () => {
     let eventLeaderboardEntryCount;
 
     describe('findEventLeaderboard', () => {
-      it('find empty withdraw db', async () => {
+      it('find empty leaderboard db', async () => {
         eventLeaderboardEntryCount = await db.EventLeaderboard.count({});
         eventLeaderboardEntryCount.should.equal(0);
         eventLeaderboardEntry = await DBHelper.findEventLeaderboard({});
@@ -1943,7 +1943,7 @@ describe('db', () => {
         expect(eventLeaderboardEntry).excluding(['_id']).to.deep.equal(newEntry);
       });
 
-      it('should not update withdraw when eventAddress is not existed', async () => {
+      it('should not update leaderboard when eventAddress is not existed', async () => {
         const newEntry = {
           eventAddress: '0x12345',
           userAddress: '0x123456764c0bd3355b2d54e4fa2203e8343b6d6a',
@@ -1963,7 +1963,7 @@ describe('db', () => {
         should.not.exist(eventLeaderboardEntry);
       });
 
-      it('should not update withdraw when userAddress is not existed', async () => {
+      it('should not update leaderboard when userAddress is not existed', async () => {
         const newEntry = {
           eventAddress: '0x12345ea6e4e1f5375f7596b73b3b597e6507201a',
           userAddress: '0x12345',
@@ -2131,7 +2131,7 @@ describe('db', () => {
         expect(globalLeaderboardEntry).excluding(['_id']).to.deep.equal(newEntry);
       });
 
-      it('should not update withdraw when userAddress is not existed', async () => {
+      it('should not update leaderboard when userAddress is not existed', async () => {
         const newEntry = {
           userAddress: '0x12345',
           investments: '0',

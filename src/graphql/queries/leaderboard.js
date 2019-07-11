@@ -1,4 +1,3 @@
-const { isArray, each } = require('lodash');
 const BigNumber = require('bignumber.js');
 const { lowercaseFilters, runPaginatedQuery } = require('./utils');
 
@@ -34,7 +33,9 @@ const eventLeaderboardEntries = async (
 
   if (orderBy && orderBy.length > 0) {
     const { field } = orderBy[0];
-    res.items.sort((a, b) => new BigNumber(b[field]).comparedTo(new BigNumber(a[field]))); // all descending
+    if (field !== 'eventAddress' && field !== 'userAddress') {
+      res.items.sort((a, b) => new BigNumber(b[field]).comparedTo(new BigNumber(a[field]))); // all descending
+    }
   }
 
   return res;
@@ -56,7 +57,9 @@ const globalLeaderboardEntries = async (
 
   if (orderBy && orderBy.length > 0) {
     const { field } = orderBy[0];
-    res.items.sort((a, b) => new BigNumber(b[field]).comparedTo(new BigNumber(a[field]))); // all descending
+    if (field !== 'eventAddress' && field !== 'userAddress') {
+      res.items.sort((a, b) => new BigNumber(b[field]).comparedTo(new BigNumber(a[field]))); // all descending
+    }
   }
 
   return res;
