@@ -115,14 +115,12 @@ const initSync = () => {
 const getStartBlock = async () => {
   let start;
 
-  // Tries to get start block from start block file
-  start = readStartBlockFile();
-  if (start) return start;
-
   const blocks = await DBHelper.findLatestBlock();
   if (blocks.length > 0) {
-    // Blocks found in DB, use the last synced block as start
-    start = blocks[0].blockNum + 1;
+    // Blocks found in DB. Use the highest block num minus the block batch count.
+    // We need to reparse the previously parsed blocks because the blocks are added
+    // async and there may be blocks missing in the middle.
+    start = blocks[0].blockNum - BLOCK_BATCH_COUNT;
   } else {
     // No blocks found in DB, use earliest version's deploy block
     const contractMeta = eventFactoryMeta(6);
