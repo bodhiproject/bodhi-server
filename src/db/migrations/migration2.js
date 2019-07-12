@@ -1,5 +1,5 @@
 const pLimit = require('p-limit');
-const async = require('async');
+const { whilst, eachOfSeries } = require('async');
 const logger = require('../../utils/logger');
 const DBHelper = require('../db-helper');
 const { TX_STATUS, EVENT_STATUS } = require('../../constants');
@@ -28,7 +28,7 @@ async function migration2(next) {
 
         try {
           let i = 0;
-          await async.whilst(
+          await whilst(
             check => check(null, i < txs.length), // trigger iter
             async () => {
               const tx = txs[i];
@@ -64,7 +64,7 @@ async function migration2(next) {
             if (tx.betterAddress) addresses.add(tx.betterAddress);
             if (tx.centralizedOracleAddress) addresses.add(tx.centralizedOracleAddress);
           });
-          async.eachOfSeries(addresses, async (address, index) => {
+          await eachOfSeries(addresses, async (address, index) => {
             try {
               // calculate winning for this user in this event
               const res = await MultipleResultsEventApi.calculateWinnings({
@@ -88,6 +88,7 @@ async function migration2(next) {
               await DBHelper.insertGlobalLeaderboard(globalLeaderboardEntry);
             } catch (err) {
               logger.error('Migrate event leaderboard error:', err);
+              throw err;
             }
           });
         }
