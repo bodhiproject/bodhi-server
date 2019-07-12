@@ -32,20 +32,6 @@ let syncPromises = [];
 let startBlock;
 
 /**
- * Sets up event signal handlers for when the sync is stopped.
- */
-const setupSignalHandler = () => {
-  const onShutdown = () => {
-    writeStartBlockFile();
-    process.exit(0);
-  };
-
-  process
-    .on('SIGINT', () => onShutdown())
-    .on('SIGTERM', () => onShutdown());
-};
-
-/**
  * Event listener for websocket connected.
  */
 const onWebsocketConnected = () => {
@@ -57,7 +43,6 @@ const onWebsocketConnected = () => {
  */
 const onWebsocketDisconnected = () => {
   wsConnected = false;
-  writeStartBlockFile();
 };
 
 /**
@@ -72,7 +57,6 @@ const registerListeners = () => {
  * Initial setup before starting the sync.
  */
 const initSync = () => {
-  setupSignalHandler();
   registerListeners();
 };
 
@@ -187,7 +171,6 @@ const startSync = async () => {
 
     delayThenSync(SYNC_START_DELAY);
   } catch (err) {
-    writeStartBlockFile();
     throw err;
   }
 };
