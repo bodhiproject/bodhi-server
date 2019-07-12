@@ -8,6 +8,7 @@ const { getTransactionReceipt } = require('../utils/web3-utils');
 const DBHelper = require('../db/db-helper');
 const EventSig = require('../config/event-sig');
 const parseResultSet = require('./parsers/result-set');
+const EventLeaderboard = require('../models/event-leaderboard');
 
 const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
   try {
@@ -34,6 +35,15 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
 
           // Update event
           await updateEvent(resultSet);
+
+          // Update event leaderboard investments
+          const leaderboardEntry = new EventLeaderboard({
+            eventAddress: resultSet.eventAddress,
+            userAddress: resultSet.centralizedOracleAddress,
+            investments: resultSet.amount,
+            winnings: '0',
+          });
+          await DBHelper.insertEventLeaderboard(leaderboardEntry);
         } catch (insertErr) {
           logger.error('Error syncResultSet parse');
           throw insertErr;
@@ -79,6 +89,15 @@ const pendingResultSet = async ({ syncPromises, limit }) => {
 
               // Update event
               await updateEvent(resultSet);
+
+              // Update event leaderboard investments
+              const leaderboardEntry = new EventLeaderboard({
+                eventAddress: resultSet.eventAddress,
+                userAddress: resultSet.centralizedOracleAddress,
+                investments: resultSet.amount,
+                winnings: '0',
+              });
+              await DBHelper.insertEventLeaderboard(leaderboardEntry);
             }
           } else {
             // Update result set with failed status

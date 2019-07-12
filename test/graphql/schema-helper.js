@@ -141,6 +141,22 @@ const PAGINATED_WITHDRAWS = `
   }
 `;
 
+const LEADERBOARD = `
+  eventAddress
+  userAddress
+  investments
+  winnings
+  returnRatio
+`;
+
+const PAGINATED_LEADERBOARD = `
+  totalCount
+  ${PAGE_INFO}
+  items {
+    ${LEADERBOARD}
+  }
+`;
+
 module.exports = {
   PAGE_INFO,
   BLOCK,
@@ -153,4 +169,5 @@ module.exports = {
   BET,
   RESULT_SET,
   WITHDRAW,
+  PAGINATED_LEADERBOARD,
 };

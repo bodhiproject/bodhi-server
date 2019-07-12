@@ -1,8 +1,12 @@
-const { isNull } = require('lodash');
+const { isNull, each, find } = require('lodash');
 const logger = require('../utils/logger');
 const { isDefined } = require('../utils');
+const { sumBN } = require('../utils/web3-utils');
 const { EVENT_STATUS, TX_STATUS } = require('../constants');
 const { db } = require('.');
+const web3 = require('../web3');
+const EventLeaderboard = require('../models/event-leaderboard');
+const GlobalLeaderboard = require('../models/global-leaderboard');
 
 module.exports = class DBHelper {
   /* Blocks */
@@ -241,7 +245,7 @@ module.exports = class DBHelper {
 
   static async updateEventStatusWithdrawing(currBlockTime) {
     try {
-      await db.Events.update(
+      const updatedEvents = await db.Events.update(
         {
           txStatus: TX_STATUS.SUCCESS,
           $not: { status: EVENT_STATUS.WITHDRAWING },
@@ -249,8 +253,12 @@ module.exports = class DBHelper {
           currentRound: { $gt: 0 },
         },
         { $set: { status: EVENT_STATUS.WITHDRAWING } },
-        { multi: true },
+        {
+          multi: true,
+          returnUpdatedDocs: true,
+        },
       );
+      return updatedEvents;
     } catch (err) {
       logger.error(`UPDATE Event Status Withdrawing error: ${err.message}`);
       throw err;
@@ -437,6 +445,137 @@ module.exports = class DBHelper {
       await db.Withdraws.update({ txid }, { $set: fields }, {});
     } catch (err) {
       logger.error(`UPDATE Withdraw error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* EventLeaderboard */
+  static async findEventLeaderboard(query, sort) {
+    try {
+      if (sort) return db.EventLeaderboard.cfind(query).sort(sort).exec();
+      return db.EventLeaderboard.find(query);
+    } catch (err) {
+      logger.error(`FIND EventLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async findOneEventLeaderboard(query) {
+    try {
+      return db.EventLeaderboard.findOne(query);
+    } catch (err) {
+      logger.error(`FINDONE EventLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async countEventLeaderboard(query) {
+    try {
+      return db.EventLeaderboard.count(query);
+    } catch (err) {
+      logger.error(`COUNT EventLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertEventLeaderboard(entry) {
+    try {
+      const existing = await DBHelper.findOneEventLeaderboard({
+        userAddress: entry.userAddress,
+        eventAddress: entry.eventAddress,
+      });
+      if (isNull(existing)) {
+        await db.EventLeaderboard.insert(entry);
+      } else {
+        const investments = sumBN(existing.investments, entry.investments).toString(10);
+        const winnings = sumBN(existing.winnings, entry.winnings).toString(10);
+        const newEntry = new EventLeaderboard({
+          userAddress: entry.userAddress,
+          eventAddress: entry.eventAddress,
+          investments,
+          winnings,
+        }); // make a new instance, ratio will be calculated in the model
+        await DBHelper.updateEventLeaderboard(newEntry);
+      }
+    } catch (err) {
+      logger.error(`INSERT EventLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateEventLeaderboard(entry) {
+    try {
+      await db.EventLeaderboard.update(
+        {
+          userAddress: entry.userAddress,
+          eventAddress: entry.eventAddress,
+        },
+        { $set: entry },
+      );
+    } catch (err) {
+      logger.error(`UPDATE EventLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* GlobalLeaderboard */
+  static async findGlobalLeaderboard(query, sort) {
+    try {
+      if (sort) return db.GlobalLeaderboard.cfind(query).sort(sort).exec();
+      return db.GlobalLeaderboard.find(query);
+    } catch (err) {
+      logger.error(`FIND GlobalLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async findOneGlobalLeaderboard(query) {
+    try {
+      return db.GlobalLeaderboard.findOne(query);
+    } catch (err) {
+      logger.error(`FINDONE GlobalLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async countGlobalLeaderboard(query) {
+    try {
+      return db.GlobalLeaderboard.count(query);
+    } catch (err) {
+      logger.error(`COUNT GlobalLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertGlobalLeaderboard(entry) {
+    try {
+      const existing = await DBHelper.findOneGlobalLeaderboard({ userAddress: entry.userAddress });
+      if (isNull(existing)) {
+        await db.GlobalLeaderboard.insert(entry);
+      } else {
+        const investments = sumBN(existing.investments, entry.investments).toString(10);
+        const winnings = sumBN(existing.winnings, entry.winnings).toString(10);
+        const newEntry = new GlobalLeaderboard({
+          userAddress: entry.userAddress,
+          investments,
+          winnings,
+        }); // make a new instance, ratio will be calculated in the model
+        await DBHelper.updateGlobalLeaderboard(newEntry);
+      }
+    } catch (err) {
+      logger.error(`INSERT GlobalLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async updateGlobalLeaderboard(entry) {
+    try {
+      await db.GlobalLeaderboard.update(
+        { userAddress: entry.userAddress },
+        { $set: entry },
+      );
+    } catch (err) {
+      logger.error(`UPDATE GlobalLeaderboard error: ${err.message}`);
       throw err;
     }
   }
