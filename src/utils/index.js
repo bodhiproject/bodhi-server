@@ -1,4 +1,4 @@
-const { find, isUndefined, isNull, isString, filter, isArray } = require('lodash');
+const { find, isUndefined, isNull, isString, forEach, isArray } = require('lodash');
 const { eachOfSeries } = require('async');
 const { resolveAddress } = require('../api/address-name-service');
 
@@ -47,9 +47,9 @@ module.exports = {
     });
 
     const addressNameObj = await resolveAddress(toCheckAddresses);
-    const names = filter(addressNameObj, o => o.name !== '');
-    await eachOfSeries(names, async (name, index) => {
-      DBHelper.insertName(name);
+    Object.keys(addressNameObj).forEach((key) => (addressNameObj[key] == '') && delete addressNameObj[key]);
+    await eachOfSeries(addressNameObj, async (name, key) => {
+      await DBHelper.insertName({address: key, name});
     });
   },
 };

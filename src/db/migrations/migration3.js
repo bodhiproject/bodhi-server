@@ -19,7 +19,6 @@ async function migration3(next) {
       addresses.push(element.centralizedOracleAddress);
     });
     addresses = uniq(addresses);
-
     await getAndInsertNames(addresses, DBHelper);
     logger.info('Migration 3 done');
     next();
