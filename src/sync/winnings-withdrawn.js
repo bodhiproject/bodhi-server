@@ -1,7 +1,7 @@
 const { each, isNull, find } = require('lodash');
 const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
-const { toLowerCase } = require('../utils');
+const { toLowerCase, getAndInsertNames } = require('../utils');
 const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
 const DBHelper = require('../db/db-helper');
@@ -28,7 +28,7 @@ const syncWinningsWithdrawn = async (
           // Parse and insert withdraw
           const withdraw = parseWithdraw({ log: logObj });
           await DBHelper.insertWithdraw(withdraw);
-
+          await getAndInsertNames(withdraw.winnerAddress, DBHelper);
           // Add withdrawer into event withdrawnList
           await DBHelper.updateEventWithdrawnList(withdraw);
 

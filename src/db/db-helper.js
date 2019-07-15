@@ -579,55 +579,55 @@ module.exports = class DBHelper {
       throw err;
     }
   }
-    /* Names */
-    static async findName(query, sort) {
-      try {
-        if (sort) return db.Names.cfind(query).sort(sort).exec();
-        return db.Names.find(query);
-      } catch (err) {
-        logger.error(`FIND Names error: ${err.message}`);
-        throw err;
-      }
+  /* Names */
+  static async findName(query, sort) {
+    try {
+      if (sort) return db.Names.cfind(query).sort(sort).exec();
+      return db.Names.find(query);
+    } catch (err) {
+      logger.error(`FIND Names error: ${err.message}`);
+      throw err;
     }
+  }
 
-    static async findOneName(query) {
-      try {
-        return db.Names.findOne(query);
-      } catch (err) {
-        logger.error(`FINDONE Names error: ${err.message}`);
-        throw err;
-      }
+  static async findOneName(query) {
+    try {
+      return db.Names.findOne(query);
+    } catch (err) {
+      logger.error(`FINDONE Names error: ${err.message}`);
+      throw err;
     }
+  }
 
-    static async countName(query) {
-      try {
-        return db.Names.count(query);
-      } catch (err) {
-        logger.error(`COUNT Name error: ${err.message}`);
-        throw err;
-      }
+  static async countName(query) {
+    try {
+      return db.Names.count(query);
+    } catch (err) {
+      logger.error(`COUNT Name error: ${err.message}`);
+      throw err;
     }
+  }
 
-    static async insertName(nameEntry) {
-      try {
-        const existing = await DBHelper.findOneName({ address: nameEntry.address });
-        if (isNull(existing)) {
-          await db.Names.insert(nameEntry);
-        } else {
-          await DBHelper.updateName(nameEntry.address, nameEntry);
-        }
-      } catch (err) {
-        logger.error(`INSERT Name error: ${err.message}`);
-        throw err;
+  static async insertName(nameEntry) {
+    try {
+      const existing = await DBHelper.findOneName({ address: nameEntry.address });
+      if (isNull(existing)) {
+        await db.Names.insert(nameEntry);
+      } else {
+        await DBHelper.updateName(nameEntry.address, nameEntry);
       }
+    } catch (err) {
+      logger.error(`INSERT Name error: ${err.message}`);
+      throw err;
     }
+  }
 
-    static async updateName(address, fields) {
-      try {
-        await db.Names.update({ address }, { $set: fields }, {});
-      } catch (err) {
-        logger.error(`UPDATE Name error: ${err.message}`);
-        throw err;
-      }
+  static async updateName(address, fields) {
+    try {
+      await db.Names.update({ address }, { $set: fields }, {});
+    } catch (err) {
+      logger.error(`UPDATE Name error: ${err.message}`);
+      throw err;
     }
+  }
 };

@@ -126,9 +126,9 @@ module.exports = {
         address: ownerAddress,
       });
       console.log('TCL: nameEntry', nameEntry);
-      if(!nameEntry) {
+      if (!nameEntry) {
         const newName = await AddressNameServiceApi.resolveAddress(ownerAddress);
-        await DBHelper.insertName({address: ownerAddress, name:newName[ownerAddress] || ownerAddress});
+        await DBHelper.insertName({ address: ownerAddress, name: newName[ownerAddress] || ownerAddress });
         return newName[ownerAddress];
       }
       return nameEntry && nameEntry.name;

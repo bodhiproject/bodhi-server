@@ -5,12 +5,13 @@ const { BLOCKCHAIN_ENV } = require('../constants');
 const ConfigManager = require('./contracts/config-manager');
 const EventFactory = require('./contracts/event-factory');
 const MultipleResultsEvent = require('./contracts/multiple-results-event');
-const AddressNameSerive = require('./contracts/address-name-service');
 
 const CONFIG = {
   NETWORK: process.env.NETWORK,
   HTTP_PROVIDER_MAINNET: 'https://api.nakachain.org',
   HTTP_PROVIDER_TESTNET: 'https://testnet.api.nakachain.org',
+  NAKA_BASE_MAINNET: 'https://base.nakachain.org/mainnet/naka',
+  NAKA_BASE_TESTNET: 'https://base.nakachain.org/testnet/naka',
   WS_PROVIDER_MAINNET: 'wss://api.nakachain.org/ws',
   WS_PROVIDER_TESTNET: 'wss://testnet.api.nakachain.org/ws',
   PROTOCOL: process.env.SSL === 'true' ? 'https' : 'http',
@@ -20,6 +21,7 @@ const CONFIG = {
   DEFAULT_LOG_LEVEL: 'debug',
   STARTING_CONTRACT_VERSION_MAINNET: 5,
   STARTING_CONTRACT_VERSION_TESTNET: 0,
+  API_KEY: process.env.apiKey,
 };
 
 let versionConfig;
@@ -149,16 +151,6 @@ const determineContractVersion = (blockNum) => {
 const getContractVersionEndBlock = version => versionConfig[version].endBlock;
 
 /**
- * Gets the AddressNameService smart contract metadata based on version.
- * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
- * @return {Object} Contract metadata.
- */
-const addressNameServiceMeta = (version) => {
-  if (!isNumber(version)) throw Error('Must supply a version number');
-  return AddressNameSerive[version];
-};
-
-/**
  * Gets the ConfigManager smart contract metadata based on version.
  * @param version {Number} Version number of the contracts to get, e.g. 0, 1, 2.
  * @return {Object} Contract metadata.
@@ -208,7 +200,6 @@ module.exports = {
   isMainnet,
   determineContractVersion,
   getContractVersionEndBlock,
-  addressNameServiceMeta,
   configManagerMeta,
   eventFactoryMeta,
   multipleResultsEventMeta,
