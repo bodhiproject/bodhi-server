@@ -6,7 +6,6 @@ const pubsub = require('../route/pubsub');
 const DBHelper = require('../db/db-helper');
 const { sumBN, sumArrayBN } = require('../utils/web3-utils');
 const { toLowerCase } = require('../utils/index');
-const AddressNameServiceApi = require('../api/address-name-service');
 
 
 /* eslint-disable object-curly-newline */
@@ -121,16 +120,9 @@ module.exports = {
       return null;
     },
     ownerName: async ({ ownerAddress }) => {
-      console.log('TCL: ownerAddress', ownerAddress);
       const nameEntry = await DBHelper.findOneName({
         address: ownerAddress,
       });
-      console.log('TCL: nameEntry', nameEntry);
-      if (!nameEntry) {
-        const newName = await AddressNameServiceApi.resolveAddress(ownerAddress);
-        await DBHelper.insertName({ address: ownerAddress, name: newName[ownerAddress] || ownerAddress });
-        return newName[ownerAddress];
-      }
       return nameEntry && nameEntry.name;
     },
     totalBets: async ({ address }) => {
@@ -169,7 +161,7 @@ module.exports = {
       const nameEntry = await DBHelper.findOneName({
         address: betterAddress,
       });
-      return nameEntry.name;
+      return nameEntry && nameEntry.name;
     },
   },
 
@@ -189,7 +181,7 @@ module.exports = {
       const nameEntry = await DBHelper.findOneName({
         address: centralizedOracleAddress,
       });
-      return nameEntry.name;
+      return nameEntry && nameEntry.name;
     },
   },
 
@@ -205,7 +197,7 @@ module.exports = {
       const nameEntry = await DBHelper.findOneName({
         address: winnerAddress,
       });
-      return nameEntry.name;
+      return nameEntry && nameEntry.name;
     },
   },
 };
