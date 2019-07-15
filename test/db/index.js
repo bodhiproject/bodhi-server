@@ -2240,7 +2240,6 @@ describe('db', () => {
           "name":"uyuyutit",
         };
         name = await DBHelper.findOneName({ address: mockNames[2].address });
-        console.log('TCL: name', name);
         expect(name).excluding(['_id']).to.deep.not.equal(updateNewName);
         await DBHelper.updateName(mockNames[2].address, updateNewName);
         nameCount = await db.Names.count({});
