@@ -580,9 +580,8 @@ module.exports = class DBHelper {
     }
   }
   /* Names */
-  static async findName(query, sort) {
+  static async findName(query) {
     try {
-      if (sort) return db.Names.cfind(query).sort(sort).exec();
       return db.Names.find(query);
     } catch (err) {
       logger.error(`FIND Names error: ${err.message}`);
