@@ -222,6 +222,7 @@ type AllStats {
 type MostBet {
   eventAddress: String
   betterAddress: String!
+  betterName: String
   amount: String!
 }
 
@@ -234,6 +235,7 @@ type PaginatedMostBets {
 type BiggestWinner {
   eventAddress: String!
   betterAddress: String!
+  betterName: String
   amount: String!
 }
 
@@ -246,6 +248,7 @@ type PaginatedBiggestWinner {
 type LeaderboardEntry {
   eventAddress: String
   userAddress: String!
+  userName: String
   investments: String!
   winnings: String!
   returnRatio: Float!

@@ -1,4 +1,5 @@
 const { each, isNumber, toInteger, isArray } = require('lodash');
+const { eachOfSeries } = require('async');
 const { lowercaseFilters } = require('./utils');
 const web3 = require('../../web3');
 const DBHelper = require('../../db/db-helper');
@@ -92,6 +93,11 @@ module.exports = async (
     pageNumber = toInteger(end / limit);
     items = items.slice(skip, end);
   }
+
+  await eachOfSeries(items, async element => {
+    const nameEntry = await DBHelper.findOneName({address: element.betterAddress});
+    element.betterName = nameEntry && nameEntry.name;
+  });
 
   const pageInfo = isPaginated
     ? { hasNextPage, pageNumber, count: items.length }
