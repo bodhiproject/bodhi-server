@@ -70,7 +70,7 @@ const buildWithdrawFilters = ({
 module.exports = async (
   root,
   { filter, limit = 10, skip = 0, transactionSkips: { eventSkip, betSkip, resultSetSkip, withdrawSkip } },
-  { db: { Events, Bets, ResultSets, Withdraws, Names } },
+  { db: { Events, Bets, ResultSets, Withdraws } },
 ) => {
   const txFilters = buildTxFilters(lowercaseFilters(filter));
   const orderBy = [{ field: 'blockNum', direction: ORDER_DIRECTION.DESCENDING }];
