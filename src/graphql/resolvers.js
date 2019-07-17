@@ -7,7 +7,6 @@ const DBHelper = require('../db/db-helper');
 const { sumBN, sumArrayBN } = require('../utils/web3-utils');
 const { toLowerCase } = require('../utils/index');
 
-
 /* eslint-disable object-curly-newline */
 module.exports = {
   Query: Queries,
