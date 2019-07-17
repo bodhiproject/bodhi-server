@@ -1,5 +1,6 @@
 const pLimit = require('p-limit');
 const moment = require('moment');
+const { isNumber } = require('lodash');
 const { eventFactoryMeta, isMainnet } = require('../config');
 const { EVENT_MESSAGE } = require('../constants');
 const web3 = require('../web3');
@@ -71,7 +72,9 @@ const getStartBlock = async () => {
     // Blocks found in DB. Use the highest block num minus the block batch count.
     // We need to reparse the previously parsed blocks because the blocks are added
     // async and there may be blocks missing in the middle.
-    start = blocks[0].blockNum - BLOCK_BATCH_COUNT;
+    start = isNumber(blocks[0].blockNum)
+      ? Math.max(0, blocks[0].blockNum - BLOCK_BATCH_COUNT)
+      : 0;
   } else {
     // No blocks found in DB, use earliest version's deploy block
     const contractMeta = eventFactoryMeta(6);
