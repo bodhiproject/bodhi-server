@@ -28,9 +28,8 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
           // Parse and insert result set
           const resultSet = parseResultSet({ log: logObj });
           await DBHelper.insertResultSet(resultSet);
-          if (resultSet.eventRound === 0) {
-            await getAndInsertNames(resultSet.centralizedOracleAddress, DBHelper);
-          }
+          await getAndInsertNames(resultSet.centralizedOracleAddress, DBHelper);
+
           // Fetch and insert tx receipt
           const txReceipt = await getTransactionReceipt(resultSet.txid);
           await DBHelper.insertTransactionReceipt(txReceipt);

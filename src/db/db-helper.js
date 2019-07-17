@@ -1,10 +1,9 @@
-const { isNull, each, find } = require('lodash');
+const { isNull } = require('lodash');
 const logger = require('../utils/logger');
 const { isDefined } = require('../utils');
 const { sumBN } = require('../utils/web3-utils');
 const { EVENT_STATUS, TX_STATUS } = require('../constants');
 const { db } = require('.');
-const web3 = require('../web3');
 const EventLeaderboard = require('../models/event-leaderboard');
 const GlobalLeaderboard = require('../models/global-leaderboard');
 
@@ -609,23 +608,9 @@ module.exports = class DBHelper {
 
   static async insertName(nameEntry) {
     try {
-      const existing = await DBHelper.findOneName({ address: nameEntry.address });
-      if (isNull(existing)) {
-        await db.Names.insert(nameEntry);
-      } else {
-        await DBHelper.updateName(nameEntry.address, nameEntry);
-      }
+      await db.Names.insert(nameEntry);
     } catch (err) {
       logger.error(`INSERT Name error: ${err.message}`);
-      throw err;
-    }
-  }
-
-  static async updateName(address, fields) {
-    try {
-      await db.Names.update({ address }, { $set: fields }, {});
-    } catch (err) {
-      logger.error(`UPDATE Name error: ${err.message}`);
       throw err;
     }
   }

@@ -2216,52 +2216,6 @@ describe('db', () => {
         should.exist(name);
         expect(name).excluding('_id').to.deep.equal(mockNames[2]);
       });
-
-      it('should not insert existed address', async () => {
-        const newNameWithExistedAddress = {
-          "address":"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-          "name":"dqwe",
-        };
-        nameCount = await db.Names.count({});
-        nameCount.should.equal(3);
-        await DBHelper.insertName(newNameWithExistedAddress);
-        nameCount = await db.Names.count({});
-        nameCount.should.equal(3);
-        name = await DBHelper.findOneName({ address: newNameWithExistedAddress.address });
-        should.exist(name);
-        expect(name).excluding(['_id']).to.deep.equal(newNameWithExistedAddress);
-      });
-    });
-
-    describe('update name', () => {
-      it('should update name when address is existed', async () => {
-        const updateNewName = {
-          "address":"0xbc4b8726f9619c871fad66030116964480205b9d",
-          "name":"uyuyutit",
-        };
-        name = await DBHelper.findOneName({ address: mockNames[2].address });
-        expect(name).excluding(['_id']).to.deep.not.equal(updateNewName);
-        await DBHelper.updateName(mockNames[2].address, updateNewName);
-        nameCount = await db.Names.count({});
-        nameCount.should.equal(3);
-        name = await DBHelper.findOneName({ address: updateNewName.address });
-        should.exist(name);
-        expect(name).excluding(['_id']).to.deep.equal(updateNewName);
-      });
-
-      it('should not update name when address is not existed', async () => {
-        const updateNewName = {
-          "address":"0xd5d08723abc73fc6cc5d9c1131b93acbd53a2428",
-          "name":"zxccxzad",
-        };
-        nameCount = await db.Names.count({});
-        nameCount.should.equal(3);
-        await DBHelper.updateName(updateNewName.address, updateNewName);
-        nameCount = await db.Names.count({});
-        nameCount.should.equal(3);
-        name = await DBHelper.findOneName({ address: updateNewName.address });
-        should.not.exist(name);
-      });
     });
   });
 

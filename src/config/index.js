@@ -21,7 +21,7 @@ const CONFIG = {
   DEFAULT_LOG_LEVEL: 'debug',
   STARTING_CONTRACT_VERSION_MAINNET: 5,
   STARTING_CONTRACT_VERSION_TESTNET: 0,
-  API_KEY: process.env.apiKey,
+  API_KEY: process.env.API_KEY,
 };
 
 let versionConfig;

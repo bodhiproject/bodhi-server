@@ -200,5 +200,23 @@ module.exports = {
       return nameEntry && nameEntry.name;
     },
   },
+  MostBet: {
+    betterName: async ({ betterAddress }) => {
+      const nameEntry = await DBHelper.findOneName({ address: betterAddress });
+      return nameEntry && nameEntry.name;
+    },
+  },
+  BiggestWinner: {
+    betterName: async ({ betterAddress }) => {
+      const nameEntry = await DBHelper.findOneName({ address: betterAddress });
+      return nameEntry && nameEntry.name;
+    },
+  },
+  LeaderboardEntry: {
+    userName: async ({ userAddress }) => {
+      const nameEntry = await DBHelper.findOneName({ address: userAddress });
+      return nameEntry && nameEntry.name;
+    },
+  },
 };
 /* eslint-enable object-curly-newline */

@@ -1,8 +1,6 @@
 const { each, find, isArray, isNumber, toInteger } = require('lodash');
-const { eachOfSeries } = require('async');
 const { lowercaseFilters } = require('./utils');
 const MultipleResultsEventApi = require('../../api/multiple-results-event');
-const DBHelper = require('../../db/db-helper');
 
 const buildFilters = ({
   OR,
@@ -79,11 +77,6 @@ module.exports = async (
     pageNumber = toInteger(end / limit);
     winnings = winnings.slice(skip, end);
   }
-
-  await eachOfSeries(winnings, async element => {
-    const nameEntry = await DBHelper.findOneName({address: element.betterAddress});
-    element.betterName = nameEntry && nameEntry.name;
-  });
 
   const pageInfo = isPaginated
     ? { hasNextPage, pageNumber, count: winnings.length }

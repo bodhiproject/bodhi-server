@@ -1,11 +1,10 @@
-const { isUndefined, map, isArray } = require('lodash');
+const { isUndefined } = require('lodash');
 const axios = require('axios');
-const { CONFIG } = require('../config');
-const { BLOCKCHAIN_ENV } = require('../constants');
+const { CONFIG, isMainnet } = require('../config');
 const logger = require('../utils/logger');
 
 const getNakaBaseUrl = () => {
-  const address = CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET
+  const address = isMainnet
     ? CONFIG.NAKA_BASE_MAINNET : CONFIG.NAKA_BASE_TESTNET;
   return address;
 };

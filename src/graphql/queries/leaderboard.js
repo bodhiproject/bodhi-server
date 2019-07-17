@@ -1,8 +1,5 @@
 const BigNumber = require('bignumber.js');
-const { eachOfSeries } = require('async');
-
 const { lowercaseFilters, runPaginatedQuery } = require('./utils');
-const DBHelper = require('../../db/db-helper');
 
 const buildFilters = ({
   userAddress,
@@ -34,11 +31,6 @@ const eventLeaderboardEntries = async (
     skip,
   });
 
-  await eachOfSeries(res.items, async element => {
-    const nameEntry = await DBHelper.findOneName({address: element.userAddress});
-    element.userName = nameEntry && nameEntry.name;
-  });
-
   if (orderBy && orderBy.length > 0) {
     const { field } = orderBy[0];
     if (field !== 'eventAddress' && field !== 'userAddress') {
@@ -61,11 +53,6 @@ const globalLeaderboardEntries = async (
     orderBy,
     limit,
     skip,
-  });
-
-  await eachOfSeries(res.items, async element => {
-    const nameEntry = await DBHelper.findOneName({address: element.userAddress});
-    element.userName = nameEntry && nameEntry.name;
   });
 
   if (orderBy && orderBy.length > 0) {
