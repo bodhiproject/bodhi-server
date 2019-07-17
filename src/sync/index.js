@@ -1,8 +1,7 @@
-const fs = require('fs-extra');
 const pLimit = require('p-limit');
-const { isUndefined } = require('lodash');
 const moment = require('moment');
-const { eventFactoryMeta, isMainnet, getBaseDataDir } = require('../config');
+const { isNumber } = require('lodash');
+const { eventFactoryMeta, isMainnet } = require('../config');
 const { EVENT_MESSAGE } = require('../constants');
 const web3 = require('../web3');
 const {
@@ -27,56 +26,11 @@ const emitter = require('../event');
 const SYNC_START_DELAY = 3000;
 const BLOCK_BATCH_COUNT = 500;
 const PROMISE_CONCURRENCY_LIMIT = 15;
-const START_BLOCK_FILENAME = 'start_block.dat';
 
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
 let wsConnected = false;
 let syncPromises = [];
 let startBlock;
-
-/**
- * Checks if the start block file exists, and returns the start block if so.
- * @return {number|undefined} Block where the sync stopped last
- */
-const readStartBlockFile = () => {
-  try {
-    const filePath = `${getBaseDataDir()}/${START_BLOCK_FILENAME}`;
-    if (fs.existsSync(filePath)) {
-      logger.info('Found start block config');
-      const start = fs.readFileSync(filePath);
-      fs.removeSync(filePath);
-      return Number(start);
-    }
-  } catch (err) {
-    logger.error('Could not read start block file');
-  }
-  return undefined;
-};
-
-/**
- * Writes the start block to a temp file so when the sync is started again,
- * it can use the start block where the error occurred or when the sync was stopped.
- */
-const writeStartBlockFile = () => {
-  if (isUndefined(startBlock)) return;
-
-  const filePath = `${getBaseDataDir()}/${START_BLOCK_FILENAME}`;
-  fs.writeFileSync(filePath, `${startBlock}`);
-};
-
-/**
- * Sets up event signal handlers for when the sync is stopped.
- */
-const setupSignalHandler = () => {
-  const onShutdown = () => {
-    writeStartBlockFile();
-    process.exit(0);
-  };
-
-  process
-    .on('SIGINT', () => onShutdown())
-    .on('SIGTERM', () => onShutdown());
-};
 
 /**
  * Event listener for websocket connected.
@@ -90,7 +44,6 @@ const onWebsocketConnected = () => {
  */
 const onWebsocketDisconnected = () => {
   wsConnected = false;
-  writeStartBlockFile();
 };
 
 /**
@@ -105,7 +58,6 @@ const registerListeners = () => {
  * Initial setup before starting the sync.
  */
 const initSync = () => {
-  setupSignalHandler();
   registerListeners();
 };
 
@@ -115,14 +67,14 @@ const initSync = () => {
 const getStartBlock = async () => {
   let start;
 
-  // Tries to get start block from start block file
-  start = readStartBlockFile();
-  if (start) return start;
-
   const blocks = await DBHelper.findLatestBlock();
   if (blocks.length > 0) {
-    // Blocks found in DB, use the last synced block as start
-    start = blocks[0].blockNum + 1;
+    // Blocks found in DB. Use the highest block num minus the block batch count.
+    // We need to reparse the previously parsed blocks because the blocks are added
+    // async and there may be blocks missing in the middle.
+    start = isNumber(blocks[0].blockNum)
+      ? Math.max(0, blocks[0].blockNum - BLOCK_BATCH_COUNT)
+      : 0;
   } else {
     // No blocks found in DB, use earliest version's deploy block
     const contractMeta = eventFactoryMeta(6);
@@ -223,7 +175,6 @@ const startSync = async () => {
 
     delayThenSync(SYNC_START_DELAY);
   } catch (err) {
-    writeStartBlockFile();
     throw err;
   }
 };
