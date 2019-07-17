@@ -578,6 +578,7 @@ module.exports = class DBHelper {
       throw err;
     }
   }
+
   /* Names */
   static async findName(query) {
     try {
