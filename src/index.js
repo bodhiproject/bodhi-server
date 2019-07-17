@@ -4,8 +4,13 @@ const { initDB } = require('./db');
 const initApi = require('./route');
 const { initSync, startSync } = require('./sync');
 
+// Handle unhandled promise rejections in entire app
+process.on('unhandledRejection', (reason) => {
+  throw reason;
+});
+
 /* eslint-disable global-require */
-const start = async () => {
+(async () => {
   try {
     initConfig();
     require('./utils/logger');
@@ -15,10 +20,9 @@ const start = async () => {
     initSync();
     require('./web3');
     initApi();
-    startSync(true);
+    await startSync(true);
   } catch (err) {
     throw err;
   }
-};
-start();
+})();
 /* eslint-enable global-require */

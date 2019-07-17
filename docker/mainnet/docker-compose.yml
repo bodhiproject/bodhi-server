@@ -4,7 +4,7 @@ services:
   bodhi-server-mainnet:
     hostname: bodhi-server-mainnet
     container_name: bodhi-server-mainnet
-    restart: unless-stopped
+    restart: always
     stop_signal: SIGINT
     build:
       context: ../../
