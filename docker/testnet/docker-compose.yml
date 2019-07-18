@@ -4,7 +4,7 @@ services:
   bodhi-server-testnet:
     hostname: bodhi-server-testnet
     container_name: bodhi-server-testnet
-    restart: unless-stopped
+    restart: always
     stop_signal: SIGINT
     build:
       context: ../../
@@ -19,6 +19,7 @@ services:
       - LOG_LEVEL=debug
     volumes:
       - /home/ubuntu/.bodhi/testnet:/root/bodhi-server/data
+      - /home/ubuntu/.naka/testnet/geth.ipc:/root/geth.ipc
     logging:
       driver: json-file
       options:
