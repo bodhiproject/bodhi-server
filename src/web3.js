@@ -1,4 +1,5 @@
 const Web3 = require('web3');
+const net = require('net');
 const { CONFIG } = require('./config');
 const { BLOCKCHAIN_ENV, EVENT_MESSAGE } = require('./constants');
 const logger = require('./utils/logger');
@@ -15,13 +16,14 @@ const getProvider = () => {
   let url;
   let msg;
   if (CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET) {
-    url = CONFIG.HTTP_PROVIDER_MAINNET;
+    url = CONFIG.IPC_PROVIDER_MAINNET;
     msg = 'Web3 connected to Mainnet';
   } else {
-    url = CONFIG.HTTP_PROVIDER_TESTNET;
+    url = CONFIG.IPC_PROVIDER_TESTNET;
     msg = 'Web3 connected to Testnet';
   }
-  const provider = new Web3.providers.HttpProvider(url);
+  const provider = new Web3.providers.IpcProvider(url, net);
+  // const provider = new Web3.providers.HttpProvider(url);
   logger.info(msg);
 
   // TODO: use websockets again when web3 fixes it

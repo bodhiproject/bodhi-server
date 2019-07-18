@@ -12,6 +12,8 @@ const CONFIG = {
   HTTP_PROVIDER_TESTNET: 'https://testnet.api.nakachain.org',
   WS_PROVIDER_MAINNET: 'wss://api.nakachain.org/ws',
   WS_PROVIDER_TESTNET: 'wss://testnet.api.nakachain.org/ws',
+  IPC_PROVIDER_MAINNET: '/root/.bodhi/mainnet/geth.ipc',
+  IPC_PROVIDER_TESTNET: '/root/.bodhi/testnet/geth.ipc',
   PROTOCOL: process.env.SSL === 'true' ? 'https' : 'http',
   HOSTNAME: 'localhost',
   API_PORT_MAINNET: 8888,

@@ -19,7 +19,7 @@ services:
       - LOG_LEVEL=debug
     volumes:
       - /home/ubuntu/.bodhi/testnet:/root/bodhi-server/data
-      - /home/ubuntu/.naka/testnet/geth.ipc:/root/geth.ipc
+      - /home/ubuntu/.naka/testnet/geth.ipc:/root/.bodhi/testnet/geth.ipc
     logging:
       driver: json-file
       options:
