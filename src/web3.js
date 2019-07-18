@@ -13,21 +13,21 @@ const emitter = require('./event');
  */
 const getProvider = () => {
   // Get endpoint per network
-  let url;
+  let uri;
   let msg;
   if (CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET) {
-    url = CONFIG.IPC_PROVIDER_MAINNET;
+    uri = CONFIG.IPC_PROVIDER_MAINNET;
     msg = 'Web3 connected to Mainnet';
   } else {
-    url = CONFIG.IPC_PROVIDER_TESTNET;
+    uri = CONFIG.IPC_PROVIDER_TESTNET;
     msg = 'Web3 connected to Testnet';
   }
-  const provider = new Web3.providers.IpcProvider(url, net);
+  const provider = new Web3.providers.IpcProvider(uri, net);
   logger.info(msg);
 
   // TODO: use websockets again when web3 fixes it
   // Create provider and handle events
-  // const provider = new Web3.providers.WebsocketProvider(url);
+  // const provider = new Web3.providers.WebsocketProvider(uri);
   // provider.on('connect', () => {
   //   logger.info(msg);
   //   emitter.emit(EVENT_MESSAGE.WEBSOCKET_CONNECTED);
