@@ -12,7 +12,7 @@ const { syncBetPlaced, pendingBetPlaced } = require('./bet-placed');
 const { syncResultSet, pendingResultSet } = require('./result-set');
 const { syncVotePlaced, pendingVotePlaced } = require('./vote-placed');
 const { syncVoteResultSet, pendingVoteResultSet } = require('./vote-result-set');
-const { 
+const {
   syncWinningsWithdrawn,
   pendingWinningsWithdrawn,
 } = require('./winnings-withdrawn');
