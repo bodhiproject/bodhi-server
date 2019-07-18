@@ -4,26 +4,25 @@ services:
   bodhi-server-testnet:
     hostname: bodhi-server-testnet
     container_name: bodhi-server-testnet
-    restart: unless-stopped
+    restart: always
     stop_signal: SIGINT
     build:
       context: ../../
-      dockerfile: ./docker/testnet/Dockerfile
+      dockerfile: ./docker/Dockerfile
     ports:
       - 9999:9999
     environment:
+      - EXPOSED_PORTS="9999"
       - NETWORK=testnet
       - SSL=true
-      - SSL_KEY_PATH=/root/bodhi-server/creds/nakachain.org.key
-      - SSL_CERT_PATH=/root/bodhi-server/creds/nakachain.org.pem
+      - SSL_KEY_PATH=/root/creds/puti.io.key
+      - SSL_CERT_PATH=/root/creds/puti.io.pem
       - LOG_LEVEL=debug
     volumes:
-      - bodhi-server-testnet:/root/bodhi-server/data
+      - /home/ubuntu/.bodhi/testnet:/root/data
+      - /home/ubuntu/.naka/testnet/geth.ipc:/root/.bodhi/testnet/geth.ipc
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "5"
-
-volumes:
-  bodhi-server-testnet:
