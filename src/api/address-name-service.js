@@ -4,7 +4,7 @@ const { CONFIG, isMainnet } = require('../config');
 const logger = require('../utils/logger');
 
 const getNakaBaseUrl = () => {
-  const address = isMainnet
+  const address = isMainnet()
     ? CONFIG.NAKA_BASE_MAINNET : CONFIG.NAKA_BASE_TESTNET;
   return address;
 };
