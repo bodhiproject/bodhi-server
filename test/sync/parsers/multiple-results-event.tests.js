@@ -30,12 +30,9 @@ describe('sync/parsers/multiple-results-event', () => {
   afterEach(() => {
     stubDetermineContractVersion.restore();
     sinon.restore();
-
-    // TODO: enable when websockets are used for web3
-    // Close the websocket connection for web3 so tests don't hang
-    // require('../../../src/web3').currentProvider.connection.close(); // eslint-disable-line
   });
 
+  // TODO: stub contract call
   it('parses the log and fetches other data', async () => {
     const event = await parseEvent({ log });
     assert.equal(event.txid, '0x6347b37d00e43f7591fc3621085e5759b535135aeafc5589c2115b4712239c1d');
