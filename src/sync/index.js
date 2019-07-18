@@ -1,8 +1,8 @@
 const pLimit = require('p-limit');
 const moment = require('moment');
 const { isNumber } = require('lodash');
-const { eventFactoryMeta, isMainnet } = require('../config');
-const { EVENT_MESSAGE } = require('../constants');
+const { CONFIG, eventFactoryMeta, isMainnet } = require('../config');
+const { WEB3_PROVIDER, EVENT_MESSAGE } = require('../constants');
 const web3 = require('../web3');
 const {
   syncMultipleResultsEventCreated,
@@ -100,12 +100,11 @@ const delayThenSync = (delay) => {
  */
 const startSync = async () => {
   try {
-    // TODO: enable code when web3 websockets fixed
     // Don't allow sync if websocket is not connected
-    // if (!wsConnected) {
-    //   delayThenSync(SYNC_START_DELAY);
-    //   return;
-    // }
+    if (CONFIG.PROVIDER === WEB3_PROVIDER.WS && !wsConnected) {
+      delayThenSync(SYNC_START_DELAY);
+      return;
+    }
 
     // Track exec time
     const execStartMs = moment().valueOf();

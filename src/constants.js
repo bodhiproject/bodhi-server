@@ -9,6 +9,12 @@ module.exports = {
     TESTNET: 'testnet',
   },
 
+  WEB3_PROVIDER: {
+    IPC: 'ipc',
+    WS: 'ws',
+    HTTP: 'http',
+  },
+
   EVENT_STATUS: {
     CREATED: 'CREATED',
     PRE_BETTING: 'PRE_BETTING',

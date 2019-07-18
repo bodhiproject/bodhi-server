@@ -17,6 +17,7 @@ You must specify certain attributes in a `.env` file at the root folder.
 
 ```text
 NETWORK=[mainnet|testnet] (required)
+PROVIDER=[ipc|ws|http] (optional. use ws or http for local)
 SSL=[true|false] (required)
 SSL_KEY_PATH=/path/to/privkey.pem (only if SSL=true)
 SSL_CERT_PATH=/path/to/cert.pem (only if SSL=true)
