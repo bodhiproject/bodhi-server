@@ -23,7 +23,6 @@ const getProvider = () => {
     msg = 'Web3 connected to Testnet';
   }
   const provider = new Web3.providers.IpcProvider(url, net);
-  // const provider = new Web3.providers.HttpProvider(url);
   logger.info(msg);
 
   // TODO: use websockets again when web3 fixes it

@@ -1,5 +1,8 @@
 FROM node:10
 
+# Set work dir
+WORKDIR /root
+
 # Install deps
 RUN apt-get update && apt-get install -y vim
 
