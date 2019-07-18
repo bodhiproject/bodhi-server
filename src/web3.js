@@ -1,23 +1,23 @@
 const Web3 = require('web3');
 const net = require('net');
-const { CONFIG } = require('./config');
-const { BLOCKCHAIN_ENV, EVENT_MESSAGE } = require('./constants');
+const { CONFIG, isMainnet } = require('./config');
+const { EVENT_MESSAGE } = require('./constants');
 const logger = require('./utils/logger');
 const emitter = require('./event');
 
 /**
- * Returns the web3 provider.
+ * Returns a Web3 IPC provider.
  * @return {IpcProvider} Web3 provider
  */
-const getProvider = () => {
+const getIpcProvider = () => {
   let uri;
   let msg;
-  if (CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET) {
+  if (isMainnet()) {
     uri = CONFIG.IPC_PROVIDER_MAINNET;
-    msg = 'Web3 connected to Mainnet';
+    msg = 'Web3 IPC connected to Mainnet';
   } else {
     uri = CONFIG.IPC_PROVIDER_TESTNET;
-    msg = 'Web3 connected to Testnet';
+    msg = 'Web3 IPC connected to Testnet';
   }
 
   const provider = new Web3.providers.IpcProvider(uri, net);
@@ -26,20 +26,18 @@ const getProvider = () => {
 };
 
 /**
- * Returns the web3 provider and sets up event handlers.
- * Event handlers will create a new provider and set it to the existing web3
- * instance when a disconnect occurs.
+ * Returns a Web3 WS provider.
  * @return {WebsocketProvider} Web3 provider
  */
-const getProviderForLocal = () => {
+const getWsProvider = () => {
   let uri;
   let msg;
-  if (CONFIG.NETWORK === BLOCKCHAIN_ENV.MAINNET) {
+  if (isMainnet()) {
     uri = CONFIG.WS_PROVIDER_MAINNET;
-    msg = 'Web3 connected to Mainnet';
+    msg = 'Web3 WS connected to Mainnet';
   } else {
     uri = CONFIG.WS_PROVIDER_TESTNET;
-    msg = 'Web3 connected to Testnet';
+    msg = 'Web3 WS connected to Testnet';
   }
 
   const provider = new Web3.providers.WebsocketProvider(uri);
@@ -54,6 +52,26 @@ const getProviderForLocal = () => {
   provider.on('error', (err) => {
     logger.error('Web3 WS error', { error: err && err.message });
   });
+  return provider;
+};
+
+/**
+ * Returns a Web3 HTTP provider.
+ * @return {IpcProvider} Web3 provider
+ */
+const getHttpProvider = () => {
+  let uri;
+  let msg;
+  if (isMainnet()) {
+    uri = CONFIG.HTTP_PROVIDER_MAINNET;
+    msg = 'Web3 HTTP connected to Mainnet';
+  } else {
+    uri = CONFIG.HTTP_PROVIDER_MAINNET;
+    msg = 'Web3 HTTP connected to Testnet';
+  }
+
+  const provider = new Web3.providers.HttpProvider(uri);
+  logger.info(msg);
   return provider;
 };
 
