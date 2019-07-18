@@ -6,15 +6,15 @@ const { TX_STATUS, TX_TYPE } = require('../../src/constants');
 
 const rawInput = {
   status: true,
-  blockHash: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-  transactionHash: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  blockHash: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
+  transactionHash: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
   blockNumber: 5,
-  from: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-  to: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-  contractAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  from: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
+  to: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
+  contractAddress: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
   cumulativeGasUsed: 100000,
   gasUsed: 1000,
-  gasPrice: "300000"
+  gasPrice: '300000',
 };
 
 describe('models/tx-receipt', () => {
@@ -28,177 +28,177 @@ describe('models/tx-receipt', () => {
 
     it('It should not throw if blockHash is null', () => {
       input.blockHash = null;
-      assert.doesNotThrow(() => new TxReceipt(input), Error, "blockHash must be a string|null");
+      assert.doesNotThrow(() => new TxReceipt(input), Error, 'blockHash must be a string|null');
     });
 
     it('It should throw if blockHash is undefined', () => {
       input.blockHash = undefined;
-      assert.throws(() => new TxReceipt(input), Error, "blockHash must be a string|null");
+      assert.throws(() => new TxReceipt(input), Error, 'blockHash must be a string|null');
     });
 
     it('It should throw if blockHash is number', () => {
       input.blockHash = 1;
-      assert.throws(() => new TxReceipt(input), Error, "blockHash must be a string|null");
+      assert.throws(() => new TxReceipt(input), Error, 'blockHash must be a string|null');
     });
 
     it('It should throw if blockHash is array', () => {
-      input.blockHash = ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"];
-      assert.throws(() => new TxReceipt(input), Error, "blockHash must be a string|null");
+      input.blockHash = ['0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428'];
+      assert.throws(() => new TxReceipt(input), Error, 'blockHash must be a string|null');
     });
 
     it('It should throw if blockHash is object', () => {
-      input.blockHash = {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"};
-      assert.throws(() => new TxReceipt(input), Error, "blockHash must be a string|null");
+      input.blockHash = { id: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428' };
+      assert.throws(() => new TxReceipt(input), Error, 'blockHash must be a string|null');
     });
 
     it('It should not throw if blockNumber is null', () => {
       input.blockNumber = null;
-      assert.doesNotThrow(() => new TxReceipt(input), Error, "blockNumber must be a number|null");
+      assert.doesNotThrow(() => new TxReceipt(input), Error, 'blockNumber must be a number|null');
     });
 
     it('It should throw if blockNumber is undefined', () => {
       input.blockNumber = undefined;
-      assert.throws(() => new TxReceipt(input), Error, "blockNumber must be a number|null");
+      assert.throws(() => new TxReceipt(input), Error, 'blockNumber must be a number|null');
     });
 
     it('It should throw if blockNumber is string', () => {
       input.blockNumber = '1';
-      assert.throws(() => new TxReceipt(input), Error, "blockNumber must be a number|null");
+      assert.throws(() => new TxReceipt(input), Error, 'blockNumber must be a number|null');
     });
 
     it('It should throw if blockNumber is array', () => {
       input.blockNumber = [1];
-      assert.throws(() => new TxReceipt(input), Error, "blockNumber must be a number|null");
+      assert.throws(() => new TxReceipt(input), Error, 'blockNumber must be a number|null');
     });
 
     it('It should throw if blockNumber is object', () => {
-      input.blockNumber = {id:1};
-      assert.throws(() => new TxReceipt(input), Error, "blockNumber must be a number|null");
+      input.blockNumber = { id: 1 };
+      assert.throws(() => new TxReceipt(input), Error, 'blockNumber must be a number|null');
     });
 
     it('It should throw if transactionHash is null', () => {
       input.transactionHash = null;
-      assert.throws(() => new TxReceipt(input), Error, "transactionHash must be a string");
+      assert.throws(() => new TxReceipt(input), Error, 'transactionHash must be a string');
     });
 
     it('It should throw if transactionHash is undefined', () => {
       input.transactionHash = undefined;
-      assert.throws(() => new TxReceipt(input), Error, "transactionHash must be a string");
+      assert.throws(() => new TxReceipt(input), Error, 'transactionHash must be a string');
     });
 
     it('It should throw if transactionHash is number', () => {
       input.transactionHash = 1;
-      assert.throws(() => new TxReceipt(input), Error, "transactionHash must be a string");
+      assert.throws(() => new TxReceipt(input), Error, 'transactionHash must be a string');
     });
 
     it('It should throw if transactionHash is array', () => {
-      input.transactionHash = ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"];
-      assert.throws(() => new TxReceipt(input), Error, "transactionHash must be a string");
+      input.transactionHash = ['0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428'];
+      assert.throws(() => new TxReceipt(input), Error, 'transactionHash must be a string');
     });
 
     it('It should throw if transactionHash is object', () => {
-      input.transactionHash = {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"};
-      assert.throws(() => new TxReceipt(input), Error, "transactionHash must be a string");
+      input.transactionHash = { id: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428' };
+      assert.throws(() => new TxReceipt(input), Error, 'transactionHash must be a string');
     });
 
     it('It should throw if eventAddress is null', () => {
       input.from = null;
-      assert.throws(() => new TxReceipt(input), Error, "from must be a string");
+      assert.throws(() => new TxReceipt(input), Error, 'from must be a string');
     });
 
     it('It should throw if eventAddress is undefined', () => {
       input.from = undefined;
-      assert.throws(() => new TxReceipt(input), Error, "from must be a string");
+      assert.throws(() => new TxReceipt(input), Error, 'from must be a string');
     });
 
     it('It should throw if eventAddress is number', () => {
       input.from = 1;
-      assert.throws(() => new TxReceipt(input), Error, "from must be a string");
+      assert.throws(() => new TxReceipt(input), Error, 'from must be a string');
     });
 
     it('It should throw if eventAddress is array', () => {
-      input.from = ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"];
-      assert.throws(() => new TxReceipt(input), Error, "from must be a string");
+      input.from = ['0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428'];
+      assert.throws(() => new TxReceipt(input), Error, 'from must be a string');
     });
 
     it('It should throw if eventAddress is object', () => {
-      input.from = {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"};
-      assert.throws(() => new TxReceipt(input), Error, "from must be a string");
+      input.from = { id: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428' };
+      assert.throws(() => new TxReceipt(input), Error, 'from must be a string');
     });
 
     it('It should not throw if to is null', () => {
       input.to = null;
-      assert.doesNotThrow(() => new TxReceipt(input), Error, "to must be a string|null");
+      assert.doesNotThrow(() => new TxReceipt(input), Error, 'to must be a string|null');
     });
 
     it('It should throw if to is undefined', () => {
       input.to = undefined;
-      assert.throws(() => new TxReceipt(input), Error, "to must be a string|null");
+      assert.throws(() => new TxReceipt(input), Error, 'to must be a string|null');
     });
 
     it('It should throw if to is number', () => {
       input.to = 1;
-      assert.throws(() => new TxReceipt(input), Error, "to must be a string|null");
+      assert.throws(() => new TxReceipt(input), Error, 'to must be a string|null');
     });
 
     it('It should throw if to is array', () => {
-      input.to = ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"];
-      assert.throws(() => new TxReceipt(input), Error, "to must be a string|null");
+      input.to = ['0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428'];
+      assert.throws(() => new TxReceipt(input), Error, 'to must be a string|null');
     });
 
     it('It should throw if to is object', () => {
-      input.to = {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"};
-      assert.throws(() => new TxReceipt(input), Error, "to must be a string|null");
+      input.to = { id: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428' };
+      assert.throws(() => new TxReceipt(input), Error, 'to must be a string|null');
     });
 
     it('It should throw if cumulativeGasUsed is null', () => {
       input.cumulativeGasUsed = null;
-      assert.throws(() => new TxReceipt(input), Error, "cumulativeGasUsed must be a number");
+      assert.throws(() => new TxReceipt(input), Error, 'cumulativeGasUsed must be a number');
     });
 
     it('It should throw if cumulativeGasUsed is undefined', () => {
       input.cumulativeGasUsed = undefined;
-      assert.throws(() => new TxReceipt(input), Error, "cumulativeGasUsed must be a number");
+      assert.throws(() => new TxReceipt(input), Error, 'cumulativeGasUsed must be a number');
     });
 
     it('It should throw if cumulativeGasUsed is string', () => {
-      input.cumulativeGasUsed = "1";
-      assert.throws(() => new TxReceipt(input), Error, "cumulativeGasUsed must be a number");
+      input.cumulativeGasUsed = '1';
+      assert.throws(() => new TxReceipt(input), Error, 'cumulativeGasUsed must be a number');
     });
 
     it('It should throw if cumulativeGasUsed is array', () => {
       input.cumulativeGasUsed = [1];
-      assert.throws(() => new TxReceipt(input), Error, "cumulativeGasUsed must be a number");
+      assert.throws(() => new TxReceipt(input), Error, 'cumulativeGasUsed must be a number');
     });
 
     it('It should throw if cumulativeGasUsed is object', () => {
-      input.cumulativeGasUsed = {id:1};
-      assert.throws(() => new TxReceipt(input), Error, "cumulativeGasUsed must be a number");
+      input.cumulativeGasUsed = { id: 1 };
+      assert.throws(() => new TxReceipt(input), Error, 'cumulativeGasUsed must be a number');
     });
 
     it('It should throw if gasUsed is null', () => {
       input.gasUsed = null;
-      assert.throws(() => new TxReceipt(input), Error, "gasUsed must be a number");
+      assert.throws(() => new TxReceipt(input), Error, 'gasUsed must be a number');
     });
 
     it('It should throw if gasUsed is undefined', () => {
       input.gasUsed = undefined;
-      assert.throws(() => new TxReceipt(input), Error, "gasUsed must be a number");
+      assert.throws(() => new TxReceipt(input), Error, 'gasUsed must be a number');
     });
 
     it('It should throw if gasUsed is string', () => {
       input.gasUsed = '1';
-      assert.throws(() => new TxReceipt(input), Error, "gasUsed must be a number");
+      assert.throws(() => new TxReceipt(input), Error, 'gasUsed must be a number');
     });
 
     it('It should throw if gasUsed is array', () => {
       input.gasUsed = [1];
-      assert.throws(() => new TxReceipt(input), Error, "gasUsed must be a number");
+      assert.throws(() => new TxReceipt(input), Error, 'gasUsed must be a number');
     });
 
     it('It should throw if gasUsed is object', () => {
-      input.gasUsed = {id:1};
-      assert.throws(() => new TxReceipt(input), Error, "gasUsed must be a number");
+      input.gasUsed = { id: 1 };
+      assert.throws(() => new TxReceipt(input), Error, 'gasUsed must be a number');
     });
   });
 

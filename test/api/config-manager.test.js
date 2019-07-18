@@ -16,7 +16,7 @@ const address = '0x939592864C0Bd3355B2D54e4fA2203E8343B6d6a';
 describe('api/config-manager', () => {
   let stubGetContract;
   beforeEach(() => {
-      stubGetContract = sinon.stub(ConfigManager, 'getContract').callsFake(getContract);
+    stubGetContract = sinon.stub(ConfigManager, 'getContract').callsFake(getContract);
   });
 
   afterEach(() => {

@@ -16,7 +16,7 @@ const address = '0x939592864C0Bd3355B2D54e4fA2203E8343B6d6a';
 describe('api/multiple-results-event', () => {
   let stubGetContract;
   beforeEach(() => {
-      stubGetContract = sinon.stub(Event, 'getContract').callsFake(getContract);
+    stubGetContract = sinon.stub(Event, 'getContract').callsFake(getContract);
   });
 
   afterEach(() => {
@@ -32,15 +32,11 @@ describe('api/multiple-results-event', () => {
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.calculateWinnings({
-        address,
-      })).to.be.rejectedWith(Error);
+      expect(Event.calculateWinnings({ address })).to.be.rejectedWith(Error);
     });
 
     it('It throws if address is undefined', () => {
-      expect(Event.calculateWinnings({
-        eventAddress,
-      })).to.be.rejectedWith(Error);
+      expect(Event.calculateWinnings({ eventAddress })).to.be.rejectedWith(Error);
     });
   });
 
@@ -191,15 +187,11 @@ describe('api/multiple-results-event', () => {
     });
 
     it('It throws if eventAddress is undefined', () => {
-      expect(Event.didWithdraw({
-        address,
-      })).to.be.rejectedWith(Error);
+      expect(Event.didWithdraw({ address })).to.be.rejectedWith(Error);
     });
 
     it('It throws if address is undefined', () => {
-      expect(Event.didWithdraw({
-        eventAddress,
-      })).to.be.rejectedWith(Error);
+      expect(Event.didWithdraw({ eventAddress })).to.be.rejectedWith(Error);
     });
   });
 

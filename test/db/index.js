@@ -2153,16 +2153,16 @@ describe('db', () => {
   describe('test Names db', () => {
     const mockNames = [
       {
-        "address":"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        "name":"deric",
+        address: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
+        name: 'deric',
       },
       {
-        "address":"0xda184722103b79479e9ef6d999688eae7fc460d4",
-        "name":"seven1"
+        address: '0xda184722103b79479e9ef6d999688eae7fc460d4',
+        name: 'seven1',
       },
       {
-        "address":"0xbc4b8726f9619c871fad66030116964480205b9d",
-        "name":"lulu"
+        address: '0xbc4b8726f9619c871fad66030116964480205b9d',
+        name: 'lulu',
       },
     ];
     let name;

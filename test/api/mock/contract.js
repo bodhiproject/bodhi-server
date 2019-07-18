@@ -15,7 +15,7 @@ const stubCurrentArbitrationEndTime = sinon.stub().returns(() => 17600);
 const stubEventMetadata = sinon.stub().returns(() => [
   6,
   'Test',
-  map(results, (item) => web3.utils.utf8ToHex(item)),
+  map(results, item => web3.utils.utf8ToHex(item)),
   3,
 ]);
 const stubCentralizedMetadata = sinon.stub().returns(() => [
@@ -43,45 +43,41 @@ const stubArbitrationLength = sinon.stub().returns(() => [
   172800, // 48 hours
   86400, // 24 hours
   43200, // 12 hours
-  21600 // 6 hours
+  21600, // 6 hours
 ]);
 const stubStartingConsensusThreshold = sinon.stub().returns(() => [
   100 * (10 ** TOKEN_DECIMALS),
   1000 * (10 ** TOKEN_DECIMALS),
   5000 * (10 ** TOKEN_DECIMALS),
-  10000 * (10 ** TOKEN_DECIMALS)
+  10000 * (10 ** TOKEN_DECIMALS),
 ]);
 const stubThresholdPercentIncrease = sinon.stub().returns(() => 10);
 const stubIsWhitelisted = sinon.stub().returns(() => true);
 
-const getContract = () => {
-  return {
-    methods: {
-      // multiple-results-event
-      calculateWinnings: stubCalculateWinnings,
-      version: stubVersion,
-      currentRound: stubCurrentRound,
-      currentResultIndex: stubCurrentResultIndex,
-      currentConsensusThreshold: stubCurrentConsensusThreshold,
-      currentArbitrationEndTime: stubCurrentArbitrationEndTime,
-      eventMetadata: stubEventMetadata,
-      centralizedMetadata: stubCentralizedMetadata,
-      configMetadata: stubConfigMetadata,
-      totalBets: stubTotalBets,
-      didWithdraw: stubDidWithdraw,
-      didWithdrawEscrow: stubDidWithdrawEscrow,
-      // config-manager
-      bodhiTokenAddress: stubBodhiTokenAddress,
-      eventFactoryAddress: stubEventFactoryAddress,
-      eventEscrowAmount: stubEventEscrowAmount,
-      arbitrationLength: stubArbitrationLength,
-      startingConsensusThreshold: stubStartingConsensusThreshold,
-      thresholdPercentIncrease: stubThresholdPercentIncrease,
-      isWhitelisted: stubIsWhitelisted,
-    }
-  }
-};
+const getContract = () => ({
+  methods: {
+    // multiple-results-event
+    calculateWinnings: stubCalculateWinnings,
+    version: stubVersion,
+    currentRound: stubCurrentRound,
+    currentResultIndex: stubCurrentResultIndex,
+    currentConsensusThreshold: stubCurrentConsensusThreshold,
+    currentArbitrationEndTime: stubCurrentArbitrationEndTime,
+    eventMetadata: stubEventMetadata,
+    centralizedMetadata: stubCentralizedMetadata,
+    configMetadata: stubConfigMetadata,
+    totalBets: stubTotalBets,
+    didWithdraw: stubDidWithdraw,
+    didWithdrawEscrow: stubDidWithdrawEscrow,
+    // config-manager
+    bodhiTokenAddress: stubBodhiTokenAddress,
+    eventFactoryAddress: stubEventFactoryAddress,
+    eventEscrowAmount: stubEventEscrowAmount,
+    arbitrationLength: stubArbitrationLength,
+    startingConsensusThreshold: stubStartingConsensusThreshold,
+    thresholdPercentIncrease: stubThresholdPercentIncrease,
+    isWhitelisted: stubIsWhitelisted,
+  },
+});
 
-module.exports = {
-  getContract,
-};
+module.exports = { getContract };
