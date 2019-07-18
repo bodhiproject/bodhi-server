@@ -18,12 +18,9 @@ services:
       - SSL_CERT_PATH=/root/bodhi-server/creds/nakachain.org.pem
       - LOG_LEVEL=debug
     volumes:
-      - bodhi-server-testnet:/root/bodhi-server/data
+      - /home/ubuntu/.bodhi/testnet:/root/bodhi-server/data
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "5"
-
-volumes:
-  bodhi-server-testnet:
