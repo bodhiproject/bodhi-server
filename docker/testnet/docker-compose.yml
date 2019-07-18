@@ -14,8 +14,8 @@ services:
     environment:
       - NETWORK=testnet
       - SSL=true
-      - SSL_KEY_PATH=/root/bodhi-server/creds/nakachain.org.key
-      - SSL_CERT_PATH=/root/bodhi-server/creds/nakachain.org.pem
+      - SSL_KEY_PATH=/root/bodhi-server/creds/puti.io.key
+      - SSL_CERT_PATH=/root/bodhi-server/creds/puti.io.pem
       - LOG_LEVEL=debug
     volumes:
       - /home/ubuntu/.bodhi/testnet:/root/bodhi-server/data
