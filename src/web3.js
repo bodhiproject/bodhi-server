@@ -1,7 +1,7 @@
 const Web3 = require('web3');
 const net = require('net');
 const { CONFIG, isMainnet } = require('./config');
-const { EVENT_MESSAGE } = require('./constants');
+const { EVENT_MESSAGE, WEB3_PROVIDER } = require('./constants');
 const logger = require('./utils/logger');
 const emitter = require('./event');
 
@@ -75,6 +75,20 @@ const getHttpProvider = () => {
   return provider;
 };
 
-const web3 = new Web3(getProvider());
+let web3;
+switch (CONFIG.PROVIDER) {
+  case WEB3_PROVIDER.WS: {
+    web3 = new Web3(getWsProvider());
+    break;
+  }
+  case WEB3_PROVIDER.HTTP: {
+    web3 = new Web3(getHttpProvider());
+    break;
+  }
+  default: {
+    web3 = new Web3(getIpcProvider());
+    break;
+  }
+}
 
 module.exports = web3;

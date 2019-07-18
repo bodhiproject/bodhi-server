@@ -15,6 +15,7 @@ const CONFIG = {
   IPC_PROVIDER_MAINNET: '/root/.bodhi/mainnet/geth.ipc',
   IPC_PROVIDER_TESTNET: '/root/.bodhi/testnet/geth.ipc',
   PROTOCOL: process.env.SSL === 'true' ? 'https' : 'http',
+  PROVIDER: process.env.PROVIDER,
   HOSTNAME: 'localhost',
   API_PORT_MAINNET: 8888,
   API_PORT_TESTNET: 9999,
