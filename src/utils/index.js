@@ -1,4 +1,5 @@
-const { find, isUndefined, isNull, isString } = require('lodash');
+const { find, isUndefined, isNull, isString, forEach, isArray } = require('lodash');
+const { resolveAddress } = require('../api/address-name-service');
 
 module.exports = {
   isDefined: item => !isUndefined(item) && !isNull(item),
@@ -25,5 +26,48 @@ module.exports = {
     if (isNull(str)) return null;
     if (!isString(str)) return str;
     return str.toLowerCase();
+  },
+
+  /**
+   * Insert names to Names DB when the address has a name.
+   * @param {string} address Address to check name
+   * @param {func} DBHelper DBHelper methods
+   */
+  getAndInsertNames: async (address, DBHelper) => {
+    if (isUndefined(address)) return;
+    let addresses = address;
+    if (!isArray(address)) addresses = [address];
+    const toCheckAddresses = [];
+    let promises = [];
+    forEach(addresses, async (item, key) => {
+      promises.push(new Promise(async (resolve, reject) => {
+        try {
+          const ret = await DBHelper.findOneName({ address: item });
+          if (!ret) {
+            toCheckAddresses.push(item);
+          }
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      }));
+    });
+    await Promise.all(promises);
+
+    const addressNameObj = await resolveAddress(toCheckAddresses);
+    Object.keys(addressNameObj).forEach(key => (addressNameObj[key] === '') && delete addressNameObj[key]);
+
+    promises = [];
+    forEach(addressNameObj, async (name, key) => {
+      promises.push(new Promise(async (resolve, reject) => {
+        try {
+          await DBHelper.insertName({ address: key, name });
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      }));
+    });
+    await Promise.all(promises);
   },
 };

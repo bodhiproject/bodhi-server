@@ -19,25 +19,25 @@ The following fields are not validating in model
 
 const results = ['Invalid', '1', 'y'];
 const rawInput = {
-  txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  txid: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
   txStatus: TX_STATUS.SUCCESS,
   blockNum: 5,
-  address: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-  ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  address: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
+  ownerAddress: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
   version: 6,
-  name: "Test",
-  results: map(results, (item) => web3.utils.utf8ToHex(item)),
+  name: 'Test',
+  results: map(results, item => web3.utils.utf8ToHex(item)),
   numOfResults: 3,
-  centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+  centralizedOracle: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
   betStartTime: 1560965704,
   betEndTime: 1560965704,
   resultSetStartTime: 1560965704,
   resultSetEndTime: 1560965704,
-  escrowAmount: "1000000",
+  escrowAmount: '1000000',
   arbitrationLength: 172800,
-  thresholdPercentIncrease: "10",
+  thresholdPercentIncrease: '10',
   arbitrationRewardPercentage: 10,
-  consensusThreshold: "100000000000",
+  consensusThreshold: '100000000000',
   arbitrationEndTime: 1560965704,
 };
 
@@ -52,242 +52,242 @@ describe('models/multiple-results-event', () => {
 
     it('It should throw if txid is null', () => {
       input.txid = null;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txid must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'txid must be a String');
     });
 
     it('It should throw if txid is undefined', () => {
       input.txid = undefined;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txid must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'txid must be a String');
     });
 
     it('It should throw if txid is number', () => {
       input.txid = 12;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txid must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'txid must be a String');
     });
 
     it('It should throw if txid is array', () => {
-      input.txid = ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"];
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txid must be a String");
+      input.txid = ['0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428'];
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'txid must be a String');
     });
 
     it('It should throw if txid is object', () => {
-      input.txid = {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"};
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txid must be a String");
+      input.txid = { id: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428' };
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'txid must be a String');
     });
 
     it('It should throw if txStatus is null', () => {
       input.txStatus = null;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txStatus must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'txStatus must be a String');
     });
 
     it('It should throw if txStatus is undefined', () => {
       input.txStatus = undefined;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txStatus must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'txStatus must be a String');
     });
 
     it('It should throw if txStatus is number', () => {
       input.txStatus = 12;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txStatus must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'txStatus must be a String');
     });
 
     it('It should throw if txStatus is array', () => {
       input.txStatus = [TX_STATUS.SUCCESS];
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txStatus must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'txStatus must be a String');
     });
 
     it('It should throw if txStatus is object', () => {
-      input.txStatus = {id:TX_STATUS.SUCCESS};
-      assert.throws(() => new MultipleResultsEvent(input), Error, "txStatus must be a String");
+      input.txStatus = { id: TX_STATUS.SUCCESS };
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'txStatus must be a String');
     });
 
     it('It should throw if ownerAddress is null', () => {
       input.ownerAddress = null;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "ownerAddress must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'ownerAddress must be a String');
     });
 
     it('It should throw if ownerAddress is undefined', () => {
       input.ownerAddress = undefined;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "ownerAddress must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'ownerAddress must be a String');
     });
 
     it('It should throw if ownerAddress is number', () => {
       input.ownerAddress = 12;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "ownerAddress must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'ownerAddress must be a String');
     });
 
     it('It should throw if ownerAddress is array', () => {
-      input.ownerAddress = ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"];
-      assert.throws(() => new MultipleResultsEvent(input), Error, "ownerAddress must be a String");
+      input.ownerAddress = ['0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428'];
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'ownerAddress must be a String');
     });
 
     it('It should throw if ownerAddress is object', () => {
-      input.ownerAddress = {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"};
-      assert.throws(() => new MultipleResultsEvent(input), Error, "ownerAddress must be a String");
+      input.ownerAddress = { id: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428' };
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'ownerAddress must be a String');
     });
 
     it('It should throw if name is null', () => {
       input.name = null;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "name must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'name must be a String');
     });
 
     it('It should throw if name is undefined', () => {
       input.name = undefined;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "name must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'name must be a String');
     });
 
     it('It should throw if name is number', () => {
       input.name = 12;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "name must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'name must be a String');
     });
 
     it('It should throw if name is array', () => {
-      input.name = ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"];
-      assert.throws(() => new MultipleResultsEvent(input), Error, "name must be a String");
+      input.name = ['0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428'];
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'name must be a String');
     });
 
     it('It should throw if name is object', () => {
-      input.name = {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"};
-      assert.throws(() => new MultipleResultsEvent(input), Error, "name must be a String");
+      input.name = { id: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428' };
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'name must be a String');
     });
 
     it('It should throw if centralizedOracle is null', () => {
       input.centralizedOracle = null;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "centralizedOracle must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'centralizedOracle must be a String');
     });
 
     it('It should throw if centralizedOracle is undefined', () => {
       input.centralizedOracle = undefined;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "centralizedOracle must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'centralizedOracle must be a String');
     });
 
     it('It should throw if centralizedOracle is number', () => {
       input.centralizedOracle = 12;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "centralizedOracle must be a String");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'centralizedOracle must be a String');
     });
 
     it('It should throw if centralizedOracle is array', () => {
-      input.centralizedOracle = ["0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"];
-      assert.throws(() => new MultipleResultsEvent(input), Error, "centralizedOracle must be a String");
+      input.centralizedOracle = ['0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428'];
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'centralizedOracle must be a String');
     });
 
     it('It should throw if centralizedOracle is object', () => {
-      input.centralizedOracle = {id:"0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428"};
-      assert.throws(() => new MultipleResultsEvent(input), Error, "centralizedOracle must be a String");
+      input.centralizedOracle = { id: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428' };
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'centralizedOracle must be a String');
     });
 
     it('It should throw if numOfResults is null', () => {
       input.numOfResults = null;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "numOfResults must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'numOfResults must be a Number');
     });
 
     it('It should throw if numOfResults is undefined', () => {
       input.numOfResults = undefined;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "numOfResults must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'numOfResults must be a Number');
     });
 
     it('It should throw if numOfResults is string', () => {
-      input.numOfResults = "12";
-      assert.throws(() => new MultipleResultsEvent(input), Error, "numOfResults must be a Number");
+      input.numOfResults = '12';
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'numOfResults must be a Number');
     });
 
     it('It should throw if numOfResults is array', () => {
       input.numOfResults = [2];
-      assert.throws(() => new MultipleResultsEvent(input), Error, "numOfResults must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'numOfResults must be a Number');
     });
 
     it('It should throw if numOfResults is object', () => {
-      input.numOfResults = {id:2};
-      assert.throws(() => new MultipleResultsEvent(input), Error, "numOfResults must be a Number");
+      input.numOfResults = { id: 2 };
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'numOfResults must be a Number');
     });
 
     it('It should throw if betEndTime is null', () => {
       input.betEndTime = null;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "betEndTime must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'betEndTime must be a Number');
     });
 
     it('It should throw if betEndTime is undefined', () => {
       input.betEndTime = undefined;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "betEndTime must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'betEndTime must be a Number');
     });
 
     it('It should throw if betEndTime is string', () => {
-      input.betEndTime = "12";
-      assert.throws(() => new MultipleResultsEvent(input), Error, "betEndTime must be a Number");
+      input.betEndTime = '12';
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'betEndTime must be a Number');
     });
 
     it('It should throw if betEndTime is array', () => {
       input.betEndTime = [2];
-      assert.throws(() => new MultipleResultsEvent(input), Error, "betEndTime must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'betEndTime must be a Number');
     });
 
     it('It should throw if betEndTime is object', () => {
-      input.betEndTime = {id:2};
-      assert.throws(() => new MultipleResultsEvent(input), Error, "betEndTime must be a Number");
+      input.betEndTime = { id: 2 };
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'betEndTime must be a Number');
     });
 
     it('It should throw if resultSetStartTime is null', () => {
       input.resultSetStartTime = null;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetStartTime must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'resultSetStartTime must be a Number');
     });
 
     it('It should throw if resultSetStartTime is undefined', () => {
       input.resultSetStartTime = undefined;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetStartTime must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'resultSetStartTime must be a Number');
     });
 
     it('It should throw if resultSetStartTime is string', () => {
-      input.resultSetStartTime = "12";
-      assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetStartTime must be a Number");
+      input.resultSetStartTime = '12';
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'resultSetStartTime must be a Number');
     });
 
     it('It should throw if resultSetStartTime is array', () => {
       input.resultSetStartTime = [2];
-      assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetStartTime must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'resultSetStartTime must be a Number');
     });
 
     it('It should throw if resultSetStartTime is object', () => {
-      input.resultSetStartTime = {id:2};
-      assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetStartTime must be a Number");
+      input.resultSetStartTime = { id: 2 };
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'resultSetStartTime must be a Number');
     });
 
     it('It should throw if betStartTime is null', () => {
       input.betStartTime = null;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "betStartTime must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'betStartTime must be a Number');
     });
 
     it('It should throw if betStartTime is string', () => {
-      input.betStartTime = "12";
-      assert.throws(() => new MultipleResultsEvent(input), Error, "betStartTime must be a Number");
+      input.betStartTime = '12';
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'betStartTime must be a Number');
     });
 
     it('It should throw if betStartTime is array', () => {
       input.betStartTime = [2];
-      assert.throws(() => new MultipleResultsEvent(input), Error, "betStartTime must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'betStartTime must be a Number');
     });
 
     it('It should throw if betStartTime is object', () => {
-      input.betStartTime = {id:2};
-      assert.throws(() => new MultipleResultsEvent(input), Error, "betStartTime must be a Number");
+      input.betStartTime = { id: 2 };
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'betStartTime must be a Number');
     });
 
     it('It should throw if resultSetEndTime is null', () => {
       input.resultSetEndTime = null;
-      assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetEndTime must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'resultSetEndTime must be a Number');
     });
 
     it('It should throw if resultSetEndTime is string', () => {
-      input.resultSetEndTime = "12";
-      assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetEndTime must be a Number");
+      input.resultSetEndTime = '12';
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'resultSetEndTime must be a Number');
     });
 
     it('It should throw if resultSetEndTime is array', () => {
       input.resultSetEndTime = [2];
-      assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetEndTime must be a Number");
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'resultSetEndTime must be a Number');
     });
 
     it('It should throw if resultSetEndTime is object', () => {
-      input.resultSetEndTime = {id:2};
-      assert.throws(() => new MultipleResultsEvent(input), Error, "resultSetEndTime must be a Number");
+      input.resultSetEndTime = { id: 2 };
+      assert.throws(() => new MultipleResultsEvent(input), Error, 'resultSetEndTime must be a Number');
     });
   });
 
@@ -300,22 +300,22 @@ describe('models/multiple-results-event', () => {
       Object.assign(input, rawInput);
 
       mutationInput = {
-        txid: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+        txid: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
         txStatus: TX_STATUS.SUCCESS,
         blockNum: 5,
-        address: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
-        ownerAddress: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+        address: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
+        ownerAddress: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
         version: 6,
-        name: "Test",
+        name: 'Test',
         numOfResults: 3,
-        centralizedOracle: "0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428",
+        centralizedOracle: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
         betEndTime: 1560965704,
         resultSetStartTime: 1560965704,
-        escrowAmount: "1000000",
+        escrowAmount: '1000000',
         arbitrationLength: 172800,
-        thresholdPercentIncrease: "10",
+        thresholdPercentIncrease: '10',
         arbitrationRewardPercentage: 10,
-        consensusThreshold: "100000000000",
+        consensusThreshold: '100000000000',
         arbitrationEndTime: 1560965704,
       };
       mutationInput.results = input.results;

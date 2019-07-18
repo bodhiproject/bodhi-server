@@ -118,6 +118,12 @@ module.exports = {
       }
       return null;
     },
+    ownerName: async ({ ownerAddress }) => {
+      const nameEntry = await DBHelper.findOneName({
+        address: ownerAddress,
+      });
+      return nameEntry && nameEntry.name;
+    },
     totalBets: async ({ address }) => {
       const bets = await DBHelper.findBet({
         txStatus: TX_STATUS.SUCCESS,
@@ -150,6 +156,12 @@ module.exports = {
       const event = await DBHelper.findOneEvent({ address: eventAddress });
       return event && event.name;
     },
+    betterName: async ({ betterAddress }) => {
+      const nameEntry = await DBHelper.findOneName({
+        address: betterAddress,
+      });
+      return nameEntry && nameEntry.name;
+    },
   },
 
   ResultSet: {
@@ -164,6 +176,12 @@ module.exports = {
       const event = await DBHelper.findOneEvent({ address: eventAddress });
       return event && event.name;
     },
+    centralizedOracleName: async ({ centralizedOracleAddress }) => {
+      const nameEntry = await DBHelper.findOneName({
+        address: centralizedOracleAddress,
+      });
+      return nameEntry && nameEntry.name;
+    },
   },
 
   Withdraw: {
@@ -173,6 +191,30 @@ module.exports = {
     eventName: async ({ eventAddress }) => {
       const event = await DBHelper.findOneEvent({ address: eventAddress });
       return event && event.name;
+    },
+    winnerName: async ({ winnerAddress }) => {
+      const nameEntry = await DBHelper.findOneName({
+        address: winnerAddress,
+      });
+      return nameEntry && nameEntry.name;
+    },
+  },
+  MostBet: {
+    betterName: async ({ betterAddress }) => {
+      const nameEntry = await DBHelper.findOneName({ address: betterAddress });
+      return nameEntry && nameEntry.name;
+    },
+  },
+  BiggestWinner: {
+    betterName: async ({ betterAddress }) => {
+      const nameEntry = await DBHelper.findOneName({ address: betterAddress });
+      return nameEntry && nameEntry.name;
+    },
+  },
+  LeaderboardEntry: {
+    userName: async ({ userAddress }) => {
+      const nameEntry = await DBHelper.findOneName({ address: userAddress });
+      return nameEntry && nameEntry.name;
     },
   },
 };

@@ -10,6 +10,8 @@ const CONFIG = {
   NETWORK: process.env.NETWORK,
   HTTP_PROVIDER_MAINNET: 'https://api.nakachain.org',
   HTTP_PROVIDER_TESTNET: 'https://testnet.api.nakachain.org',
+  NAKA_BASE_MAINNET: 'https://base.nakachain.org/mainnet/naka',
+  NAKA_BASE_TESTNET: 'https://base.nakachain.org/testnet/naka',
   WS_PROVIDER_MAINNET: 'wss://api.nakachain.org/ws',
   WS_PROVIDER_TESTNET: 'wss://testnet.api.nakachain.org/ws',
   IPC_PROVIDER_MAINNET: '/root/.bodhi/mainnet/geth.ipc',
@@ -22,6 +24,7 @@ const CONFIG = {
   DEFAULT_LOG_LEVEL: 'debug',
   STARTING_CONTRACT_VERSION_MAINNET: 5,
   STARTING_CONTRACT_VERSION_TESTNET: 0,
+  API_KEY: process.env.API_KEY,
 };
 
 let versionConfig;

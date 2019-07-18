@@ -1,10 +1,9 @@
-const { isNull, each, find } = require('lodash');
+const { isNull } = require('lodash');
 const logger = require('../utils/logger');
 const { isDefined } = require('../utils');
 const { sumBN } = require('../utils/web3-utils');
 const { EVENT_STATUS, TX_STATUS } = require('../constants');
 const { db } = require('.');
-const web3 = require('../web3');
 const EventLeaderboard = require('../models/event-leaderboard');
 const GlobalLeaderboard = require('../models/global-leaderboard');
 
@@ -576,6 +575,43 @@ module.exports = class DBHelper {
       );
     } catch (err) {
       logger.error(`UPDATE GlobalLeaderboard error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  /* Names */
+  static async findName(query) {
+    try {
+      return db.Names.find(query);
+    } catch (err) {
+      logger.error(`FIND Names error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async findOneName(query) {
+    try {
+      return db.Names.findOne(query);
+    } catch (err) {
+      logger.error(`FINDONE Names error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async countName(query) {
+    try {
+      return db.Names.count(query);
+    } catch (err) {
+      logger.error(`COUNT Name error: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async insertName(nameEntry) {
+    try {
+      await db.Names.insert(nameEntry);
+    } catch (err) {
+      logger.error(`INSERT Name error: ${err.message}`);
       throw err;
     }
   }

@@ -2,7 +2,7 @@ const { each, isNull, find } = require('lodash');
 const updateEvent = require('./update-event');
 const web3 = require('../web3');
 const { TX_STATUS } = require('../constants');
-const { toLowerCase } = require('../utils');
+const { toLowerCase, getAndInsertNames } = require('../utils');
 const logger = require('../utils/logger');
 const { getTransactionReceipt } = require('../utils/web3-utils');
 const DBHelper = require('../db/db-helper');
@@ -28,6 +28,7 @@ const syncResultSet = async ({ startBlock, endBlock, syncPromises, limit }) => {
           // Parse and insert result set
           const resultSet = parseResultSet({ log: logObj });
           await DBHelper.insertResultSet(resultSet);
+          await getAndInsertNames(resultSet.centralizedOracleAddress, DBHelper);
 
           // Fetch and insert tx receipt
           const txReceipt = await getTransactionReceipt(resultSet.txid);

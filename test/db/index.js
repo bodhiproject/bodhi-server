@@ -2149,6 +2149,77 @@ describe('db', () => {
     });
   });
 
+  /* Names */
+  describe('test Names db', () => {
+    const mockNames = [
+      {
+        address: '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428',
+        name: 'deric',
+      },
+      {
+        address: '0xda184722103b79479e9ef6d999688eae7fc460d4',
+        name: 'seven1',
+      },
+      {
+        address: '0xbc4b8726f9619c871fad66030116964480205b9d',
+        name: 'lulu',
+      },
+    ];
+    let name;
+    let nameCount;
+
+    describe('find name', () => {
+      it('find empty name db', async () => {
+        nameCount = await db.Names.count({});
+        nameCount.should.equal(0);
+        name = await DBHelper.findName({});
+        name.length.should.equal(0);
+      });
+
+      it('should return existing names', async () => {
+        await DBHelper.insertName(mockNames[0]);
+        const foundNames = await DBHelper.findName({});
+        foundNames.length.should.equal(1);
+        expect(foundNames[0]).excluding('_id').to.deep.equal(mockNames[0]);
+        await DBHelper.insertName(mockNames[1]);
+      });
+    });
+
+    describe('find one name', () => {
+      it('find existed name', async () => {
+        name = await DBHelper.findOneName({ address: mockNames[0].address });
+        should.exist(name);
+        expect(name).excluding('_id').to.deep.equal(mockNames[0]);
+      });
+
+      it('should find null when address is not existed', async () => {
+        name = await DBHelper.findOneName({ address: '0x12333' });
+        should.not.exist(name);
+      });
+    });
+
+    describe('count name', () => {
+      it('name counts should right', async () => {
+        nameCount = await DBHelper.countName({});
+        nameCount.should.equal(2);
+      });
+    });
+
+    describe('insert name', () => {
+      it('should insert new name', async () => {
+        nameCount = await db.Names.count({});
+        nameCount.should.equal(2);
+        await DBHelper.insertName(mockNames[2]);
+        nameCount = await db.Names.count({});
+        nameCount.should.equal(3);
+        name = await DBHelper.findOneName({ address: mockNames[2].address });
+        should.exist(name);
+        expect(name).excluding('_id').to.deep.equal(mockNames[2]);
+      });
+    });
+  });
+
+
   after(async () => {
     fs.removeSync(getDbDir());
   });

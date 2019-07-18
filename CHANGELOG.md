@@ -5,6 +5,7 @@
 - [#281] - Add Pull Request template and add CHANGELOG.md
 - [#283] - Add process level error handling for promise rejections
 - [#285] - Remove start_block.dat for starting sync at right block
+- [#286] - Add address name service
 
 ## 6.2.0
 
