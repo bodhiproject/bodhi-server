@@ -1,13 +1,14 @@
 FROM node:10
 
+# Install deps
 RUN apt-get update && apt-get install -y vim
 
-WORKDIR /root/bodhi-server
+# Expose ports
+ENV EXPOSED_PORTS=
+EXPOSE $EXPOSED_PORTS
 
+# Copy and install
 COPY . .
-
 RUN npm install
 
 ENTRYPOINT ["node", "src/index.js"]
-
-EXPOSE 9999

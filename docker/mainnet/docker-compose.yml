@@ -4,26 +4,25 @@ services:
   bodhi-server-mainnet:
     hostname: bodhi-server-mainnet
     container_name: bodhi-server-mainnet
-    restart: unless-stopped
+    restart: always
     stop_signal: SIGINT
     build:
       context: ../../
-      dockerfile: ./docker/mainnet/Dockerfile
+      dockerfile: ./docker/Dockerfile
     ports:
       - 8888:8888
     environment:
+      - EXPOSED_PORTS="8888"
       - NETWORK=mainnet
       - SSL=true
-      - SSL_KEY_PATH=/root/bodhi-server/creds/nakachain.org.key
-      - SSL_CERT_PATH=/root/bodhi-server/creds/nakachain.org.pem
+      - SSL_KEY_PATH=/root/creds/puti.io.key
+      - SSL_CERT_PATH=/root/creds/puti.io.pem
       - LOG_LEVEL=debug
     volumes:
-      - bodhi-server-mainnet:/root/bodhi-server/data
+      - /home/ubuntu/.bodhi/mainnet:/root/data
+      - /home/ubuntu/.naka/mainnet/geth.ipc:/root/.bodhi/mainnet/geth.ipc
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "5"
-
-volumes:
-  bodhi-server-mainnet:
