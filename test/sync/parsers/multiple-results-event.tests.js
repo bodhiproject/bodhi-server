@@ -1,3 +1,4 @@
+/* eslint-disable object-curly-newline */
 const { assert } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire').noCallThru();
@@ -149,3 +150,4 @@ describe('sync/parsers/multiple-results-event', () => {
     assert.equal(event.arbitrationEndTime, 0);
   });
 });
+/* eslint-enable object-curly-newline */
