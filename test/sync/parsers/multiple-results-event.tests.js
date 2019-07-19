@@ -78,7 +78,7 @@ describe('sync/parsers/multiple-results-event', () => {
     proxyquire.callThru();
   });
 
-  it.only('parses the log and fetches other data', async () => {
+  it('parses the log and fetches other data', async () => {
     const event = await parseEvent({ log });
     assert.isString(event.txid);
     assert.equal(event.txid, '0x6347b37d00e43f7591fc3621085e5759b535135aeafc5589c2115b4712239c1d');
