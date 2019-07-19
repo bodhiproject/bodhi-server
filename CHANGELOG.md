@@ -6,6 +6,7 @@
 - [#283] - Add process level error handling for promise rejections
 - [#285] - Remove start_block.dat for starting sync at right block
 - [#286] - Add address name service
+- [#293] - Fix Event sync parser tests
 - [#294] - Update readme for copying data
 
 ## 6.2.0
