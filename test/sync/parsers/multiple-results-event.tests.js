@@ -1,5 +1,6 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
+const proxyquire = require('proxyquire');
 const { TX_STATUS } = require('../../../src/constants');
 const Config = require('../../../src/config');
 
@@ -20,11 +21,23 @@ const log = {
 
 describe('sync/parsers/multiple-results-event', () => {
   let stubDetermineContractVersion;
-  let parseEvent;
+  let stubParseEvent;
 
   beforeEach(() => {
     stubDetermineContractVersion = sinon.stub(Config, 'determineContractVersion').returns(5);
-    parseEvent = require('../../../src/sync/parsers/multiple-results-event'); // eslint-disable-line
+    stubParseEvent = proxyquire('../../../src/sync/parsers/multiple-results-event', {
+      '../../web3': sinon.stub().returns({
+        eth: {
+          Contract: {
+            methods: {
+              eventMetadata: { call: [0, 'The', ['Invalid', 'u', 'y'], 3] },
+            }
+          }
+        }
+      }),
+    });
+    console.log(stubParseEvent);
+    // parseEvent = require('../../../src/sync/parsers/multiple-results-event'); // eslint-disable-line
   });
 
   afterEach(() => {
@@ -33,30 +46,30 @@ describe('sync/parsers/multiple-results-event', () => {
   });
 
   // TODO: stub contract call
-  // it('parses the log and fetches other data', async () => {
-  //   const event = await parseEvent({ log });
-  //   assert.equal(event.txid, '0x6347b37d00e43f7591fc3621085e5759b535135aeafc5589c2115b4712239c1d');
-  //   assert.equal(event.txStatus, TX_STATUS.SUCCESS);
-  //   assert.equal(event.blockNum, 3840954);
-  //   assert.equal(event.address, '0x72dd97e774f27b61bf58669be4dbabf9c3d349a4');
-  //   assert.equal(event.ownerAddress, '0x7937a1e86f2cb43d6c91d27ca7a4f93c7f7189c3');
-  //   assert.equal(event.version, 5);
-  //   assert.equal(event.name, 'The');
-  //   assert.deepEqual(event.results, ['Invalid', 'u', 'y']);
-  //   assert.equal(event.numOfResults, 3);
-  //   assert.equal(
-  //     event.centralizedOracle.toLowerCase(),
-  //     '0x7937A1E86F2Cb43D6c91D27ca7A4f93c7F7189C3'.toLowerCase(),
-  //   );
-  //   assert.equal(event.betStartTime, 1559877543);
-  //   assert.equal(event.betEndTime, 1559963943);
-  //   assert.equal(event.resultSetStartTime, 1559963943);
-  //   assert.equal(event.resultSetEndTime, 1560050343);
-  //   assert.equal(event.escrowAmount, '100000000');
-  //   assert.equal(event.arbitrationLength, 300);
-  //   assert.equal(event.thresholdPercentIncrease, 10);
-  //   assert.equal(event.arbitrationRewardPercentage, 10);
-  //   assert.isString(event.consensusThreshold);
-  //   assert.isNumber(event.arbitrationEndTime);
-  // });
+  it.only('parses the log and fetches other data', async () => {
+    const event = await stubParseEvent({ log });
+    assert.equal(event.txid, '0x6347b37d00e43f7591fc3621085e5759b535135aeafc5589c2115b4712239c1d');
+    assert.equal(event.txStatus, TX_STATUS.SUCCESS);
+    assert.equal(event.blockNum, 3840954);
+    assert.equal(event.address, '0x72dd97e774f27b61bf58669be4dbabf9c3d349a4');
+    assert.equal(event.ownerAddress, '0x7937a1e86f2cb43d6c91d27ca7a4f93c7f7189c3');
+    assert.equal(event.version, 5);
+    assert.equal(event.name, 'The');
+    assert.deepEqual(event.results, ['Invalid', 'u', 'y']);
+    assert.equal(event.numOfResults, 3);
+    assert.equal(
+      event.centralizedOracle.toLowerCase(),
+      '0x7937A1E86F2Cb43D6c91D27ca7A4f93c7F7189C3'.toLowerCase(),
+    );
+    assert.equal(event.betStartTime, 1559877543);
+    assert.equal(event.betEndTime, 1559963943);
+    assert.equal(event.resultSetStartTime, 1559963943);
+    assert.equal(event.resultSetEndTime, 1560050343);
+    assert.equal(event.escrowAmount, '100000000');
+    assert.equal(event.arbitrationLength, 300);
+    assert.equal(event.thresholdPercentIncrease, 10);
+    assert.equal(event.arbitrationRewardPercentage, 10);
+    assert.isString(event.consensusThreshold);
+    assert.isNumber(event.arbitrationEndTime);
+  });
 });

@@ -1,8 +1,8 @@
 const { AbiCoder } = require('web3-eth-abi');
-const web3 = require('../../web3');
 const MultipleResultsEvent = require('../../models/multiple-results-event');
 const { TX_STATUS } = require('../../constants');
 const { determineContractVersion, multipleResultsEventMeta } = require('../../config');
+const { getContract } = require('../../utils/web3-utils');
 
 const abiCoder = new AbiCoder();
 
@@ -14,7 +14,7 @@ module.exports = async ({ log }) => {
   const eventMeta = multipleResultsEventMeta(contractVersion);
 
   // Get event data
-  const contract = new web3.eth.Contract(eventMeta.abi, address);
+  const contract = getContract(eventMeta.abi, address);
   let res = await contract.methods.eventMetadata().call();
   const version = res['0'];
   const eventName = res['1'];
