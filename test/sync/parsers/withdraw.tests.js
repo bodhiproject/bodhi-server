@@ -1,6 +1,7 @@
 const { assert } = require('chai');
 const parseWithdraw = require('../../../src/sync/parsers/withdraw');
 const { TX_STATUS } = require('../../../src/constants');
+const { equalIgnoreCase } = require('../../assert-utils');
 
 const log = {
   address: '0xdd2e163c2a7fe272a396b4a90ee7b1bd2a83ed83',
@@ -22,7 +23,10 @@ describe('sync/parsers/withdraw', () => {
     const withdraw = parseWithdraw({ log });
 
     assert.isString(withdraw.txid);
-    assert.equal(withdraw.txid, '0x5ad29ce04995209d87e07b262e2346e1a4e855bd893973c3ff02d371ddc9b416');
+    equalIgnoreCase(
+      withdraw.txid,
+      '0x5ad29ce04995209d87e07b262e2346e1a4e855bd893973c3ff02d371ddc9b416',
+    );
 
     assert.isString(withdraw.txStatus);
     assert.equal(withdraw.txStatus, TX_STATUS.SUCCESS);
@@ -31,15 +35,15 @@ describe('sync/parsers/withdraw', () => {
     assert.equal(withdraw.blockNum, 3803127);
 
     assert.isString(withdraw.eventAddress);
-    assert.equal(
-      withdraw.eventAddress.toLowerCase(),
-      '0xdd2e163c2a7fe272a396b4a90ee7b1bd2a83ed83'.toLowerCase(),
+    equalIgnoreCase(
+      withdraw.eventAddress,
+      '0xdd2e163c2a7fe272a396b4a90ee7b1bd2a83ed83',
     );
 
     assert.isString(withdraw.winnerAddress);
-    assert.equal(
-      withdraw.winnerAddress.toLowerCase(),
-      '0xbc4b8726f9619c871fad66030116964480205b9d'.toLowerCase(),
+    equalIgnoreCase(
+      withdraw.winnerAddress,
+      '0xbc4b8726f9619c871fad66030116964480205b9d',
     );
 
     assert.isString(withdraw.winningAmount);

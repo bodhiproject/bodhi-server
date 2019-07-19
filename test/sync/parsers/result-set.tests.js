@@ -1,6 +1,7 @@
 const { assert } = require('chai');
 const parseResultSet = require('../../../src/sync/parsers/result-set');
 const { TX_STATUS } = require('../../../src/constants');
+const { equalIgnoreCase } = require('../../assert-utils');
 
 const log = {
   address: '0x9d4768102f28af464355a46b839a06336bc64725',
@@ -22,7 +23,7 @@ describe('sync/parsers/result-set', () => {
     const resultSet = parseResultSet({ log });
 
     assert.isString(resultSet.txid);
-    assert.equal(
+    equalIgnoreCase(
       resultSet.txid,
       '0x869ab1d2f693a2c760834e9a74f18bd6fc33548b6b1d82cf08365ad8f541dbd0',
     );
@@ -34,15 +35,15 @@ describe('sync/parsers/result-set', () => {
     assert.equal(resultSet.blockNum, 3772813);
 
     assert.isString(resultSet.eventAddress);
-    assert.equal(
-      resultSet.eventAddress.toLowerCase(),
-      '0x9d4768102f28af464355a46b839a06336bc64725'.toLowerCase(),
+    equalIgnoreCase(
+      resultSet.eventAddress,
+      '0x9d4768102f28af464355a46b839a06336bc64725',
     );
 
     assert.isString(resultSet.centralizedOracleAddress);
-    assert.equal(
-      resultSet.centralizedOracleAddress.toLowerCase(),
-      '0x47ba776b3ed5d514d3e206ffee72fa483baffa7e'.toLowerCase(),
+    equalIgnoreCase(
+      resultSet.centralizedOracleAddress,
+      '0x47ba776b3ed5d514d3e206ffee72fa483baffa7e',
     );
 
     assert.isNumber(resultSet.resultIndex);

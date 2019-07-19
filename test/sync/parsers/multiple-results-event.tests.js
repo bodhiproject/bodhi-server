@@ -6,6 +6,7 @@ const Web3 = require('web3');
 const { each, map } = require('lodash');
 const { TX_STATUS } = require('../../../src/constants');
 const Config = require('../../../src/config');
+const { equalIgnoreCase } = require('../../assert-utils');
 
 const { utils: { utf8ToHex, toBN } } = new Web3();
 
@@ -81,7 +82,10 @@ describe('sync/parsers/multiple-results-event', () => {
   it('parses the log and fetches other data', async () => {
     const event = await parseEvent({ log });
     assert.isString(event.txid);
-    assert.equal(event.txid, '0x6347b37d00e43f7591fc3621085e5759b535135aeafc5589c2115b4712239c1d');
+    equalIgnoreCase(
+      event.txid,
+      '0x6347b37d00e43f7591fc3621085e5759b535135aeafc5589c2115b4712239c1d',
+    );
 
     assert.isString(event.txStatus);
     assert.equal(event.txStatus, TX_STATUS.SUCCESS);
@@ -90,16 +94,10 @@ describe('sync/parsers/multiple-results-event', () => {
     assert.equal(event.blockNum, 3840954);
 
     assert.isString(event.address);
-    assert.equal(
-      event.address.toLowerCase(),
-      '0x72dd97e774f27b61bf58669be4dbabf9c3d349a4'.toLowerCase(),
-    );
+    equalIgnoreCase(event.address, '0x72dd97e774f27b61bf58669be4dbabf9c3d349a4');
 
     assert.isString(event.ownerAddress);
-    assert.equal(
-      event.ownerAddress.toLowerCase(),
-      '0x7937a1e86f2cb43d6c91d27ca7a4f93c7f7189c3'.toLowerCase(),
-    );
+    equalIgnoreCase(event.ownerAddress, '0x7937a1e86f2cb43d6c91d27ca7a4f93c7f7189c3');
 
     assert.isNumber(event.version);
     assert.equal(event.version, 5);
@@ -114,10 +112,7 @@ describe('sync/parsers/multiple-results-event', () => {
     assert.equal(event.numOfResults, 3);
 
     assert.isString(event.centralizedOracle);
-    assert.equal(
-      event.centralizedOracle.toLowerCase(),
-      '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428'.toLowerCase(),
-    );
+    equalIgnoreCase(event.centralizedOracle, '0xd5d087daabc73fc6cc5d9c1131b93acbd53a2428');
 
     assert.isNumber(event.betStartTime);
     assert.equal(event.betStartTime, 1);
