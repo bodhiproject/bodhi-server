@@ -1,77 +1,72 @@
+# Bodhi Server
+
 [![Build Status](https://travis-ci.org/bodhiproject/bodhi-server.svg?branch=master)](https://travis-ci.org/bodhiproject/bodhi-server)
 
-# Prerequisites
+## Prerequisites
 
 1. Nix-based OS
 2. Node 10 installed
+3. Docker (if running containerized version)
 
-# Installation
+## Installation
 
 1. `git clone https://github.com/bodhiproject/bodhi-server.git`
 2. `cd bodhi-server`
 3. `npm install`
 
-# Environment Setup
+## Run Locally
 
-You must specify certain attributes in a `.env` file at the root folder.
+### Environment Setup
+
+You must specify certain attributes in an `.env` file at the root folder.
 
 ```text
 NETWORK=[mainnet|testnet] (required)
-PROVIDER=[ipc|ws|http] (optional. use ws or http for local)
 SSL=[true|false] (required)
 SSL_KEY_PATH=/path/to/privkey.pem (only if SSL=true)
 SSL_CERT_PATH=/path/to/cert.pem (only if SSL=true)
+PROVIDER=[ipc|ws|http] (optional. use ws or http for local)
 DATA_DIR=/path/to/bodhi/data/dir (optional)
 LOG_LEVEL=debug (optional)
 ```
 
-# Running Server
+### Start Local
 
-## Start Docker
+```bash
+npm start
+```
+
+## Run Docker
+
+The docker-compose files are configured to be run on an Ubuntu Linux server. The servers run with a bound volume mount to your host machine at `/home/ubuntu/.bodhi`. It also uses the IPC Web3 provider so if you don't have a local geth node running with the IPC file at `/home/ubuntu/.naka/[mainnet|testnet]/geth.ipc` then it won't sync. [Running it locally](#run-locally) is preferred for development environments.
+
+### Start Docker
 
 ```bash
 cd docker/mainnet
 docker-compose up -d
 ```
 
-## Stop Docker
+### Stop Docker
 
 ```bash
 cd docker/mainnet
-docker-compose stop
+docker-compose down
 ```
 
-## Start Local
+## Copy Server Data From AWS
+
+These instructions are for copying the data from the remote AWS EC2 server to your local machine. Use [scp (secure copy)](https://haydenjames.io/linux-securely-copy-files-using-scp/) to copy the files directly to your local machine.
 
 ```bash
-npm start
+# -r recursively copies all the files.
+# -i ~/.ssh/bodhi_server.pem is the path to your .pem key.
+# ubuntu@52.8.119.5:/home/ubuntu/.bodhi is the remote destination to copy the files from.
+# . is the local destination to copy the files to. in this case, it will copy it to your current dir.
+$ scp -r -i ~/.ssh/bodhi_server.pem ubuntu@52.8.119.5:/home/ubuntu/.bodhi .
 ```
 
-# Copying Server Data
-
-These instructions are for copying the data from the remote server to your local machine.
-
-1. Login to remote server
-
-2. `cd bodhi-server/scripts`
-
-3. I've been copying to `~/.bodhi`. The following example will copy the entire Docker volume's data to ~/.bodhi.
-
-        # Example: ./backup-volume.sh $DOCKER_VOL_NAME $DEST_PATH
-        $ ./backup-volume.sh testnet_bodhi-server-testnet ~/.bodhi
-
-4. In your local terminal instance, go to the path you want to copy the files to. This example is going to copy the `nedb` folder to my `bodhi-server/data/testnet/nedb`.
-
-        $ cd bodhi-server/data/testnet
-        $ rm -rf nedb
-
-        # The -i ~/.ssh/nakabase.pem should point to where you keep your server credentials key
-        $ scp -r -i ~/.ssh/nakabase.pem ubuntu@54.67.22.227:/home/ubuntu/.bodhi/_data/testnet/nedb .
-
-5. You should now have the copied files in your folder.
-
-
-# GraphQL
+## GraphQL
 
 To play around in the GraphQL playground, go to:
 
