@@ -64,6 +64,10 @@ cd docker/mainnet
 docker-compose down
 ```
 
+### Remote GraphQL Playground
+
+See URLs [here](https://docs.nakachain.org/docs/bodhi-metadata/#graphql).
+
 ## Copy Server Data From AWS
 
 These instructions are for copying the data from the remote AWS EC2 server to your local machine. Use [scp (secure copy)](https://haydenjames.io/linux-securely-copy-files-using-scp/) to copy the files directly to your local machine.
