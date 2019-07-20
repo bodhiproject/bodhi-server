@@ -5,7 +5,7 @@
 ## Prerequisites
 
 1. Nix-based OS
-2. Node 10 installed
+2. Node 10
 3. Docker (if running containerized version)
 
 ## Installation
