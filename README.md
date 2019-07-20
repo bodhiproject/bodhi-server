@@ -36,6 +36,16 @@ LOG_LEVEL=debug (optional)
 npm start
 ```
 
+### Local GraphQL Playground
+
+To play around in the GraphQL playground, go to:
+
+1. Go to the GraphQL Playground at `localhost:8888/graphql` (port 9999 for testnet)
+
+2. Click on `SCHEMA` button on the right side
+
+3. Browse through all the queries, mutations, or subscriptions
+
 ## Run Docker
 
 The docker-compose files are configured to be run on an Ubuntu Linux server. The servers run with a bound volume mount to your host machine at `/home/ubuntu/.bodhi`. It also uses the IPC Web3 provider so if you don't have a local geth node running with the IPC file at `/home/ubuntu/.naka/[mainnet|testnet]/geth.ipc` then it won't sync. [Running it locally](#run-locally) is preferred for development environments.
@@ -65,13 +75,3 @@ These instructions are for copying the data from the remote AWS EC2 server to yo
 # . is the local destination to copy the files to. in this case, it will copy it to your current dir.
 $ scp -r -i ~/.ssh/bodhi_server.pem ubuntu@52.8.119.5:/home/ubuntu/.bodhi .
 ```
-
-## GraphQL
-
-To play around in the GraphQL playground, go to:
-
-1. Go to the GraphQL Playground at `localhost:8888/graphql` (port 9999 for testnet)
-
-2. Click on `SCHEMA` button on the right side
-
-3. Browse through all the queries, mutations, or subscriptions
