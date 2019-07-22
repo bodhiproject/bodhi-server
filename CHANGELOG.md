@@ -8,6 +8,7 @@
 - [#286] - Add address name service
 - [#293] - Fix Event sync parser tests
 - [#294] - Update readme for copying data
+- [#296] - Setup Nakabase API key for Docker
 - [#300] - Fix http provider error
 
 ## 6.2.0
