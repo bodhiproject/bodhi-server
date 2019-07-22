@@ -20,15 +20,15 @@
 
 You must specify certain attributes in an `.env` file at the root folder.
 
-```text
-NETWORK=[mainnet|testnet] (required)
-NAKABASE_API_KEY=your_api_key (required)
-SSL=[true|false] (required)
-SSL_KEY_PATH=/path/to/privkey.pem (only if SSL=true)
-SSL_CERT_PATH=/path/to/cert.pem (only if SSL=true)
-PROVIDER=[ipc|ws|http] (optional. use ws or http for local)
-DATA_DIR=/path/to/bodhi/data/dir (optional)
-LOG_LEVEL=debug (optional)
+```bash
+NETWORK=[mainnet|testnet] # required
+NAKABASE_API_KEY=your_api_key # required
+SSL=[true|false] # required
+SSL_KEY_PATH=/path/to/privkey.pem # only if SSL=true
+SSL_CERT_PATH=/path/to/cert.pem # only if SSL=true
+PROVIDER=[ipc|ws|http] # optional. use ws or http for local
+DATA_DIR=/path/to/bodhi/data/dir # optional
+LOG_LEVEL=debug # optional
 ```
 
 ### Start Local
@@ -56,9 +56,9 @@ The docker-compose files are configured to be run on an Ubuntu Linux server. The
 1. Add `puti.io.pem` and `puti.io.key` keys to `/creds`
 2. Add `.env` to same path as `docker-compose.yml` location
 
-```text
-NAKABASE_API_KEY=your_api_key (required)
-```
+    ```bash
+    NAKABASE_API_KEY=your_api_key # required
+    ```
 
 ### Start Docker
 
