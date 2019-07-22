@@ -54,7 +54,7 @@ The docker-compose files are configured to be run on an Ubuntu Linux server. The
 ### Docker Environment Setup
 
 1. Add `puti.io.pem` and `puti.io.key` keys to `/creds`
-2. Add `.env` to same path as `docker-compose.yml` location
+2. Add `.env` to same path as `docker-compose.yml` location:
 
     ```bash
     NAKABASE_API_KEY=your_api_key # required
