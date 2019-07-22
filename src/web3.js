@@ -66,7 +66,7 @@ const getHttpProvider = () => {
     uri = CONFIG.HTTP_PROVIDER_MAINNET;
     msg = 'Web3 HTTP connected to Mainnet';
   } else {
-    uri = CONFIG.HTTP_PROVIDER_MAINNET;
+    uri = CONFIG.HTTP_PROVIDER_TESTNET;
     msg = 'Web3 HTTP connected to Testnet';
   }
 

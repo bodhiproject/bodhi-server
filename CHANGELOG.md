@@ -7,6 +7,7 @@
 - [#285] - Remove start_block.dat for starting sync at right block
 - [#286] - Add address name service
 - [#294] - Update readme for copying data
+- [#300] - Fix http provider error
 
 ## 6.2.0
 
