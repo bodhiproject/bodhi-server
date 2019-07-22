@@ -14,11 +14,9 @@ module.exports = {
   async resolveAddress(address) {
     try {
       if (isUndefined(address)) throw TypeError('address is not defined');
-      const { data } = await axios.get(`${getNakaBaseUrl()}/resolve-address`, {
-        params: {
-          address,
-          apikey: CONFIG.NAKABASE_API_KEY,
-        },
+      const { data } = await axios.post(`${getNakaBaseUrl()}/resolve-address`, {
+        address,
+        apikey: CONFIG.API_KEY,
       });
       return data;
     } catch (err) {
