@@ -22,6 +22,7 @@ You must specify certain attributes in an `.env` file at the root folder.
 
 ```text
 NETWORK=[mainnet|testnet] (required)
+NAKABASE_API_KEY=your_api_key (required)
 SSL=[true|false] (required)
 SSL_KEY_PATH=/path/to/privkey.pem (only if SSL=true)
 SSL_CERT_PATH=/path/to/cert.pem (only if SSL=true)
