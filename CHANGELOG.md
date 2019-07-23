@@ -8,6 +8,7 @@
 - [#286] - Add address name service
 - [#294] - Update readme for copying data
 - [#300] - Fix http provider error
+- [#301] - Fix Migration 2 error on mainnet
 
 ## 6.2.0
 
