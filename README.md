@@ -1,6 +1,6 @@
 # Bodhi Server
 
-[![Build Status](https://travis-ci.org/bodhiproject/bodhi-server.svg?branch=master)](https://travis-ci.org/bodhiproject/bodhi-server)
+[https://gitlab.com/nakachain/bodhi-server/badges/master/pipeline.svg](https://gitlab.com/nakachain/bodhi-server/badges/master/pipeline.svg)
 
 ## Prerequisites
 
