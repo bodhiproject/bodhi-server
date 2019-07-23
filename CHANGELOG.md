@@ -10,6 +10,7 @@
 - [#294] - Update readme for copying data
 - [#296] - Setup Nakabase API key for Docker
 - [#300] - Fix http provider error
+- [#302] - Add Gitlab config
 
 ## 6.2.0
 
