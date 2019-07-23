@@ -7,7 +7,7 @@ const MultipleResultsEventApi = require('../../api/multiple-results-event');
 const EventLeaderboard = require('../../models/event-leaderboard');
 const GlobalLeaderboard = require('../../models/global-leaderboard');
 
-const PROMISE_CONCURRENCY_LIMIT = 15;
+const PROMISE_CONCURRENCY_LIMIT = 1;
 const limit = pLimit(PROMISE_CONCURRENCY_LIMIT);
 
 async function migration2(next) {

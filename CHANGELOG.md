@@ -10,6 +10,7 @@
 - [#294] - Update readme for copying data
 - [#296] - Setup Nakabase API key for Docker
 - [#300] - Fix http provider error
+- [#301] - Fix Migration 2 error on mainnet
 
 ## 6.2.0
 
