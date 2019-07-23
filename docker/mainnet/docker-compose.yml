@@ -9,6 +9,8 @@ services:
     build:
       context: ../../
       dockerfile: ./docker/Dockerfile
+      args:
+        NAKABASE_API_KEY: ${NAKABASE_API_KEY}
     ports:
       - 8888:8888
     environment:

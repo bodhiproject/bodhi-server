@@ -17,7 +17,7 @@ module.exports = {
       const { data } = await axios.get(`${getNakaBaseUrl()}/resolve-address`, {
         params: {
           address,
-          apikey: CONFIG.API_KEY,
+          apikey: CONFIG.NAKABASE_API_KEY,
         },
       });
       return data;

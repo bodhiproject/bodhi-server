@@ -14,20 +14,21 @@
 2. `cd bodhi-server`
 3. `npm install`
 
-## Run Locally
+## Run Local
 
-### Environment Setup
+### Local Environment Setup
 
 You must specify certain attributes in an `.env` file at the root folder.
 
-```text
-NETWORK=[mainnet|testnet] (required)
-SSL=[true|false] (required)
-SSL_KEY_PATH=/path/to/privkey.pem (only if SSL=true)
-SSL_CERT_PATH=/path/to/cert.pem (only if SSL=true)
-PROVIDER=[ipc|ws|http] (optional. use ws or http for local)
-DATA_DIR=/path/to/bodhi/data/dir (optional)
-LOG_LEVEL=debug (optional)
+```bash
+NETWORK=[mainnet|testnet] # required
+NAKABASE_API_KEY=your_api_key # required
+SSL=[true|false] # required
+SSL_KEY_PATH=/path/to/privkey.pem # only if SSL=true
+SSL_CERT_PATH=/path/to/cert.pem # only if SSL=true
+PROVIDER=[ipc|ws|http] # optional. use ws or http for local
+DATA_DIR=/path/to/bodhi/data/dir # optional
+LOG_LEVEL=debug # optional
 ```
 
 ### Start Local
@@ -49,6 +50,15 @@ To play around in the GraphQL playground, go to:
 ## Run Docker
 
 The docker-compose files are configured to be run on an Ubuntu Linux server. The servers run with a bound volume mount to your host machine at `/home/ubuntu/.bodhi`. It also uses the IPC Web3 provider so if you don't have a local geth node running with the IPC file at `/home/ubuntu/.naka/[mainnet|testnet]/geth.ipc` then it won't sync. [Running it locally](#run-locally) is preferred for development environments.
+
+### Docker Environment Setup
+
+1. Add `puti.io.pem` and `puti.io.key` keys to `/creds`
+2. Add `.env` to same path as `docker-compose.yml` location:
+
+    ```bash
+    NAKABASE_API_KEY=your_api_key # required
+    ```
 
 ### Start Docker
 
