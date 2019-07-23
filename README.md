@@ -1,6 +1,6 @@
 # Bodhi Server
 
-https://gitlab.com/nakachain/bodhi-server/badges/master/pipeline.svg
+[![pipeline status](https://gitlab.com/nakachain/bodhi-project/badges/master/pipeline.svg)](https://gitlab.com/nakachain/bodhi-project/commits/master)
 
 ## Prerequisites
 
