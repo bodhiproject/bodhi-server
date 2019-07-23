@@ -1,6 +1,7 @@
 # Bodhi Server
 
 [![pipeline status](https://gitlab.com/nakachain/bodhi-server/badges/master/pipeline.svg)](https://gitlab.com/nakachain/bodhi-server/commits/master)
+[![coverage report](https://gitlab.com/nakachain/bodhi-server/badges/master/coverage.svg)](https://gitlab.com/nakachain/bodhi-server/commits/master)
 
 ## Prerequisites
 
