@@ -3,6 +3,14 @@ const web3 = require('../web3');
 const TransactionReceipt = require('../models/tx-receipt');
 
 /**
+ * Returns a new contract instance given the ABI and address.
+ * @param {object} abi Contract ABI
+ * @param {string} address Contract address
+ * @return {Contract} Web3 Contract instance
+ */
+const getContract = (abi, address) => new web3.eth.Contract(abi, address);
+
+/**
  * Gets the pending tx and conforms it to the TransactionReceipt model.
  * @param {string} txid Transaction ID
  * @return {TransactionReceipt} Transaction receipt
@@ -58,6 +66,7 @@ const sumArrayBN = (arr) => {
 };
 
 module.exports = {
+  getContract,
   getTransaction,
   getTransactionReceipt,
   sumBN,

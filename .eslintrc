@@ -14,8 +14,10 @@
     "no-unused-vars": "warn",
     "no-use-before-define": "off",
     "object-curly-newline": [
-      "error", 
-      { "ImportDeclaration": "never" }
+      "warn", 
+      { 
+        "ImportDeclaration": "never", 
+      }
     ]
   }
 }

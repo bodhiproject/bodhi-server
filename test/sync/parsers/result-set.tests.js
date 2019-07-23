@@ -1,6 +1,7 @@
 const { assert } = require('chai');
 const parseResultSet = require('../../../src/sync/parsers/result-set');
 const { TX_STATUS } = require('../../../src/constants');
+const { equalIgnoreCase } = require('../../assert-utils');
 
 const log = {
   address: '0x9d4768102f28af464355a46b839a06336bc64725',
@@ -20,13 +21,38 @@ const log = {
 describe('sync/parsers/result-set', () => {
   it('parses the log', () => {
     const resultSet = parseResultSet({ log });
-    assert.equal(resultSet.txid, '0x869ab1d2f693a2c760834e9a74f18bd6fc33548b6b1d82cf08365ad8f541dbd0');
+
+    assert.isString(resultSet.txid);
+    equalIgnoreCase(
+      resultSet.txid,
+      '0x869ab1d2f693a2c760834e9a74f18bd6fc33548b6b1d82cf08365ad8f541dbd0',
+    );
+
+    assert.isString(resultSet.txStatus);
     assert.equal(resultSet.txStatus, TX_STATUS.SUCCESS);
+
+    assert.isNumber(resultSet.blockNum);
     assert.equal(resultSet.blockNum, 3772813);
-    assert.equal(resultSet.eventAddress, '0x9d4768102f28af464355a46b839a06336bc64725');
-    assert.equal(resultSet.centralizedOracleAddress, '0x47ba776b3ed5d514d3e206ffee72fa483baffa7e');
+
+    assert.isString(resultSet.eventAddress);
+    equalIgnoreCase(
+      resultSet.eventAddress,
+      '0x9d4768102f28af464355a46b839a06336bc64725',
+    );
+
+    assert.isString(resultSet.centralizedOracleAddress);
+    equalIgnoreCase(
+      resultSet.centralizedOracleAddress,
+      '0x47ba776b3ed5d514d3e206ffee72fa483baffa7e',
+    );
+
+    assert.isNumber(resultSet.resultIndex);
     assert.equal(resultSet.resultIndex, 0);
+
+    assert.isString(resultSet.amount);
     assert.equal(resultSet.amount, '10000000000');
+
+    assert.isNumber(resultSet.eventRound);
     assert.equal(resultSet.eventRound, 0);
   });
 });
